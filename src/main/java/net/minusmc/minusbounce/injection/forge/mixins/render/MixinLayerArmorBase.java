@@ -15,7 +15,7 @@ public class MixinLayerArmorBase {
 
     @Inject(method = {"doRenderLayer"}, at = {@At("HEAD")}, cancellable = true)
     public void doRenderLayer(final EntityLivingBase entitylivingbaseIn, final float limbSwing, final float limbSwingAmount, final float partialTicks, final float ageInTicks, final float netHeadYaw, final float headPitch, final float scale, final CallbackInfo ci) {
-        if (PlayerEdit.customModel.get() && (MinusBounce.moduleManager.getModule(PlayerEdit.class).onlyMe.get() && entitylivingbaseIn == Minecraft.getMinecraft().thePlayer || LiquidBounce.moduleManager.getModule(PlayerEdit.class).onlyOther.get() && entitylivingbaseIn != Minecraft.getMinecraft().thePlayer) && LiquidBounce.moduleManager.getModule(PlayerEdit.class).getState()) {
+        if (PlayerEdit.customModel.get() && (MinusBounce.moduleManager.getModule(PlayerEdit.class).onlyMe.get() && entitylivingbaseIn == Minecraft.getMinecraft().thePlayer || MinusBounce.moduleManager.getModule(PlayerEdit.class).onlyOther.get() && entitylivingbaseIn != Minecraft.getMinecraft().thePlayer) && MinusBounce.moduleManager.getModule(PlayerEdit.class).getState()) {
             ci.cancel();
         }
     }
