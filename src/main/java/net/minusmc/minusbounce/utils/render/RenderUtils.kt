@@ -614,6 +614,56 @@ object RenderUtils : MinecraftInstance() {
         GL11.glPopMatrix()
     }
 
+    fun drawRoundedGradientRectCorner(x: Float, y: Float, x1: Float, y1: Float, radius: Float, color: Int, color2: Int) {
+        var x = x
+        var y = y
+        var x1 = x1
+        var y1 = y1
+        ColorUtils.setColour(-1)
+        GL11.glEnable(GL_BLEND)
+        GL11.glDisable(GL_TEXTURE_2D)
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+        GL11.glEnable(GL_LINE_SMOOTH)
+        glShadeModel(GL_SMOOTH)
+        glPushAttrib(0)
+        glScaled(0.5, 0.5, 0.5)
+        x *= 2.0.toFloat()
+        y *= 2.0.toFloat()
+        x1 *= 2.0.toFloat()
+        y1 *= 2.0.toFloat()
+        GL11.glEnable(GL_BLEND)
+        GL11.glDisable(GL_TEXTURE_2D)
+        ColorUtils.setColour(color)
+        GL11.glEnable(GL_LINE_SMOOTH)
+        glShadeModel(GL_SMOOTH)
+        glBegin(6)
+        var i: Int
+        i = 0
+        while (i <= 90) { glVertex2d(x + radius + Math.sin(i * Math.PI / 180.0) * radius * -1.0, y + radius + Math.cos(i * Math.PI / 180.0) * radius * -1.0)i += 3 }
+        ColorUtils.setColour(color)
+        i = 90
+        while (i <= 180) { glVertex2d(x + radius + Math.sin(i * Math.PI / 180.0) * radius * -1.0, y1 - radius + Math.cos(i * Math.PI / 180.0) * radius * -1.0)i += 3 }
+        ColorUtils.setColour(color2)
+        i = 0
+        while (i <= 90) { glVertex2d(x1 - radius + Math.sin(i * Math.PI / 180.0) * radius, y1 - radius + Math.cos(i * Math.PI / 180.0) * radius)i += 3 }
+        ColorUtils.setColour(color2)
+        i = 90
+        while (i <= 180) { glVertex2d(x1 - radius + Math.sin(i * Math.PI / 180.0) * radius, y + radius + Math.cos(i * Math.PI / 180.0) * radius)i += 3 }
+        glEnd()
+        GL11.glEnable(GL_TEXTURE_2D)
+        GL11.glDisable(GL_BLEND)
+        GL11.glDisable(GL_LINE_SMOOTH)
+        GL11.glDisable(GL_BLEND)
+        GL11.glEnable(GL_TEXTURE_2D)
+        glScaled(2.0, 2.0, 2.0)
+        glPopAttrib()
+        GL11.glEnable(GL_TEXTURE_2D)
+        GL11.glDisable(GL_BLEND)
+        GL11.glDisable(GL_LINE_SMOOTH)
+        glShadeModel(GL_FLAT)
+        ColorUtils.setColour(-1)
+    }
+
     fun drawRoundedGradientOutlineCorner(x: Float, y: Float, x1: Float, y1: Float, width: Float, radius: Float, color: Int, color2: Int) {
         var x = x
         var y = y
