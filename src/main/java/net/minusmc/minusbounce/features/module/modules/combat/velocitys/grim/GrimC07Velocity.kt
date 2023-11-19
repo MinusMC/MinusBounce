@@ -2,8 +2,8 @@ package net.minusmc.minusbounce.features.module.modules.combat.velocitys.grim
 
 import net.minusmc.minusbounce.event.*
 import net.minusmc.minusbounce.features.module.modules.combat.velocitys.VelocityMode
-import net.minusmc.minusbounce.features.value.BoolValue
-import net.minusmc.minusbounce.features.value.IntegerValue
+import net.minusmc.minusbounce.value.BoolValue
+import net.minusmc.minusbounce.value.IntegerValue
 import net.minusmc.minusbounce.utils.timer.MSTimer
 import net.minecraft.network.play.client.C03PacketPlayer
 import net.minecraft.network.play.client.C07PacketPlayerDigging
@@ -15,16 +15,11 @@ import net.minecraft.util.EnumFacing
 import net.minecraft.world.World
 
 class GrimC07Velocity : VelocityMode("GrimC07") {
-    private val alwaysValue = BoolValue("${valuePrefix}Always", true)
-
-    private val onlyAirValue = BoolValue("${valuePrefix}OnlyBreakAir", true)
-
-    private val worldValue = BoolValue("${valuePrefix}BreakOnWorld", false)
-
-    private val sendC03Value = BoolValue("${valuePrefix}SendC03", false).displayable { false } // bypass latest but flag timer
-
-    private val C06Value = BoolValue("${valuePrefix}Send1.17C06", false).displayable { sendC03Value.get() } // need via to 1.17+
-
+    private val alwaysValue = BoolValue("Always", true)
+    private val onlyAirValue = BoolValue("OnlyBreakAir", true)
+    private val worldValue = BoolValue("BreakOnWorld", false)
+    private val sendC03Value = BoolValue("SendC03", false).displayable { false } // bypass latest but flag timer
+    private val C06Value = BoolValue("Send1.17C06", false).displayable { sendC03Value.get() } // need via to 1.17+
     private val flagPauseValue = IntegerValue("FlagPause-Time", 50, 0, 5000)
 
     var gotVelo = false
