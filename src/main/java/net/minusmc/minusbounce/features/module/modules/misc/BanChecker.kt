@@ -73,23 +73,16 @@ class BanChecker : Module() {
                         if (notifyStaff.get() && !(onlyOnHypixel.get() && !isOnHypixel))
                             if (staffLastMin > 0)
                                 LiquidBounce.hud.addNotification(
-                                        Notification(
-                                                "BanChecker",
-                                                "Staffs banned $staffLastMin players in the last minute!",
-                                                Notification.Type.WARNING,
-                                                1500L,
-                                                alertTime.get() * 500
-                                        )
-                                )
+                                        Notification("Staffs banned $staffLastMin players in the last minute!", Notification.Type.WARNING, 1500L, alertTime.get() * 500))
                             else if (nofifyWhenNoBan.get())
-                                LiquidBounce.hud.addNotification(Notification("BanChecker", "Staffs didn't ban any player in the last minute.", Notification.Type.SUCCESS, 1500L, alertTime.get() * 500))
+                                LiquidBounce.hud.addNotification(Notification("Staffs didn't ban any player in the last minute.", Notification.Type.SUCCESS, 1500L, alertTime.get() * 500))
 
                         if (notifyWatchdog.get() && !(onlyOnHypixel.get() && !isOnHypixel))
                             if (watchdogLastMin > 0)
-                                LiquidBounce.hud.addNotification(Notification("BanChecker", "Watchdog banned $watchdogLastMin players in the last minute!", Notification.Type.WARNING, 1500L, alertTime.get() * 500))
+                                LiquidBounce.hud.addNotification(Notification("Watchdog banned $watchdogLastMin players in the last minute!", Notification.Type.WARNING, 1500L, alertTime.get() * 500))
                             else if (nofifyWhenNoBan.get())
                                 LiquidBounce.hud.addNotification(
-                                        Notification("BanChecker", "Watchdog didn't ban any player in the last minute.", Notification.Type.SUCCESS, 1500L, alertTime.get() * 500))
+                                        Notification("Watchdog didn't ban any player in the last minute.", Notification.Type.SUCCESS, 1500L, alertTime.get() * 500))
                     }
                 }
             } catch (e: Exception) {

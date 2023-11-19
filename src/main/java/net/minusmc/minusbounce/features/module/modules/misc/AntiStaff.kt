@@ -59,7 +59,7 @@ class AntiStaff : Module() {
         if (chat.get())
             chat("[AntiStaff] Detected staff: $name$msg")
         if (notify.get())
-            MinusBounce.hud.addNotification(Notification("AntiStaff", "Detected staff: $name$msg", Notification.Type.ERROR, 4000L))
+            MinusBounce.hud.addNotification(Notification("Detected staff: $name$msg", Notification.Type.ERROR, 4000L))
         if (leave.get())
             mc.thePlayer.sendChatMessage("/leave")
 
