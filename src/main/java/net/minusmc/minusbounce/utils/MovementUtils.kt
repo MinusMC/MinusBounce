@@ -366,4 +366,36 @@ object MovementUtils : MinecraftInstance() {
 
     val movingYaw: Float
         get() = (direction * 180f / Math.PI).toFloat()
+
+    fun setMoveSpeed(moveSpeed: Double, yaw: Float, strafe: Double, forward: Double) {
+        var yaw = yaw
+        var strafe = strafe
+        var forward = forward
+        if (forward != 0.0) {
+            if (strafe > 0.0) {
+                yaw += (if (forward > 0.0) -45 else 45).toFloat()
+            } else if (strafe < 0.0) {
+                yaw += (if (forward > 0.0) 45 else -45).toFloat()
+            }
+            strafe = 0.0
+            if (forward > 0.0) {
+                forward = 1.0
+            } else if (forward < 0.0) {
+                forward = -1.0
+            }
+        }
+        if (strafe > 0.0) {
+            strafe = 1.0
+        } else if (strafe < 0.0) {
+            strafe = -1.0
+        }
+        val mx: Double = Math.cos(Math.toRadians(yaw + 90.0f))
+        val mz: Double = Math.sin(Math.toRadians(yaw + 90.0f))
+        mc.thePlayer.motionX = forward * moveSpeed * mx + strafe * moveSpeed * mz
+        mc.thePlayer.motionZ = forward * moveSpeed * mz - strafe * moveSpeed * mx
+    }
+
+    fun setMoveSpeed(moveSpeed: Double) {
+        setMoveSpeed(moveSpeed, mc.thePlayer.rotationYaw, mc.thePlayer.movementInput.moveStrafe, mc.thePlayer.movementInput.moveForward)
+    }
 }
