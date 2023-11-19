@@ -1,24 +1,24 @@
 /*
- * FDPClient Hacked Client
+ * LiquidBounce Hacked Client
  * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge by LiquidBounce.
- * https://github.com/SkidderMC/FDPClient/
+ * https://github.com/SkidderMC/LiquidBounce/
  */
 package net.minusmc.minusbounce.features.module.modules.render
 
-import net.ccbluex.liquidbounce.MinusBounce
-import net.ccbluex.liquidbounce.event.EventTarget
-import net.ccbluex.liquidbounce.event.Render3DEvent
-import net.ccbluex.liquidbounce.features.module.Module
-import net.ccbluex.liquidbounce.features.module.ModuleCategory
-import net.ccbluex.liquidbounce.features.module.ModuleInfo
-import net.ccbluex.liquidbounce.features.module.modules.other.AntiBot
-import net.ccbluex.liquidbounce.features.module.modules.other.Teams
-import net.ccbluex.liquidbounce.ui.font.Fonts
-import net.ccbluex.liquidbounce.utils.EntityUtils
-import net.ccbluex.liquidbounce.utils.render.ColorUtils
-import net.ccbluex.liquidbounce.utils.render.RenderUtils.*
-import net.ccbluex.liquidbounce.utils.render.RenderUtils
-import net.ccbluex.liquidbounce.value.*
+import net.minusmc.minusbounce.LiquidBounce
+import net.minusmc.minusbounce.event.EventTarget
+import net.minusmc.minusbounce.event.Render3DEvent
+import net.minusmc.minusbounce.features.module.Module
+import net.minusmc.minusbounce.features.module.ModuleCategory
+import net.minusmc.minusbounce.features.module.ModuleInfo
+import net.minusmc.minusbounce.features.module.modules.misc.AntiBot
+import net.minusmc.minusbounce.features.module.modules.world.Teams
+import net.minusmc.minusbounce.ui.font.Fonts
+import net.minusmc.minusbounce.utils.EntityUtils
+import net.minusmc.minusbounce.utils.render.ColorUtils
+import net.minusmc.minusbounce.utils.render.RenderUtils.*
+import net.minusmc.minusbounce.utils.render.RenderUtils
+import net.minusmc.minusbounce.value.*
 import net.minecraft.client.renderer.GlStateManager.resetColor
 import net.minecraft.entity.EntityLivingBase
 import org.lwjgl.opengl.GL11.*
@@ -26,23 +26,23 @@ import java.awt.Color
 import java.text.DecimalFormat
 import kotlin.math.roundToInt
 
-@ModuleInfo(name = "FollowTargetHUD", description = "autumn skid.", category = ModuleCategory.RENDER)
+@ModuleInfo(name = "FollowTargetHud", description = "TargetHUD", category = ModuleCategory.RENDER)
 class FollowTargetHUD : Module() {
 
     private val zoomIn = BoolValue("ZoomIn", true)
-    private val zoomTicks = IntegerValue("ZoomInTicks", 4, 2, 15).displayable {zoomIn.get()}
+    private val zoomTicks = IntegerValue("ZoomInTicks", 4, 2, 15) {zoomIn.get()}
     private val modeValue = ListValue("Mode", arrayOf("Juul", "Jello", "Material", "Material2", "Arris", "FDP"), "Juul")
     private val fontValue = FontValue("Font", Fonts.font40)
-    private val materialShadow = BoolValue("MaterialShadow", false).displayable {modeValue.equals("Material") || modeValue.equals("Material2")}
-    private val fdpVertical = BoolValue("FDPVertical", false).displayable {modeValue.equals("FDP")}
-    private val fdpText = BoolValue("FDPDrawText", true).displayable {modeValue.equals("FDP") && !fdpVertical.get()}
-    private val fdpRed = BoolValue("FDPRed", false).displayable {modeValue.equals("FDP")}
+    private val materialShadow = BoolValue("MaterialShadow", false) {modeValue.equals("Material") || modeValue.equals("Material2")}
+    private val fdpVertical = BoolValue("FDPVertical", false) {modeValue.equals("FDP")}
+    private val fdpText = BoolValue("FDPDrawText", true) {modeValue.equals("FDP") && !fdpVertical.get()}
+    private val fdpRed = BoolValue("FDPRed", false) {modeValue.equals("FDP")}
     private val smoothMove = BoolValue("SmoothHudMove", true)
-    private val smoothValue = FloatValue("SmoothHudMoveValue", 5.2f, 1f, 8f).displayable { smoothMove.get() }
+    private val smoothValue = FloatValue("SmoothHudMoveValue", 5.2f, 1f, 8f) { smoothMove.get() }
     private val smoothRot = BoolValue("SmoothHudRotations", true)
-    private val rotSmoothValue = FloatValue("SmothHudRotationValue", 2.1f, 1f, 6f). displayable {smoothRot.get() }
-    private val jelloColorValue = BoolValue("JelloHPColor", true).displayable { modeValue.equals("Jello") }
-    private val jelloAlphaValue = IntegerValue("JelloAlpha", 170, 0, 255).displayable { modeValue.equals("Jello") }
+    private val rotSmoothValue = FloatValue("SmothHudRotationValue", 2.1f, 1f, 6f) {smoothRot.get() }
+    private val jelloColorValue = BoolValue("JelloHPColor", true) { modeValue.equals("Jello") }
+    private val jelloAlphaValue = IntegerValue("JelloAlpha", 170, 0, 255) { modeValue.equals("Jello") }
     private val scaleValue = FloatValue("Scale", 1F, 1F, 4F)
     private val staticScale = BoolValue("StaticScale", false)
     private val translateY = FloatValue("TanslateY", 0.55F,-2F,2F)
@@ -77,8 +77,8 @@ class FollowTargetHUD : Module() {
     private fun getPlayerName(entity: EntityLivingBase): String {
         val name = entity.displayName.formattedText
         var pre = ""
-        val teams = FDPClient.moduleManager[Teams::class.java]!!
-        if (FDPClient.fileManager.friendsConfig.isFriend(entity.name)) {
+        val teams = LiquidBounce.moduleManager[Teams::class.java]!!
+        if (LiquidBounce.fileManager.friendsConfig.isFriend(entity.name)) {
             pre = "$pre§b[Friend] "
         }
         if (teams.isInYourTeam(entity)) {
@@ -88,7 +88,7 @@ class FollowTargetHUD : Module() {
             pre = "$pre§e[BOT] "
         }
         if (!AntiBot.isBot(entity) && !teams.isInYourTeam(entity)) {
-            pre = if (FDPClient.fileManager.friendsConfig.isFriend(entity.name)) {
+            pre = if (LiquidBounce.fileManager.friendsConfig.isFriend(entity.name)) {
                 "§b[Friend] §c"
             } else {
                 "§c"
@@ -100,15 +100,15 @@ class FollowTargetHUD : Module() {
     private fun renderNameTag(entity: EntityLivingBase, tag: String) {
         xChange = translateX.get() * 20
 
-        if (entity != FDPClient.combatManager.target && entity.getName() != entityKeep) {
+        if (entity != LiquidBounce.combatManager.target && entity.getName() != entityKeep) {
             return
-        } else if ( entity == FDPClient.combatManager.target) {
+        } else if ( entity == LiquidBounce.combatManager.target) {
             entityKeep = entity.getName()
             targetTicks++
             if (targetTicks >= zoomTicks.get() + 2) {
                 targetTicks = zoomTicks.get() + 1
             }
-        } else if (FDPClient.combatManager.target == null) {
+        } else if (LiquidBounce.combatManager.target == null) {
             targetTicks--
             if (targetTicks <= -1) {
                 targetTicks = 0
@@ -193,8 +193,8 @@ class FollowTargetHUD : Module() {
 
                 // render bg
                 glScalef(-scale * 2, -scale * 2, scale * 2)
-                drawRoundedCornerRect(-120f + xChange, -16f, -50f + xChange, 10f, 5f, Color(64, 64, 64, 255).rgb)
-                drawRoundedCornerRect(-110f + xChange, 0f,   -20f + xChange, 35f, 5f, Color(96, 96, 96, 255).rgb)
+                drawRoundedRect(-120f + xChange, -16f, -50f + xChange, 10f, 5f, Color(64, 64, 64, 255).rgb)
+                drawRoundedRect(-110f + xChange, 0f,   -20f + xChange, 35f, 5f, Color(96, 96, 96, 255).rgb)
 
                 // draw strings
                 fontRenderer.drawString("Attacking", -105 + xChange.toInt(), -13, Color.WHITE.rgb)
@@ -205,8 +205,8 @@ class FollowTargetHUD : Module() {
                 fontRenderer.drawString(distanceString, -25 - fontRenderer.getStringWidth(distanceString).toInt() + xChange.toInt(), 10, Color.WHITE.rgb)
 
                 // draw health bars
-                drawRoundedCornerRect(-104f + xChange, 22f, -50f + xChange, 30f, 1f, Color(64, 64, 64, 255).rgb)
-                drawRoundedCornerRect(-104f + xChange, 22f, -104f + (healthPercent * 54) + xChange, 30f, 1f, Color.WHITE.rgb)
+                drawRoundedRect(-104f + xChange, 22f, -50f + xChange, 30f, 1f, Color(64, 64, 64, 255).rgb)
+                drawRoundedRect(-104f + xChange, 22f, -104f + (healthPercent * 54) + xChange, 30f, 1f, Color.WHITE.rgb)
 
             }
 
@@ -218,12 +218,12 @@ class FollowTargetHUD : Module() {
                     drawShadow(-40f + xChange, 0f, 40f + xChange, 29f)
                     drawRect(-40f + xChange, 0f, 40f + xChange, 29f, Color(72, 72, 72, 250).rgb)
                 } else {
-                    drawRoundedCornerRect(-40f + xChange, 0f, 40f + xChange, 29f, 5f, Color(72, 72, 72, 250).rgb)
+                    drawRoundedRect(-40f + xChange, 0f, 40f + xChange, 29f, 5f, Color(72, 72, 72, 250).rgb)
                 }
 
                 // draw health bars
-                drawRoundedCornerRect(-35f + xChange, 7f, -35f + (healthPercent * 70) + xChange, 12f, 2f, Color(10, 250, 10, 255).rgb)
-                drawRoundedCornerRect(-35f + xChange, 17f, -35f + ((entity.totalArmorValue / 20F) * 70) + xChange, 22f, 2f, Color(10, 10, 250, 255).rgb)
+                drawRoundedRect(-35f + xChange, 7f, -35f + (healthPercent * 70) + xChange, 12f, 2f, Color(10, 250, 10, 255).rgb)
+                drawRoundedRect(-35f + xChange, 17f, -35f + ((entity.totalArmorValue / 20F) * 70) + xChange, 22f, 2f, Color(10, 10, 250, 255).rgb)
 
             }
 
@@ -238,13 +238,13 @@ class FollowTargetHUD : Module() {
                     drawRect(-40f + xChange, 0f, 40f + xChange, 15f, Color(72, 72, 72, 250).rgb)
                     drawRect(-40f + xChange, 20f, 40f + xChange, 35f, Color(72, 72, 72, 250).rgb)
                 } else {
-                    drawRoundedCornerRect(-40f + xChange, 0f, 40f + xChange, 15f, 5f, Color(72, 72, 72, 250).rgb)
-                    drawRoundedCornerRect(-40f + xChange, 20f, 40f + xChange, 35f, 5f, Color(72, 72, 72, 250).rgb)
+                    drawRoundedRect(-40f + xChange, 0f, 40f + xChange, 15f, 5f, Color(72, 72, 72, 250).rgb)
+                    drawRoundedRect(-40f + xChange, 20f, 40f + xChange, 35f, 5f, Color(72, 72, 72, 250).rgb)
                 }
 
                 // draw health bars
-                drawRoundedCornerRect(-35f + xChange, 5f, -35f + (healthPercent * 70) + xChange, 10f, 2f, Color(10, 250, 10, 255).rgb)
-                drawRoundedCornerRect(-35f + xChange, 25f, -35f + ((entity.totalArmorValue / 20F) * 70) + xChange, 30f, 2f, Color(10, 10, 250, 255).rgb)
+                drawRoundedRect(-35f + xChange, 5f, -35f + (healthPercent * 70) + xChange, 10f, 2f, Color(10, 250, 10, 255).rgb)
+                drawRoundedRect(-35f + xChange, 25f, -35f + ((entity.totalArmorValue / 20F) * 70) + xChange, 30f, 2f, Color(10, 10, 250, 255).rgb)
 
             }
 
@@ -253,7 +253,7 @@ class FollowTargetHUD : Module() {
                 glScalef(-scale * 2, -scale * 2, scale * 2)
                 val hp = healthPercent
                 val additionalWidth = font.getStringWidth("${entity.name}  $hp hp").coerceAtLeast(75)
-                drawRoundedCornerRect(xChange, 0f, 45f + additionalWidth + xChange, 40f, 7f, Color(0, 0, 0, 110).rgb)
+                drawRoundedRect(xChange, 0f, 45f + additionalWidth + xChange, 40f, 7f, Color(0, 0, 0, 110).rgb)
 
                 // info text
                 font.drawString(entity.name, 40 + xChange.toInt(), 5, Color.WHITE.rgb)
@@ -278,10 +278,10 @@ class FollowTargetHUD : Module() {
 
                     if (fdpRed.get()) {
                         RenderUtils.drawRect(0f + xChange, 0f, addedLen + xChange, 47f, Color(212, 63, 63, 90).rgb)
-                        RenderUtils.drawRoundedCornerRect(0f + xChange, 0f, healthPercent * addedLen + xChange, 47f, 3f, Color(245, 52, 27, 90).rgb)
+                        RenderUtils.drawRoundedRect(0f + xChange, 0f, healthPercent * addedLen + xChange, 47f, 3f, Color(245, 52, 27, 90).rgb)
                     } else {
                         RenderUtils.drawRect(0f + xChange, 0f, addedLen + xChange, 47f, Color(0, 0, 0, 120).rgb)
-                        RenderUtils.drawRoundedCornerRect(0f + xChange, 0f, healthPercent * addedLen + xChange, 47f, 3f, Color(0, 0, 0, 90).rgb)
+                        RenderUtils.drawRoundedRect(0f + xChange, 0f, healthPercent * addedLen + xChange, 47f, 3f, Color(0, 0, 0, 90).rgb)
                     }
 
                     drawShadow(0f, 0f, addedLen + xChange, 47f)
@@ -294,10 +294,10 @@ class FollowTargetHUD : Module() {
                 } else {
                     if (fdpRed.get()) {
                         RenderUtils.drawRect(0f + xChange, 0f, 47f + xChange, 120f + xChange, Color(212, 63, 63, 90).rgb)
-                        RenderUtils.drawRoundedCornerRect(healthPercent*120f + xChange, 0f, 47f + xChange, 0f, 3f, Color(245, 52, 27, 90).rgb)
+                        RenderUtils.drawRoundedRect(healthPercent*120f + xChange, 0f, 47f + xChange, 0f, 3f, Color(245, 52, 27, 90).rgb)
                     } else {
                         RenderUtils.drawRect(0f + xChange, 0f, 47f + xChange, 120f, Color(0, 0, 0, 120).rgb)
-                        RenderUtils.drawRoundedCornerRect(0f + xChange, 0f, 47f + xChange, healthPercent * 120f, 3f, Color(0, 0, 0, 90).rgb)
+                        RenderUtils.drawRoundedRect(0f + xChange, 0f, 47f + xChange, healthPercent * 120f, 3f, Color(0, 0, 0, 90).rgb)
                     }
                 }
 
