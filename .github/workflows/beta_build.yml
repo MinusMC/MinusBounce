@@ -19,11 +19,14 @@ jobs:
           java-version: 8
           check-latest: true
       - name: Set env
-        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
-      - name: Test
-        run: |
-          echo $RELEASE_VERSION
-          echo ${{ env.RELEASE_VERSION }}
+        run: echo "VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+      - name: Python setup
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10' 
+      - name: Config repo
+        run:
+          - python config_releases.py
       # - uses: burrunan/gradle-cache-action@v1
       #   name: Build
       #   with:
