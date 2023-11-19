@@ -133,7 +133,7 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
      * @author CCBlueX
      */
     @Overwrite
-    public void onUpdateWalkingPlayer() {
+    public void onUpdateWalkingPlayer() { // entityactionevent = motionevent
         try {
             MotionEvent event = new MotionEvent(this.posX, this.getEntityBoundingBox().minY, this.posZ, this.rotationYaw, this.rotationPitch, this.onGround);
             MinusBounce.eventManager.callEvent(event);
@@ -163,6 +163,8 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
 
                 this.serverSneakState = sneaking;
             }
+
+            // neu ko dc thi nhin phase thu phat
 
             if (this.isCurrentViewEntity()) {
                 float yaw = event.getYaw();
