@@ -41,7 +41,7 @@ import kotlin.math.*
 @ModuleInfo(name = "Scaffold", description = "Automatically places blocks beneath your feet.", category = ModuleCategory.WORLD, keyBind = Keyboard.KEY_I)
 class Scaffold: Module() {
     // add scaffold modes? ex: telly, ninja, fruit, moonwalk?
-	private val placeableDelay = ListValue("PlaceableDelay", arrayOf("Normal", "Smart", "Snap", "Off"), "Normal")
+	private val placeableDelay = ListValue("PlaceableDelay", arrayOf("Normal", "Smart", "Off"), "Normal")
 	private val maxDelayValue: IntegerValue = object: IntegerValue("MaxDelay", 0, 0, 1000, "ms", {!placeableDelay.get().equals("off", true)}) {
         override fun onChanged(oldValue: Int, newValue: Int) {
             val i = minDelayValue.get()
@@ -447,9 +447,6 @@ class Scaffold: Module() {
                 else -> false
             }
 
-        if (placeableDelay.get() == "Snap" && mc.thePlayer.onGround)
-            return
-
         if (!rotationsValue.get().equals("None", true) && keepRotationValue.get() && lockRotation != null) {
             if (rotationsValue.get().equals("Spin", true)) {
                 spinYaw += speenSpeedValue.get()
@@ -487,9 +484,6 @@ class Scaffold: Module() {
     fun onStrafe(event: StrafeEvent) {
         lockRotation ?: return
         when (rotationStrafeValue.get().lowercase()) {
-
-            if (modeValue.get() == "Snap" && mc.thePlayer.onGround)
-                return
             "liquidbounce" -> {
                 val dif = ((MathHelper.wrapAngleTo180_float(mc.thePlayer.rotationYaw - lockRotation!!.yaw - 23.5f - 135) + 180) / 45).toInt()
                 val yaw = lockRotation!!.yaw
