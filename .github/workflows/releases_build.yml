@@ -30,8 +30,10 @@ jobs:
           job-id: jdk8
           arguments: build --no-build-cache
           gradle-version: wrapper
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v2
+      - name: Upload releases
+        uses: softprops/action-gh-release@v1
         with:
-          name: MinusBounce
-          path: build/libs/minusbounce-${{ env.VERSION }}.jar
+          files: |
+            build/libs/minusbounce-${{ env.VERSION }}.jar
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
