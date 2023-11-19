@@ -38,7 +38,7 @@ class AntiStaff : Module() {
         thread {
             staffs.addAll(HttpUtils.get(bmcstaffList).split(","))
 
-            ClientUtils.LOGGER.info("[Staff/main] $staffs")
+            ClientUtils.logger.info("[Staff/main] $staffs")
         }
     }
 
