@@ -6,6 +6,7 @@
 package net.minusmc.minusbounce.features.module.modules.movement
 
 import net.minusmc.minusbounce.MinusBounce
+import net.minusmc.minusbounce.features.module.modules.movement.Speed
 import net.minusmc.minusbounce.event.ClickWindowEvent
 import net.minusmc.minusbounce.event.EventState
 import net.minusmc.minusbounce.event.EventTarget

@@ -1,5 +1,6 @@
 package net.minusmc.minusbounce.features.special
 
+import net.minecraft.entity.EntityLiving
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.player.EntityPlayer
 import net.minusmc.minusbounce.MinusBounce
@@ -58,6 +59,16 @@ class CombatManager: MinecraftInstance(), Listenable {
 		attackedEntityList.clear()
 		target = null
 		inCombat = false
+	}
+
+	fun getNearByEntity(radius: Float): EntityLivingBase? {
+		return try {
+			mc.theWorld.loadedEntityList.filter {
+				mc.thePlayer.getDistanceToEntity(it) < radius && EntityUtils.isSelected(it, true)
+			}.minByOrNull { it.getDistanceToEntity(mc.thePlayer) } as EntityLivingBase
+		} catch (e: Exception) {
+			null
+		}
 	}
 
 	override fun handleEvents() = true

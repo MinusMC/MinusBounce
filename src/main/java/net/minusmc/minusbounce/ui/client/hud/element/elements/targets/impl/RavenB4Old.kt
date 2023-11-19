@@ -9,7 +9,7 @@ import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.entity.player.EntityPlayer
 import java.awt.Color
 
-class Raven(inst: Target): TargetStyle("Raven", inst, false) {
+class RavenB4Old(inst: Target): TargetStyle("Raven", inst, false) {
     private var mainStr = ""
     private fun updateMainStr(entity: EntityPlayer) {
         val maxHealth = entity.maxHealth
