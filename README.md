@@ -22,7 +22,7 @@
 2. Navigate to the project directory:
 
     ```bash
-    cd MinusBouce
+    cd MinusBounce
     ```
 
 3. Set it up yourself :), learn Forge MDK and Java.

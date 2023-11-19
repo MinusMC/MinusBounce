@@ -7,7 +7,6 @@ import net.minusmc.minusbounce.features.module.ModuleInfo
 import net.minusmc.minusbounce.features.module.modules.movement.speeds.SpeedMode
 import net.minusmc.minusbounce.features.module.modules.movement.speeds.SpeedType
 import net.minusmc.minusbounce.utils.ClassUtils
-import net.minusmc.minusbounce.utils.ListValuesOverride
 import net.minusmc.minusbounce.utils.MovementUtils
 import net.minusmc.minusbounce.value.BoolValue
 import net.minusmc.minusbounce.value.ListValue
@@ -23,14 +22,10 @@ class Speed: Module() {
 
 	private val typeValue: ListValue = object: ListValue("Type", SpeedType.values().map{it.typeName}.toTypedArray()) {
 		override fun onChanged(oldValue: String, newValue: String) {
-			if (firstLoad) return
 			modeValue.changeListValues(modes.filter{it.typeName.typeName == newValue}.map{it.modeName}.toTypedArray())
-			modeValue.changeValue(modeValue.values[0])
 		}
 		override fun onChange(oldValue: String, newValue: String) {
-			if (firstLoad) return
 			modeValue.changeListValues(modes.filter{it.typeName.typeName == newValue}.map{it.modeName}.toTypedArray())
-			modeValue.changeValue(modeValue.values[0])
 		}
 	}
 
@@ -49,8 +44,6 @@ class Speed: Module() {
 	private val noWater = BoolValue("NoWater", false)
 	private val alwaysSprint = BoolValue("AlwaysSprint", true)
 
-	var firstLoad = true
-
 	override fun onInitialize() {
 		modes.map {mode -> mode.values.forEach {
 			value -> value.name = "${mode.modeName}-${value.name}"
@@ -59,8 +52,6 @@ class Speed: Module() {
 
 	override fun onInitModeListValue() {
 		modeValue.changeListValues(modesForType)
-		modeValue.changeValue(ListValuesOverride.oldSpeedMode)
-		firstLoad = false
 	}
 
 	override fun onEnable() {mode.onEnable()}

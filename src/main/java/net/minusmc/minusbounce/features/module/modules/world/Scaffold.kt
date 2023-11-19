@@ -450,6 +450,12 @@ class Scaffold: Module() {
                 else -> false
             }
 
+        if (!towerStatus) {
+            verusState = 0
+        }
+
+        if (towerStatus && event.eventState == EventState.POST) tower(event)
+
         if (!rotationsValue.get().equals("None", true) && keepRotationValue.get() && lockRotation != null) {
             if (rotationsValue.get().equals("Spin", true)) {
                 spinYaw += speenSpeedValue.get()
@@ -461,8 +467,6 @@ class Scaffold: Module() {
             }
         }
 
-        if (placeModeValue.get().equals(eventState.stateName, true)) place()
-
         if (eventState == EventState.PRE) {
             if (!placeCondition || if (!autoBlockMode.get().equals("off", true)) InventoryUtils.findAutoBlockBlock() == -1 else mc.thePlayer.heldItem == null || !(mc.thePlayer.heldItem.item is ItemBlock && isBlockToScaffold(mc.thePlayer.heldItem.item as ItemBlock))) {
                 return
@@ -471,16 +475,12 @@ class Scaffold: Module() {
             findBlock(expandLengthValue.get() > 1 && !towerStatus)
         }
 
-        if (!towerStatus) {
-            verusState = 0
-        }
-
         // Placeable delay
         if (targetPlace == null && !placeableDelay.get().equals("Off", true) && !towerStatus) {
             delayTimer.reset()
         }
 
-        if (towerStatus && event.eventState == EventState.POST) tower(event)
+        if (placeModeValue.get().equals(eventState.stateName, true)) place()
     }
 
     @EventTarget // From LBplus reborn

@@ -1,10 +1,5 @@
 package net.minusmc.minusbounce.features.module.modules.combat.velocitys.grim
 
-import net.minusmc.minusbounce.event.*
-import net.minusmc.minusbounce.features.module.modules.combat.velocitys.VelocityMode
-import net.minusmc.minusbounce.value.BoolValue
-import net.minusmc.minusbounce.value.IntegerValue
-import net.minusmc.minusbounce.utils.timer.MSTimer
 import net.minecraft.network.play.client.C03PacketPlayer
 import net.minecraft.network.play.client.C07PacketPlayerDigging
 import net.minecraft.network.play.server.S08PacketPlayerPosLook
@@ -13,17 +8,23 @@ import net.minecraft.network.play.server.S27PacketExplosion
 import net.minecraft.util.BlockPos
 import net.minecraft.util.EnumFacing
 import net.minecraft.world.World
+import net.minusmc.minusbounce.event.PacketEvent
+import net.minusmc.minusbounce.event.TickEvent
+import net.minusmc.minusbounce.features.module.modules.combat.velocitys.VelocityMode
+import net.minusmc.minusbounce.utils.timer.MSTimer
+import net.minusmc.minusbounce.value.BoolValue
+import net.minusmc.minusbounce.value.IntegerValue
 
 class GrimC07Velocity : VelocityMode("GrimC07") {
     private val alwaysValue = BoolValue("Always", true)
     private val onlyAirValue = BoolValue("OnlyBreakAir", true)
     private val worldValue = BoolValue("BreakOnWorld", false)
-    private val sendC03Value = BoolValue("SendC03", false).displayable { false } // bypass latest but flag timer
-    private val C06Value = BoolValue("Send1.17C06", false).displayable { sendC03Value.get() } // need via to 1.17+
+    private val sendC03Value = BoolValue("SendC03", false)
+    private val c06Value = BoolValue("Send1.17C06", false) { sendC03Value.get() }
     private val flagPauseValue = IntegerValue("FlagPause-Time", 50, 0, 5000)
 
-    var gotVelo = false
-    var flagTimer = MSTimer()
+    private var gotVelo = false
+    private var flagTimer = MSTimer()
 
     override fun onEnable() {
         gotVelo = false
@@ -49,30 +50,30 @@ class GrimC07Velocity : VelocityMode("GrimC07") {
     }
 
     override fun onTick(event: TickEvent) {
-
         if (!flagTimer.hasTimePassed(flagPauseValue.get().toLong())) {
             gotVelo = false
             return
         }
 
-        val thePlayer = mc.thePlayer ?: return
-        val theWorld = mc.theWorld ?: return
+        mc.thePlayer ?: return
+        mc.theWorld ?: return
+
         if (gotVelo || alwaysValue.get()) { // packet processed event pls
             val pos = BlockPos(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ)
-            if (checkBlock(pos) || checkBlock(pos.up())) {
+            if (checkBlock(pos) || checkBlock(pos.up()))
                 gotVelo = false
-            }
         }
     }
 
-    fun checkBlock(pos: BlockPos): Boolean {
+    private fun checkBlock(pos: BlockPos): Boolean {
         if (!onlyAirValue.get() || mc.theWorld.isAirBlock(pos)) {
             if (sendC03Value.get()) {
-                if (C06Value.get())
+                if (c06Value.get())
                     mc.netHandler.addToSendQueue(C03PacketPlayer.C06PacketPlayerPosLook(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ, mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch, mc.thePlayer.onGround))
                 else
                     mc.netHandler.addToSendQueue(C03PacketPlayer(mc.thePlayer.onGround))
             }
+
             mc.netHandler.addToSendQueue(C07PacketPlayerDigging(C07PacketPlayerDigging.Action.STOP_DESTROY_BLOCK, pos, EnumFacing.DOWN))
             if (worldValue.get())
                 mc.theWorld.setBlockToAir(pos)
