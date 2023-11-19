@@ -32,13 +32,13 @@ class AntiStaff : Module() {
     private val leave = BoolValue("Leave", true)
 
     private val onBMC: Boolean
-        get() = ServerUtils.serverData.serverIP.contains("blocksmc.com")
+        get() = ServerUtils.serverData!!.serverIP.contains("blocksmc.com")
 
     override fun onInitialize() {
         thread {
             staffs.addAll(HttpUtils.get(bmcstaffList).split(","))
 
-            ClientUtils.getLogger().info("[Staff/main] $staffs")
+            ClientUtils.LOGGER.info("[Staff/main] $staffs")
         }
     }
 
