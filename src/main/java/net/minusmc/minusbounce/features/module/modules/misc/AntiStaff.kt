@@ -64,6 +64,7 @@ class AntiStaff : Module() {
             mc.thePlayer.sendChatMessage("/leave")
 
         staffsInWorld.add(name)
+        // sao ko có syntax highlight
     }
 
     private fun isStaff(entity: Entity): Boolean {
@@ -74,7 +75,7 @@ class AntiStaff : Module() {
         return false
     }
 
-
+    // ai cho tu bo de v
     @EventTarget
     fun onPacket(event: PacketEvent) {
         if (mc.theWorld == null || mc.thePlayer == null) return

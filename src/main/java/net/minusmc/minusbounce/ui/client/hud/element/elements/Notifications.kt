@@ -136,11 +136,11 @@ class Notification(message : String, type : Type, displayLength: Long) {
         this.textLength = Fonts.font40.getStringWidth(message)
     }
 
-    public constructor(message: String, type: Type) : this(message, type, 2000L)
+    constructor(message: String, type: Type) : this(message, type, 2000L)
 
-    public constructor(message: String) : this(message, Type.INFO, 500L)
+    constructor(message: String) : this(message, Type.INFO, 500L)
 
-    public constructor(message: String, displayLength: Long) : this(message, Type.INFO, displayLength)
+    constructor(message: String, displayLength: Long) : this(message, Type.INFO, displayLength)
 
     enum class Type {
         SUCCESS, INFO, WARNING, ERROR
