@@ -5,10 +5,10 @@ import net.minusmc.minusbounce.event.MotionEvent
 import net.minusmc.minusbounce.features.module.modules.movement.speeds.SpeedType
 import net.minusmc.minusbounce.features.module.modules.movement.speeds.SpeedMode
 import net.minusmc.minusbounce.utils.MovementUtils
+import net.minecraft.client.settings.GameSettings
 
 class IntaveSpeed: SpeedMode("Intave", SpeedType.INTAVE) {
     var offGroundTicks = 0
-    val speed = MinusBounce.moduleManager.getModule(Speed::class.java)
 
     override fun onMotion(event: MotionEvent) {
         if(!mc.thePlayer.onGround)
