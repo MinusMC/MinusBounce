@@ -6,9 +6,11 @@ import net.minusmc.minusbounce.features.module.modules.combat.criticals.Critical
 
 class BlocksMCCritical : CriticalMode("BlocksMC") {
     override fun onAttack(event: AttackEvent) {
+        val x = mc.thePlayer.posX
         val y = mc.thePlayer.posY
-        mc.netHandler.addToSendQueue(C04PacketPlayerPosition(mc.thePlayer.posX, y + 0.0825080378093, mc.thePlayer.posZ, false))
-        mc.netHandler.addToSendQueue(C04PacketPlayerPosition(mc.thePlayer.posX, y + 0.0215634532004, mc.thePlayer.posZ, false))
-        mc.netHandler.addToSendQueue(C04PacketPlayerPosition(mc.thePlayer.posX, y + 0.1040220332227, mc.thePlayer.posZ, false))
+        val z = mc.thePlayer.posZ
+        mc.netHandler.addToSendQueue(C04PacketPlayerPosition(x, y + 0.001091981, z, true))
+        mc.netHandler.addToSendQueue(C04PacketPlayerPosition(x, y + 0.000114514, z, false))
+        mc.netHandler.addToSendQueue(C04PacketPlayerPosition(x, y, z, false))
     }
 }
