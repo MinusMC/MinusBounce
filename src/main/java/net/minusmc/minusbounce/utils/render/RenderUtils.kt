@@ -670,24 +670,24 @@ object RenderUtils : MinecraftInstance() {
         var x1 = x1
         var y1 = y1
         ColorUtils.setColour(-1)
-        GL11.glEnable(GL_BLEND)
-        GL11.glDisable(GL_TEXTURE_2D)
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
-        GL11.glEnable(GL_LINE_SMOOTH)
-        glShadeModel(GL_SMOOTH)
-        glPushAttrib(0)
-        glScaled(0.5, 0.5, 0.5)
+        GL11.glEnable(GL11.GL_BLEND)
+        GL11.glDisable(GL11.GL_TEXTURE_2D)
+        GL11.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+        GL11.glEnable(GL11.GL_LINE_SMOOTH)
+        GL11.glShadeModel(GL_SMOOTH)
+        GL11.glPushAttrib(0)
+        GL11.glScaled(0.5, 0.5, 0.5)
         x *= 2.0f
         y *= 2.0f
         x1 *= 2.0f
         y1 *= 2.0f
-        GL11.glEnable(GL_BLEND)
-        GL11.glDisable(GL_TEXTURE_2D)
+        GL11.glEnable(GL11.GL_BLEND)
+        GL11.glDisable(GL11.GL_TEXTURE_2D)
         ColorUtils.setColour(color)
-        GL11.glEnable(GL_LINE_SMOOTH)
-        glShadeModel(GL_SMOOTH)
-        glLineWidth(width)
-        glBegin(GL_LINE_LOOP)
+        GL11.glEnable(GL11.GL_LINE_SMOOTH)
+        GL11.glShadeModel(GL_SMOOTH)
+        GL11.glLineWidth(width)
+        GL11.glBegin(GL_LINE_LOOP)
         var i: Int
         i = 0
         while (i <= 90) { glVertex2d(x + radius + Math.sin(i * Math.PI / 180.0) * radius * -1.0, y + radius + Math.cos(i * Math.PI / 180.0) * radius * -1.0)i += 3 }
@@ -702,17 +702,17 @@ object RenderUtils : MinecraftInstance() {
         while (i <= 180) { glVertex2d(x1 - radius + Math.sin(i * Math.PI / 180.0) * radius, y + radius + Math.cos(i * Math.PI / 180.0) * radius)i += 3 }
         glEnd()
         glLineWidth(1)
-        GL11.glEnable(GL_TEXTURE_2D)
-        GL11.glDisable(GL_BLEND)
-        GL11.glDisable(GL_LINE_SMOOTH)
-        GL11.glDisable(GL_BLEND)
-        GL11.glEnable(GL_TEXTURE_2D)
+        GL11.glEnable(GL11.GL_TEXTURE_2D)
+        GL11.glDisable(GL11.GL_BLEND)
+        GL11.glDisable(GL11.GL_LINE_SMOOTH)
+        GL11.glDisable(GL11.GL_BLEND)
+        GL11.glEnable(GL11.GL_TEXTURE_2D)
         glScaled(2.0, 2.0, 2.0)
         glPopAttrib()
-        GL11.glEnable(GL_TEXTURE_2D)
-        GL11.glDisable(GL_BLEND)
-        GL11.glDisable(GL_LINE_SMOOTH)
-        glShadeModel(GL_FLAT)
+        GL11.glEnable(GL11.GL_TEXTURE_2D)
+        GL11.glDisable(GL11.GL_BLEND)
+        GL11.glDisable(GL11.GL_LINE_SMOOTH)
+        glShadeModel(GL11.GL_FLAT)
         ColorUtils.setColour(-1)
     }
 
