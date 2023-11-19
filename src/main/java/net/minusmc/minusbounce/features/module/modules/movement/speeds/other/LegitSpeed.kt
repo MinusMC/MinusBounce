@@ -5,7 +5,6 @@ import net.minusmc.minusbounce.features.module.modules.movement.speeds.SpeedMode
 import net.minusmc.minusbounce.utils.MovementUtils
 import net.minusmc.minusbounce.value.BoolValue
 
-
 class LegitSpeed: SpeedMode("Legit", SpeedType.OTHER) {
 
     private val cpuSPEED = BoolValue("Timer-Bypass", true)

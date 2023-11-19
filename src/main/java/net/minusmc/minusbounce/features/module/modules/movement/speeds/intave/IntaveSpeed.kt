@@ -1,14 +1,14 @@
 package net.minusmc.minusbounce.features.module.modules.movement.speeds.intave
 
-import net.minusmc.MinusBounce.LiquidBounce
+import net.minusmc.MinusBounce.MinusBounce
 import net.minusmc.MinusBounce.event.MotionEvent
-import net.minusmc.MinusBounce.features.module.modules.movement.Speed
-import net.minusmc.MinusBounce.features.module.modules.movement.speeds.SpeedMode
+import net.minusmc.minusbounce.features.module.modules.movement.speeds.SpeedType
+import net.minusmc.minusbounce.features.module.modules.movement.speeds.SpeedMode
 import net.minusmc.MinusBounce.utils.MovementUtils
 
-class IntaveSpeed : SpeedMode("Intave") {
+class IntaveSpeed: SpeedMode("Intave", SpeedType.INTAVE) {
     var offGroundTicks = 0
-    val speed = LiquidBounce.moduleManager.getModule(Speed::class.java)
+    val speed = MinusBounce.moduleManager.getModule(Speed::class.java)
 
     override fun onMotion(event: MotionEvent) {
         if(!mc.thePlayer.onGround)
