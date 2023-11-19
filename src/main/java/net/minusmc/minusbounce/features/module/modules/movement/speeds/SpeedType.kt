@@ -10,4 +10,5 @@ enum class SpeedType(val typeName: String) {
     WATCHDOG("Watchdog"),
     BLOCKSMC("BlocksMC"),
     OTHER("Other"),
+    INTAVE("Intave"),
 }
