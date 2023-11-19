@@ -4,7 +4,7 @@ import net.minusmc.minusbounce.ui.client.hud.element.Border
 import net.minusmc.minusbounce.ui.client.hud.element.elements.Target
 import net.minusmc.minusbounce.ui.client.hud.element.elements.targets.TargetStyle
 import net.minusmc.minusbounce.ui.font.Fonts
-import net.minusmc.liquidbounce.utils.render.RenderUtils
+import net.minusmc.minusbounce.utils.render.RenderUtils
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.entity.player.EntityPlayer
 import java.awt.Color
