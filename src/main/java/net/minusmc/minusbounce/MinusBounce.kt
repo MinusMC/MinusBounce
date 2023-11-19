@@ -36,7 +36,7 @@ object MinusBounce {
     // Client information
     const val CLIENT_NAME = "MinusBounce"
     const val CLIENT_FOLDER = "MinusBounce"
-    const val CLIENT_VERSION = "0.1"
+    const val CLIENT_VERSION = 20231120
     const val CLIENT_CREATOR = "CCBlueX, MinusMC Team"
     val API_VERSION = PluginAPIVersion.VER_01
     const val CLIENT_CLOUD = "https://minusmcnetwork.github.io/MinusCloud/LiquidBounce"
