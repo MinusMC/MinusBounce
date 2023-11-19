@@ -71,7 +71,16 @@ object RenderUtils : MinecraftInstance() {
     }
 
     private val frustrum = Frustum()
-    internal var zLevel = 0f
+    var zLevel = 0f
+
+    fun color(color: Int) = color(color, ((color shr 24 and 0xFF) / 255).toFloat())
+
+    fun color(color: Int, alpha: Float) {
+        val r = (color shr 16 and 0xFF) / 255.0f
+        val g = (color shr 8 and 0xFF) / 255.0f
+        val b = (color and 0xFF) / 255.0f
+        GlStateManager.color(r, g, b, alpha)
+    }
 
     /**
      * Draws a textured rectangle at the stored z-value. Args: x, y, u, v, width, height
