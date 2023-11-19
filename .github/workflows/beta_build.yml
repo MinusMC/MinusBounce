@@ -18,14 +18,20 @@ jobs:
           distribution: 'adopt'
           java-version: 8
           check-latest: true
-      - uses: burrunan/gradle-cache-action@v1
-        name: Build
-        with:
-          job-id: jdk8
-          arguments: build --no-build-cache
-          gradle-version: wrapper
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: MinusBounce
-          path: build/libs/minusbounce-20231120.jar
+      - name: Set env
+        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+      - name: Test
+        run: |
+          echo $RELEASE_VERSION
+          echo ${{ env.RELEASE_VERSION }}
+      # - uses: burrunan/gradle-cache-action@v1
+      #   name: Build
+      #   with:
+      #     job-id: jdk8
+      #     arguments: build --no-build-cache
+      #     gradle-version: wrapper
+      # - name: Upload Artifact
+      #   uses: actions/upload-artifact@v2
+      #   with:
+      #     name: MinusBounce
+      #     path: build/libs/minusbounce-20231120.jar
