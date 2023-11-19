@@ -1,10 +1,9 @@
 package net.minusmc.minusbounce.features.module.modules.movement.speeds.intave
 
-import net.minusmc.MinusBounce.MinusBounce
-import net.minusmc.MinusBounce.event.MotionEvent
+import net.minusmc.minusbounce.MinusBounce
 import net.minusmc.minusbounce.features.module.modules.movement.speeds.SpeedType
 import net.minusmc.minusbounce.features.module.modules.movement.speeds.SpeedMode
-import net.minusmc.MinusBounce.utils.MovementUtils
+import net.minusmc.minusbounce.utils.MovementUtils
 
 class IntaveSpeed: SpeedMode("Intave", SpeedType.INTAVE) {
     var offGroundTicks = 0
