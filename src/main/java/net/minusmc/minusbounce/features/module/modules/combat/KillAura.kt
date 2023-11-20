@@ -119,7 +119,6 @@ class KillAura : Module() {
             "Fake",
             "AfterTick",
             "Vanilla",
-            "Vanilla2",
             "Polar",
             "OldIntave",
             "Watchdog",
@@ -919,7 +918,6 @@ class KillAura : Module() {
         if (!mc.thePlayer.isBlocking && !blockingStatus) return
         when (autoBlockModeValue.get().lowercase()) {
             "vanilla" -> mc.netHandler.addToSendQueue(C07PacketPlayerDigging(C07PacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN))
-            "vanilla2" -> PacketUtils.sendPacketNoEvent(C08PacketPlayerBlockPlacement(mc.thePlayer.heldItem))
             "grim" -> {
                 mc.netHandler.addToSendQueue(C09PacketHeldItemChange((mc.thePlayer.inventory.currentItem + 1) % 9))
                 mc.netHandler.addToSendQueue(C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem))

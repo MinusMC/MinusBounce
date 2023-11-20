@@ -22,7 +22,7 @@ class KillSults: Module() {
 	private val texts = hashMapOf<String, ArrayList<String>>()
 
 	override fun onInitialize() {
-        for (path in ClassUtils.killSultFiles) {
+        for (path in ClassUtils.killSultFiles) { // hmm de t xem lai sau
 			val inputStream = MinusBounce::class.java.getResourceAsStream(path)!!
 			val dataText = inputStream.bufferedReader().use { it.readText() }
 			val name = path.split("/").last().replace(".txt", "")

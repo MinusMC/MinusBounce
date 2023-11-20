@@ -71,7 +71,7 @@ class SpeedMine : Module() {
             } else if ((packet.status == C07PacketPlayerDigging.Action.ABORT_DESTROY_BLOCK) or (packet.status == C07PacketPlayerDigging.Action.STOP_DESTROY_BLOCK)) {
                 boost = false
                 pos = null
-                facing = null
+                facing = null // speedmine work trong grim btw speed 1.20
             }
         }
     }

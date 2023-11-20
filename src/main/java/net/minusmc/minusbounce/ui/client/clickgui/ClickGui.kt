@@ -26,6 +26,8 @@ import org.lwjgl.input.Mouse
 import java.io.IOException
 import java.util.*
 
+
+// lq+ reborn de trong này
 class ClickGui : GuiScreen() {
     val panels: MutableList<Panel> = ArrayList()
     var style: Style = SlowlyStyle()

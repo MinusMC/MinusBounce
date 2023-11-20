@@ -14,7 +14,7 @@ import net.minusmc.minusbounce.value.ListValue
 
 class VerusSpeed: SpeedMode("Verus", SpeedType.VERUS) {
 
-    private val verusMode = ListValue("Mode", arrayOf("Hop", "Hard", "YPort"), "Hop")
+    private val verusMode = ListValue("Mode", arrayOf("Hop", "Hard", "YPort", "YPort2"), "Hop")
 
     private var verusTick = 0
 
@@ -38,14 +38,22 @@ class VerusSpeed: SpeedMode("Verus", SpeedType.VERUS) {
             "yport" -> {
                 if (mc.thePlayer.onGround && MovementUtils.isMoving && verusTick == 0) {
                     verusTick = 1
-                    mc.thePlayer.motionY += 0.42
+                    mc.thePlayer.motionY += 0.42 // cai nay de len  de t cho m xem rise
                 } else if (verusTick == 1) {
                     MovementUtils.strafe(0.3f)
                     verusTick = 2
                 } else if (verusTick == 5) {
                     verusTick = 0
                 } else if (verusTick <= 5) {
-                    mc.thePlayer.motionY -= 0.16
+                    verusTick++
+                    mc.thePlayer.motionY -= 0.2
+                }
+            }
+            "yport2" -> {
+                if (mc.thePlayer.onGround && MovementUtils.isMoving) {
+                    mc.thePlayer.motionY += 0.42
+                } else if (mc.thePlayer.motionY < 0.3) {
+                    mc.thePlayer.motionY = 0.0
                 }
             }
         }

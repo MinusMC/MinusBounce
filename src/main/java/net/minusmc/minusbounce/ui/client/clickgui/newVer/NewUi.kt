@@ -26,6 +26,7 @@ import java.awt.Color
 import java.io.IOException
 import java.util.function.Consumer
 
+// clickgui rieng ko th
 class NewUi private constructor() : GuiScreen() {
     private val categoryElements: MutableList<CategoryElement> = ArrayList()
     private var startYAnim = height / 2f
