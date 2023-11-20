@@ -141,7 +141,7 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1F,
         return when (str) {
             "userName" -> mc.session.username
             "clientName" -> MinusBounce.CLIENT_NAME
-            "clientVersion" -> MinusBounce.CLIENT_VERSION
+            "clientVersion" -> MinusBounce.CLIENT_VERSION.toString()
             "clientCreator" -> MinusBounce.CLIENT_CREATOR
             "fps" -> Minecraft.getDebugFPS().toString()
             "date" -> DATE_FORMAT.format(System.currentTimeMillis())

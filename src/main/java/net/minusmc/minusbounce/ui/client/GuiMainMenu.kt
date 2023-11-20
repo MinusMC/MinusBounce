@@ -35,7 +35,7 @@ class GuiMainMenu : GuiScreen(), GuiYesNoCallback {
 
         Fonts.font72.drawCenteredString(MinusBounce.CLIENT_NAME, (width / 2).toFloat(), (bHeight - 20).toFloat(), Color.WHITE.rgb, false)
         Gui.drawRect(0, 0, 0, 0, Integer.MIN_VALUE)
-        Fonts.font40.drawString("Version: ${MinusBounce.CLIENT_VERSION}", 3F, (height - mc.fontRendererObj.FONT_HEIGHT * 2).toFloat(), 0xffffff, false)
+        Fonts.font40.drawString("Version: ${MinusBounce.CLIENT_VERSION}", 3F, (height - mc.fontRendererObj.FONT_HEIGHT * 2 - 4).toFloat(), 0xffffff, false)
         Fonts.font40.drawString("Made by ${MinusBounce.CLIENT_CREATOR}", 3F, (height - mc.fontRendererObj.FONT_HEIGHT - 2).toFloat(), 0xffffff, false)
         val creditInfo = "Copyright Mojang AB. Do not distribute!"
         Fonts.font40.drawString(creditInfo, width - 2f - Fonts.font40.getStringWidth(creditInfo), (height - mc.fontRendererObj.FONT_HEIGHT - 2).toFloat(), 0xffffff, false)
@@ -56,9 +56,9 @@ class GuiMainMenu : GuiScreen(), GuiYesNoCallback {
     override fun keyTyped(typedChar: Char, keyCode: Int) {}
 }
 
-class MainMenuButton(val buttonId: Int, x: Int, y: Int, buttonText: String): GuiButton(buttonId, x, y, buttonText) {
+class MainMenuButton(buttonId: Int, x: Int, y: Int, buttonText: String): GuiButton(buttonId, x, y, buttonText) {
     override fun drawButton(mc: Minecraft, mouseX: Int, mouseY: Int) {
         RenderUtils.drawRoundedRect(xPosition.toFloat(), yPosition.toFloat(), xPosition.toFloat() + 100f, yPosition.toFloat() + 20f, 3f, Color(237, 234, 222).rgb)
-        Fonts.font40.drawCenteredString(displayString, (xPosition + 50).toFloat(), (yPosition + 8).toFloat(), Color.BLACK.rgb, false)
+        Fonts.font40.drawCenteredString(displayString, (xPosition + 50).toFloat(), (yPosition + 6).toFloat(), Color.BLACK.rgb, false)
     }
 }

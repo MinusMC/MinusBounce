@@ -162,7 +162,7 @@ class Notification(message : String, type : Type, displayLength: Long) {
         val hAnimMode = parent.hAnimModeValue.get()
         val vAnimMode = parent.vAnimModeValue.get()
         val animSpeed = parent.animationSpeed.get()
-        
+
         val originalX = parent.renderX.toFloat()
         val originalY = parent.renderY.toFloat()
         val width = if (style.equals("material", true)) 160F else textLength.toFloat() + 8.0f
@@ -196,7 +196,7 @@ class Notification(message : String, type : Type, displayLength: Long) {
                     BlurUtils.blurAreaRounded(originalX + -x - 5F, originalY + -18F - y, originalX + -x + 8F + textLength, originalY + -y, 3F, strength)
                     GL11.glPopMatrix()
                     GL11.glTranslatef(originalX, originalY, 0F)
-                } 
+                }
 
                 RenderUtils.customRounded(-x + 8F + textLength, -y, -x - 2F, -18F - y, 0F, 3F, 3F, 0F, backgroundColor.rgb)
                 RenderUtils.customRounded(-x - 2F, -y, -x - 5F, -18F - y, 3F, 0F, 0F, 3F, when(type) {
@@ -204,7 +204,7 @@ class Notification(message : String, type : Type, displayLength: Long) {
                     Type.ERROR -> Color(255, 80, 80).rgb
                     Type.INFO -> Color(255, 255, 255).rgb
                     Type.WARNING -> Color(255, 255, 0).rgb
-                })  
+                })
 
                 GlStateManager.resetColor()
                 Fonts.font40.drawString(message, -x + 3, -13F - y, -1)
@@ -221,7 +221,7 @@ class Notification(message : String, type : Type, displayLength: Long) {
                     BlurUtils.blurArea(originalX + kek, originalY + -28F - y, originalX + -x + 8 + textLength, originalY + -y, strength)
                     GL11.glPopMatrix()
                     GL11.glTranslatef(originalX, originalY, 0F)
-                } 
+                }
 
                 RenderUtils.drawRect(-x + 8 + textLength, -y, kek, -28F - y, backgroundColor.rgb)
 
@@ -257,7 +257,7 @@ class Notification(message : String, type : Type, displayLength: Long) {
                     BlurUtils.blurAreaRounded(originalX + kek, originalY + -28F - y, originalX + -x + 8 + textLength, originalY + -y, 1.8f, strength)
                     GL11.glPopMatrix()
                     GL11.glTranslatef(originalX, originalY, 0F)
-                } 
+                }
 
                 RenderUtils.drawRoundedRect(-x + 8 + textLength, -y, kek, -28F - y, 1.8f, backgroundColor.rgb)
 
@@ -398,7 +398,7 @@ class Notification(message : String, type : Type, displayLength: Long) {
                     Type.ERROR -> newError
                     Type.WARNING -> newWarning
                     Type.INFO -> newInfo
-                }, 9F, notifHeight / 2F - 6F, 12, 12, 
+                }, 9F, notifHeight / 2F - 6F, 12, 12,
                 if (type == Type.ERROR) 1F else 0F,
                 if (type == Type.ERROR) 1F else 0F,
                 if (type == Type.ERROR) 1F else 0F, 1F)
@@ -450,6 +450,6 @@ class Notification(message : String, type : Type, displayLength: Long) {
                 fadeState = FadeState.END
 
             FadeState.END -> hud.removeNotification(this)
-        }        
+        }
     }
 }

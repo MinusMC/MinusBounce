@@ -18,7 +18,7 @@
     ```bash
     git clone https://github.com/MinusMCNetwork/MinusBouce.git
     ```
-
+   
 2. Navigate to the project directory:
 
     ```bash
@@ -26,3 +26,5 @@
     ```
 
 3. Set it up yourself :), learn Forge MDK and Java.
+
+

@@ -41,7 +41,10 @@ import kotlin.math.*
 @ModuleInfo(name = "Scaffold", description = "Automatically places blocks beneath your feet.", category = ModuleCategory.WORLD, keyBind = Keyboard.KEY_I)
 class Scaffold: Module() {
     // add scaffold modes? ex: telly, ninja, fruit, moonwalk?
-	private val placeableDelay = ListValue("PlaceableDelay", arrayOf("Normal", "Smart", "Off"), "Normal")
+	private val placeableDelay = ListValue("PlaceableDelay", arrayOf("Normal", "Telly", "Smart", "Off"), "Normal")
+
+    private val tellyTicks = IntegerValue("TellyTicks", 3, 1, 5) { placeableDelay.get() == "Telly" }
+
 	private val maxDelayValue: IntegerValue = object: IntegerValue("MaxDelay", 0, 0, 1000, "ms", {!placeableDelay.get().equals("off", true)}) {
         override fun onChanged(oldValue: Int, newValue: Int) {
             val i = minDelayValue.get()
@@ -57,7 +60,7 @@ class Scaffold: Module() {
     }
 
     private val autoBlockMode = ListValue("AutoBlock", arrayOf("Spoof", "LiteSpoof", "Switch", "Off"), "Spoof")
-    private val sprintModeValue = ListValue("SprintMode", arrayOf("Always", "OnGround", "OffGround", "Matrix", "Watchdog", "BlocksMC", "LuckyVN", "Off"), "Off")
+    private val sprintModeValue = ListValue("SprintMode", arrayOf("Always", "OnGround", "OffGround", "Matrix", "TellyTicks", "Watchdog", "BlocksMC", "LuckyVN", "Off"), "Off")
     
     private val swingValue = ListValue("Swing", arrayOf("Normal", "Packet", "Off"), "Normal")
     private val downValue = BoolValue("Down", false)

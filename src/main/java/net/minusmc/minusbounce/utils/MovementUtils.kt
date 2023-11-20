@@ -366,4 +366,5 @@ object MovementUtils : MinecraftInstance() {
 
     val movingYaw: Float
         get() = (direction * 180f / Math.PI).toFloat()
+
 }
