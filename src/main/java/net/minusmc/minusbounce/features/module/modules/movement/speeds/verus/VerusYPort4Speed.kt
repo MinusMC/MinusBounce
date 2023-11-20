@@ -13,12 +13,11 @@ class VerusYPort4Speed: SpeedMode("VerusYPort4", SpeedType.VERUS){
     override fun onUpdate() {
         if (MovementUtils.isMoving && mc.thePlayer.onGround) {
             mc.thePlayer.motionY = 0.42
-            MovementUtils.strafe(0.22f)
+            MovementUtils.strafe()
             doSpeed = true
         } else if (doSpeed) {
             doSpeed = false
-            mc.thePlayer.motionY -= 0.32
-            MovementUtils.strafe(0.2f)
+            mc.thePlayer.motionY -= 0.12
         }
     }
 }
