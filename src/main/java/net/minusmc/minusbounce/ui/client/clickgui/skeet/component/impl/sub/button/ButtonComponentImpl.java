@@ -26,8 +26,8 @@ public final class ButtonComponentImpl extends ButtonComponent {
         float width = this.getWidth();
         float height = this.getHeight();
         boolean hovered = this.isHovered(mouseX, mouseY);
-        RenderUtils.drawRect(x, y, x + width, y + height, SkeetClickGUI.getColor(0x111111));
-        RenderUtils.drawRect(x + 0.5f, y + 0.5f, x + width - 0.5f, y + height - 0.5f, SkeetClickGUI.getColor(0x262626));
+        RenderUtils.INSTANCE.drawRect(x, y, x + width, y + height, SkeetClickGUI.getColor(0x111111));
+        RenderUtils.INSTANCE.drawRect(x + 0.5f, y + 0.5f, x + width - 0.5f, y + height - 0.5f, SkeetClickGUI.getColor(0x262626));
         SkeetUtils.drawGradientRect(x + 1.0f, y + 1.0f, x + width - 1.0f, y + height - 1.0f, false, SkeetClickGUI.getColor(hovered ? SkeetUtils.darker(0x222222, 1.2f) : 0x222222), SkeetClickGUI.getColor(hovered ? SkeetUtils.darker(0x1E1E1E, 1.2f) : 0x1E1E1E));
         if (SkeetClickGUI.shouldRenderText()) {
             SkeetClickGUI.FONT_RENDERER.drawString(this.text, x + width / 2.0f - SkeetClickGUI.FONT_RENDERER.getWidth(this.text) / 2.0f, y + height / 2.0f - 4f, SkeetClickGUI.getColor(0xFFFFFF));

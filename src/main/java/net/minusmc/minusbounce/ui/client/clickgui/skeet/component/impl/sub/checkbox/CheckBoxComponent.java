@@ -19,7 +19,7 @@ public abstract class CheckBoxComponent extends ButtonComponent implements Predi
         float y = this.getY();
         float width = this.getWidth();
         float height = this.getHeight();
-        RenderUtils.drawRect(x + 0.8f, y + 0.8f, x + width - 0.8f, y + height - 0.8f, SkeetClickGUI.getColor(855309));
+        RenderUtils.INSTANCE.drawRect(x + 0.8f, y + 0.8f, x + width - 0.8f, y + height - 0.8f, SkeetClickGUI.getColor(855309));
         boolean checked = this.isChecked();
         boolean hovered = this.isHovered(mouseX, mouseY);
         SkeetUtils.drawGradientRect(x + 1.2f, y + 1.2f, x + width - 1.2f, y + height - 1.2f, false, checked ? SkeetClickGUI.getColor() : SkeetClickGUI.getColor(hovered ? SkeetUtils.darker(0x494949, 1.4f) : 0x494949), checked ? SkeetUtils.darker(SkeetClickGUI.getColor(), 0.8f) : SkeetClickGUI.getColor(hovered ? SkeetUtils.darker(0x303030, 1.4f) : 0x303030));

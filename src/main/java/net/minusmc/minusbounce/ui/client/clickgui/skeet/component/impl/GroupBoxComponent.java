@@ -21,13 +21,13 @@ public final class GroupBoxComponent extends Component {
     public void drawComponent(LockedResolution resolution, int mouseX, int mouseY) {
         float x = this.getX();
         float y = this.getY();
-        float width = this.getWidth();
+        float width = this.getWidth(); // rồi
         float height = this.getHeight();
         float length = SkeetClickGUI.GROUP_BOX_HEADER_RENDERER.getWidth(this.name);
-        RenderUtils.drawRect(x, y, x + width, y + height, SkeetClickGUI.getColor(789516));
-        RenderUtils.drawRect(x + 0.5f, y + 0.5f, x + width - 0.5f, y + height - 0.5f, SkeetClickGUI.getColor(0x282828));
-        RenderUtils.drawRect(x + 4.0f, y, x + 4.0f + length + 2.0f, y + 1.0f, SkeetClickGUI.getColor(0x171717));
-        RenderUtils.drawRect(x + 1.0f, y + 1.0f, x + width - 1.0f, y + height - 1.0f, SkeetClickGUI.getColor(0x171717));
+        RenderUtils.INSTANCE.drawRect(x, y, x + width, y + height, SkeetClickGUI.getColor(789516));
+        RenderUtils.INSTANCE.drawRect(x + 0.5f, y + 0.5f, x + width - 0.5f, y + height - 0.5f, SkeetClickGUI.getColor(0x282828));
+        RenderUtils.INSTANCE.drawRect(x + 4.0f, y, x + 4.0f + length + 2.0f, y + 1.0f, SkeetClickGUI.getColor(0x171717));
+        RenderUtils.INSTANCE.drawRect(x + 1.0f, y + 1.0f, x + width - 1.0f, y + height - 1.0f, SkeetClickGUI.getColor(0x171717));
 
         if (SkeetClickGUI.shouldRenderText()) {
             SkeetClickGUI.GROUP_BOX_HEADER_RENDERER.drawString(this.name, x + 5.0f, y - 3f, SkeetClickGUI.getColor(0xDCDCDC));

@@ -20,15 +20,12 @@ class Cape : Module() {
     override fun onInitialize() {
         ClassUtils.capeFiles.forEach {
             val name = it.split("/").last().replace(".png", "")
-            capeCache[name.lowercase()] = ResourceLocation(it)
+            capeCache[name.lowercase()] = ResourceLocation(it) // sua gi
         }
-<<<<<<< HEAD
-        if (capeCache.isEmpty()) return // cape resolver bi loi ko load dc fix tam thoi r ha
-=======
-        if (capeCache.isEmpty()) return // out of index when running in idea
->>>>>>> 5171d8234aad90ef0471ddaf38ea74a1097ac7e1
-        styleValue.changeListValues(capeCache.keys.toTypedArray())
-    } // ko
+
+        if (capeCache.isEmpty()) return
+        styleValue.changeListValues(capeCache.keys.toTypedArray()) // uhhh no deo load
+    }
 
     val cape: ResourceLocation?
         get() = capeCache[styleValue.get().lowercase()] ?: capeCache["minusbounce"]
