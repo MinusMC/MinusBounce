@@ -22,8 +22,9 @@ class Cape : Module() {
             val name = it.split("/").last().replace(".png", "")
             capeCache[name.lowercase()] = ResourceLocation(it)
         }
+        if (capeCache.isEmpty()) return // cape resolver bi loi ko load dc fix tam thoi r ha
         styleValue.changeListValues(capeCache.keys.toTypedArray())
-    }
+    } // ko
 
     val cape: ResourceLocation?
         get() = capeCache[styleValue.get().lowercase()] ?: capeCache["minusbounce"]

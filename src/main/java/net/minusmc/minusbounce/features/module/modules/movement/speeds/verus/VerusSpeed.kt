@@ -16,9 +16,13 @@ class VerusSpeed: SpeedMode("Verus", SpeedType.VERUS) {
 
     private val verusMode = ListValue("Mode", arrayOf("Hop", "Hard", "YPort"), "Hop")
 
+    private var verusTick = 0
+
     override fun onUpdate() {
-        if (verusMode.get().equals("Hop", true)) {
-            if (!mc.thePlayer.isInWeb && !mc.thePlayer.isInLava && !mc.thePlayer.isInWater && !mc.thePlayer.isOnLadder && mc.thePlayer.ridingEntity == null) {
+        if (mc.thePlayer.isInWeb || mc.thePlayer.isInLava || mc.thePlayer.isInWater || mc.thePlayer.isOnLadder || mc.thePlayer.ridingEntity != null)
+            return
+        when (verusMode.get().lowercase()) {
+            "hop" -> {
                 if (MovementUtils.isMoving && mc.thePlayer.onGround) {
                     mc.gameSettings.keyBindJump.pressed = false
                     if (mc.thePlayer.onGround) {
@@ -28,19 +32,24 @@ class VerusSpeed: SpeedMode("Verus", SpeedType.VERUS) {
                     MovementUtils.strafe()
                 }
             }
-        }
-        if (verusMode.get().equals("YPort", true)) {
-            if (!mc.thePlayer.isInWeb && !mc.thePlayer.isInLava && !mc.thePlayer.isInWater && !mc.thePlayer.isOnLadder && mc.thePlayer.ridingEntity == null) {
-                if (MovementUtils.isMoving && mc.thePlayer.onGround) {
-                    mc.gameSettings.keyBindJump.pressed = false
-                    if (mc.thePlayer.onGround) {
-                        mc.thePlayer.jump()
-                        mc.thePlayer.motionY = 0.30
-                        MovementUtils.strafe(0.48f)
-                    }
-                    MovementUtils.strafe()
+            "hard" -> {
+
+            }
+            "yport" -> {
+                if (mc.thePlayer.onGround && MovementUtils.isMoving && verusTick == 0) {
+                    verusTick = 1
+                    mc.thePlayer.motionY += 0.42
+                } else if (verusTick == 1) {
+                    MovementUtils.strafe(0.3f)
+                    verusTick = 2
+                } else if (verusTick == 5) {
+                    verusTick = 0
+                } else if (verusTick <= 5) {
+                    mc.thePlayer.motionY -= 0.16
                 }
             }
         }
+
+
     }
 }
