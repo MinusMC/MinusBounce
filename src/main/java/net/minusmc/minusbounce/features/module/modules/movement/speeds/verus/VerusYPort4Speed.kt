@@ -4,7 +4,7 @@ import net.minusmc.minusbounce.features.module.modules.movement.speeds.SpeedMode
 import net.minusmc.minusbounce.features.module.modules.movement.speeds.SpeedType
 import net.minusmc.minusbounce.utils.MovementUtils
 
-class VerusYPort4Speed: SpeedMode("Verus YPort 4", SpeedType.VERUS){
+class VerusYPort4Speed: SpeedMode("VerusYPort4", SpeedType.VERUS){
     private var doSpeed = false
     override fun onDisable() {
         doSpeed = false
@@ -12,13 +12,13 @@ class VerusYPort4Speed: SpeedMode("Verus YPort 4", SpeedType.VERUS){
 
     override fun onUpdate() {
         if (MovementUtils.isMoving && mc.thePlayer.onGround) {
-            mc.thePlayer.motionY += 0.42
-            MovementUtils.strafe(0.15f)
+            mc.thePlayer.motionY = 0.42
+            MovementUtils.strafe(0.22f)
             doSpeed = true
         } else if (doSpeed) {
             doSpeed = false
-            mc.thePlayer.motionY -= 0.37
-            MovementUtils.strafe(0.1f)
+            mc.thePlayer.motionY -= 0.32
+            MovementUtils.strafe(0.2f)
         }
     }
 }
