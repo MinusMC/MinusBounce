@@ -14,15 +14,28 @@ import net.minusmc.minusbounce.value.ListValue
 
 class VerusSpeed: SpeedMode("Verus", SpeedType.VERUS) {
 
-    val verusMode = ListValue("Mode", arrayOf("Hop", "Hard"), "Hop")
+    private val verusMode = ListValue("Mode", arrayOf("Hop", "Hard", "YPort"), "Hop")
 
     override fun onUpdate() {
         if (verusMode.get().equals("Hop", true)) {
             if (!mc.thePlayer.isInWeb && !mc.thePlayer.isInLava && !mc.thePlayer.isInWater && !mc.thePlayer.isOnLadder && mc.thePlayer.ridingEntity == null) {
-                if (MovementUtils.isMoving) {
+                if (MovementUtils.isMoving && mc.thePlayer.onGround) {
                     mc.gameSettings.keyBindJump.pressed = false
                     if (mc.thePlayer.onGround) {
                         mc.thePlayer.jump()
+                        MovementUtils.strafe(0.48f)
+                    }
+                    MovementUtils.strafe()
+                }
+            }
+        }
+        if (verusMode.get().equals("YPort", true)) {
+            if (!mc.thePlayer.isInWeb && !mc.thePlayer.isInLava && !mc.thePlayer.isInWater && !mc.thePlayer.isOnLadder && mc.thePlayer.ridingEntity == null) {
+                if (MovementUtils.isMoving && mc.thePlayer.onGround) {
+                    mc.gameSettings.keyBindJump.pressed = false
+                    if (mc.thePlayer.onGround) {
+                        mc.thePlayer.jump()
+                        mc.thePlayer.motionY = 0.30
                         MovementUtils.strafe(0.48f)
                     }
                     MovementUtils.strafe()
