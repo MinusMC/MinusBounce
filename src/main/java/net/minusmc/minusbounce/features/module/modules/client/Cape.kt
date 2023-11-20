@@ -14,7 +14,7 @@ import net.minusmc.minusbounce.value.ListValue
 
 @ModuleInfo(name = "Cape", description = "MinusBounce capes.", category = ModuleCategory.CLIENT)
 class Cape : Module() {
-    val styleValue = ListValue("Style", arrayOf("Dark"), "Dark")
+    private val styleValue = ListValue("Style", arrayOf("Dark"), "Dark")
     private val capeCache = hashMapOf<String, ResourceLocation>()
 
     override fun onInitialize() {
@@ -22,7 +22,11 @@ class Cape : Module() {
             val name = it.split("/").last().replace(".png", "")
             capeCache[name.lowercase()] = ResourceLocation(it)
         }
+<<<<<<< HEAD
         if (capeCache.isEmpty()) return // cape resolver bi loi ko load dc fix tam thoi r ha
+=======
+        if (capeCache.isEmpty()) return // out of index when running in idea
+>>>>>>> 5171d8234aad90ef0471ddaf38ea74a1097ac7e1
         styleValue.changeListValues(capeCache.keys.toTypedArray())
     } // ko
 

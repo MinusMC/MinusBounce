@@ -119,6 +119,7 @@ class KillAura : Module() {
             "Fake",
             "AfterTick",
             "Vanilla",
+            "Packet",
             "Polar",
             "OldIntave",
             "Watchdog",
@@ -729,17 +730,17 @@ class KillAura : Module() {
                 mc.thePlayer.attackTargetEntityWithCurrentItem(entity)
         }
 
-//        val criticals = MinusBounce.moduleManager[Criticals::class.java] as Criticals
-//
-//        for (i in 0..2) {
-//            // Critical Effect
-//            if (mc.thePlayer.fallDistance > 0F && !mc.thePlayer.onGround && !mc.thePlayer.isOnLadder && !mc.thePlayer.isInWater && !mc.thePlayer.isPotionActive(Potion.blindness) && mc.thePlayer.ridingEntity == null || criticals.state && criticals.msTimer.hasTimePassed(criticals.delayValue.get().toLong()) && !mc.thePlayer.isInWater && !mc.thePlayer.isInLava && !mc.thePlayer.isInWeb)
-//                mc.thePlayer.onCriticalHit(target)
-//
-//            // Enchant Effect
-//            if (EnchantmentHelper.getModifierForCreature(mc.thePlayer.heldItem, target!!.creatureAttribute) > 0.0f || (fakeSharpValue.get() && (!fakeSharpSword.get() || canBlock)))
-//                mc.thePlayer.onEnchantmentCritical(target)
-//        }
+        val criticals = MinusBounce.moduleManager[Criticals::class.java] as Criticals
+
+        for (i in 0..2) {
+            // Critical Effect
+            if (mc.thePlayer.fallDistance > 0F && !mc.thePlayer.onGround && !mc.thePlayer.isOnLadder && !mc.thePlayer.isInWater && !mc.thePlayer.isPotionActive(Potion.blindness) && mc.thePlayer.ridingEntity == null || criticals.state && criticals.msTimer.hasTimePassed(criticals.delayValue.get().toLong()) && !mc.thePlayer.isInWater && !mc.thePlayer.isInLava && !mc.thePlayer.isInWeb)
+                mc.thePlayer.onCriticalHit(target)
+
+            // Enchant Effect
+            if (EnchantmentHelper.getModifierForCreature(mc.thePlayer.heldItem, target!!.creatureAttribute) > 0.0f || (fakeSharpValue.get() && (!fakeSharpSword.get() || canBlock)))
+                mc.thePlayer.onEnchantmentCritical(target)
+        }
 
         postBlocking(entity)
     }
@@ -917,7 +918,7 @@ class KillAura : Module() {
     private fun preBlocking() {
         if (!mc.thePlayer.isBlocking && !blockingStatus) return
         when (autoBlockModeValue.get().lowercase()) {
-            "vanilla" -> mc.netHandler.addToSendQueue(C07PacketPlayerDigging(C07PacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN))
+            "vanilla", "packet" -> mc.netHandler.addToSendQueue(C07PacketPlayerDigging(C07PacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN))
             "grim" -> {
                 mc.netHandler.addToSendQueue(C09PacketHeldItemChange((mc.thePlayer.inventory.currentItem + 1) % 9))
                 mc.netHandler.addToSendQueue(C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem))
@@ -933,11 +934,14 @@ class KillAura : Module() {
                 blockingStatus = false
             }
             "aftertick" -> stopBlocking()
-            else -> return
+            else -> null
         }
     }
 
     private fun postBlocking(entity: EntityLivingBase) {
+        if (autoBlockModeValue.get().equals("None", true) || autoBlockModeValue.get().equals("Fake", true))
+            return
+
         if (!(blockRate.get() > 0 && Random().nextInt(100) <= blockRate.get()))
             return
 
@@ -947,7 +951,7 @@ class KillAura : Module() {
         when (autoBlockModeValue.get().lowercase()) {
             "vanilla", "oldintave" -> startBlocking(entity, interactAutoBlockValue.get())
             "polar" -> if (mc.thePlayer.hurtTime < 8 && mc.thePlayer.hurtTime != 1 && mc.thePlayer.fallDistance > 0) startBlocking(entity, interactAutoBlockValue.get())
-            else -> return
+            else -> null
         }
     }
 
