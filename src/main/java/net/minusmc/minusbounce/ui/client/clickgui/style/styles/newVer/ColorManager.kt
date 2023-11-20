@@ -1,9 +1,4 @@
-/*
- * MinusBounce Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/MinusMC/MinusBounce
- */
-package net.minusmc.minusbounce.ui.client.clickgui.newVer
+package net.minusmc.minusbounce.ui.client.clickgui.style.styles.newVer
 
 import java.awt.Color
 
@@ -14,6 +9,7 @@ object ColorManager {
     val button = Color(52, 52, 52)
     val moduleBackground = Color(39, 39, 39)
     val unusedSlider = Color(154, 154, 154)
+    val sliderButton = Color(69, 69, 69)
     val border = Color(25, 25, 25)
     val buttonOutline = Color(59, 59, 59)
 }

@@ -9,8 +9,8 @@ import net.minusmc.minusbounce.MinusBounce
 import net.minusmc.minusbounce.features.module.Module
 import net.minusmc.minusbounce.features.module.ModuleCategory
 import net.minusmc.minusbounce.features.module.ModuleInfo
-import net.minusmc.minusbounce.ui.client.clickgui.newVer.NewUi
 import net.minusmc.minusbounce.ui.client.clickgui.style.styles.*
+import net.minusmc.minusbounce.ui.client.clickgui.style.styles.newVer.NewUi
 import net.minusmc.minusbounce.utils.render.ColorUtils
 import net.minusmc.minusbounce.utils.render.RenderUtils
 import net.minusmc.minusbounce.value.BoolValue

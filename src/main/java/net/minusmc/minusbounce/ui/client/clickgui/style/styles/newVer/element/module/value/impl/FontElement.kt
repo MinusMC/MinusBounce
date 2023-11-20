@@ -1,30 +1,27 @@
-/*
- * MinusBounce Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/MinusMC/MinusBounce
- */
-package net.minusmc.minusbounce.ui.client.clickgui.newVer.element.module.value.impl
+package net.minusmc.minusbounce.ui.client.clickgui.style.styles.newVer.element.module.value.impl
 
-import net.minecraft.client.renderer.GlStateManager
-import net.minecraft.util.ResourceLocation
-import net.minusmc.minusbounce.ui.client.clickgui.newVer.ColorManager
-import net.minusmc.minusbounce.ui.client.clickgui.newVer.element.module.value.ValueElement
-import net.minusmc.minusbounce.ui.client.clickgui.newVer.extensions.animSmooth
+import net.minusmc.minusbounce.ui.client.clickgui.style.styles.newVer.ColorManager
+import net.minusmc.minusbounce.ui.client.clickgui.styles.newVer.element.module.value.ValueElement
+import net.minusmc.minusbounce.ui.client.clickgui.style.styles.newVer.extensions.animSmooth
 import net.minusmc.minusbounce.ui.font.Fonts
 import net.minusmc.minusbounce.utils.MouseUtils
+import net.minusmc.minusbounce.utils.getName
 import net.minusmc.minusbounce.utils.render.RenderUtils
-import net.minusmc.minusbounce.value.ListValue
+import net.minusmc.minusbounce.value.FontValue
+import net.minecraft.client.gui.FontRenderer
+import net.minecraft.client.renderer.GlStateManager
+import net.minecraft.util.ResourceLocation
 import org.lwjgl.opengl.GL11.*
 import java.awt.Color
 
-class ListElement(private val saveValue: ListValue): ValueElement<String>(saveValue) {
+class FontElement(val saveValue: FontValue): ValueElement<FontRenderer>(saveValue) {
     private var expandHeight = 0F
     private var expansion = false
 
-    private val maxSubWidth = -(saveValue.values.minOfOrNull { -Fonts.font40.getStringWidth(it) } ?: 0F).toFloat() + 20F
+    private val maxSubWidth = -(saveValue.values.map { -Fonts.font40.getStringWidth(it.getName()) }.minOrNull() ?: 0F).toFloat() + 20F
 
     companion object {
-        val expanding = ResourceLocation("minusbounce/expand.png") }
+        val expanding = ResourceLocation("liquidbounce+/expand.png") }
 
     override fun drawElement(mouseX: Int, mouseY: Int, x: Float, y: Float, width: Float, bgColor: Color, accentColor: Color): Float {
         expandHeight = expandHeight.animSmooth(if (expansion) 16F * (saveValue.values.size - 1F) else 0F, 0.5F)
@@ -40,7 +37,7 @@ class ListElement(private val saveValue: ListValue): ValueElement<String>(saveVa
         RenderUtils.drawImage(expanding, -4, -4, 8, 8)
         glPopMatrix()
         glPopMatrix()
-        Fonts.font40.drawString(value.get(), x + width - 14F - maxSubWidth, y + 6F, -1)
+        Fonts.font40.drawString(value.get().getName(), x + width - 14F - maxSubWidth, y + 6F, -1)
         glPushMatrix()
         GlStateManager.translate(x + width - 14F - maxSubWidth, y + 7F, 0F)
         GlStateManager.scale(percent, percent, percent)
@@ -61,7 +58,7 @@ class ListElement(private val saveValue: ListValue): ValueElement<String>(saveVa
             var vertHeight = 0F
             for (subV in unusedValues) {
                 if (MouseUtils.mouseWithinBounds(mouseX, mouseY, x + width - 14F - maxSubWidth, y + 18F + vertHeight, x + width - 10F, y + 34F + vertHeight)) {
-                    value.set(subV)
+                    (value as FontValue).setByName(subV)
                     expansion = false
                     break
                 }
@@ -70,6 +67,6 @@ class ListElement(private val saveValue: ListValue): ValueElement<String>(saveVa
         }
     }
 
-    private val unusedValues: List<String>
-        get() = saveValue.values.filter { it != value.get() }
+    val unusedValues: List<String>
+        get() = saveValue.values.filter { it != value.get() }.map { it.getName() }
 }
