@@ -934,11 +934,14 @@ class KillAura : Module() {
                 blockingStatus = false
             }
             "aftertick" -> stopBlocking()
-            else -> return
+            else -> null
         }
     }
 
     private fun postBlocking(entity: EntityLivingBase) {
+        if (autoBlockModeValue.get().equals("None", true) || autoBlockModeValue.get().equals("Fake", true))
+            return
+
         if (!(blockRate.get() > 0 && Random().nextInt(100) <= blockRate.get()))
             return
 
@@ -948,7 +951,7 @@ class KillAura : Module() {
         when (autoBlockModeValue.get().lowercase()) {
             "vanilla", "oldintave" -> startBlocking(entity, interactAutoBlockValue.get())
             "polar" -> if (mc.thePlayer.hurtTime < 8 && mc.thePlayer.hurtTime != 1 && mc.thePlayer.fallDistance > 0) startBlocking(entity, interactAutoBlockValue.get())
-            else -> return
+            else -> null
         }
     }
 
