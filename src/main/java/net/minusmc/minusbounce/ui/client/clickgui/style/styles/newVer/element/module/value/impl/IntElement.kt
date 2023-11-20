@@ -1,20 +1,15 @@
-/*
- * MinusBounce Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/MinusMC/MinusBounce
- */
-package net.minusmc.minusbounce.ui.client.clickgui.newVer.element.module.value.impl
+package net.minusmc.minusbounce.ui.client.clickgui.styles.newVer.element.module.value.impl
 
-import net.minusmc.minusbounce.ui.client.clickgui.newVer.ColorManager
-import net.minusmc.minusbounce.ui.client.clickgui.newVer.element.components.Slider
-import net.minusmc.minusbounce.ui.client.clickgui.newVer.element.module.value.ValueElement
+import net.minusmc.minusbounce.ui.client.clickgui.style.styles.newVer.ColorManager
+import net.minusmc.minusbounce.ui.client.clickgui.styles.newVer.element.components.Slider
+import net.minusmc.minusbounce.ui.client.clickgui.styles.newVer.element.module.value.ValueElement
 import net.minusmc.minusbounce.ui.font.Fonts
 import net.minusmc.minusbounce.utils.MouseUtils
 import net.minusmc.minusbounce.utils.render.RenderUtils
 import net.minusmc.minusbounce.value.IntegerValue
 import java.awt.Color
 
-class IntElement(private val savedValue: IntegerValue): ValueElement<Int>(savedValue) {
+class IntElement(val savedValue: IntegerValue): ValueElement<Int>(savedValue) {
     private val slider = Slider()
     private var dragged = false
 

@@ -7,10 +7,7 @@ package net.minusmc.minusbounce.utils.render
 
 import net.minecraft.client.gui.Gui
 import net.minecraft.client.gui.ScaledResolution
-import net.minecraft.client.renderer.GlStateManager
-import net.minecraft.client.renderer.OpenGlHelper
-import net.minecraft.client.renderer.RenderHelper
-import net.minecraft.client.renderer.Tessellator
+import net.minecraft.client.renderer.*
 import net.minecraft.client.renderer.culling.Frustum
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats
 import net.minecraft.enchantment.Enchantment
@@ -101,6 +98,25 @@ object RenderUtils : MinecraftInstance() {
         worldrenderer.pos((x + 0).toDouble(), (y + 0).toDouble(), zLevel.toDouble())
             .tex(((textureX + 0).toFloat() * f).toDouble(), ((textureY + 0).toFloat() * f1).toDouble()).endVertex()
         tessellator.draw()
+    }
+
+    fun drawSquareTriangle(cx: Float, cy: Float, dirX: Float, dirY: Float, color: Color, filled: Boolean) {
+        val tessellator = Tessellator.getInstance()
+        val worldrenderer = tessellator.worldRenderer
+        GlStateManager.enableBlend()
+        GlStateManager.disableTexture2D()
+        GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0)
+        GlStateManager.resetColor()
+        glColor(color)
+        worldrenderer.begin(if (filled) 5 else 2, DefaultVertexFormats.POSITION)
+        worldrenderer.pos((cx + dirX).toDouble(), cy.toDouble(), 0.0).endVertex()
+        worldrenderer.pos(cx.toDouble(), cy.toDouble(), 0.0).endVertex()
+        worldrenderer.pos(cx.toDouble(), (cy + dirY).toDouble(), 0.0).endVertex()
+        worldrenderer.pos((cx + dirX).toDouble(), cy.toDouble(), 0.0).endVertex()
+        tessellator.draw()
+        GlStateManager.enableTexture2D()
+        GlStateManager.disableBlend()
+        GlStateManager.color(1f, 1f, 1f, 1f)
     }
 
     fun drawGradientSidewaysH(left: Double, top: Double, right: Double, bottom: Double, col1: Int, col2: Int) {

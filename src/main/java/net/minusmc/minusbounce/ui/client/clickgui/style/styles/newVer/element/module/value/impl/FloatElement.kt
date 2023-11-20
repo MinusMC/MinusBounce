@@ -1,13 +1,8 @@
-/*
- * MinusBounce Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/MinusMC/MinusBounce
- */
-package net.minusmc.minusbounce.ui.client.clickgui.newVer.element.module.value.impl
+package net.minusmc.minusbounce.ui.client.clickgui.styles.newVer.element.module.value.impl
 
-import net.minusmc.minusbounce.ui.client.clickgui.newVer.ColorManager
-import net.minusmc.minusbounce.ui.client.clickgui.newVer.element.components.Slider
-import net.minusmc.minusbounce.ui.client.clickgui.newVer.element.module.value.ValueElement
+import net.minusmc.minusbounce.ui.client.clickgui.style.styles.newVer.ColorManager
+import net.minusmc.minusbounce.ui.client.clickgui.styles.newVer.element.components.Slider
+import net.minusmc.minusbounce.ui.client.clickgui.styles.newVer.element.module.value.ValueElement
 import net.minusmc.minusbounce.ui.font.Fonts
 import net.minusmc.minusbounce.utils.MouseUtils
 import net.minusmc.minusbounce.utils.render.RenderUtils
@@ -29,6 +24,7 @@ class FloatElement(val savedValue: FloatValue): ValueElement<Float>(savedValue) 
         val startPoint = x + width - 20F - sliderWidth - maxLength - valueDisplay
         if (dragged)
             savedValue.set(round(savedValue.minimum + (savedValue.maximum - savedValue.minimum) / sliderWidth * (mouseX - startPoint)).coerceIn(savedValue.minimum, savedValue.maximum))
+        val currLength = Fonts.font40.getStringWidth("${round(savedValue.get())}${savedValue.suffix}")
         Fonts.font40.drawString(value.name, x + 10F, y + 10F - Fonts.font40.FONT_HEIGHT / 2F + 2F, -1)
         Fonts.font40.drawString("${savedValue.maximum}${savedValue.suffix}", 
                                 x + width - 10F - maxLength - valueDisplay, 

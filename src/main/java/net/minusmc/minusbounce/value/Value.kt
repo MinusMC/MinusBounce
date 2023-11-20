@@ -14,6 +14,7 @@ import net.minusmc.minusbounce.ui.font.Fonts
 import net.minusmc.minusbounce.utils.ClientUtils
 import net.minusmc.minusbounce.utils.extensions.setAlpha
 import net.minecraft.client.gui.FontRenderer
+import net.minusmc.minusbounce.utils.FontUtils
 import java.awt.Color
 import java.util.*
 
@@ -150,6 +151,13 @@ class FontValue(valueName: String, value: FontRenderer, displayable: () -> Boole
         if (!element.isJsonObject) return
         val valueObject = element.asJsonObject
         value = Fonts.getFontRenderer(valueObject["fontName"].asString, valueObject["fontSize"].asInt)
+    }
+
+    val values
+        get() = FontUtils.getAllFontDetails().map { it.second }
+
+    fun setByName(name: String) {
+        set((FontUtils.getAllFontDetails().find { it.first.equals(name, true)} ?: return).second )
     }
 }
 
