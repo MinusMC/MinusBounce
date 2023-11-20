@@ -19,6 +19,7 @@ import net.minusmc.minusbounce.ui.client.altmanager.GuiAltManager
 import net.minusmc.minusbounce.ui.client.clickgui.ClickGui
 import net.minusmc.minusbounce.ui.client.hud.HUD
 import net.minusmc.minusbounce.ui.client.hud.HUD.Companion.createDefault
+import net.minusmc.minusbounce.ui.client.MainMenuButton
 import net.minusmc.minusbounce.ui.font.Fonts
 import net.minusmc.minusbounce.utils.ClassUtils.hasForge
 import net.minusmc.minusbounce.utils.ClientUtils
@@ -63,6 +64,8 @@ object MinusBounce {
     var lastTick : Long = 0L
 
     var playTimeStart: Long = 0L
+
+    val mainMenuButton = hashMapOf<String, Class<GuiScreen<*>>>
 
     /**
      * Execute if client will be started

@@ -15,6 +15,8 @@ import net.minecraft.client.Minecraft
 import java.awt.Color
 
 class GuiMainMenu : GuiScreen(), GuiYesNoCallback {
+    private var buttons = hashMapOf<Int, Class<GuiScreen<*>>>
+
     override fun initGui() {
         val defaultHeight = (this.height / 2.5).toInt()
 
@@ -24,6 +26,17 @@ class GuiMainMenu : GuiScreen(), GuiYesNoCallback {
         this.buttonList.add(MainMenuButton(103, this.width / 2 + 20, defaultHeight + 30, "Mods and plugins"))
         this.buttonList.add(MainMenuButton(0, this.width / 2 - 120, defaultHeight + 30 * 2, "Options"))
         this.buttonList.add(MainMenuButton(4, this.width / 2 + 20, defaultHeight + 30 * 2, "Quit"))
+
+        var id = 201
+        MinusBounce.mainMenuButton.forEach {
+            buttonText, clazz -> {
+                val width = this.width / 2 + if (id % 2 == 0) 20 else -120
+                val height = defaultHeight + 30 * 3 + 30 * ((id - 201) / 2)
+                this.buttonList.add(MainMenuButton(id, width, height, buttonText))
+                buttons.add(id, clazz)
+                id++
+            }
+        }
 
         super.initGui()
     }
@@ -50,6 +63,10 @@ class GuiMainMenu : GuiScreen(), GuiYesNoCallback {
             4 -> mc.shutdown()
             100 -> mc.displayGuiScreen(GuiAltManager(this))
             103 -> mc.displayGuiScreen(GuiModList(this))
+            else -> {
+                val clazzButton = buttons[button.id] ?: return
+                mc.displayGuiScreen(clazzButton.newInstance())
+            }
         }
     }
 

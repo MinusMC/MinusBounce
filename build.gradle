@@ -134,3 +134,15 @@ configurations {
 tasks.reobfShadowJar.mustRunAfter shadowJar
 
 tasks.reobfJar.dependsOn(shadowJar)
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId = project.group
+            artifactId = project.name
+            version = project.version
+
+            from components.java
+        }
+    }
+}
