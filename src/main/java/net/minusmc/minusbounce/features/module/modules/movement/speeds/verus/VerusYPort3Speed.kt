@@ -9,13 +9,13 @@ class VerusYPort3Speed: SpeedMode("VerusYPort3", SpeedType.VERUS) {
 
     override fun onDisable() {
         verusTick = 0
+        mc.timer.timerSpeed = 1f
     }
 
     override fun onUpdate() {
-        if (MovementUtils.isMoving && mc.thePlayer.onGround) {
-            if (verusTick == 0) {
-                mc.thePlayer.motionY = 0.42
-                mc.timer.timerSpeed = 1.2f
+        if (MovementUtils.isMoving) {
+            if (mc.thePlayer.onGround && verusTick == 0) {
+                mc.thePlayer.jump()
                 verusTick = 1
             } else if (verusTick == 1) {
                 verusTick = 2
@@ -25,7 +25,8 @@ class VerusYPort3Speed: SpeedMode("VerusYPort3", SpeedType.VERUS) {
                 mc.timer.timerSpeed = 1f
             } else if (verusTick < 5) {
                 verusTick++
-                if (mc.thePlayer.ticksExisted % 2 == 0) {
+                mc.timer.timerSpeed = 1.05f
+                if (mc.thePlayer.ticksExisted % 3 == 0) {
                     mc.thePlayer.motionY -= 0.16
                 } else {
                     mc.thePlayer.motionY -= 0.11

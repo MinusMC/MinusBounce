@@ -17,7 +17,7 @@ class VerusYPort4Speed: SpeedMode("VerusYPort4", SpeedType.VERUS){
             doSpeed = true
         } else if (doSpeed) {
             doSpeed = false
-            mc.thePlayer.motionY -= 0.12
+            mc.thePlayer.motionY -= 0.25
         }
     }
 }
