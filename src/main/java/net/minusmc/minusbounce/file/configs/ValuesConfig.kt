@@ -18,7 +18,6 @@ import net.minusmc.minusbounce.file.FileManager
 import net.minusmc.minusbounce.ui.client.GuiBackground.Companion.enabled
 import net.minusmc.minusbounce.ui.client.GuiBackground.Companion.particles
 import net.minusmc.minusbounce.ui.client.altmanager.menus.GuiTheAltening.Companion.apiKey
-import net.minusmc.minusbounce.utils.ListValuesOverride
 import net.minusmc.minusbounce.value.ListValue
 import net.minusmc.minusbounce.value.Value
 import java.io.*

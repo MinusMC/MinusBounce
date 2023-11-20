@@ -118,7 +118,6 @@ class KillAura : Module() {
             "None",
             "Fake",
             "AfterTick",
-            "OldAfterTick",
             "Vanilla",
             "Vanilla2",
             "Polar",
@@ -309,14 +308,6 @@ class KillAura : Module() {
                 when (mc.thePlayer.swingProgressInt) {
                     1 -> stopBlocking()
                     2 -> startBlocking(currentTarget!!, interactAutoBlockValue.get() && mc.thePlayer.getDistanceToEntityBox(currentTarget!!) < maxRange)
-                }
-            }
-
-            if (autoBlockModeValue.get().equals("OldAfterTick", true) && canBlock) {
-                if (mc.thePlayer.getDistanceToEntityBox(currentTarget!!) <= autoBlockRangeValue.get())
-                    startBlocking(currentTarget!!, hitable)
-                else {
-                    if (!mc.thePlayer.isBlocking) stopBlocking()
                 }
             }
         }

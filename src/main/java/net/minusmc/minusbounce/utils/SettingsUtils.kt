@@ -7,8 +7,7 @@ package net.minusmc.minusbounce.utils
 
 import net.minusmc.minusbounce.MinusBounce
 import net.minusmc.minusbounce.features.module.ModuleCategory
-import net.minusmc.minusbounce.features.module.modules.misc.NameProtect
-import net.minusmc.minusbounce.features.module.modules.misc.Spammer
+import net.minusmc.minusbounce.features.module.modules.client.Animations
 import net.minusmc.minusbounce.features.special.MacroManager
 import net.minusmc.minusbounce.utils.misc.HttpUtils.get
 import net.minusmc.minusbounce.utils.misc.StringUtils
@@ -122,7 +121,9 @@ object SettingsUtils {
 
         MacroManager.macroMapping.filter { it.key != 0 }.forEach { stringBuilder.append("macro ${it.key} ${it.value}").append("\n") }
 
-        MinusBounce.moduleManager.modules.forEach {
+        MinusBounce.moduleManager.modules.filter{
+            it !is Animations
+        }.forEach {
             if (values)
                 it.values.forEach { value -> stringBuilder.append("${it.name} ${value.name} ${value.get()}").append("\n") }
 
