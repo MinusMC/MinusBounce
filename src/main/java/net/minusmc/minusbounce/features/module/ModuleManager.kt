@@ -39,13 +39,13 @@ class ModuleManager : Listenable {
     /**
      * Register [module]
      */
-    private fun registerModule(module: Module) {
+     fun registerModule(module: Module) {
         modules += module
         moduleClassMap[module.javaClass] = module
 
         generateCommand(module)
         MinusBounce.eventManager.registerListener(module)
-    }
+     }
 
     /**
      * Register [moduleClass]
