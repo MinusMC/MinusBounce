@@ -5,13 +5,16 @@
  */
 package net.minusmc.minusbounce.ui.client
 
+import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.*
+import net.minecraft.client.renderer.GlStateManager
+import net.minecraft.util.ResourceLocation
 import net.minecraftforge.fml.client.GuiModList
 import net.minusmc.minusbounce.MinusBounce
-import net.minusmc.minusbounce.utils.render.RenderUtils
 import net.minusmc.minusbounce.ui.client.altmanager.GuiAltManager
 import net.minusmc.minusbounce.ui.font.Fonts
-import net.minecraft.client.Minecraft
+import net.minusmc.minusbounce.utils.render.RenderUtils
+import org.lwjgl.opengl.GL11
 import java.awt.Color
 
 class GuiMainMenu : GuiScreen(), GuiYesNoCallback {
@@ -20,18 +23,21 @@ class GuiMainMenu : GuiScreen(), GuiYesNoCallback {
     override fun initGui() {
         val defaultHeight = (this.height / 2.5).toInt()
 
-        this.buttonList.add(MainMenuButton(1, this.width / 2 - 120, defaultHeight, "Singleplayer"))
-        this.buttonList.add(MainMenuButton(2, this.width / 2 + 20, defaultHeight, "Multiplayer"))
-        this.buttonList.add(MainMenuButton(100, this.width / 2 - 120, defaultHeight + 30, "Alt manager"))
-        this.buttonList.add(MainMenuButton(103, this.width / 2 + 20, defaultHeight + 30, "Mods and plugins"))
-        this.buttonList.add(MainMenuButton(0, this.width / 2 - 120, defaultHeight + 30 * 2, "Options"))
-        this.buttonList.add(MainMenuButton(120, this.width / 2 + 20, defaultHeight + 30 * 2, "Quit"))
+        this.buttonList.add(MainMenuButton(0, this.width / 2 - 120, defaultHeight, "Singleplayer"))
+        this.buttonList.add(MainMenuButton(1, this.width / 2 + 20, defaultHeight, "Multiplayer"))
+        this.buttonList.add(MainMenuButton(2, this.width / 2 - 120, defaultHeight + 30, "Alt manager"))
+        this.buttonList.add(MainMenuButton(3, this.width / 2 + 20, defaultHeight + 30, "Mods and plugins"))
+        this.buttonList.add(CircleButton(4, this.width - 90, 10, "Options", ResourceLocation("minusbounce/menu/settings.png")))
+        this.buttonList.add(CircleButton(5, this.width - 50, 10, "Quit", ResourceLocation("minusbounce/menu/quit.png")))
 
         var id = 201
         MinusBounce.mainMenuButton.forEach {
-            val width = this.width / 2 + if (id % 2 == 0) 20 else -120
+            val width = this.width / 2 + when (id % 2) {
+                0 -> 20
+                else -> -120
+            }
             val height = defaultHeight + 30 * 3 + 30 * ((id - 201) / 2)
-            this.buttonList.add(MainMenuButton(id, width, height, it.key))
+            this.buttonList.add(GuiButton(id, width, height, it.key))
             buttons[id] = it.value
             id++
         }
@@ -55,12 +61,12 @@ class GuiMainMenu : GuiScreen(), GuiYesNoCallback {
 
     override fun actionPerformed(button: GuiButton) {
         when (button.id) {
-            0 -> mc.displayGuiScreen(GuiOptions(this, mc.gameSettings))
-            1 -> mc.displayGuiScreen(GuiSelectWorld(this))
-            2 -> mc.displayGuiScreen(GuiMultiplayer(this))
-            120 -> mc.shutdown()
-            100 -> mc.displayGuiScreen(GuiAltManager(this))
-            103 -> mc.displayGuiScreen(GuiModList(this))
+            0 -> mc.displayGuiScreen(GuiSelectWorld(this))
+            1 -> mc.displayGuiScreen(GuiMultiplayer(this))
+            2 -> mc.displayGuiScreen(GuiAltManager(this))
+            3 -> mc.displayGuiScreen(GuiModList(this))
+            4 -> mc.displayGuiScreen(GuiOptions(this, mc.gameSettings))
+            5 -> mc.shutdown()
             else -> {
                 val clazzButton = buttons[button.id] ?: return
                 mc.displayGuiScreen(clazzButton.getConstructor(GuiScreen::class.java).newInstance(this) as GuiScreen)
@@ -71,9 +77,35 @@ class GuiMainMenu : GuiScreen(), GuiYesNoCallback {
     override fun keyTyped(typedChar: Char, keyCode: Int) {}
 }
 
+class CircleButton(buttonId: Int, x: Int, y: Int, buttonText: String, private val image: ResourceLocation): GuiButton(buttonId, x, y, buttonText) {
+    private val radius = 15f
+    init {
+        width = radius.toInt() * 2
+        height = radius.toInt() * 2
+    }
+    override fun drawButton(mc: Minecraft?, mouseX: Int, mouseY: Int) {
+        GlStateManager.enableBlend()
+        GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0)
+        GlStateManager.blendFunc(770, 771)
+        RenderUtils.drawFilledCircle(xPosition.toFloat() + radius, yPosition.toFloat() + radius, radius, Color(249, 246, 238, 220))
+        RenderUtils.drawCircle(xPosition.toFloat() + radius, yPosition.toFloat() + radius, radius, 2f, 0, 360, Color(54, 69, 79))
+        GL11.glPushMatrix()
+        GL11.glPushAttrib(1048575)
+        GL11.glScaled(1.0, 1.0, 1.0)
+        RenderUtils.drawImage(image, xPosition + radius.toInt() / 2, yPosition + radius.toInt() / 2, 16, 16)
+        GL11.glPopAttrib()
+        GL11.glPopMatrix()
+    }
+}
+
 class MainMenuButton(buttonId: Int, x: Int, y: Int, buttonText: String): GuiButton(buttonId, x, y, buttonText) {
-    override fun drawButton(mc: Minecraft, mouseX: Int, mouseY: Int) {
-        RenderUtils.drawRoundedRect(xPosition.toFloat(), yPosition.toFloat(), xPosition.toFloat() + 100f, yPosition.toFloat() + 20f, 3f, Color(237, 234, 222).rgb)
-        Fonts.font40.drawCenteredString(displayString, (xPosition + 50).toFloat(), (yPosition + 6).toFloat(), Color.BLACK.rgb, false)
+    init {
+        width = 100
+        height = 20
+    }
+
+    override fun drawButton(mc: Minecraft?, mouseX: Int, mouseY: Int) {
+        RenderUtils.drawRoundedRect(xPosition.toFloat(), yPosition.toFloat(), (xPosition + width).toFloat(), (yPosition + height).toFloat(), 4f, Color(249, 246, 238, 220).rgb)
+        Fonts.font40.drawCenteredString(displayString, xPosition.toFloat() + width.toFloat() / 2f, yPosition.toFloat() + height.toFloat() / 2 - mc!!.fontRendererObj.FONT_HEIGHT / 2, Color(54, 69, 79).rgb, false)
     }
 }

@@ -18,12 +18,12 @@ import net.minusmc.minusbounce.file.FileManager
 import net.minusmc.minusbounce.ui.client.GuiBackground.Companion.enabled
 import net.minusmc.minusbounce.ui.client.GuiBackground.Companion.particles
 import net.minusmc.minusbounce.ui.client.altmanager.menus.GuiTheAltening.Companion.apiKey
-import net.minusmc.minusbounce.value.ListValue
 import net.minusmc.minusbounce.value.Value
 import java.io.*
 import java.util.function.Consumer
 
 class ValuesConfig(file: File?) : FileConfig(file!!) {
+    @Throws(IOException::class)
     override fun loadConfig() {
         val jsonElement = JsonParser().parse(BufferedReader(FileReader(file)))
         if (jsonElement is JsonNull) return
@@ -63,15 +63,14 @@ class ValuesConfig(file: File?) : FileConfig(file!!) {
                     val jsonModule = value as JsonObject
                     for (moduleValue in module.values) {
                         val element = jsonModule[moduleValue.name]
-                        if (element != null) {
-                            moduleValue.fromJson(element)
-                        }
+                        if (element != null) moduleValue.fromJson(element)
                     }
                 }
             }
         }
     }
 
+    @Throws(IOException::class)
     override fun saveConfig() {
         val jsonObject = JsonObject()
         jsonObject.addProperty("CommandPrefix", MinusBounce.commandManager.prefix)

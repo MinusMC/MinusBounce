@@ -6,32 +6,25 @@
 package net.minusmc.minusbounce
 
 import net.minecraft.client.gui.GuiScreen
+import net.minecraft.util.ResourceLocation
 import net.minusmc.minusbounce.event.ClientShutdownEvent
 import net.minusmc.minusbounce.event.EventManager
 import net.minusmc.minusbounce.features.command.CommandManager
 import net.minusmc.minusbounce.features.module.ModuleManager
 import net.minusmc.minusbounce.features.special.AntiForge
 import net.minusmc.minusbounce.features.special.BungeeCordSpoof
-import net.minusmc.minusbounce.features.special.MacroManager
 import net.minusmc.minusbounce.features.special.CombatManager
+import net.minusmc.minusbounce.features.special.MacroManager
 import net.minusmc.minusbounce.file.FileManager
+import net.minusmc.minusbounce.plugin.PluginAPIVersion
 import net.minusmc.minusbounce.plugin.PluginManager
 import net.minusmc.minusbounce.ui.client.altmanager.GuiAltManager
 import net.minusmc.minusbounce.ui.client.clickgui.ClickGui
 import net.minusmc.minusbounce.ui.client.hud.HUD
 import net.minusmc.minusbounce.ui.client.hud.HUD.Companion.createDefault
-import net.minusmc.minusbounce.ui.client.MainMenuButton
 import net.minusmc.minusbounce.ui.font.Fonts
-import net.minusmc.minusbounce.utils.ClassUtils.hasForge
-import net.minusmc.minusbounce.utils.ClientUtils
-import net.minusmc.minusbounce.utils.InventoryHelper
-import net.minusmc.minusbounce.utils.InventoryUtils
-import net.minusmc.minusbounce.utils.PacketUtils
-import net.minusmc.minusbounce.utils.RotationUtils
-import net.minusmc.minusbounce.utils.SessionUtils
+import net.minusmc.minusbounce.utils.*
 import net.minusmc.minusbounce.utils.misc.sound.TipSoundManager
-import net.minecraft.util.ResourceLocation
-import net.minusmc.minusbounce.plugin.PluginAPIVersion
 
 object MinusBounce {
 
