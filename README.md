@@ -10,6 +10,7 @@
 
 - [Git](https://git-scm.com/)
 - [Minecraft 1.8.9](https://www.minecraft.net/)
+- And a text editor like VSCode, SublimeText, Notepad, ... :trollface:
 
 ### Developement
 

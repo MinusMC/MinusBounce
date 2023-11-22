@@ -241,6 +241,7 @@ class ClickGui : GuiScreen() {
 
     override fun onGuiClosed() {
         MinusBounce.fileManager.saveConfig(MinusBounce.fileManager.clickGuiConfig)
+        MinusBounce.fileManager.saveConfig(MinusBounce.fileManager.valuesConfig)
     }
 
     override fun doesGuiPauseGame(): Boolean {

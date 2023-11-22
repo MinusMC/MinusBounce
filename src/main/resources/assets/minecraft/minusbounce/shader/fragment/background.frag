@@ -12,7 +12,7 @@ void main( void ) {
 
     float speed = iTime * .1;
     float cycle = clamp(iTime, 999.0,9999.0);
-    vec2 uPos = ( gl_FragCoord.xy / iResolution.xy );	
+    vec2 uPos = ( gl_FragCoord.xy / iResolution.xy );
     uPos.y -= 0.50;
     uPos.y += (tan( uPos.x * cycle + speed ) - tan( uPos.x * 10000. + speed )) * .02;
 
