@@ -17,7 +17,7 @@
 1. Clone the repository:
 
     ```bash
-    git clone https://github.com/MinusMCNetwork/MinusBouce.git
+    git clone https://github.com/MinusMCNetwork/MinusBounce.git
     ```
    
 2. Navigate to the project directory:
