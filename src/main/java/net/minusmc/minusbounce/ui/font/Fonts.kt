@@ -48,8 +48,23 @@ object Fonts {
     @field:FontDetails(fontName = "Bangers", fontSize = 45)
     lateinit var fontBangers: GameFontRenderer
 
-    // @field:FontDetails(fontName = "Blanka", fontSize = 45)
-    // lateinit var fontBlanka: GameFontRenderer
+    @field:FontDetails(fontName = "Blanka", fontSize = 70)
+    lateinit var fontBlanka: GameFontRenderer
+
+    @FontDetails(fontName = "Tenacity35", fontSize = 35)
+    lateinit var fontTenacity35: GameFontRenderer
+
+    @FontDetails(fontName = "TenacityBold35", fontSize = 35)
+    lateinit var fontTenacityBold35: GameFontRenderer
+
+    @FontDetails(fontName = "tenacity40", fontSize = 40)
+    lateinit var fontTenacity40: GameFontRenderer
+
+    @FontDetails(fontName = "tenacityBold40", fontSize = 40)
+    lateinit var fontTenacityBold40: GameFontRenderer
+
+    @FontDetails(fontName = "TenacityIcon30", fontSize = 30)
+    lateinit var fontTenacityIcon30: GameFontRenderer
 
     @field:FontDetails(fontName = "Minecraft Font")
     val minecraftFont: FontRenderer = Minecraft.getMinecraft().fontRendererObj
@@ -70,7 +85,12 @@ object Fonts {
         fontTahoma = GameFontRenderer(getFont("TahomaBold.ttf", 35))
         fontTahomaSmall = TTFFontRenderer(getFont("Tahoma.ttf", 11))
         fontBangers = GameFontRenderer(getFont("Bangers-Regular.ttf", 45))
-        //fontBlanka = GameFontRenderer(getFont("Blanka-Regular.ttf", 45))
+        fontBlanka = GameFontRenderer(getFont("Blanka-Regular.ttf", 70))
+        fontTenacity35 = GameFontRenderer(getFont("tenacity.ttf", 35))
+        fontTenacityBold35 = GameFontRenderer(getFont("tenacity-bold", 35))
+        fontTenacityIcon30 = GameFontRenderer(getFont("Tenacityicon", 30))
+        fontTenacity40 = GameFontRenderer(getFont("tenacity", 40))
+        fontTenacityBold40 = GameFontRenderer(getFont("tenacity-bold", 40))
         try {
             CUSTOM_FONT_RENDERERS.clear()
             val fontsFile = File(MinusBounce.fileManager.fontsDir, "fonts.json")
