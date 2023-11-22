@@ -7,7 +7,10 @@ package net.minusmc.minusbounce.utils.render
 
 import net.minecraft.client.gui.Gui
 import net.minecraft.client.gui.ScaledResolution
-import net.minecraft.client.renderer.*
+import net.minecraft.client.renderer.GlStateManager
+import net.minecraft.client.renderer.OpenGlHelper
+import net.minecraft.client.renderer.RenderHelper
+import net.minecraft.client.renderer.Tessellator
 import net.minecraft.client.renderer.culling.Frustum
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats
 import net.minecraft.enchantment.Enchantment
@@ -28,9 +31,12 @@ import net.minusmc.minusbounce.features.module.modules.render.TargetMark
 import net.minusmc.minusbounce.ui.font.Fonts
 import net.minusmc.minusbounce.utils.MinecraftInstance
 import net.minusmc.minusbounce.utils.block.BlockUtils
+import net.minusmc.minusbounce.utils.render.ColorUtils.setColour
 import org.lwjgl.opengl.GL11
+import org.lwjgl.opengl.GL11.*
 import java.awt.Color
 import kotlin.math.*
+
 
 object RenderUtils : MinecraftInstance() {
     private val glCapMap: MutableMap<Int, Boolean> = HashMap()
@@ -70,16 +76,7 @@ object RenderUtils : MinecraftInstance() {
     }
 
     private val frustrum = Frustum()
-    var zLevel = 0f
-
-    fun color(color: Int) = color(color, ((color shr 24 and 0xFF) / 255).toFloat())
-
-    fun color(color: Int, alpha: Float) {
-        val r = (color shr 16 and 0xFF) / 255.0f
-        val g = (color shr 8 and 0xFF) / 255.0f
-        val b = (color and 0xFF) / 255.0f
-        GlStateManager.color(r, g, b, alpha)
-    }
+    internal var zLevel = 0f
 
     /**
      * Draws a textured rectangle at the stored z-value. Args: x, y, u, v, width, height
@@ -100,25 +97,6 @@ object RenderUtils : MinecraftInstance() {
         worldrenderer.pos((x + 0).toDouble(), (y + 0).toDouble(), zLevel.toDouble())
             .tex(((textureX + 0).toFloat() * f).toDouble(), ((textureY + 0).toFloat() * f1).toDouble()).endVertex()
         tessellator.draw()
-    }
-
-    fun drawSquareTriangle(cx: Float, cy: Float, dirX: Float, dirY: Float, color: Color, filled: Boolean) {
-        val tessellator = Tessellator.getInstance()
-        val worldrenderer = tessellator.worldRenderer
-        GlStateManager.enableBlend()
-        GlStateManager.disableTexture2D()
-        GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0)
-        GlStateManager.resetColor()
-        glColor(color)
-        worldrenderer.begin(if (filled) 5 else 2, DefaultVertexFormats.POSITION)
-        worldrenderer.pos((cx + dirX).toDouble(), cy.toDouble(), 0.0).endVertex()
-        worldrenderer.pos(cx.toDouble(), cy.toDouble(), 0.0).endVertex()
-        worldrenderer.pos(cx.toDouble(), (cy + dirY).toDouble(), 0.0).endVertex()
-        worldrenderer.pos((cx + dirX).toDouble(), cy.toDouble(), 0.0).endVertex()
-        tessellator.draw()
-        GlStateManager.enableTexture2D()
-        GlStateManager.disableBlend()
-        GlStateManager.color(1f, 1f, 1f, 1f)
     }
 
     fun drawGradientSidewaysH(left: Double, top: Double, right: Double, bottom: Double, col1: Int, col2: Int) {
@@ -167,6 +145,23 @@ object RenderUtils : MinecraftInstance() {
         GL11.glVertex2d(left, bottom) // TODO: Fix this, this may have been a mistake
         GL11.glVertex2d(right, bottom)
         GL11.glEnd()
+    }
+
+    fun drawHead(skin: ResourceLocation?, x: Int, y: Int, width: Int, height: Int, color: Int) {
+        val f3 = (color shr 24 and 255).toFloat() / 255.0f
+        val f = (color shr 16 and 255).toFloat() / 255.0f
+        val f1 = (color shr 8 and 255).toFloat() / 255.0f
+        val f2 = (color and 255).toFloat() / 255.0f
+        GlStateManager.color(f, f1, f2, f3)
+        mc.textureManager.bindTexture(skin)
+        RenderUtils.drawScaledCustomSizeModalRect(
+            x, y, 8f, 8f, 8, 8, width, height,
+            64f, 64f
+        )
+        RenderUtils.drawScaledCustomSizeModalRect(
+            x, y, 40f, 8f, 8, 8, width, height,
+            64f, 64f
+        )
     }
 
     fun isInViewFrustrum(entity: Entity): Boolean {
@@ -556,6 +551,33 @@ object RenderUtils : MinecraftInstance() {
         GL11.glDisable(GL11.GL_BLEND)
         GL11.glDisable(GL11.GL_LINE_SMOOTH)
         if (popPush) GL11.glPopMatrix()
+    }
+
+    fun drawScaledCustomSizeModalRect(
+        x: Int,
+        y: Int,
+        u: Float,
+        v: Float,
+        uWidth: Int,
+        vHeight: Int,
+        width: Int,
+        height: Int,
+        tileWidth: Float,
+        tileHeight: Float
+    ) {
+        val f = 1.0f / tileWidth
+        val f1 = 1.0f / tileHeight
+        val tessellator = Tessellator.getInstance()
+        val worldrenderer = tessellator.worldRenderer
+        worldrenderer.begin(GL_QUADS, DefaultVertexFormats.POSITION_TEX)
+        worldrenderer.pos(x.toDouble(), (y + height).toDouble(), 0.0)
+            .tex((u * f).toDouble(), ((v + vHeight.toFloat()) * f1).toDouble()).endVertex()
+        worldrenderer.pos((x + width).toDouble(), (y + height).toDouble(), 0.0)
+            .tex(((u + uWidth.toFloat()) * f).toDouble(), ((v + vHeight.toFloat()) * f1).toDouble()).endVertex()
+        worldrenderer.pos((x + width).toDouble(), y.toDouble(), 0.0)
+            .tex(((u + uWidth.toFloat()) * f).toDouble(), (v * f1).toDouble()).endVertex()
+        worldrenderer.pos(x.toDouble(), y.toDouble(), 0.0).tex((u * f).toDouble(), (v * f1).toDouble()).endVertex()
+        tessellator.draw()
     }
 
     // rTL = radius top left, rTR = radius top right, rBR = radius bottom right, rBL = radius bottom left
@@ -1897,227 +1919,6 @@ object RenderUtils : MinecraftInstance() {
         worldRenderer.pos(x4.toDouble(), y2.toDouble(), z4.toDouble()).endVertex()
         tessellator.draw()
     }
-    fun drawHead(skin: ResourceLocation?, x: Int, y: Int, width: Int, height: Int, color: Int) {
-        val f3 = (color shr 24 and 255).toFloat() / 255.0f
-        val f = (color shr 16 and 255).toFloat() / 255.0f
-        val f1 = (color shr 8 and 255).toFloat() / 255.0f
-        val f2 = (color and 255).toFloat() / 255.0f
-        GlStateManager.color(f, f1, f2, f3)
-        mc.textureManager.bindTexture(skin)
-        RenderUtils.drawScaledCustomSizeModalRect(
-            x, y, 8f, 8f, 8, 8, width, height,
-            64f, 64f
-        )
-        RenderUtils.drawScaledCustomSizeModalRect(
-            x, y, 40f, 8f, 8, 8, width, height,
-            64f, 64f
-        )
-    }
-    fun drawScaledCustomSizeModalRect(
-        x: Int,
-        y: Int,
-        u: Float,
-        v: Float,
-        uWidth: Int,
-        vHeight: Int,
-        width: Int,
-        height: Int,
-        tileWidth: Float,
-        tileHeight: Float
-    ) {
-        val f = 1.0f / tileWidth
-        val f1 = 1.0f / tileHeight
-        val tessellator = Tessellator.getInstance()
-        val worldrenderer = tessellator.worldRenderer
-        worldrenderer.begin(GL_QUADS, DefaultVertexFormats.POSITION_TEX)
-        worldrenderer.pos(x.toDouble(), (y + height).toDouble(), 0.0)
-            .tex((u * f).toDouble(), ((v + vHeight.toFloat()) * f1).toDouble()).endVertex()
-        worldrenderer.pos((x + width).toDouble(), (y + height).toDouble(), 0.0)
-            .tex(((u + uWidth.toFloat()) * f).toDouble(), ((v + vHeight.toFloat()) * f1).toDouble()).endVertex()
-        worldrenderer.pos((x + width).toDouble(), y.toDouble(), 0.0)
-            .tex(((u + uWidth.toFloat()) * f).toDouble(), (v * f1).toDouble()).endVertex()
-        worldrenderer.pos(x.toDouble(), y.toDouble(), 0.0).tex((u * f).toDouble(), (v * f1).toDouble()).endVertex()
-        tessellator.draw()
-    }
-     fun otherDrawOutlinedBoundingBox(yaw: Float, x: Double, y: Double, z: Double, width: Double, height: Double) {
-        var width = width * 1.5
-        var yaw = (MathHelper.wrapAngleTo180_float(yaw) + 45.0).toFloat()
-
-        var yaw1: Float
-        var yaw2: Float
-        var yaw3: Float
-        var yaw4: Float
-        
-        if (yaw < 0.0) {
-            yaw1 = 360.0F - abs(yaw)
-        } else {
-            yaw1 = yaw.toFloat()
-        }
-        yaw1 *= -1.0F
-        yaw1 = (yaw1 * 0.017453292519943295).toFloat()
-        yaw += 90.0F
-        
-        if (yaw < 0.0) {
-            yaw2 = 0.0F
-            yaw2 += 360.0F - Math.abs(yaw)
-        } else {
-            yaw2 = yaw.toFloat()
-        }
-        yaw2 *= -1.0F
-        yaw2 = (yaw2 * 0.017453292519943295).toFloat()
-        
-        yaw += 90.0F
-        
-        if (yaw < 0.0) {
-            yaw3 = 0.0F
-            yaw3 += 360.0F - Math.abs(yaw)
-        } else {
-            yaw3 = yaw.toFloat()
-        }
-        
-        yaw3 *= -1.0F
-        yaw3 = (yaw3 * 0.017453292519943295).toFloat()
-
-        yaw += 90.0F
-
-        if (yaw < 0.0) {
-            yaw4 = 0.0F
-            yaw4 += 360.0F - Math.abs(yaw)
-        } else {
-            yaw4 = yaw.toFloat()
-        }
-        yaw4 *= -1.0F
-        yaw4 = (yaw4 * 0.017453292519943295).toFloat()
-        
-        val x1 = (sin(yaw1) * width + x).toFloat()
-        val z1 = (cos(yaw1) * width + z).toFloat()
-        val x2 = (sin(yaw2) * width + x).toFloat()
-        val z2 = (cos(yaw2) * width + z).toFloat()
-        val x3 = (sin(yaw3) * width + x).toFloat()
-        val z3 = (cos(yaw3) * width + z).toFloat()
-        val x4 = (sin(yaw4) * width + x).toFloat()
-        val z4 = (cos(yaw4) * width + z).toFloat()
-        val y2 = (y + height).toFloat()
-
-        val tessellator = Tessellator.getInstance()
-        val worldrenderer = tessellator.worldRenderer
-        worldrenderer.begin(GL11.GL_LINE_STRIP, DefaultVertexFormats.POSITION)
-        worldrenderer.pos(x1.toDouble(), y, z1.toDouble()).endVertex()
-        worldrenderer.pos(x1.toDouble(), y2.toDouble(), z1.toDouble()).endVertex()
-        worldrenderer.pos(x2.toDouble(), y2.toDouble(), z2.toDouble()).endVertex()
-        worldrenderer.pos(x2.toDouble(), y, z2.toDouble()).endVertex()
-        worldrenderer.pos(x1.toDouble(), y, z1.toDouble()).endVertex()
-        worldrenderer.pos(x4.toDouble(), y, z4.toDouble()).endVertex()
-        worldrenderer.pos(x3.toDouble(), y, z3.toDouble()).endVertex()
-        worldrenderer.pos(x3.toDouble(), y2.toDouble(), z3.toDouble()).endVertex()
-        worldrenderer.pos(x4.toDouble(), y2.toDouble(), z4.toDouble()).endVertex()
-        worldrenderer.pos(x4.toDouble(), y, z4.toDouble()).endVertex()
-        worldrenderer.pos(x4.toDouble(), y2.toDouble(), z4.toDouble()).endVertex()
-        worldrenderer.pos(x3.toDouble(), y2.toDouble(), z3.toDouble()).endVertex()
-        worldrenderer.pos(x2.toDouble(), y2.toDouble(), z2.toDouble()).endVertex()
-        worldrenderer.pos(x2.toDouble(), y, z2.toDouble()).endVertex()
-        worldrenderer.pos(x3.toDouble(), y, z3.toDouble()).endVertex()
-        worldrenderer.pos(x4.toDouble(), y, z4.toDouble()).endVertex()
-        worldrenderer.pos(x4.toDouble(), y2.toDouble(), z4.toDouble()).endVertex()
-        worldrenderer.pos(x1.toDouble(), y2.toDouble(), z1.toDouble()).endVertex()
-        worldrenderer.pos(x1.toDouble(), y, z1.toDouble()).endVertex()
-        tessellator.draw()
-    }
-    fun otherDrawBoundingBox(yaw: Float, x: Double, y: Double, z: Double, width: Double, height: Double) {
-        var width = width * 1.5
-        var yaw = MathHelper.wrapAngleTo180_float(yaw) + 45.0f
-        var yaw1: Float
-        var yaw2: Float
-        var yaw3: Float
-        var yaw4: Float
-        
-        if (yaw < 0.0f) {
-            yaw1 = 0.0f
-            yaw1 += 360.0f - abs(yaw)
-        } else {
-            yaw1 = yaw
-        }
-        
-        yaw1 *= -1.0f
-        yaw1 = (yaw1 * (PI / 180.0)).toFloat()
-
-        yaw += 90.0f
-
-        if (yaw < 0.0f) {
-            yaw2 = 0.0f
-            yaw2 += 360.0f - abs(yaw)
-        } else {
-            yaw2 = yaw
-        }
-        
-        yaw2 *= -1.0f
-        yaw2 = (yaw2 * (PI / 180.0)).toFloat()
-        
-        yaw += 90.0f
-        
-        if (yaw < 0.0f) {
-            yaw3 = 0.0f
-            yaw3 += 360.0f - abs(yaw)
-        } else {
-            yaw3 = yaw
-        }
-
-        yaw3 *= -1.0f
-        yaw3 = (yaw3 * (PI / 180.0)).toFloat()
-
-        yaw += 90.0f
-        
-        if (yaw < 0.0f) {
-            yaw4 = 0.0f
-            yaw4 += 360.0f - abs(yaw)
-        } else {
-            yaw4 = yaw
-        }
-        
-        yaw4 *= -1.0f
-        yaw4 = (yaw4 * (PI / 180.0)).toFloat()
-
-        val x1 = (sin(yaw1) * width + x).toFloat()
-        val z1 = (cos(yaw1) * width + z).toFloat()
-        val x2 = (sin(yaw2) * width + x).toFloat()
-        val z2 = (cos(yaw2) * width + z).toFloat()
-        val x3 = (sin(yaw3) * width + x).toFloat()
-        val z3 = (cos(yaw3) * width + z).toFloat()
-        val x4 = (sin(yaw4) * width + x).toFloat()
-        val z4 = (cos(yaw4) * width + z).toFloat()
-
-        val y1 = y.toFloat()
-        val y2 = (y + height).toFloat()
-
-        val tessellator = Tessellator.getInstance()
-        val worldRenderer = tessellator.getWorldRenderer()
-        worldRenderer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION)
-        worldRenderer.pos(x1.toDouble(), y1.toDouble(), z1.toDouble()).endVertex()
-        worldRenderer.pos(x1.toDouble(), y2.toDouble(), z1.toDouble()).endVertex()
-        worldRenderer.pos(x2.toDouble(), y2.toDouble(), z2.toDouble()).endVertex()
-        worldRenderer.pos(x2.toDouble(), y1.toDouble(), z2.toDouble()).endVertex()
-        worldRenderer.pos(x2.toDouble(), y1.toDouble(), z2.toDouble()).endVertex()
-        worldRenderer.pos(x2.toDouble(), y2.toDouble(), z2.toDouble()).endVertex()
-        worldRenderer.pos(x3.toDouble(), y2.toDouble(), z3.toDouble()).endVertex()
-        worldRenderer.pos(x3.toDouble(), y1.toDouble(), z3.toDouble()).endVertex()
-        worldRenderer.pos(x3.toDouble(), y1.toDouble(), z3.toDouble()).endVertex()
-        worldRenderer.pos(x3.toDouble(), y2.toDouble(), z3.toDouble()).endVertex()
-        worldRenderer.pos(x4.toDouble(), y2.toDouble(), z4.toDouble()).endVertex()
-        worldRenderer.pos(x4.toDouble(), y1.toDouble(), z4.toDouble()).endVertex()
-        worldRenderer.pos(x4.toDouble(), y1.toDouble(), z4.toDouble()).endVertex()
-        worldRenderer.pos(x4.toDouble(), y2.toDouble(), z4.toDouble()).endVertex()
-        worldRenderer.pos(x1.toDouble(), y2.toDouble(), z1.toDouble()).endVertex()
-        worldRenderer.pos(x1.toDouble(), y1.toDouble(), z1.toDouble()).endVertex()
-        worldRenderer.pos(x1.toDouble(), y1.toDouble(), z1.toDouble()).endVertex()
-        worldRenderer.pos(x2.toDouble(), y1.toDouble(), z2.toDouble()).endVertex()
-        worldRenderer.pos(x3.toDouble(), y1.toDouble(), z3.toDouble()).endVertex()
-        worldRenderer.pos(x4.toDouble(), y1.toDouble(), z4.toDouble()).endVertex()
-        worldRenderer.pos(x1.toDouble(), y2.toDouble(), z1.toDouble()).endVertex()
-        worldRenderer.pos(x2.toDouble(), y2.toDouble(), z2.toDouble()).endVertex()
-        worldRenderer.pos(x3.toDouble(), y2.toDouble(), z3.toDouble()).endVertex()
-        worldRenderer.pos(x4.toDouble(), y2.toDouble(), z4.toDouble()).endVertex()
-        tessellator.draw()
-    }
 
     fun drawRoundedGradientOutlineCorner(
         x: Float,
@@ -2486,6 +2287,7 @@ object RenderUtils : MinecraftInstance() {
      * @param color3 : color3;
      * @param color4 : color4;
      */
+
     /**
      * GL CAP MANAGER
      *
@@ -2519,4 +2321,5 @@ object RenderUtils : MinecraftInstance() {
     fun setGlState(cap: Int, state: Boolean) {
         if (state) GL11.glEnable(cap) else GL11.glDisable(cap)
     }
+
 }
