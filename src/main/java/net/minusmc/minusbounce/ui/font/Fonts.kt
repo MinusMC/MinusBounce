@@ -16,7 +16,6 @@ import java.io.*
 import java.util.zip.ZipInputStream
 
 object Fonts {
-    // in fact these "roboto medium" is product sans lol
     @field:FontDetails(fontName = "Roboto Medium", fontSize = 35)
     lateinit var font35: GameFontRenderer
 
@@ -43,7 +42,6 @@ object Fonts {
 
     @field:FontDetails(fontName = "Tahoma Bold", fontSize = 35)
     lateinit var fontTahoma: GameFontRenderer
-    lateinit var fontTahomaSmall: TTFFontRenderer
 
     @field:FontDetails(fontName = "Bangers", fontSize = 45)
     lateinit var fontBangers: GameFontRenderer
@@ -54,11 +52,11 @@ object Fonts {
     @FontDetails(fontName = "Tenacity35", fontSize = 35)
     lateinit var fontTenacity35: GameFontRenderer
 
-    @FontDetails(fontName = "TenacityBold35", fontSize = 35)
-    lateinit var fontTenacityBold35: GameFontRenderer
-
     @FontDetails(fontName = "tenacity40", fontSize = 40)
     lateinit var fontTenacity40: GameFontRenderer
+
+    @FontDetails(fontName = "TenacityBold35", fontSize = 35)
+    lateinit var fontTenacityBold35: GameFontRenderer
 
     @FontDetails(fontName = "tenacityBold40", fontSize = 40)
     lateinit var fontTenacityBold40: GameFontRenderer
@@ -68,6 +66,11 @@ object Fonts {
 
     @field:FontDetails(fontName = "Minecraft Font")
     val minecraftFont: FontRenderer = Minecraft.getMinecraft().fontRendererObj
+
+
+    lateinit var fontTahomaSmall: TTFFontRenderer
+
+
     private val CUSTOM_FONT_RENDERERS: MutableList<GameFontRenderer> = ArrayList()
 
     fun loadFonts() {
@@ -86,11 +89,11 @@ object Fonts {
         fontTahomaSmall = TTFFontRenderer(getFont("Tahoma.ttf", 11))
         fontBangers = GameFontRenderer(getFont("Bangers-Regular.ttf", 45))
         fontBlanka = GameFontRenderer(getFont("Blanka-Regular.ttf", 70))
-        fontTenacity35 = GameFontRenderer(getFont("tenacity.ttf", 35))
-        fontTenacityBold35 = GameFontRenderer(getFont("tenacity-bold", 35))
-        fontTenacityIcon30 = GameFontRenderer(getFont("Tenacityicon", 30))
-        fontTenacity40 = GameFontRenderer(getFont("tenacity", 40))
-        fontTenacityBold40 = GameFontRenderer(getFont("tenacity-bold", 40))
+        fontTenacity35 = GameFontRenderer(getFont("Tenacity.ttf", 35))
+        fontTenacity40 = GameFontRenderer(getFont("Tenacity.ttf", 40))
+        fontTenacityBold35 = GameFontRenderer(getFont("Tenacity-Bold.ttf", 35))
+        fontTenacityBold40 = GameFontRenderer(getFont("Tenacity-Bold.ttf", 40))
+        fontTenacityIcon30 = GameFontRenderer(getFont("TenacityIcon.ttf", 30))
         try {
             CUSTOM_FONT_RENDERERS.clear()
             val fontsFile = File(MinusBounce.fileManager.fontsDir, "fonts.json")
@@ -121,16 +124,20 @@ object Fonts {
         ClientUtils.logger.info("Loaded Fonts. (" + (System.currentTimeMillis() - l) + "ms)")
     }
 
+    private fun isExistFonts(): Boolean {
+        val outputFile = File(MinusBounce.fileManager.fontsDir, "fonts.zip")
+        if (!outputFile.exists()) return false
+        val fonts = arrayOf("sfui.ttf", "Roboto-Medium.ttf", "TahomaBold.ttf", "Tahoma.ttf", "Bangers-Regular.ttf", "Blanka-Regular.otf", "Tenacity.ttf", "Tenacity-Bold.ttf", "TenacityIcon.ttf")
+        for (font in fonts) {
+            val fontFile = File(MinusBounce.fileManager.fontsDir, font)
+            if (!fontFile.exists()) return false
+        }
+        return true
+    }
+
     private fun downloadFonts() {
         try {
-            val outputFile = File(MinusBounce.fileManager.fontsDir, "fonts.zip")
-            val sfuiFile = File(MinusBounce.fileManager.fontsDir, "sfui.ttf")
-            val prodSansFile = File(MinusBounce.fileManager.fontsDir, "Roboto-Medium.ttf")
-            val tahomaFile = File(MinusBounce.fileManager.fontsDir, "TahomaBold.ttf")
-            val tahomaReFile = File(MinusBounce.fileManager.fontsDir, "Tahoma.ttf")
-            val bangersFile = File(MinusBounce.fileManager.fontsDir, "Bangers-Regular.ttf")
-            val blankaFile = File(MinusBounce.fileManager.fontsDir, "Blanka-Regular.otf")
-            if (!outputFile.exists() || !sfuiFile.exists() || !prodSansFile.exists() || !tahomaFile.exists() || !tahomaReFile.exists() || !bangersFile.exists()) {
+            if (!isExistFonts()) {
                 ClientUtils.logger.info("Downloading fonts...")
                 download(MinusBounce.CLIENT_CLOUD + "/fonts/fonts.zip", outputFile)
                 ClientUtils.logger.info("Extract fonts...")
