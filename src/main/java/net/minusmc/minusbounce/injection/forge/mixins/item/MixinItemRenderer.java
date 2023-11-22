@@ -83,6 +83,17 @@ public abstract class MixinItemRenderer {
     @Shadow
     protected abstract void renderPlayerArm(AbstractClientPlayer clientPlayer, float equipProgress, float swingProgress);
 
+    //from Necako 
+    @Shadow
+    protected abstract void func_178095_a(AbstractClientPlayer clientPlayer, float equipProgress, float swingProgress);
+    private void doSwordBlockAnimation() {
+        GlStateManager.translate(0.32, 0.4, -0.1F);
+        GlStateManager.rotate(30.0F, 0.0F, 1.0F, 0.0F);
+        GlStateManager.rotate(-80.0F, 1.0F, 0.0F, 0.0F);
+        GlStateManager.rotate(60.0F, 0.0F, 1.0F, 0.0F);
+
+    }
+
     private void genCustom(float p_178096_1_, float p_178096_2_) {
         GlStateManager.translate(0.56F, -0.52F, -0.71999997F);
         GlStateManager.translate(0.0F, p_178096_1_ * -0.6F, 0.0F);
@@ -806,7 +817,11 @@ public abstract class MixinItemRenderer {
                                     GlStateManager.translate(0, 0, 0.5);
                                     break;
                                 }
-
+                                case "Old": {
+                                    this.transformFirstPersonItem(f, f1);
+                                    this.doSwordBlockAnimation(); //better 1.7 animation from sk1ers old animations mod
+                                    break;
+                                }
                             }
                         } else {
                             this.transformFirstPersonItem(f + 0.1F, f1);
