@@ -36,6 +36,8 @@ object RenderUtils : MinecraftInstance() {
     private val glCapMap: MutableMap<Int, Boolean> = HashMap()
     var deltaTime = 0
     private val DISPLAY_LISTS_2D = IntArray(4)
+    private var startTime: Long = 0
+    private const val animationDuration = 500
 
     init {
         for (i in DISPLAY_LISTS_2D.indices) {
