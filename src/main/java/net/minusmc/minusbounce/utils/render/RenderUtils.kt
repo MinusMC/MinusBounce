@@ -28,9 +28,27 @@ import net.minusmc.minusbounce.features.module.modules.render.TargetMark
 import net.minusmc.minusbounce.ui.font.Fonts
 import net.minusmc.minusbounce.utils.MinecraftInstance
 import net.minusmc.minusbounce.utils.block.BlockUtils
+import net.minusmc.minusbounce.utils.render.ColorUtils.setColour
 import org.lwjgl.opengl.GL11
+import org.lwjgl.opengl.GL11.GL_BLEND
+import org.lwjgl.opengl.GL11.GL_FLAT
+import org.lwjgl.opengl.GL11.GL_LINE_LOOP
+import org.lwjgl.opengl.GL11.GL_LINE_SMOOTH
+import org.lwjgl.opengl.GL11.GL_ONE_MINUS_SRC_ALPHA
+import org.lwjgl.opengl.GL11.GL_SMOOTH
+import org.lwjgl.opengl.GL11.GL_SRC_ALPHA
+import org.lwjgl.opengl.GL11.GL_TEXTURE_2D
+import org.lwjgl.opengl.GL11.glBegin
+import org.lwjgl.opengl.GL11.glEnd
+import org.lwjgl.opengl.GL11.glLineWidth
+import org.lwjgl.opengl.GL11.glPopAttrib
+import org.lwjgl.opengl.GL11.glPushAttrib
+import org.lwjgl.opengl.GL11.glScaled
+import org.lwjgl.opengl.GL11.glShadeModel
+import org.lwjgl.opengl.GL11.glVertex2d
 import java.awt.Color
 import kotlin.math.*
+
 
 object RenderUtils : MinecraftInstance() {
     private val glCapMap: MutableMap<Int, Boolean> = HashMap()
@@ -693,6 +711,91 @@ object RenderUtils : MinecraftInstance() {
         GL11.glDisable(GL11.GL_LINE_SMOOTH)
     }
 
+    fun drawRoundedGradientOutlineCorner(
+        x: Float,
+        y: Float,
+        x1: Float,
+        y1: Float,
+        width: Float,
+        radius: Float,
+        color: Int,
+        color2: Int
+    ) {
+        var x = x
+        var y = y
+        var x1 = x1
+        var y1 = y1
+        ColorUtils.setColour(-1)
+        GL11.glEnable(GL_BLEND)
+        GL11.glDisable(GL_TEXTURE_2D)
+        GL11.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+        GL11.glEnable(GL_LINE_SMOOTH)
+        glShadeModel(GL_SMOOTH)
+        glPushAttrib(0)
+        glScaled(0.5, 0.5, 0.5)
+        x *= 2.0f
+        y *= 2.0f
+        x1 *= 2.0f
+        y1 *= 2.0f
+        GL11.glEnable(GL_BLEND)
+        GL11.glDisable(GL_TEXTURE_2D)
+        ColorUtils.setColour(color)
+        GL11.glEnable(GL_LINE_SMOOTH)
+        glShadeModel(GL_SMOOTH)
+        glLineWidth(width)
+        glBegin(GL_LINE_LOOP)
+        var i: Int
+        i = 0
+        while (i <= 90) {
+            glVertex2d(
+                x + radius + Math.sin(i * Math.PI / 180.0) * radius * -1.0,
+                y + radius + Math.cos(i * Math.PI / 180.0) * radius * -1.0
+            )
+            i += 3
+        }
+        ColorUtils.setColour(color)
+        i = 90
+        while (i <= 180) {
+            glVertex2d(
+                x + radius + Math.sin(i * Math.PI / 180.0) * radius * -1.0,
+                y1 - radius + Math.cos(i * Math.PI / 180.0) * radius * -1.0
+            )
+            i += 3
+        }
+        ColorUtils.setColour(color2)
+        i = 0
+        while (i <= 90) {
+            glVertex2d(
+                x1 - radius + Math.sin(i * Math.PI / 180.0) * radius,
+                y1 - radius + Math.cos(i * Math.PI / 180.0) * radius
+            )
+            i += 3
+        }
+        ColorUtils.setColour(color2)
+        i = 90
+        while (i <= 180) {
+            glVertex2d(
+                x1 - radius + Math.sin(i * Math.PI / 180.0) * radius,
+                y + radius + Math.cos(i * Math.PI / 180.0) * radius
+            )
+            i += 3
+        }
+        glEnd()
+        glLineWidth(1f)
+        GL11.glEnable(GL_TEXTURE_2D)
+        GL11.glDisable(GL_BLEND)
+        GL11.glDisable(GL_LINE_SMOOTH)
+        GL11.glDisable(GL_BLEND)
+        GL11.glEnable(GL_TEXTURE_2D)
+        glScaled(2.0, 2.0, 2.0)
+        glPopAttrib()
+        GL11.glEnable(GL_TEXTURE_2D)
+        GL11.glDisable(GL_BLEND)
+        GL11.glDisable(GL_LINE_SMOOTH)
+        glShadeModel(GL_FLAT)
+        ColorUtils.setColour(-1)
+    }
+
     fun drawTriAngle(cx: Float, cy: Float, r: Float, n: Float, color: Color, polygon: Boolean) {
         var cx = cx
         var cy = cy
@@ -789,6 +892,88 @@ object RenderUtils : MinecraftInstance() {
         GlStateManager.enableAlpha()
         GlStateManager.enableTexture2D()
         GlStateManager.popMatrix()
+    }
+
+    fun drawRoundedGradientRectCorner(
+        x: Float,
+        y: Float,
+        x1: Float,
+        y1: Float,
+        radius: Float,
+        color: Int,
+        color2: Int
+    ) {
+        var x = x
+        var y = y
+        var x1 = x1
+        var y1 = y1
+        setColour(-1)
+        GL11.glEnable(GL_BLEND)
+        GL11.glDisable(GL_TEXTURE_2D)
+        GL11.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+        GL11.glEnable(GL_LINE_SMOOTH)
+        glShadeModel(GL_SMOOTH)
+        glPushAttrib(0)
+        glScaled(0.5, 0.5, 0.5)
+        x *= 2.0.toFloat()
+        y *= 2.0.toFloat()
+        x1 *= 2.0.toFloat()
+        y1 *= 2.0.toFloat()
+        GL11.glEnable(GL_BLEND)
+        GL11.glDisable(GL_TEXTURE_2D)
+        setColour(color)
+        GL11.glEnable(GL_LINE_SMOOTH)
+        glShadeModel(GL_SMOOTH)
+        glBegin(6)
+        var i: Int
+        i = 0
+        while (i <= 90) {
+            glVertex2d(
+                x + radius + Math.sin(i * Math.PI / 180.0) * radius * -1.0,
+                y + radius + Math.cos(i * Math.PI / 180.0) * radius * -1.0
+            )
+            i += 3
+        }
+        setColour(color)
+        i = 90
+        while (i <= 180) {
+            glVertex2d(
+                x + radius + Math.sin(i * Math.PI / 180.0) * radius * -1.0,
+                y1 - radius + Math.cos(i * Math.PI / 180.0) * radius * -1.0
+            )
+            i += 3
+        }
+        setColour(color2)
+        i = 0
+        while (i <= 90) {
+            glVertex2d(
+                x1 - radius + Math.sin(i * Math.PI / 180.0) * radius,
+                y1 - radius + Math.cos(i * Math.PI / 180.0) * radius
+            )
+            i += 3
+        }
+        setColour(color2)
+        i = 90
+        while (i <= 180) {
+            glVertex2d(
+                x1 - radius + Math.sin(i * Math.PI / 180.0) * radius,
+                y + radius + Math.cos(i * Math.PI / 180.0) * radius
+            )
+            i += 3
+        }
+        glEnd()
+        GL11.glEnable(GL_TEXTURE_2D)
+        GL11.glDisable(GL_BLEND)
+        GL11.glDisable(GL_LINE_SMOOTH)
+        GL11.glDisable(GL_BLEND)
+        GL11.glEnable(GL_TEXTURE_2D)
+        glScaled(2.0, 2.0, 2.0)
+        glPopAttrib()
+        GL11.glEnable(GL_TEXTURE_2D)
+        GL11.glDisable(GL_BLEND)
+        GL11.glDisable(GL_LINE_SMOOTH)
+        glShadeModel(GL_FLAT)
+        setColour(-1)
     }
 
     fun drawGradientSideways(left: Float, top: Float, right: Float, bottom: Float, col1: Int, col2: Int) {
