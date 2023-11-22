@@ -106,5 +106,8 @@ abstract class TargetStyle(val name: String, val targetInstance: Target, val sha
         glPopMatrix()
         glColor4f(1f, 1f, 1f, 1f)
     }
+    fun fadeAlpha(alpha: Int) : Int {
+        return alpha - (targetInstance.getFadeProgress() * alpha).toInt()
+    }
 
 }
