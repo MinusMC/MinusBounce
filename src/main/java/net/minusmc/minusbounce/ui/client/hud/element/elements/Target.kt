@@ -38,7 +38,7 @@ class Target : Element() {
     val style: TargetStyle
         get() = styles.find { it.name.equals(styleValue.get(), true) } ?: throw NullPointerException()
 
-    private val styleValue = ListValue("Style", styles.map { it.name }.toTypedArray(), "LiquidBounce")
+    val styleValue = ListValue("Style", styles.map { it.name }.toTypedArray(), "LiquidBounce")
 
     // Global variables
     private val blurValue = BoolValue("Blur", false)
