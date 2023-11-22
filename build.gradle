@@ -5,6 +5,7 @@ plugins {
     id "com.github.johnrengelman.shadow" version "6.1.0"
     id "net.minecraftforge.gradle.forge"
     id "org.spongepowered.mixin"
+    id "maven-publish"
 }
 
 repositories {
@@ -101,7 +102,7 @@ classes.dependsOn(moveResources)
 
 jar {
     manifest.attributes(
-            "FMLCorePlugin": "net.minusmc.minusbounce.injection.forge.TransformerLoadger",
+            "FMLCorePlugin": "net.minusmc.minusbounce.injection.forge.TransformerLoader",
             "FMLCorePluginContainsFMLMod": true,
             "ForceLoadAsMod": true,
             "MixinConfigs": "minusbounce.forge.mixins.json",
@@ -111,7 +112,7 @@ jar {
             "FMLAT": "minusbounce_at.cfg",
     )
 
-    enabled = false
+    enabled = true
 }
 
 mixin {
@@ -134,3 +135,15 @@ configurations {
 tasks.reobfShadowJar.mustRunAfter shadowJar
 
 tasks.reobfJar.dependsOn(shadowJar)
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId = project.group
+            artifactId = project.name
+            version = project.version
+
+            from components.java
+        }
+    }
+}

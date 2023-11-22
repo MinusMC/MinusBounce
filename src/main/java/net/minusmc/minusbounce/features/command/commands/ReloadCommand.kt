@@ -10,9 +10,9 @@ import net.minusmc.minusbounce.event.ReloadClientEvent
 import net.minusmc.minusbounce.features.command.Command
 import net.minusmc.minusbounce.features.command.CommandManager
 import net.minusmc.minusbounce.ui.client.clickgui.ClickGui
+import net.minusmc.minusbounce.ui.client.clickgui.style.styles.newVer.NewUi
 import net.minusmc.minusbounce.ui.font.Fonts
 import net.minusmc.minusbounce.utils.misc.sound.TipSoundManager
-import net.minusmc.minusbounce.ui.client.clickgui.newVer.NewUi
 
 class ReloadCommand : Command("reload", arrayOf("configreload")) {
     /**

@@ -40,7 +40,7 @@ class JelloArraylist : Module() {
             .filter { mod: Module ->
                 mod.array && !mod.name.equals(
                     "JelloArraylist",
-                    ignoreCase = true
+                    ignoreCase = true // targetmark đâu
                 )
             }
             .sorted(ModComparator())

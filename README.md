@@ -11,7 +11,7 @@
 - [Git](https://git-scm.com/)
 - [Minecraft 1.8.9](https://www.minecraft.net/)
 
-### Installation
+### Developement
 
 1. Clone the repository:
 
@@ -25,6 +25,8 @@
     cd MinusBounce
     ```
 
-3. Set it up yourself :), learn Forge MDK and Java.
+3. Depending on which IDE you are using execute either of the following commands:
+   - For IntelliJ: `gradlew setupDevWorkspace idea genIntellijRuns build`
+   - For Eclipse: `gradlew setupDevWorkspace eclipse build`
 
 

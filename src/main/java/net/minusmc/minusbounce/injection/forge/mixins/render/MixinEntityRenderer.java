@@ -172,7 +172,6 @@ public abstract class MixinEntityRenderer {
             this.cloudFog = this.mc.renderGlobal.hasCloudFog(d0, d1, d2, partialTicks);
         }
     }
-
     @Inject(method = "setupCameraTransform", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/EntityRenderer;setupViewBobbing(F)V", shift = At.Shift.BEFORE))
     private void setupCameraViewBobbingBefore(final CallbackInfo callbackInfo) {
         final TargetMark targetMark = MinusBounce.moduleManager.getModule(TargetMark.class);

@@ -94,6 +94,7 @@ class TargetMark : Module() {
 
     @EventTarget
     fun onRender3D(event: Render3DEvent?) {
+
         if (modeValue.get().equals("jello", ignoreCase = true) && !aura!!.targetModeValue.get()
                 .equals("multi", ignoreCase = true)
         ) {
@@ -161,7 +162,7 @@ class TargetMark : Module() {
                     )
                 )
             }
-        } else {
+        } else { // = cai multi nay la box à
             if (!aura!!.targetModeValue.get()
                     .equals("multi", ignoreCase = true) && aura!!.target != null
             ) aura!!.target?.let {

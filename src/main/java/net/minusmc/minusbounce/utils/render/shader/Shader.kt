@@ -95,4 +95,60 @@ abstract class Shader(fragmentShader: String) : MinecraftInstance() {
     fun getUniform(uniformName: String): Int {
         return uniformsMap!![uniformName]!!
     }
+
+    fun drawQuad(x: Float, y: Float, width: Float, height: Float) {
+        GL11.glBegin(GL11.GL_QUADS)
+        GL11.glTexCoord2f(0.0f, 0.0f)
+        GL11.glVertex2d(x.toDouble(), (y + height).toDouble())
+        GL11.glTexCoord2f(1.0f, 0.0f)
+        GL11.glVertex2d((x + width).toDouble(), (y + height).toDouble())
+        GL11.glTexCoord2f(1.0f, 1.0f)
+        GL11.glVertex2d((x + width).toDouble(), y.toDouble())
+        GL11.glTexCoord2f(0.0f, 1.0f)
+        GL11.glVertex2d(x.toDouble(), y.toDouble())
+        GL11.glEnd()
+    }
+
+    fun setUniformf(name: String?, vararg args: Float) {
+        val loc = GL20.glGetUniformLocation(this.programId, name)
+        when (args.size) {
+            1 -> {
+                GL20.glUniform1f(loc, args[0])
+            }
+
+            2 -> {
+                GL20.glUniform2f(loc, args[0], args[1])
+            }
+
+            3 -> {
+                GL20.glUniform3f(loc, args[0], args[1], args[2])
+            }
+
+            4 -> {
+                GL20.glUniform4f(loc, args[0], args[1], args[2], args[3])
+            }
+        }
+    }
+
+    fun setUniformi(name: String, vararg args: Int) {
+        val loc = GL20.glGetUniformLocation(this.programId, name)
+        if (args.size > 1) {
+            GL20.glUniform2i(loc, args[0], args[1])
+        } else {
+            GL20.glUniform1i(loc, args[0])
+        }
+    }
+
+    fun drawTextureSpecifiedQuad(x: Float, y: Float, width: Float, height: Float) {
+        GL11.glBegin(GL11.GL_QUADS)
+        GL11.glTexCoord2f(0.0f, 1.0f)
+        GL11.glVertex2d(x.toDouble(), (y + height).toDouble())
+        GL11.glTexCoord2f(1.0f, 1.0f)
+        GL11.glVertex2d((x + width).toDouble(), (y + height).toDouble())
+        GL11.glTexCoord2f(1.0f, 0.0f)
+        GL11.glVertex2d((x + width).toDouble(), y.toDouble())
+        GL11.glTexCoord2f(0.0f, 0.0f)
+        GL11.glVertex2d(x.toDouble(), y.toDouble())
+        GL11.glEnd()
+    }
 }

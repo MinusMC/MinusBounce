@@ -16,8 +16,6 @@ import net.minecraft.util.BlockPos
 
 @ModuleInfo(name = "AutoTool", spacedName = "Auto Tool", description = "Automatically selects the best tool in your inventory to mine a block.", category = ModuleCategory.PLAYER)
 class AutoTool : Module() {
-    private val silent = BoolValue("Silent", false)
-    private val nousing = BoolValue("NoPlayerUsing", false)
 
     @EventTarget
     fun onClick(event: ClickBlockEvent) {
@@ -25,7 +23,7 @@ class AutoTool : Module() {
     }
 
     fun switchSlot(blockPos: BlockPos) {
-        if (nousing.get() && mc.thePlayer.isUsingItem)
+        if (mc.thePlayer.isUsingItem)
             return
         var bestSpeed = 1F
         var bestSlot = -1
@@ -42,12 +40,10 @@ class AutoTool : Module() {
         }
 
         if (bestSlot != -1) {
-            if (!silent.get()) {
-                mc.thePlayer.inventory.currentItem = bestSlot
-            } else {
-                mc.netHandler.addToSendQueue(C09PacketHeldItemChange(bestSlot))
-                mc.playerController.updateController()
-            }
+            mc.thePlayer.inventory.currentItem = bestSlot
+        } else {
+            mc.netHandler.addToSendQueue(C09PacketHeldItemChange(bestSlot))
+            mc.playerController.updateController()
         }
     }
 }

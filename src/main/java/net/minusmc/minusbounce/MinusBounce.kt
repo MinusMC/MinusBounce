@@ -5,6 +5,7 @@
  */
 package net.minusmc.minusbounce
 
+import net.minecraft.client.gui.GuiScreen
 import net.minusmc.minusbounce.event.ClientShutdownEvent
 import net.minusmc.minusbounce.event.EventManager
 import net.minusmc.minusbounce.features.command.CommandManager
@@ -19,6 +20,7 @@ import net.minusmc.minusbounce.ui.client.altmanager.GuiAltManager
 import net.minusmc.minusbounce.ui.client.clickgui.ClickGui
 import net.minusmc.minusbounce.ui.client.hud.HUD
 import net.minusmc.minusbounce.ui.client.hud.HUD.Companion.createDefault
+import net.minusmc.minusbounce.ui.client.MainMenuButton
 import net.minusmc.minusbounce.ui.font.Fonts
 import net.minusmc.minusbounce.utils.ClassUtils.hasForge
 import net.minusmc.minusbounce.utils.ClientUtils
@@ -60,9 +62,15 @@ object MinusBounce {
     // Menu Background
     var background: ResourceLocation? = null
 
-    var lastTick : Long = 0L
+    private var lastTick : Long = 0L
 
     var playTimeStart: Long = 0L
+
+    val mainMenuButton = hashMapOf<String, Class<out GuiScreen>>()
+
+    fun addMenuButton(name: String, gui: Class<out GuiScreen>) {
+        mainMenuButton[name] = gui
+    }
 
     /**
      * Execute if client will be started
