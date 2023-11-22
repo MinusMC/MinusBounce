@@ -32,6 +32,7 @@ import net.minusmc.minusbounce.ui.font.Fonts
 import net.minusmc.minusbounce.utils.MinecraftInstance
 import net.minusmc.minusbounce.utils.block.BlockUtils
 import net.minusmc.minusbounce.utils.render.ColorUtils.setColour
+import net.minecraft.client.renderer.*
 import org.lwjgl.opengl.GL11
 import org.lwjgl.opengl.GL11.*
 import java.awt.Color
@@ -81,6 +82,26 @@ object RenderUtils : MinecraftInstance() {
     /**
      * Draws a textured rectangle at the stored z-value. Args: x, y, u, v, width, height
      */
+
+    fun drawSquareTriangle(cx: Float, cy: Float, dirX: Float, dirY: Float, color: Color, filled: Boolean) {
+        val tessellator = Tessellator.getInstance()
+        val worldrenderer = tessellator.worldRenderer
+        GlStateManager.enableBlend()
+        GlStateManager.disableTexture2D()
+        GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0)
+        GlStateManager.resetColor()
+        glColor(color)
+        worldrenderer.begin(if (filled) 5 else 2, DefaultVertexFormats.POSITION)
+        worldrenderer.pos((cx + dirX).toDouble(), cy.toDouble(), 0.0).endVertex()
+        worldrenderer.pos(cx.toDouble(), cy.toDouble(), 0.0).endVertex()
+        worldrenderer.pos(cx.toDouble(), (cy + dirY).toDouble(), 0.0).endVertex()
+        worldrenderer.pos((cx + dirX).toDouble(), cy.toDouble(), 0.0).endVertex()
+        tessellator.draw()
+        GlStateManager.enableTexture2D()
+        GlStateManager.disableBlend()
+        GlStateManager.color(1f, 1f, 1f, 1f)
+    }
+    
     fun drawTexturedModalRect(x: Int, y: Int, textureX: Int, textureY: Int, width: Int, height: Int, zLevel: Float) {
         val f = 0.00390625f
         val f1 = 0.00390625f
