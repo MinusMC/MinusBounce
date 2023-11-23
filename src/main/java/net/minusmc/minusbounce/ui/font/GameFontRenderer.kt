@@ -5,16 +5,16 @@
  */
 package net.minusmc.minusbounce.ui.font
 
-import net.minusmc.minusbounce.MinusBounce
-import net.minusmc.minusbounce.event.TextEvent
-import net.minusmc.minusbounce.utils.ClassUtils
-import net.minusmc.minusbounce.utils.render.ColorUtils
-import net.minusmc.minusbounce.utils.render.RenderUtils
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.FontRenderer
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.client.resources.IResourceManager
 import net.minecraft.util.ResourceLocation
+import net.minusmc.minusbounce.MinusBounce
+import net.minusmc.minusbounce.event.TextEvent
+import net.minusmc.minusbounce.utils.ClassUtils
+import net.minusmc.minusbounce.utils.render.ColorUtils
+import net.minusmc.minusbounce.utils.render.RenderUtils
 import org.lwjgl.opengl.GL11
 import java.awt.Color
 import java.awt.Font
@@ -223,6 +223,11 @@ class GameFontRenderer(font: Font) : FontRenderer(Minecraft.getMinecraft().gameS
             width / 2
         } else
             defaultFont.getStringWidth(currentText) / 2
+    }
+
+    fun drawStringFade(s: String, x: Float, y: Float, color: Color) {
+        drawString(s, x+0.7F, y+0.7F, Color(0,0,0,color.alpha).rgb, false)
+        drawString(s, x, y, color.rgb, false)
     }
 
     override fun getCharWidth(character: Char) = getStringWidth(character.toString())

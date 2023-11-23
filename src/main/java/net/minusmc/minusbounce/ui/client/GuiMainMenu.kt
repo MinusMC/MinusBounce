@@ -1,7 +1,7 @@
 /*
- * FDPClient Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge by LiquidBounce.
- * https://github.com/UnlegitMC/FDPClient/
+ * MinusBounce Hacked Client
+ * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
+ * https://github.com/MinusMC/MinusBounce
  */
 package net.minusmc.minusbounce.ui.client
 
@@ -23,21 +23,23 @@ class GuiMainMenu : GuiScreen(), GuiYesNoCallback {
     override fun initGui() {
         val defaultHeight = (this.height / 2.5).toInt()
 
-        this.buttonList.add(MainMenuButton(0, this.width / 2 - 120, defaultHeight, "Singleplayer"))
-        this.buttonList.add(MainMenuButton(1, this.width / 2 + 20, defaultHeight, "Multiplayer"))
-        this.buttonList.add(MainMenuButton(2, this.width / 2 - 120, defaultHeight + 30, "Alt manager"))
-        this.buttonList.add(MainMenuButton(3, this.width / 2 + 20, defaultHeight + 30, "Mods and plugins"))
-        this.buttonList.add(CircleButton(4, this.width - 90, 10, "Options", ResourceLocation("minusbounce/menu/settings.png")))
-        this.buttonList.add(CircleButton(5, this.width - 50, 10, "Quit", ResourceLocation("minusbounce/menu/quit.png")))
+        this.buttonList.add(MainMenuButton(0, this.width / 2 - 148, defaultHeight, "Singleplayer"))
+        this.buttonList.add(MainMenuButton(1, this.width / 2 + 32, defaultHeight, "Multiplayer"))
+        this.buttonList.add(MainMenuButton(2, this.width / 2 - 148, defaultHeight + 45, "Alt manager"))
+        this.buttonList.add(MainMenuButton(3, this.width / 2 + 32, defaultHeight + 45, "Mods and plugins"))
+        this.buttonList.add(CircleButton(4, this.width - 80, 8, "Options", ResourceLocation("minusbounce/menu/settings.png")))
+        this.buttonList.add(CircleButton(5, this.width - 40, 8, "Quit", ResourceLocation("minusbounce/menu/quit.png")))
+        this.buttonList.add(CircleButton(6, this.width - 120, 8, "Background", ResourceLocation("minusbounce/menu/wallpaper.png")))
+
 
         var id = 201
         MinusBounce.mainMenuButton.forEach {
             val width = this.width / 2 + when (id % 2) {
-                0 -> 20
-                else -> -120
+                0 -> 40
+                else -> -140
             }
-            val height = defaultHeight + 30 * 3 + 30 * ((id - 201) / 2)
-            this.buttonList.add(GuiButton(id, width, height, it.key))
+            val height = defaultHeight + 45 * 2 + 45 * ((id - 201) / 2)
+            this.buttonList.add(MainMenuButton(id, width, height, it.key))
             buttons[id] = it.value
             id++
         }
@@ -67,6 +69,7 @@ class GuiMainMenu : GuiScreen(), GuiYesNoCallback {
             3 -> mc.displayGuiScreen(GuiModList(this))
             4 -> mc.displayGuiScreen(GuiOptions(this, mc.gameSettings))
             5 -> mc.shutdown()
+            6 -> mc.displayGuiScreen(GuiBackground(this))
             else -> {
                 val clazzButton = buttons[button.id] ?: return
                 mc.displayGuiScreen(clazzButton.getConstructor(GuiScreen::class.java).newInstance(this) as GuiScreen)
@@ -100,12 +103,12 @@ class CircleButton(buttonId: Int, x: Int, y: Int, buttonText: String, private va
 
 class MainMenuButton(buttonId: Int, x: Int, y: Int, buttonText: String): GuiButton(buttonId, x, y, buttonText) {
     init {
-        width = 100
-        height = 20
+        width = 110
+        height = 25
     }
 
     override fun drawButton(mc: Minecraft?, mouseX: Int, mouseY: Int) {
         RenderUtils.drawRoundedRect(xPosition.toFloat(), yPosition.toFloat(), (xPosition + width).toFloat(), (yPosition + height).toFloat(), 4f, Color(249, 246, 238, 220).rgb)
-        Fonts.font40.drawCenteredString(displayString, xPosition.toFloat() + width.toFloat() / 2f, yPosition.toFloat() + height.toFloat() / 2 - mc!!.fontRendererObj.FONT_HEIGHT / 2, Color(54, 69, 79).rgb, false)
+        Fonts.font50.drawCenteredString(displayString, xPosition.toFloat() + width.toFloat() / 2f, yPosition.toFloat() + height.toFloat() / 2 - mc!!.fontRendererObj.FONT_HEIGHT / 2, Color(54, 69, 79).rgb, false)
     }
 }

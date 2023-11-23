@@ -212,39 +212,75 @@ open class ListValue(name: String, var values: Array<String>, value: String, dis
     }
 }
 
-// abstract class MinMaxRange<T>(protected var minimum: T, protected var maximum: T) {
-//     fun getMin() = minimum
-//     fun getMax() = maximum
-//     fun setMin(value: T) {
-//         this.minimum = value
-//     }
-//     fun setMax(value: T) {
-//         this.maximum = value
-//     }
-// }
+abstract class MinMaxRange<T>(protected var minimum: T, protected var maximum: T) {
+    fun getMin() = minimum
+    fun getMax() = maximum
+    fun setMin(value: T) {
+        this.minimum = value
+    }
+    fun setMax(value: T) {
+        this.maximum = value
+    }
+}
 
-// class IntRange(minimum: Int, maximum: Int): MinMaxRange<Int>(minimum, maximum)
+class IntRange(minimum: Int, maximum: Int): MinMaxRange<Int>(minimum, maximum)
 
-// open class IntRangeValue(name: String, minValue: Int, maxValue: Int, minimum: Int = 0, maximum: Int = Int.MAX_VALUE, suffix: String = "", displayable: () -> Boolean): Value<IntRange>(name, IntRange(minValue, maxValue), displayable) {
-//     constructor(name: String, minValue: Int, maxValue: Int, minimum: Int, maximum: Int, displayable: () -> Boolean): this(name, minValue, maxValue, minimum, maximum, "", displayable)
-//     constructor(name: String, minValue: Int, maxValue: Int, minimum: Int, maximum: Int, suffix: String): this(name, minValue, maxValue, minimum, maximum, suffix, {true})
-//     constructor(name: String, minValue: Int, maxValue: Int, minimum: Int, maximum: Int): this(name, minValue, maxValue, minimum, maximum, "", {true})
+open class IntRangeValue(name: String, minValue: Int, maxValue: Int, val minimum: Int = 0, val maximum: Int = Int.MAX_VALUE, suffix: String = "", displayable: () -> Boolean): Value<IntRange>(name, IntRange(minValue, maxValue), displayable) {
+    constructor(name: String, minValue: Int, maxValue: Int, minimum: Int, maximum: Int, displayable: () -> Boolean): this(name, minValue, maxValue, minimum, maximum, "", displayable)
+    constructor(name: String, minValue: Int, maxValue: Int, minimum: Int, maximum: Int, suffix: String): this(name, minValue, maxValue, minimum, maximum, suffix, {true})
+    constructor(name: String, minValue: Int, maxValue: Int, minimum: Int, maximum: Int): this(name, minValue, maxValue, minimum, maximum, "", {true})
 
-//     fun getMinValue() = value.getMin()
-//     fun getMaxValue() = value.getMax()
+    fun getMinValue() = value.getMin()
+    fun getMaxValue() = value.getMax()
 
-//     fun setMinValue(newValue: Int) {
-//         if (newValue < value.getMax()) value.setMin(newValue)
-//     }
+    fun setMinValue(newValue: Number) {
+        if (newValue.toInt() <= value.getMax()) value.setMin(newValue.toInt())
+    }
 
-//     fun setMaxValue(newValue: Int) {
-//         if (newValue > value.getMin()) value.setMax(newValue)
-//     }
+    fun setMaxValue(newValue: Number) {
+        if (newValue.toInt() >= value.getMin()) value.setMax(newValue.toInt())
+    }
 
-//     override fun toJson() = Gson().toJson(value)
-//     override fun fromJson(element: JsonElement) {
-//         if (element.isJsonPrimitive) {
-//             changeValue(Gson().fromJson(element.asString, IntRange::class.java))
-//         }
-//     }
-// }
+    fun changeValue(minValue: Int, maxValue: Int) {
+        setMaxValue(maxValue)
+        setMinValue(minValue)
+    }
+
+    override fun toJson(): JsonElement = Gson().toJsonTree(value)
+    override fun fromJson(element: JsonElement) {
+        if (element.isJsonObject) {
+            changeValue(Gson().fromJson(element.asString, IntRange::class.java))
+        }
+    }
+}
+
+class FloatRange(minimum: Float, maximum: Float): MinMaxRange<Float>(minimum, maximum)
+
+open class FloatRangeValue(name: String, minValue: Float, maxValue: Float, val minimum: Float = 0f, val maximum: Float = Float.MAX_VALUE, val suffix: String = "", displayable: () -> Boolean): Value<FloatRange>(name, FloatRange(minValue, maxValue), displayable) {
+    constructor(name: String, minValue: Float, maxValue: Float, minimum: Float, maximum: Float, displayable: () -> Boolean): this(name, minValue, maxValue, minimum, maximum, "", displayable)
+    constructor(name: String, minValue: Float, maxValue: Float, minimum: Float, maximum: Float, suffix: String): this(name, minValue, maxValue, minimum, maximum, suffix, {true})
+    constructor(name: String, minValue: Float, maxValue: Float, minimum: Float, maximum: Float): this(name, minValue, maxValue, minimum, maximum, "", {true})
+
+    fun getMinValue() = value.getMin()
+    fun getMaxValue() = value.getMax()
+
+    fun setMinValue(newValue: Number) {
+        if (newValue.toFloat() <= value.getMax()) value.setMin(newValue.toFloat())
+    }
+
+    fun setMaxValue(newValue: Number) {
+        if (newValue.toFloat() >= value.getMin()) value.setMax(newValue.toFloat())
+    }
+
+    fun changeValue(minValue: Float, maxValue: Float) {
+        setMaxValue(maxValue)
+        setMinValue(minValue)
+    }
+
+    override fun toJson(): JsonElement = Gson().toJsonTree(value)
+    override fun fromJson(element: JsonElement) {
+        if (element.isJsonObject) {
+            changeValue(Gson().fromJson(element.asString, FloatRange::class.java))
+        }
+    }
+}

@@ -7,7 +7,10 @@ package net.minusmc.minusbounce.utils.render
 
 import net.minecraft.client.gui.Gui
 import net.minecraft.client.gui.ScaledResolution
-import net.minecraft.client.renderer.*
+import net.minecraft.client.renderer.GlStateManager
+import net.minecraft.client.renderer.OpenGlHelper
+import net.minecraft.client.renderer.RenderHelper
+import net.minecraft.client.renderer.Tessellator
 import net.minecraft.client.renderer.culling.Frustum
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats
 import net.minecraft.enchantment.Enchantment
@@ -28,14 +31,20 @@ import net.minusmc.minusbounce.features.module.modules.render.TargetMark
 import net.minusmc.minusbounce.ui.font.Fonts
 import net.minusmc.minusbounce.utils.MinecraftInstance
 import net.minusmc.minusbounce.utils.block.BlockUtils
+import net.minusmc.minusbounce.utils.render.ColorUtils.setColour
+import net.minecraft.client.renderer.*
 import org.lwjgl.opengl.GL11
+import org.lwjgl.opengl.GL11.*
 import java.awt.Color
 import kotlin.math.*
+
 
 object RenderUtils : MinecraftInstance() {
     private val glCapMap: MutableMap<Int, Boolean> = HashMap()
     var deltaTime = 0
     private val DISPLAY_LISTS_2D = IntArray(4)
+    private var startTime: Long = 0
+    private const val animationDuration = 500
 
     init {
         for (i in DISPLAY_LISTS_2D.indices) {
@@ -67,9 +76,6 @@ object RenderUtils : MinecraftInstance() {
         GL11.glEndList()
     }
 
-    private val frustrum = Frustum()
-    var zLevel = 0f
-
     fun color(color: Int) = color(color, ((color shr 24 and 0xFF) / 255).toFloat())
 
     fun color(color: Int, alpha: Float) {
@@ -79,26 +85,12 @@ object RenderUtils : MinecraftInstance() {
         GlStateManager.color(r, g, b, alpha)
     }
 
+    private val frustrum = Frustum()
+    internal var zLevel = 0f
+
     /**
      * Draws a textured rectangle at the stored z-value. Args: x, y, u, v, width, height
      */
-    fun drawTexturedModalRect(x: Int, y: Int, textureX: Int, textureY: Int, width: Int, height: Int, zLevel: Float) {
-        val f = 0.00390625f
-        val f1 = 0.00390625f
-        val tessellator = Tessellator.getInstance()
-        val worldrenderer = tessellator.worldRenderer
-        worldrenderer.begin(7, DefaultVertexFormats.POSITION_TEX)
-        worldrenderer.pos((x + 0).toDouble(), (y + height).toDouble(), zLevel.toDouble())
-            .tex(((textureX + 0).toFloat() * f).toDouble(), ((textureY + height).toFloat() * f1).toDouble()).endVertex()
-        worldrenderer.pos((x + width).toDouble(), (y + height).toDouble(), zLevel.toDouble())
-            .tex(((textureX + width).toFloat() * f).toDouble(), ((textureY + height).toFloat() * f1).toDouble())
-            .endVertex()
-        worldrenderer.pos((x + width).toDouble(), (y + 0).toDouble(), zLevel.toDouble())
-            .tex(((textureX + width).toFloat() * f).toDouble(), ((textureY + 0).toFloat() * f1).toDouble()).endVertex()
-        worldrenderer.pos((x + 0).toDouble(), (y + 0).toDouble(), zLevel.toDouble())
-            .tex(((textureX + 0).toFloat() * f).toDouble(), ((textureY + 0).toFloat() * f1).toDouble()).endVertex()
-        tessellator.draw()
-    }
 
     fun drawSquareTriangle(cx: Float, cy: Float, dirX: Float, dirY: Float, color: Color, filled: Boolean) {
         val tessellator = Tessellator.getInstance()
@@ -117,6 +109,24 @@ object RenderUtils : MinecraftInstance() {
         GlStateManager.enableTexture2D()
         GlStateManager.disableBlend()
         GlStateManager.color(1f, 1f, 1f, 1f)
+    }
+    
+    fun drawTexturedModalRect(x: Int, y: Int, textureX: Int, textureY: Int, width: Int, height: Int, zLevel: Float) {
+        val f = 0.00390625f
+        val f1 = 0.00390625f
+        val tessellator = Tessellator.getInstance()
+        val worldrenderer = tessellator.worldRenderer
+        worldrenderer.begin(7, DefaultVertexFormats.POSITION_TEX)
+        worldrenderer.pos((x + 0).toDouble(), (y + height).toDouble(), zLevel.toDouble())
+            .tex(((textureX + 0).toFloat() * f).toDouble(), ((textureY + height).toFloat() * f1).toDouble()).endVertex()
+        worldrenderer.pos((x + width).toDouble(), (y + height).toDouble(), zLevel.toDouble())
+            .tex(((textureX + width).toFloat() * f).toDouble(), ((textureY + height).toFloat() * f1).toDouble())
+            .endVertex()
+        worldrenderer.pos((x + width).toDouble(), (y + 0).toDouble(), zLevel.toDouble())
+            .tex(((textureX + width).toFloat() * f).toDouble(), ((textureY + 0).toFloat() * f1).toDouble()).endVertex()
+        worldrenderer.pos((x + 0).toDouble(), (y + 0).toDouble(), zLevel.toDouble())
+            .tex(((textureX + 0).toFloat() * f).toDouble(), ((textureY + 0).toFloat() * f1).toDouble()).endVertex()
+        tessellator.draw()
     }
 
     fun drawGradientSidewaysH(left: Double, top: Double, right: Double, bottom: Double, col1: Int, col2: Int) {
@@ -165,6 +175,23 @@ object RenderUtils : MinecraftInstance() {
         GL11.glVertex2d(left, bottom) // TODO: Fix this, this may have been a mistake
         GL11.glVertex2d(right, bottom)
         GL11.glEnd()
+    }
+
+    fun drawHead(skin: ResourceLocation?, x: Int, y: Int, width: Int, height: Int, color: Int) {
+        val f3 = (color shr 24 and 255).toFloat() / 255.0f
+        val f = (color shr 16 and 255).toFloat() / 255.0f
+        val f1 = (color shr 8 and 255).toFloat() / 255.0f
+        val f2 = (color and 255).toFloat() / 255.0f
+        GlStateManager.color(f, f1, f2, f3)
+        mc.textureManager.bindTexture(skin)
+        RenderUtils.drawScaledCustomSizeModalRect(
+            x, y, 8f, 8f, 8, 8, width, height,
+            64f, 64f
+        )
+        RenderUtils.drawScaledCustomSizeModalRect(
+            x, y, 40f, 8f, 8, 8, width, height,
+            64f, 64f
+        )
     }
 
     fun isInViewFrustrum(entity: Entity): Boolean {
@@ -554,6 +581,33 @@ object RenderUtils : MinecraftInstance() {
         GL11.glDisable(GL11.GL_BLEND)
         GL11.glDisable(GL11.GL_LINE_SMOOTH)
         if (popPush) GL11.glPopMatrix()
+    }
+
+    fun drawScaledCustomSizeModalRect(
+        x: Int,
+        y: Int,
+        u: Float,
+        v: Float,
+        uWidth: Int,
+        vHeight: Int,
+        width: Int,
+        height: Int,
+        tileWidth: Float,
+        tileHeight: Float
+    ) {
+        val f = 1.0f / tileWidth
+        val f1 = 1.0f / tileHeight
+        val tessellator = Tessellator.getInstance()
+        val worldrenderer = tessellator.worldRenderer
+        worldrenderer.begin(GL_QUADS, DefaultVertexFormats.POSITION_TEX)
+        worldrenderer.pos(x.toDouble(), (y + height).toDouble(), 0.0)
+            .tex((u * f).toDouble(), ((v + vHeight.toFloat()) * f1).toDouble()).endVertex()
+        worldrenderer.pos((x + width).toDouble(), (y + height).toDouble(), 0.0)
+            .tex(((u + uWidth.toFloat()) * f).toDouble(), ((v + vHeight.toFloat()) * f1).toDouble()).endVertex()
+        worldrenderer.pos((x + width).toDouble(), y.toDouble(), 0.0)
+            .tex(((u + uWidth.toFloat()) * f).toDouble(), (v * f1).toDouble()).endVertex()
+        worldrenderer.pos(x.toDouble(), y.toDouble(), 0.0).tex((u * f).toDouble(), (v * f1).toDouble()).endVertex()
+        tessellator.draw()
     }
 
     // rTL = radius top left, rTR = radius top right, rBR = radius bottom right, rBL = radius bottom left
@@ -1895,6 +1949,375 @@ object RenderUtils : MinecraftInstance() {
         worldRenderer.pos(x4.toDouble(), y2.toDouble(), z4.toDouble()).endVertex()
         tessellator.draw()
     }
+
+    fun drawRoundedGradientOutlineCorner(
+        x: Float,
+        y: Float,
+        x1: Float,
+        y1: Float,
+        width: Float,
+        radius: Float,
+        color: Int,
+        color2: Int,
+        color3: Int,
+        color4: Int
+    ) {
+        var x = x
+        var y = y
+        var x1 = x1
+        var y1 = y1
+        ColorUtils.setColour(-1)
+        glEnable(GL_BLEND)
+        glDisable(GL_TEXTURE_2D)
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+        glEnable(GL_LINE_SMOOTH)
+        glShadeModel(GL_SMOOTH)
+        glPushAttrib(0)
+        glScaled(0.5, 0.5, 0.5)
+        x *= 2.0.toFloat()
+        y *= 2.0.toFloat()
+        x1 *= 2.0.toFloat()
+        y1 *= 2.0.toFloat()
+        glEnable(GL_BLEND)
+        glDisable(GL_TEXTURE_2D)
+        ColorUtils.setColour(color)
+        glEnable(GL_LINE_SMOOTH)
+        glShadeModel(GL_SMOOTH)
+        glLineWidth(width)
+        glBegin(GL_LINE_LOOP)
+        var i: Int
+        i = 0
+        while (i <= 90) {
+            glVertex2d(
+                x + radius + sin(i * Math.PI / 180.0) * radius * -1.0,
+                y + radius + cos(i * Math.PI / 180.0) * radius * -1.0
+            )
+            i += 3
+        }
+        ColorUtils.setColour(color2)
+        i = 90
+        while (i <= 180) {
+            glVertex2d(
+                x + radius + sin(i * Math.PI / 180.0) * radius * -1.0,
+                y1 - radius + cos(i * Math.PI / 180.0) * radius * -1.0
+            )
+            i += 3
+        }
+        ColorUtils.setColour(color3)
+        i = 0
+        while (i <= 90) {
+            glVertex2d(x1 - radius + sin(i * Math.PI / 180.0) * radius, y1 - radius + cos(i * Math.PI / 180.0) * radius)
+            i += 3
+        }
+        ColorUtils.setColour(color4)
+        i = 90
+        while (i <= 180) {
+            glVertex2d(
+                x1 - radius + sin(i * Math.PI / 180.0) * radius,
+                y + radius + cos(i * Math.PI / 180.0) * radius
+            )
+            i += 3
+        }
+        glEnd()
+        glLineWidth(1f)
+        glEnable(GL_TEXTURE_2D)
+        glDisable(GL_BLEND)
+        glDisable(GL_LINE_SMOOTH)
+        glDisable(GL_BLEND)
+        glEnable(GL_TEXTURE_2D)
+        glScaled(2.0, 2.0, 2.0)
+        glPopAttrib()
+        glEnable(GL_TEXTURE_2D)
+        glDisable(GL_BLEND)
+        glDisable(GL_LINE_SMOOTH)
+        glShadeModel(GL_FLAT)
+        ColorUtils.setColour(-1)
+    }
+
+    fun drawRoundedGradientOutlineCorner(
+        x: Float,
+        y: Float,
+        x1: Float,
+        y1: Float,
+        width: Float,
+        radius: Float,
+        color: Int,
+        color2: Int
+    ) {
+        var x = x
+        var y = y
+        var x1 = x1
+        var y1 = y1
+        ColorUtils.setColour(-1)
+        glEnable(GL_BLEND)
+        glDisable(GL_TEXTURE_2D)
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+        glEnable(GL_LINE_SMOOTH)
+        glShadeModel(GL_SMOOTH)
+        glPushAttrib(0)
+        glScaled(0.5, 0.5, 0.5)
+        x *= 2.0f
+        y *= 2.0f
+        x1 *= 2.0f
+        y1 *= 2.0f
+        glEnable(GL_BLEND)
+        glDisable(GL_TEXTURE_2D)
+        ColorUtils.setColour(color)
+        glEnable(GL_LINE_SMOOTH)
+        glShadeModel(GL_SMOOTH)
+        glLineWidth(width)
+        glBegin(GL_LINE_LOOP)
+        var i: Int
+        i = 0
+        while (i <= 90) {
+            glVertex2d(
+                x + radius + sin(i * Math.PI / 180.0) * radius * -1.0,
+                y + radius + cos(i * Math.PI / 180.0) * radius * -1.0
+            )
+            i += 3
+        }
+        ColorUtils.setColour(color)
+        i = 90
+        while (i <= 180) {
+            glVertex2d(
+                x + radius + sin(i * Math.PI / 180.0) * radius * -1.0,
+                y1 - radius + cos(i * Math.PI / 180.0) * radius * -1.0
+            )
+            i += 3
+        }
+        ColorUtils.setColour(color2)
+        i = 0
+        while (i <= 90) {
+            glVertex2d(x1 - radius + sin(i * Math.PI / 180.0) * radius, y1 - radius + cos(i * Math.PI / 180.0) * radius)
+            i += 3
+        }
+        ColorUtils.setColour(color2)
+        i = 90
+        while (i <= 180) {
+            glVertex2d(
+                x1 - radius + sin(i * Math.PI / 180.0) * radius,
+                y + radius + cos(i * Math.PI / 180.0) * radius
+            )
+            i += 3
+        }
+        glEnd()
+        glLineWidth(1f)
+        glEnable(GL_TEXTURE_2D)
+        glDisable(GL_BLEND)
+        glDisable(GL_LINE_SMOOTH)
+        glDisable(GL_BLEND)
+        glEnable(GL_TEXTURE_2D)
+        glScaled(2.0, 2.0, 2.0)
+        glPopAttrib()
+        glEnable(GL_TEXTURE_2D)
+        glDisable(GL_BLEND)
+        glDisable(GL_LINE_SMOOTH)
+        glShadeModel(GL_FLAT)
+        ColorUtils.setColour(-1)
+    }
+
+    fun drawRoundedGradientRectCorner(
+        x: Float,
+        y: Float,
+        x1: Float,
+        y1: Float,
+        radius: Float,
+        color: Int,
+        color2: Int,
+        color3: Int,
+        color4: Int
+    ) {
+        var x = x
+        var y = y
+        var x1 = x1
+        var y1 = y1
+        setColour(-1)
+        glEnable(GL_BLEND)
+        glDisable(GL_TEXTURE_2D)
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+        glEnable(GL_LINE_SMOOTH)
+        glShadeModel(GL_SMOOTH)
+        glPushAttrib(0)
+        glScaled(0.5, 0.5, 0.5)
+        x *= 2.0.toFloat()
+        y *= 2.0.toFloat()
+        x1 *= 2.0.toFloat()
+        y1 *= 2.0.toFloat()
+        glEnable(GL_BLEND)
+        glDisable(GL_TEXTURE_2D)
+        setColour(color)
+        glEnable(GL_LINE_SMOOTH)
+        glShadeModel(GL_SMOOTH)
+        glBegin(6)
+        var i: Int
+        i = 0
+        while (i <= 90) {
+            glVertex2d(
+                x + radius + sin(i * Math.PI / 180.0) * radius * -1.0,
+                y + radius + cos(i * Math.PI / 180.0) * radius * -1.0
+            )
+            i += 3
+        }
+        setColour(color2)
+        i = 90
+        while (i <= 180) {
+            glVertex2d(
+                x + radius + sin(i * Math.PI / 180.0) * radius * -1.0,
+                y1 - radius + cos(i * Math.PI / 180.0) * radius * -1.0
+            )
+            i += 3
+        }
+        setColour(color3)
+        i = 0
+        while (i <= 90) {
+            glVertex2d(x1 - radius + sin(i * Math.PI / 180.0) * radius, y1 - radius + cos(i * Math.PI / 180.0) * radius)
+            i += 3
+        }
+        setColour(color4)
+        i = 90
+        while (i <= 180) {
+            glVertex2d(
+                x1 - radius + sin(i * Math.PI / 180.0) * radius,
+                y + radius + cos(i * Math.PI / 180.0) * radius
+            )
+            i += 3
+        }
+        glEnd()
+        glEnable(GL_TEXTURE_2D)
+        glDisable(GL_BLEND)
+        glDisable(GL_LINE_SMOOTH)
+        glDisable(GL_BLEND)
+        glEnable(GL_TEXTURE_2D)
+        glScaled(2.0, 2.0, 2.0)
+        glPopAttrib()
+        glEnable(GL_TEXTURE_2D)
+        glDisable(GL_BLEND)
+        glDisable(GL_LINE_SMOOTH)
+        glShadeModel(GL_FLAT)
+        setColour(-1)
+    }
+
+    fun drawAnimatedGradient(left: Double, top: Double, right: Double, bottom: Double, col1: Int, col2: Int) {
+        val currentTime = System.currentTimeMillis()
+        if (startTime.toInt() === 0) {
+            startTime = currentTime
+        }
+        val elapsedTime: Long = currentTime - startTime
+        val progress: Float = (elapsedTime % animationDuration) as Float / animationDuration
+        val color1: Int
+        val color2: Int
+        if ((elapsedTime / animationDuration % 2).toInt() === 0) {
+            color1 = interpolateColors(col1, col2, progress)
+            color2 = interpolateColors(col2, col1, progress)
+        } else {
+            color1 = interpolateColors(col2, col1, progress)
+            color2 = interpolateColors(col1, col2, progress)
+        }
+        drawGradientSideways(left, top, right, bottom, color1, color2)
+        if (elapsedTime >= 2 * animationDuration) {
+            startTime = currentTime
+        }
+    }
+
+    fun interpolateColors(color1: Int, color2: Int, progress: Float): Int {
+        val alpha = ((1.0 - progress) * (color1 ushr 24) + progress * (color2 ushr 24)).toInt()
+        val red = ((1.0 - progress) * (color1 shr 16 and 0xFF) + progress * (color2 shr 16 and 0xFF)).toInt()
+        val green = ((1.0 - progress) * (color1 shr 8 and 0xFF) + progress * (color2 shr 8 and 0xFF)).toInt()
+        val blue = ((1.0 - progress) * (color1 and 0xFF) + progress * (color2 and 0xFF)).toInt()
+        return alpha shl 24 or (red shl 16) or (green shl 8) or blue
+    }
+
+    fun drawRoundedGradientRectCorner(
+        x: Float,
+        y: Float,
+        x1: Float,
+        y1: Float,
+        radius: Float,
+        color: Int,
+        color2: Int
+    ) {
+        var x = x
+        var y = y
+        var x1 = x1
+        var y1 = y1
+        setColour(-1)
+        glEnable(GL_BLEND)
+        glDisable(GL_TEXTURE_2D)
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+        glEnable(GL_LINE_SMOOTH)
+        glShadeModel(GL_SMOOTH)
+        glPushAttrib(0)
+        glScaled(0.5, 0.5, 0.5)
+        x *= 2.0.toFloat()
+        y *= 2.0.toFloat()
+        x1 *= 2.0.toFloat()
+        y1 *= 2.0.toFloat()
+        glEnable(GL_BLEND)
+        glDisable(GL_TEXTURE_2D)
+        setColour(color)
+        glEnable(GL_LINE_SMOOTH)
+        glShadeModel(GL_SMOOTH)
+        glBegin(6)
+        var i: Int
+        i = 0
+        while (i <= 90) {
+            glVertex2d(
+                x + radius + sin(i * Math.PI / 180.0) * radius * -1.0,
+                y + radius + cos(i * Math.PI / 180.0) * radius * -1.0
+            )
+            i += 3
+        }
+        setColour(color)
+        i = 90
+        while (i <= 180) {
+            glVertex2d(
+                x + radius + sin(i * Math.PI / 180.0) * radius * -1.0,
+                y1 - radius + cos(i * Math.PI / 180.0) * radius * -1.0
+            )
+            i += 3
+        }
+        setColour(color2)
+        i = 0
+        while (i <= 90) {
+            glVertex2d(x1 - radius + sin(i * Math.PI / 180.0) * radius, y1 - radius + cos(i * Math.PI / 180.0) * radius)
+            i += 3
+        }
+        setColour(color2)
+        i = 90
+        while (i <= 180) {
+            glVertex2d(
+                x1 - radius + sin(i * Math.PI / 180.0) * radius,
+                y + radius + cos(i * Math.PI / 180.0) * radius
+            )
+            i += 3
+        }
+        glEnd()
+        glEnable(GL_TEXTURE_2D)
+        glDisable(GL_BLEND)
+        glDisable(GL_LINE_SMOOTH)
+        glDisable(GL_BLEND)
+        glEnable(GL_TEXTURE_2D)
+        glScaled(2.0, 2.0, 2.0)
+        glPopAttrib()
+        glEnable(GL_TEXTURE_2D)
+        glDisable(GL_BLEND)
+        glDisable(GL_LINE_SMOOTH)
+        glShadeModel(GL_FLAT)
+        setColour(-1)
+    }
+    /**
+     * @param x : X pos
+     * @param y : Y pos
+     * @param x1 : X2 pos
+     * @param y1 : Y2 pos
+     * @param width : width of line;
+     * @param radius : round of edges;
+     * @param color : color;
+     * @param color2 : color2;
+     * @param color3 : color3;
+     * @param color4 : color4;
+     */
+
     /**
      * GL CAP MANAGER
      *
@@ -1928,4 +2351,5 @@ object RenderUtils : MinecraftInstance() {
     fun setGlState(cap: Int, state: Boolean) {
         if (state) GL11.glEnable(cap) else GL11.glDisable(cap)
     }
+
 }

@@ -83,6 +83,10 @@ public abstract class MixinItemRenderer {
     @Shadow
     protected abstract void renderPlayerArm(AbstractClientPlayer clientPlayer, float equipProgress, float swingProgress);
 
+    //from Necako 
+    @Shadow
+    protected abstract void func_178095_a(AbstractClientPlayer clientPlayer, float equipProgress, float swingProgress);
+
     private void genCustom(float p_178096_1_, float p_178096_2_) {
         GlStateManager.translate(0.56F, -0.52F, -0.71999997F);
         GlStateManager.translate(0.0F, p_178096_1_ * -0.6F, 0.0F);
@@ -339,6 +343,14 @@ public abstract class MixinItemRenderer {
         GlStateManager.scale(Animations.INSTANCE.getScale().get(), Animations.INSTANCE.getScale().get(), Animations.INSTANCE.getScale().get());
     }
 
+    private void oldBlockingAnimation() {
+        GlStateManager.translate(0.32, 0.4, -0.1F);
+        GlStateManager.rotate(30.0F, 0.0F, 1.0F, 0.0F);
+        GlStateManager.rotate(-80.0F, 1.0F, 0.0F, 0.0F);
+        GlStateManager.rotate(60.0F, 0.0F, 1.0F, 0.0F);
+
+    }
+
     private void func_178103_d() {
         GlStateManager.translate(-0.5F, 0.2F, 0.0F);
         GlStateManager.rotate(30.0F, 0.0F, 1.0F, 0.0F);
@@ -553,7 +565,7 @@ public abstract class MixinItemRenderer {
                                     if (Animations.INSTANCE.getRotateItems().get())
                                         rotateItemAnim();
                                     break;
-                            }
+                                }
                                 case "Poke": {
                                     this.poke(0.1f, f1);
                                     GlStateManager.scale(2.5f, 2.5f, 2.5f);
@@ -806,7 +818,11 @@ public abstract class MixinItemRenderer {
                                     GlStateManager.translate(0, 0, 0.5);
                                     break;
                                 }
-
+                                case "Old": {
+                                    this.transformFirstPersonItem(f, f1);
+                                    this.oldBlockingAnimation(); //better 1.7 animation from sk1ers old animations mod
+                                    break;
+                                }
                             }
                         } else {
                             this.transformFirstPersonItem(f + 0.1F, f1);

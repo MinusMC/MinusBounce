@@ -12,7 +12,6 @@ import net.minecraft.enchantment.EnchantmentHelper
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.item.EntityArmorStand
-import net.minecraft.item.ItemAxe
 import net.minecraft.item.ItemSword
 import net.minecraft.network.play.client.*
 import net.minecraft.potion.Potion
@@ -40,10 +39,7 @@ import net.minusmc.minusbounce.utils.extensions.getNearestPointBB
 import net.minusmc.minusbounce.utils.misc.RandomUtils
 import net.minusmc.minusbounce.utils.timer.MSTimer
 import net.minusmc.minusbounce.utils.timer.TimeUtils
-import net.minusmc.minusbounce.value.BoolValue
-import net.minusmc.minusbounce.value.FloatValue
-import net.minusmc.minusbounce.value.IntegerValue
-import net.minusmc.minusbounce.value.ListValue
+import net.minusmc.minusbounce.value.*
 import org.lwjgl.input.Keyboard
 import org.lwjgl.opengl.GL11
 import java.util.*
@@ -53,24 +49,7 @@ import kotlin.math.*
         category = ModuleCategory.COMBAT, keyBind = Keyboard.KEY_R)
 class KillAura : Module() {
 
-    // CPS - Attack speed
-    private val maxCPS: IntegerValue = object : IntegerValue("MaxCPS", 8, 1, 20) {
-        override fun onChanged(oldValue: Int, newValue: Int) {
-            val i = minCPS.get()
-            if (i > newValue) set(i)
-
-            attackDelay = TimeUtils.randomClickDelay(minCPS.get(), this.get())
-        }
-    }
-
-    private val minCPS: IntegerValue = object : IntegerValue("MinCPS", 5, 1, 20) {
-        override fun onChanged(oldValue: Int, newValue: Int) {
-            val i = maxCPS.get()
-            if (i < newValue) set(i)
-
-            attackDelay = TimeUtils.randomClickDelay(this.get(), maxCPS.get())
-        }
-    }
+    private val cps = IntRangeValue("CPS", 5, 8, 1, 20)
 
     private val hurtTimeValue = IntegerValue("HurtTime", 10, 0, 10)
 
@@ -82,20 +61,7 @@ class KillAura : Module() {
     private val rotations = ListValue("RotationMode", arrayOf("Vanilla", "BackTrack", "NCP", "Grim", "Intave", "Smooth", "None"), "BackTrack")
     private val intaveRandomAmount = FloatValue("RandomAmount", 4f, 0.25f, 10f) { rotations.get().equals("Intave", true) }
 
-    // Turn Speed
-    private val maxTurnSpeed: FloatValue = object : FloatValue("MaxTurnSpeed", 180f, 0f, 180f, "°", { !rotations.get().equals("none", true) }) {
-        override fun onChanged(oldValue: Float, newValue: Float) {
-            val v = minTurnSpeed.get()
-            if (v > newValue) set(v)
-        }
-    }
-
-    private val minTurnSpeed: FloatValue = object : FloatValue("MinTurnSpeed", 180f, 0f, 180f, "°", { !rotations.get().equals("none", true) }) {
-        override fun onChanged(oldValue: Float, newValue: Float) {
-            val v = maxTurnSpeed.get()
-            if (v < newValue) set(v)
-        }
-    }
+    private val turnSpeed = FloatRangeValue("TurnSpeed", 180f, 180f, 0f, 180f, "°")
 
     private val noHitCheck = BoolValue("NoHitCheck", false) { !rotations.get().equals("none", true) }
     private val blinkCheck = BoolValue("BlinkCheck", true)
@@ -563,7 +529,7 @@ class KillAura : Module() {
                 currentTarget!!.hurtTime <= hurtTimeValue.get()) {
             clicks++
             attackTimer.reset()
-            attackDelay = TimeUtils.randomClickDelay(minCPS.get(), maxCPS.get())
+            attackDelay = TimeUtils.randomClickDelay(cps.get().getMin(), cps.get().getMax())
         }
     }
 
@@ -633,7 +599,7 @@ class KillAura : Module() {
             mc.netHandler.addToSendQueue(C16PacketClientStatus(C16PacketClientStatus.EnumState.OPEN_INVENTORY_ACHIEVEMENT))
     }
 
-    fun runSwing() {
+    private fun runSwing() {
         when (swingValue.get().lowercase()) {
             "normal" -> mc.thePlayer.swingItem()
             "packet" -> mc.netHandler.addToSendQueue(C0APacketAnimation())
@@ -797,10 +763,10 @@ class KillAura : Module() {
             )
         }
 
-        val rotationSpeed = (Math.random() * (maxTurnSpeed.get() - minTurnSpeed.get()) + minTurnSpeed.get()).toFloat()
+        val rotationSpeed = (Math.random() * (turnSpeed.get().getMax() - turnSpeed.get().getMin()) + turnSpeed.get().getMin()).toFloat()
         return when (rotations.get().lowercase()) {
             "vanilla" -> {
-                if (maxTurnSpeed.get() <= 0F) RotationUtils.serverRotation
+                if (turnSpeed.get().getMax() <= 0F) RotationUtils.serverRotation
 
                 val (_, rotation) = RotationUtils.searchCenter(
                         boundingBox,
@@ -876,7 +842,7 @@ class KillAura : Module() {
             "fixed" -> {
                 val yaw = fixedRotation!!.yaw
                 val pitch = fixedRotation!!.pitch
-                Rotation(fixedRotation!!.yaw, pitch)
+                Rotation(yaw, pitch)
 
             }
             else -> RotationUtils.serverRotation
@@ -892,7 +858,7 @@ class KillAura : Module() {
         val watchdogDisabler = disabler.modes.find { it.modeName.equals("Watchdog", true) } as WatchdogDisabler
 
         // Completely disable rotation check if turn speed equals to 0 or NoHitCheck is enabled
-        if (maxTurnSpeed.get() <= 0F || noHitCheck.get() || watchdogDisabler.canModifyRotation) {
+        if (turnSpeed.get().getMax() <= 0F || noHitCheck.get() || watchdogDisabler.canModifyRotation) {
             hitable = true
             return
         }
@@ -910,7 +876,7 @@ class KillAura : Module() {
             if (raycastValue.get() && raycastedEntity is EntityLivingBase)
                 currentTarget = raycastedEntity
 
-            hitable = if (maxTurnSpeed.get() > 0F) currentTarget == raycastedEntity else true
+            hitable = if (turnSpeed.get().getMax() > 0F) currentTarget == raycastedEntity else true
         } else
             hitable = RotationUtils.isFaced(currentTarget!!, reach)
     }
@@ -934,7 +900,7 @@ class KillAura : Module() {
                 blockingStatus = false
             }
             "aftertick" -> stopBlocking()
-            else -> null
+            else -> return
         }
     }
 
@@ -951,7 +917,7 @@ class KillAura : Module() {
         when (autoBlockModeValue.get().lowercase()) {
             "vanilla", "oldintave" -> startBlocking(entity, interactAutoBlockValue.get())
             "polar" -> if (mc.thePlayer.hurtTime < 8 && mc.thePlayer.hurtTime != 1 && mc.thePlayer.fallDistance > 0) startBlocking(entity, interactAutoBlockValue.get())
-            else -> null
+            else -> return
         }
     }
 
