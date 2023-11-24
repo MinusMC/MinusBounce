@@ -1,4 +1,4 @@
-package net.minusmc.minusbounce.ui.client.clickgui.style
+package net.minusmc.minusbounce.ui.client.clickgui.styles
 
 
 abstract class StyleMode(val styleName: String) {

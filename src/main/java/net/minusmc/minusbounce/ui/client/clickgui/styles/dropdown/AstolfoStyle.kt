@@ -240,7 +240,7 @@ class AstolfoStyle : StyleMode("Astolfo"), DropDownClickGui {
 
     override fun drawIntRangeValue(value: IntRangeValue, moduleElement: ModuleElement, mouseX: Int, mouseY: Int) {
         val text = value.name + "§f: §c${value.get().getMin()} - ${value.get().getMax()}"
-        val textWidth = Fonts.font35.getStringWidth(text).toFloat()
+        val textWidth = Fonts.minecraftFont.getStringWidth(text).toFloat()
         if (moduleElement.settingsWidth < textWidth + 8) moduleElement.settingsWidth = textWidth + 8
         RenderUtils.drawRect((moduleElement.x + moduleElement.width + 4).toFloat(), (yPos + 2).toFloat(), moduleElement.x + moduleElement.width + moduleElement.settingsWidth, (yPos + 24).toFloat(), Int.MIN_VALUE)
         RenderUtils.drawRect((moduleElement.x + moduleElement.width + 8).toFloat(), (yPos + 18).toFloat(), moduleElement.x + moduleElement.width + moduleElement.settingsWidth - 4, (yPos + 19).toFloat(), Int.MAX_VALUE)
@@ -272,13 +272,13 @@ class AstolfoStyle : StyleMode("Astolfo"), DropDownClickGui {
             }
         }
         GlStateManager.resetColor()
-        Fonts.font35.drawString(text, moduleElement.x + moduleElement.width + 6, yPos + 4, 0xffffff)
+        Fonts.minecraftFont.drawString(text, moduleElement.x + moduleElement.width + 6, yPos + 4, 0xffffff)
         yPos += 22
     }
 
     override fun drawFloatRangeValue(value: FloatRangeValue, moduleElement: ModuleElement, mouseX: Int, mouseY: Int) {
         val text = value.name + "§f: §c${round(value.get().getMin())}${value.suffix} - ${round(value.get().getMax())}${value.suffix}"
-        val textWidth = Fonts.font35.getStringWidth(text).toFloat()
+        val textWidth = Fonts.minecraftFont.getStringWidth(text).toFloat()
         if (moduleElement.settingsWidth < textWidth + 8) moduleElement.settingsWidth = textWidth + 8
         RenderUtils.drawRect((moduleElement.x + moduleElement.width + 4).toFloat(), (yPos + 2).toFloat(), moduleElement.x + moduleElement.width + moduleElement.settingsWidth, (yPos + 24).toFloat(), Int.MIN_VALUE)
         RenderUtils.drawRect((moduleElement.x + moduleElement.width + 8).toFloat(), (yPos + 18).toFloat(), moduleElement.x + moduleElement.width + moduleElement.settingsWidth - 4, (yPos + 19).toFloat(), Int.MAX_VALUE)
@@ -310,7 +310,7 @@ class AstolfoStyle : StyleMode("Astolfo"), DropDownClickGui {
             }
         }
         GlStateManager.resetColor()
-        Fonts.font35.drawString(text, moduleElement.x + moduleElement.width + 6, yPos + 4, 0xffffff)
+        Fonts.minecraftFont.drawString(text, moduleElement.x + moduleElement.width + 6, yPos + 4, 0xffffff)
         yPos += 22
     }
 

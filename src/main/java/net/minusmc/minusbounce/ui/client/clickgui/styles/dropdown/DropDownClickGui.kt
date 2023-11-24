@@ -1,4 +1,4 @@
-package net.minusmc.minusbounce.ui.client.clickgui
+package net.minusmc.minusbounce.ui.client.clickgui.styles.dropdown
 
 import net.minusmc.minusbounce.value.*
 import net.minusmc.minusbounce.ui.client.clickgui.Panel
@@ -6,10 +6,10 @@ import net.minusmc.minusbounce.ui.client.clickgui.elements.ButtonElement
 import net.minusmc.minusbounce.ui.client.clickgui.elements.ModuleElement
 
 interface DropDownClickGui {
-	protected var mouseDown = false
-    protected var rightMouseDown = false
+	var mouseDown = false
+    var rightMouseDown = false
 
-    protected var yPos = 0
+    var yPos = 0
 
     fun drawPanel(mouseX: Int, mouseY: Int, panel: Panel?) {}
     fun drawDescription(mouseX: Int, mouseY: Int, text: String?) {}
