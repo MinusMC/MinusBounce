@@ -58,7 +58,7 @@ class ModuleManager : Listenable {
             registerModule(instance)
         } catch (e: IllegalAccessException) {
             val instance = ClassUtils.getObjectInstance(moduleClass) as Module
-            if (instance !is ClickGui) // lateinit clickgui
+            if (instance !is ClickGUI) // lateinit clickgui
                 registerModule(instance)
         } catch (e: Throwable) {
             ClientUtils.logger.error("Failed to load module: ${moduleClass.name} (${e.javaClass.name}: ${e.message})")
