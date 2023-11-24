@@ -8,7 +8,7 @@ package net.minusmc.minusbounce.features.module.modules.client
 import net.minusmc.minusbounce.features.module.Module
 import net.minusmc.minusbounce.features.module.ModuleCategory
 import net.minusmc.minusbounce.features.module.ModuleInfo
-import net.minusmc.minusbounce.ui.client.clickgui.styles.DropDownClickGui
+import net.minusmc.minusbounce.ui.client.clickgui.DropDownClickGui
 import net.minusmc.minusbounce.ui.client.clickgui.styles.StyleMode
 import net.minusmc.minusbounce.utils.ClassUtils
 import net.minusmc.minusbounce.utils.render.ColorUtils
@@ -29,7 +29,7 @@ object ClickGUI: Module() {
     val style: StyleMode
         get() = styles.find {styleValue.get().equals(it.styleName, true)} ?: throw NullPointerException()
 
-    private val styleValue = ListValue("Style", styles.map {it.styleName}.toTypedArray(), "Null")
+    val styleValue = ListValue("Style", styles.map {it.styleName}.toTypedArray(), "LiquidBounce")
 
     val fastRenderValue = BoolValue("FastRender", true)
 

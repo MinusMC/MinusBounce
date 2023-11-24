@@ -1,4 +1,4 @@
-package net.minusmc.minusbounce.ui.client.clickgui.styles
+package net.minusmc.minusbounce.ui.client.clickgui
 
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.client.renderer.RenderHelper
@@ -6,6 +6,7 @@ import net.minusmc.minusbounce.MinusBounce
 import net.minusmc.minusbounce.features.module.ModuleCategory
 import net.minusmc.minusbounce.features.module.modules.client.ClickGUI
 import net.minusmc.minusbounce.ui.client.clickgui.Panel
+import net.minusmc.minusbounce.ui.client.clickgui.styles.StyleMode
 import net.minusmc.minusbounce.ui.client.clickgui.elements.ButtonElement
 import net.minusmc.minusbounce.ui.client.clickgui.elements.ModuleElement
 import net.minusmc.minusbounce.ui.client.hud.element.elements.targets.impl.Minus

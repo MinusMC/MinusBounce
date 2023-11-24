@@ -10,7 +10,7 @@ import net.minecraft.util.ResourceLocation
 import net.minusmc.minusbounce.MinusBounce
 import net.minusmc.minusbounce.features.module.Module
 import net.minusmc.minusbounce.features.module.modules.client.ClickGUI
-import net.minusmc.minusbounce.ui.client.clickgui.styles.DropDownClickGui
+import net.minusmc.minusbounce.ui.client.clickgui.DropDownClickGui
 import org.lwjgl.input.Mouse
 
 class ModuleElement(module: Module) : ButtonElement(null) {

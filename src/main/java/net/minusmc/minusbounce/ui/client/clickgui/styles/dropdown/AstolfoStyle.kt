@@ -9,7 +9,7 @@ import net.minusmc.minusbounce.features.module.modules.client.ClickGUI.accentCol
 import net.minusmc.minusbounce.ui.client.clickgui.Panel
 import net.minusmc.minusbounce.ui.client.clickgui.elements.ButtonElement
 import net.minusmc.minusbounce.ui.client.clickgui.elements.ModuleElement
-import net.minusmc.minusbounce.ui.client.clickgui.styles.DropDownClickGui
+import net.minusmc.minusbounce.ui.client.clickgui.DropDownClickGui
 import net.minusmc.minusbounce.ui.font.Fonts
 import net.minusmc.minusbounce.ui.font.GameFontRenderer
 import net.minusmc.minusbounce.utils.block.BlockUtils.getBlockName

@@ -7,7 +7,7 @@ package net.minusmc.minusbounce.ui.client.clickgui.elements
 
 import net.minusmc.minusbounce.MinusBounce
 import net.minusmc.minusbounce.features.module.modules.client.ClickGUI
-import net.minusmc.minusbounce.ui.client.clickgui.styles.DropDownClickGui
+import net.minusmc.minusbounce.ui.client.clickgui.DropDownClickGui
 import net.minusmc.minusbounce.ui.client.hud.element.elements.targets.impl.Minus
 
 open class ButtonElement(displayName: String?) : Element() {

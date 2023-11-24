@@ -11,6 +11,7 @@ import net.minusmc.minusbounce.event.ClientShutdownEvent
 import net.minusmc.minusbounce.event.EventManager
 import net.minusmc.minusbounce.features.command.CommandManager
 import net.minusmc.minusbounce.features.module.ModuleManager
+import net.minusmc.minusbounce.features.module.modules.client.ClickGUI
 import net.minusmc.minusbounce.features.special.AntiForge
 import net.minusmc.minusbounce.features.special.BungeeCordSpoof
 import net.minusmc.minusbounce.features.special.CombatManager

@@ -16,7 +16,7 @@ import net.minusmc.minusbounce.features.module.modules.client.ClickGUI.accentCol
 import net.minusmc.minusbounce.ui.client.clickgui.Panel
 import net.minusmc.minusbounce.ui.client.clickgui.elements.ButtonElement
 import net.minusmc.minusbounce.ui.client.clickgui.elements.ModuleElement
-import net.minusmc.minusbounce.ui.client.clickgui.styles.DropDownClickGui
+import net.minusmc.minusbounce.ui.client.clickgui.DropDownClickGui
 import net.minusmc.minusbounce.ui.font.AWTFontRenderer.Companion.assumeNonVolatile
 import net.minusmc.minusbounce.ui.font.Fonts
 import net.minusmc.minusbounce.ui.font.GameFontRenderer
@@ -58,7 +58,7 @@ class LiquidBounceStyle : DropDownClickGui("LiquidBounce") {
         if (moduleValues.isNotEmpty()) {
             Fonts.font35.drawString("+", moduleElement.x + moduleElement.width - 8, moduleElement.y + moduleElement.height / 2, Color.WHITE.rgb)
             if (moduleElement.isShowSettings) {
-                var yPos = moduleElement.y + 4
+                yPos = moduleElement.y + 4
                 for (value in moduleValues) {
                     if (!value.canDisplay.invoke()) continue
                     val isNumber = value.get() is Number || value is IntRangeValue || value is FloatRangeValue
