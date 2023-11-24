@@ -58,8 +58,10 @@ class WhiteStyle : DropDownClickGui("White") {
         Gui.drawRect(moduleElement.x - 1, moduleElement.y - 1, moduleElement.x + moduleElement.width + 1, moduleElement.y + moduleElement.height + 1, ColorUtils.hoverColor(Color(14, 159, 255, moduleElement.slowlyFade), moduleElement.hoverTime).rgb)
         GlStateManager.resetColor()
         Fonts.font35.drawString(moduleElement.displayName, moduleElement.x + 5, moduleElement.y + 7, Color.BLACK.rgb)
+        drawValues(moduleElement, mouseX, mouseY)
+    }
 
-        // Draw settings
+    override fun drawValues(moduleElement: ModuleElement, mouseX: Int, mouseY: Int) {
         val moduleValues = moduleElement.module.values
         if (moduleValues.isNotEmpty()) {
             Fonts.font35.drawString("-", moduleElement.x + moduleElement.width - 8, moduleElement.y + 5, Color.BLACK.rgb)
@@ -94,10 +96,6 @@ class WhiteStyle : DropDownClickGui("White") {
         }
     }
 
-    override fun drawValues(moduleElement: ModuleElement, mouseX: Int, mouseY: Int) {
-        TODO("Not yet implemented")
-    }
-
     override fun drawBoolValue(value: BoolValue, moduleElement: ModuleElement, mouseX: Int, mouseY: Int) {
         val text = value.name
         val textWidth = Fonts.font35.getStringWidth(text).toFloat()
@@ -130,7 +128,7 @@ class WhiteStyle : DropDownClickGui("White") {
                     mc.soundHandler.playSound(PositionedSoundRecord.create(ResourceLocation("gui.button.press"), 1.0f))
                 }
                 GlStateManager.resetColor()
-                Fonts.font35.drawString("- $valueOfList", moduleElement.x + moduleElement.width + 6, yPos + 2, if (value.get().equals(valueOfList, ignoreCase = true)) Color.BLACK.rgb else Color(120, 120, 120).rgb)
+                Fonts.font35.drawString("- $valueOfList", moduleElement.x + moduleElement.width + 6, yPos + 2, if (value.get().equals(valueOfList, true)) Color.BLACK.rgb else Color(120, 120, 120).rgb)
                 yPos += Fonts.font35.FONT_HEIGHT + 1
             }
         }

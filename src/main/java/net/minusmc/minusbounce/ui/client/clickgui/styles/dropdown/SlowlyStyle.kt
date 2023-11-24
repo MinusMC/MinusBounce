@@ -59,8 +59,10 @@ class SlowlyStyle : DropDownClickGui("Slowly") {
         Gui.drawRect(moduleElement.x - 1, moduleElement.y - 1, moduleElement.x + moduleElement.width + 1, moduleElement.y + moduleElement.height + 1, ColorUtils.hoverColor(Color(0, 0, 0, moduleElement.slowlyFade), moduleElement.hoverTime).rgb)
         GlStateManager.resetColor()
         Fonts.font35.drawString(moduleElement.displayName, moduleElement.x + 5, moduleElement.y + 7, Color.WHITE.rgb)
+        drawValues(moduleElement, mouseX, mouseY)
+    }
 
-        // Draw settings
+    override fun drawValues(moduleElement: ModuleElement, mouseX: Int, mouseY: Int) {
         val moduleValues = moduleElement.module.values
         if (moduleValues.isNotEmpty()) {
             Fonts.font35.drawString(">", moduleElement.x + moduleElement.width - 8, moduleElement.y + 5, Color.WHITE.rgb)
@@ -93,10 +95,6 @@ class SlowlyStyle : DropDownClickGui("Slowly") {
                 rightMouseDown = Mouse.isButtonDown(1)
             }
         }
-    }
-
-    override fun drawValues(moduleElement: ModuleElement, mouseX: Int, mouseY: Int) {
-        TODO("Not yet implemented")
     }
 
     override fun drawBoolValue(value: BoolValue, moduleElement: ModuleElement, mouseX: Int, mouseY: Int) {
