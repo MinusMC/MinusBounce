@@ -6,7 +6,6 @@
 package net.minusmc.minusbounce.utils.render
 
 import net.minecraft.client.gui.Gui
-import net.minecraft.client.gui.Gui.drawModalRectWithCustomSizedTexture
 import net.minecraft.client.gui.ScaledResolution
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.client.renderer.OpenGlHelper
@@ -33,10 +32,7 @@ import net.minusmc.minusbounce.ui.font.Fonts
 import net.minusmc.minusbounce.utils.MinecraftInstance
 import net.minusmc.minusbounce.utils.block.BlockUtils
 import net.minusmc.minusbounce.utils.render.ColorUtils.setColour
-<<<<<<< HEAD
-=======
 import net.minecraft.client.renderer.*
->>>>>>> ed6cf269f48955db36765b9fd06d8b9c7c8aabbd
 import org.lwjgl.opengl.GL11
 import org.lwjgl.opengl.GL11.*
 import java.awt.Color
@@ -114,7 +110,7 @@ object RenderUtils : MinecraftInstance() {
         GlStateManager.disableBlend()
         GlStateManager.color(1f, 1f, 1f, 1f)
     }
-    
+
     fun drawTexturedModalRect(x: Int, y: Int, textureX: Int, textureY: Int, width: Int, height: Int, zLevel: Float) {
         val f = 0.00390625f
         val f1 = 0.00390625f
@@ -751,91 +747,6 @@ object RenderUtils : MinecraftInstance() {
         GL11.glDisable(GL11.GL_LINE_SMOOTH)
     }
 
-    fun drawRoundedGradientOutlineCorner(
-        x: Float,
-        y: Float,
-        x1: Float,
-        y1: Float,
-        width: Float,
-        radius: Float,
-        color: Int,
-        color2: Int
-    ) {
-        var x = x
-        var y = y
-        var x1 = x1
-        var y1 = y1
-        ColorUtils.setColour(-1)
-        GL11.glEnable(GL_BLEND)
-        GL11.glDisable(GL_TEXTURE_2D)
-        GL11.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
-        GL11.glEnable(GL_LINE_SMOOTH)
-        glShadeModel(GL_SMOOTH)
-        glPushAttrib(0)
-        glScaled(0.5, 0.5, 0.5)
-        x *= 2.0f
-        y *= 2.0f
-        x1 *= 2.0f
-        y1 *= 2.0f
-        GL11.glEnable(GL_BLEND)
-        GL11.glDisable(GL_TEXTURE_2D)
-        ColorUtils.setColour(color)
-        GL11.glEnable(GL_LINE_SMOOTH)
-        glShadeModel(GL_SMOOTH)
-        glLineWidth(width)
-        glBegin(GL_LINE_LOOP)
-        var i: Int
-        i = 0
-        while (i <= 90) {
-            glVertex2d(
-                x + radius + Math.sin(i * Math.PI / 180.0) * radius * -1.0,
-                y + radius + Math.cos(i * Math.PI / 180.0) * radius * -1.0
-            )
-            i += 3
-        }
-        ColorUtils.setColour(color)
-        i = 90
-        while (i <= 180) {
-            glVertex2d(
-                x + radius + Math.sin(i * Math.PI / 180.0) * radius * -1.0,
-                y1 - radius + Math.cos(i * Math.PI / 180.0) * radius * -1.0
-            )
-            i += 3
-        }
-        ColorUtils.setColour(color2)
-        i = 0
-        while (i <= 90) {
-            glVertex2d(
-                x1 - radius + Math.sin(i * Math.PI / 180.0) * radius,
-                y1 - radius + Math.cos(i * Math.PI / 180.0) * radius
-            )
-            i += 3
-        }
-        ColorUtils.setColour(color2)
-        i = 90
-        while (i <= 180) {
-            glVertex2d(
-                x1 - radius + Math.sin(i * Math.PI / 180.0) * radius,
-                y + radius + Math.cos(i * Math.PI / 180.0) * radius
-            )
-            i += 3
-        }
-        glEnd()
-        glLineWidth(1f)
-        GL11.glEnable(GL_TEXTURE_2D)
-        GL11.glDisable(GL_BLEND)
-        GL11.glDisable(GL_LINE_SMOOTH)
-        GL11.glDisable(GL_BLEND)
-        GL11.glEnable(GL_TEXTURE_2D)
-        glScaled(2.0, 2.0, 2.0)
-        glPopAttrib()
-        GL11.glEnable(GL_TEXTURE_2D)
-        GL11.glDisable(GL_BLEND)
-        GL11.glDisable(GL_LINE_SMOOTH)
-        glShadeModel(GL_FLAT)
-        ColorUtils.setColour(-1)
-    }
-
     fun drawTriAngle(cx: Float, cy: Float, r: Float, n: Float, color: Color, polygon: Boolean) {
         var cx = cx
         var cy = cy
@@ -932,88 +843,6 @@ object RenderUtils : MinecraftInstance() {
         GlStateManager.enableAlpha()
         GlStateManager.enableTexture2D()
         GlStateManager.popMatrix()
-    }
-
-    fun drawRoundedGradientRectCorner(
-        x: Float,
-        y: Float,
-        x1: Float,
-        y1: Float,
-        radius: Float,
-        color: Int,
-        color2: Int
-    ) {
-        var x = x
-        var y = y
-        var x1 = x1
-        var y1 = y1
-        setColour(-1)
-        GL11.glEnable(GL_BLEND)
-        GL11.glDisable(GL_TEXTURE_2D)
-        GL11.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
-        GL11.glEnable(GL_LINE_SMOOTH)
-        glShadeModel(GL_SMOOTH)
-        glPushAttrib(0)
-        glScaled(0.5, 0.5, 0.5)
-        x *= 2.0.toFloat()
-        y *= 2.0.toFloat()
-        x1 *= 2.0.toFloat()
-        y1 *= 2.0.toFloat()
-        GL11.glEnable(GL_BLEND)
-        GL11.glDisable(GL_TEXTURE_2D)
-        setColour(color)
-        GL11.glEnable(GL_LINE_SMOOTH)
-        glShadeModel(GL_SMOOTH)
-        glBegin(6)
-        var i: Int
-        i = 0
-        while (i <= 90) {
-            glVertex2d(
-                x + radius + Math.sin(i * Math.PI / 180.0) * radius * -1.0,
-                y + radius + Math.cos(i * Math.PI / 180.0) * radius * -1.0
-            )
-            i += 3
-        }
-        setColour(color)
-        i = 90
-        while (i <= 180) {
-            glVertex2d(
-                x + radius + Math.sin(i * Math.PI / 180.0) * radius * -1.0,
-                y1 - radius + Math.cos(i * Math.PI / 180.0) * radius * -1.0
-            )
-            i += 3
-        }
-        setColour(color2)
-        i = 0
-        while (i <= 90) {
-            glVertex2d(
-                x1 - radius + Math.sin(i * Math.PI / 180.0) * radius,
-                y1 - radius + Math.cos(i * Math.PI / 180.0) * radius
-            )
-            i += 3
-        }
-        setColour(color2)
-        i = 90
-        while (i <= 180) {
-            glVertex2d(
-                x1 - radius + Math.sin(i * Math.PI / 180.0) * radius,
-                y + radius + Math.cos(i * Math.PI / 180.0) * radius
-            )
-            i += 3
-        }
-        glEnd()
-        GL11.glEnable(GL_TEXTURE_2D)
-        GL11.glDisable(GL_BLEND)
-        GL11.glDisable(GL_LINE_SMOOTH)
-        GL11.glDisable(GL_BLEND)
-        GL11.glEnable(GL_TEXTURE_2D)
-        glScaled(2.0, 2.0, 2.0)
-        glPopAttrib()
-        GL11.glEnable(GL_TEXTURE_2D)
-        GL11.glDisable(GL_BLEND)
-        GL11.glDisable(GL_LINE_SMOOTH)
-        glShadeModel(GL_FLAT)
-        setColour(-1)
     }
 
     fun drawGradientSideways(left: Float, top: Float, right: Float, bottom: Float, col1: Int, col2: Int) {
@@ -1337,10 +1166,6 @@ object RenderUtils : MinecraftInstance() {
         GlStateManager.disableBlend()
     }
 
-    fun drawRect(rect: net.minusmc.minusbounce.utils.geom.Rectangle, color: Int) {
-        drawRect(rect.x, rect.y, rect.x + rect.width, rect.y + rect.height, color)
-    }
-
     /**
      * Like [.drawRect], but without setup
      */
@@ -1364,31 +1189,6 @@ object RenderUtils : MinecraftInstance() {
     ) {
         drawRect(x, y, x2, y2, color2)
         drawBorder(x, y, x2, y2, width, color1)
-    }
-
-    fun drawShadow(x: Float, y: Float, width: Float, height: Float) {
-        drawTexturedRect(x - 9, y - 9, 9f, 9f, "paneltopleft")
-        drawTexturedRect(x - 9, y + height, 9f, 9f, "panelbottomleft")
-        drawTexturedRect(x + width, y + height, 9f, 9f, "panelbottomright")
-        drawTexturedRect(x + width, y - 9, 9f, 9f, "paneltopright")
-        drawTexturedRect(x - 9, y, 9f, height, "panelleft")
-        drawTexturedRect(x + width, y, 9f, height, "panelright")
-        drawTexturedRect(x, y - 9, width, 9f, "paneltop")
-        drawTexturedRect(x, y + height, width, 9f, "panelbottom")
-    }
-
-    fun drawTexturedRect(x: Float, y: Float, width: Float, height: Float, image: String) {
-        glPushMatrix()
-        val enableBlend = glIsEnabled(GL_BLEND)
-        val disableAlpha = !glIsEnabled(GL_ALPHA_TEST)
-        if (!enableBlend) glEnable(GL_BLEND)
-        if (!disableAlpha) glDisable(GL_ALPHA_TEST)
-        mc.textureManager.bindTexture(ResourceLocation("minusbounce/ui/$image.png"))
-        GlStateManager.color(1f, 1f, 1f, 1f)
-        drawModalRectWithCustomSizedTexture(x.toInt(), y.toInt(), 0f, 0f, width.toInt(), height.toInt(), width, height)
-        if (!enableBlend) glDisable(GL_BLEND)
-        if (!disableAlpha) glEnable(GL_ALPHA_TEST)
-        glPopMatrix()
     }
 
     fun drawBorder(x: Float, y: Float, x2: Float, y2: Float, width: Float, color1: Int) {
@@ -1978,7 +1778,7 @@ object RenderUtils : MinecraftInstance() {
         var yaw2: Float
         var yaw3: Float
         var yaw4: Float
-        
+
         if (yaw < 0.0) {
             yaw1 = 360.0F - abs(yaw)
         } else {
@@ -1987,7 +1787,7 @@ object RenderUtils : MinecraftInstance() {
         yaw1 *= -1.0F
         yaw1 = (yaw1 * 0.017453292519943295).toFloat()
         yaw += 90.0F
-        
+
         if (yaw < 0.0) {
             yaw2 = 0.0F
             yaw2 += 360.0F - Math.abs(yaw)
@@ -1996,16 +1796,16 @@ object RenderUtils : MinecraftInstance() {
         }
         yaw2 *= -1.0F
         yaw2 = (yaw2 * 0.017453292519943295).toFloat()
-        
+
         yaw += 90.0F
-        
+
         if (yaw < 0.0) {
             yaw3 = 0.0F
             yaw3 += 360.0F - Math.abs(yaw)
         } else {
             yaw3 = yaw.toFloat()
         }
-        
+
         yaw3 *= -1.0F
         yaw3 = (yaw3 * 0.017453292519943295).toFloat()
 
@@ -2019,7 +1819,7 @@ object RenderUtils : MinecraftInstance() {
         }
         yaw4 *= -1.0F
         yaw4 = (yaw4 * 0.017453292519943295).toFloat()
-        
+
         val x1 = (sin(yaw1) * width + x).toFloat()
         val z1 = (cos(yaw1) * width + z).toFloat()
         val x2 = (sin(yaw2) * width + x).toFloat()
@@ -2061,14 +1861,14 @@ object RenderUtils : MinecraftInstance() {
         var yaw2: Float
         var yaw3: Float
         var yaw4: Float
-        
+
         if (yaw < 0.0f) {
             yaw1 = 0.0f
             yaw1 += 360.0f - abs(yaw)
         } else {
             yaw1 = yaw
         }
-        
+
         yaw1 *= -1.0f
         yaw1 = (yaw1 * (PI / 180.0)).toFloat()
 
@@ -2080,12 +1880,12 @@ object RenderUtils : MinecraftInstance() {
         } else {
             yaw2 = yaw
         }
-        
+
         yaw2 *= -1.0f
         yaw2 = (yaw2 * (PI / 180.0)).toFloat()
-        
+
         yaw += 90.0f
-        
+
         if (yaw < 0.0f) {
             yaw3 = 0.0f
             yaw3 += 360.0f - abs(yaw)
@@ -2097,14 +1897,14 @@ object RenderUtils : MinecraftInstance() {
         yaw3 = (yaw3 * (PI / 180.0)).toFloat()
 
         yaw += 90.0f
-        
+
         if (yaw < 0.0f) {
             yaw4 = 0.0f
             yaw4 += 360.0f - abs(yaw)
         } else {
             yaw4 = yaw
         }
-        
+
         yaw4 *= -1.0f
         yaw4 = (yaw4 * (PI / 180.0)).toFloat()
 

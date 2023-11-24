@@ -137,8 +137,6 @@ open class TextValue(name: String, value: String, displayable: () -> Boolean) : 
  */
 class FontValue(valueName: String, value: FontRenderer, displayable: () -> Boolean) : Value<FontRenderer>(valueName, value, displayable) {
 
-    var openList = false
-
     constructor(valueName: String, value: FontRenderer): this(valueName, value, { true } )
 
     override fun toJson(): JsonElement? {
@@ -167,8 +165,6 @@ class FontValue(valueName: String, value: FontRenderer, displayable: () -> Boole
  * Block value represents a value with a block
  */
 class BlockValue(name: String, value: Int, displayable: () -> Boolean) : IntegerValue(name, value, 1, 197, displayable) {
-    var openList = false
-
     constructor(name: String, value: Int): this(name, value, { true } )
 }
 
@@ -177,15 +173,9 @@ class BlockValue(name: String, value: Int, displayable: () -> Boolean) : Integer
  */
 open class ListValue(name: String, var values: Array<String>, value: String, displayable: () -> Boolean) : Value<String>(name, value, displayable) {
 
-    constructor(name: String, values: Array<String>, value: String) : this(name, values, value, { true })
-    constructor(name: String, values: Array<String>, displayable: () -> Boolean) : this(
-        name,
-        values,
-        values[0],
-        displayable
-    )
-
-    constructor(name: String, values: Array<String>) : this(name, values, values[0], { true })
+    constructor(name: String, values: Array<String>, value: String): this(name, values, value, { true } )
+    constructor(name: String, values: Array<String>, displayable: () -> Boolean): this(name, values, values[0], displayable)
+    constructor(name: String, values: Array<String>): this(name, values, values[0], {true})
 
     @JvmField
     var openList = false
@@ -220,12 +210,7 @@ open class ListValue(name: String, var values: Array<String>, value: String, dis
             changeValue(element.asString)
         }
     }
-
-    fun nextValue() {
-        var index = values.indexOf(value) + 1
-        if (index > values.size - 1) index = 0
-        value = values[index]
-    }
+}
 
 abstract class MinMaxRange<T>(protected var minimum: T, protected var maximum: T) {
     fun getMin() = minimum
@@ -256,22 +241,6 @@ open class IntRangeValue(name: String, minValue: Int, maxValue: Int, val minimum
         if (newValue.toInt() >= value.getMin()) value.setMax(newValue.toInt())
     }
 
-<<<<<<< HEAD
-    //     override fun toJson() = Gson().toJson(value)
-//     override fun fromJson(element: JsonElement) {
-//         if (element.isJsonPrimitive) {
-//             changeValue(Gson().fromJson(element.asString, IntRange::class.java))
-//         }
-//     }
-// }
-    open class NoteValue(name: String) : Value<String>(name, name, { true }) {
-        var open = true
-        override fun toJson() = null
-
-        override fun fromJson(element: JsonElement) {}
-    }
-}
-=======
     fun changeValue(minValue: Int, maxValue: Int) {
         setMaxValue(maxValue)
         setMinValue(minValue)
@@ -315,4 +284,3 @@ open class FloatRangeValue(name: String, minValue: Float, maxValue: Float, val m
         }
     }
 }
->>>>>>> ed6cf269f48955db36765b9fd06d8b9c7c8aabbd
