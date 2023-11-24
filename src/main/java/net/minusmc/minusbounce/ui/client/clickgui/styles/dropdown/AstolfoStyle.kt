@@ -1,4 +1,4 @@
-package net.minusmc.minusbounce.ui.client.clickgui.style.styles
+package net.minusmc.minusbounce.ui.client.clickgui.styles.dropdown
 
 import net.minecraft.client.audio.PositionedSoundRecord
 import net.minecraft.client.gui.Gui
@@ -7,6 +7,7 @@ import net.minecraft.util.MathHelper
 import net.minecraft.util.ResourceLocation
 import net.minusmc.minusbounce.features.module.modules.client.ClickGUI.accentColor
 import net.minusmc.minusbounce.ui.client.clickgui.Panel
+import net.minusmc.minusbounce.ui.client.clickgui.styles.StyleMode
 import net.minusmc.minusbounce.ui.client.clickgui.elements.ButtonElement
 import net.minusmc.minusbounce.ui.client.clickgui.elements.ModuleElement
 import net.minusmc.minusbounce.ui.font.Fonts
@@ -274,7 +275,7 @@ class AstolfoStyle : StyleMode("Astolfo"), DropDownClickGui {
         Fonts.font35.drawString(text, moduleElement.x + moduleElement.width + 6, yPos + 4, 0xffffff)
         yPos += 22
     }
-    
+
     override fun drawFloatRangeValue(value: FloatRangeValue, moduleElement: ModuleElement, mouseX: Int, mouseY: Int) {
         val text = value.name + "§f: §c${round(value.get().getMin())}${value.suffix} - ${round(value.get().getMax())}${value.suffix}"
         val textWidth = Fonts.font35.getStringWidth(text).toFloat()

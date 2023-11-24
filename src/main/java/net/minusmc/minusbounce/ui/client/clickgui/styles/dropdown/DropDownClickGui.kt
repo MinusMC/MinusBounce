@@ -1,17 +1,20 @@
 package net.minusmc.minusbounce.ui.client.clickgui
 
 import net.minusmc.minusbounce.value.*
+import net.minusmc.minusbounce.ui.client.clickgui.Panel
+import net.minusmc.minusbounce.ui.client.clickgui.elements.ButtonElement
+import net.minusmc.minusbounce.ui.client.clickgui.elements.ModuleElement
 
 interface DropDownClickGui {
-	var mouseDown = false
-    var rightMouseDown = false
+	protected var mouseDown = false
+    protected var rightMouseDown = false
 
-    var yPos = 0
+    protected var yPos = 0
 
-    fun drawPanel(mouseX: Int, mouseY: Int, panel: Panel?)
-    fun drawDescription(mouseX: Int, mouseY: Int, text: String?)
-    fun drawButtonElement(mouseX: Int, mouseY: Int, buttonElement: ButtonElement?)
-    fun drawModuleElement(mouseX: Int, mouseY: Int, moduleElement: ModuleElement?)
+    fun drawPanel(mouseX: Int, mouseY: Int, panel: Panel?) {}
+    fun drawDescription(mouseX: Int, mouseY: Int, text: String?) {}
+    fun drawButtonElement(mouseX: Int, mouseY: Int, buttonElement: ButtonElement?) {}
+    fun drawModuleElement(mouseX: Int, mouseY: Int, moduleElement: ModuleElement?) {}
 
 
     fun drawValues(moduleElement: ModuleElement)

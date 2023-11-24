@@ -16,7 +16,7 @@ import net.minusmc.minusbounce.features.module.modules.client.ClickGUI.accentCol
 import net.minusmc.minusbounce.ui.client.clickgui.Panel
 import net.minusmc.minusbounce.ui.client.clickgui.elements.ButtonElement
 import net.minusmc.minusbounce.ui.client.clickgui.elements.ModuleElement
-import net.minusmc.minusbounce.ui.client.clickgui.style.Style
+import net.minusmc.minusbounce.ui.client.clickgui.styles.StyleMode
 import net.minusmc.minusbounce.ui.font.AWTFontRenderer.Companion.assumeNonVolatile
 import net.minusmc.minusbounce.ui.font.Fonts
 import net.minusmc.minusbounce.ui.font.GameFontRenderer
@@ -28,7 +28,7 @@ import java.awt.Color
 import kotlin.math.max
 import kotlin.math.min
 
-class LiquidBounceStyle : Style() {
+class LiquidBounceStyle : StyleMode("LiquidBounce"), DropDownClickGui {
     override fun drawPanel(mouseX: Int, mouseY: Int, panel: Panel?) {
         RenderUtils.drawBorderedRect(
             panel!!.x.toFloat() - if (panel.scrollbar) 4 else 0,

@@ -10,6 +10,6 @@ abstract class StyleMode(val styleName: String) {
 	abstract fun mouseReleased(mouseX: Int, mouseY: Int, state: Int)
 	open fun updateScreen() {}
 	open fun onGuiClosed() {}
-	open fun keyTyped(typedChar: Char, keyCode: Int)
+	open fun keyTyped(typedChar: Char, keyCode: Int) {}
 	open fun doesGuiPauseGame() = false
 } 
