@@ -9,8 +9,7 @@ import net.minusmc.minusbounce.MinusBounce
 import net.minusmc.minusbounce.event.ReloadClientEvent
 import net.minusmc.minusbounce.features.command.Command
 import net.minusmc.minusbounce.features.command.CommandManager
-import net.minusmc.minusbounce.ui.client.clickgui.ClickGui
-import net.minusmc.minusbounce.ui.client.clickgui.style.styles.newVer.NewUi
+import net.minusmc.minusbounce.features.module.modules.client.ClickGUI
 import net.minusmc.minusbounce.ui.font.Fonts
 import net.minusmc.minusbounce.utils.misc.sound.TipSoundManager
 
@@ -44,10 +43,8 @@ class ReloadCommand : Command("reload", arrayOf("configreload")) {
         chat("§c§lReloading HUD...")
         MinusBounce.fileManager.loadConfig(MinusBounce.fileManager.hudConfig)
         chat("§c§lReloading ClickGUI...")
-        MinusBounce.clickGui = ClickGui()
+        MinusBounce.moduleManager[ClickGUI::class.java]!!.style::class.java.newInstance()
         MinusBounce.fileManager.loadConfig(MinusBounce.fileManager.clickGuiConfig)
-        chat("§c§lReloading NewGUI...")
-        NewUi.resetInstance()
         MinusBounce.isStarting = false
         chat("Reloaded.")
     }

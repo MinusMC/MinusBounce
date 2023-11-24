@@ -6,6 +6,9 @@
 package net.minusmc.minusbounce.ui.client.clickgui.elements
 
 import net.minusmc.minusbounce.MinusBounce
+import net.minusmc.minusbounce.features.module.modules.client.ClickGUI
+import net.minusmc.minusbounce.ui.client.clickgui.styles.DropDownClickGui
+import net.minusmc.minusbounce.ui.client.hud.element.elements.targets.impl.Minus
 
 open class ButtonElement(displayName: String?) : Element() {
     var displayName: String? = null
@@ -22,8 +25,11 @@ open class ButtonElement(displayName: String?) : Element() {
     }
 
     override fun drawScreen(mouseX: Int, mouseY: Int, button: Float) {
-        MinusBounce.clickGui.style.drawButtonElement(mouseX, mouseY, this)
-        super.drawScreen(mouseX, mouseY, button)
+        val clickGui = MinusBounce.moduleManager[ClickGUI::class.java]!!.style
+        if (clickGui is DropDownClickGui) {
+            clickGui.drawButtonElement(mouseX, mouseY, this)
+            super.drawScreen(mouseX, mouseY, button)
+        }
     }
 
     override var height: Int

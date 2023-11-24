@@ -6,12 +6,12 @@
 package net.minusmc.minusbounce.utils.render
 
 import net.minecraft.util.ChatAllowedCharacters
-import net.minusmc.minusbounce.features.module.modules.client.HUD
 import org.lwjgl.opengl.GL11.glColor4f
 import java.awt.Color
 import java.util.*
 import java.util.regex.Pattern
 import kotlin.math.abs
+import kotlin.math.max
 
 object ColorUtils {
 
@@ -144,4 +144,7 @@ object ColorUtils {
 
     @JvmStatic
     fun getOppositeColor(color: Color): Color = Color(255 - color.red, 255 - color.green, 255 - color.blue, color.alpha)
+
+    @JvmStatic
+    fun modifyAlpha(col: Color?, alpha: Int) = Color(col!!.red, col.green, col.blue, alpha)
 }

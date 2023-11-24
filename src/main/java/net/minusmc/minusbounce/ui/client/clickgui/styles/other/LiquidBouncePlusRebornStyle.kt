@@ -1,10 +1,14 @@
-package net.minusmc.minusbounce.ui.client.clickgui.style.styles.newVer
+package net.minusmc.minusbounce.ui.client.clickgui.styles.other
 
+import net.minecraft.client.renderer.GlStateManager
+import net.minecraft.util.MathHelper
 import net.minusmc.minusbounce.MinusBounce
 import net.minusmc.minusbounce.features.module.ModuleCategory
 import net.minusmc.minusbounce.features.module.modules.client.ClickGUI
+import net.minusmc.minusbounce.ui.client.clickgui.style.styles.newVer.IconManager
 import net.minusmc.minusbounce.ui.client.clickgui.style.styles.newVer.element.CategoryElement
 import net.minusmc.minusbounce.ui.client.clickgui.style.styles.newVer.element.SearchElement
+import net.minusmc.minusbounce.ui.client.clickgui.styles.StyleMode
 import net.minusmc.minusbounce.ui.font.Fonts
 import net.minusmc.minusbounce.utils.AnimationUtils
 import net.minusmc.minusbounce.utils.MouseUtils.mouseWithinBounds
@@ -12,9 +16,6 @@ import net.minusmc.minusbounce.utils.extensions.setAlpha
 import net.minusmc.minusbounce.utils.geom.Rectangle
 import net.minusmc.minusbounce.utils.render.RenderUtils
 import net.minusmc.minusbounce.utils.render.ShaderUtils
-import net.minecraft.client.gui.GuiScreen
-import net.minecraft.client.renderer.GlStateManager
-import net.minecraft.util.MathHelper
 import org.apache.commons.lang3.tuple.MutablePair
 import org.lwjgl.input.Keyboard
 import org.lwjgl.input.Mouse
@@ -27,7 +28,7 @@ import kotlin.math.abs
  * @author inf (original java code)
  * @author pie (refactored)
  */
-class NewUi private constructor() : GuiScreen() {
+class LiquidBouncePlusRebornStyle: StyleMode("LiquidBounce+ Reborn") {
     private val categoryElements: MutableList<CategoryElement> = ArrayList()
     private var startYAnim = height / 2f
     private var endYAnim = height / 2f
@@ -406,16 +407,5 @@ class NewUi private constructor() : GuiScreen() {
 
     override fun doesGuiPauseGame(): Boolean {
         return false
-    }
-
-    companion object {
-        private var instance: NewUi? = null
-        fun getInstance(): NewUi {
-            return if (instance == null) NewUi().also { instance = it } else instance!!
-        }
-
-        fun resetInstance() {
-            instance = NewUi()
-        }
     }
 }

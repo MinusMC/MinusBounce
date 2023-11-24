@@ -19,7 +19,7 @@ import net.minusmc.minusbounce.file.FileManager
 import net.minusmc.minusbounce.plugin.PluginAPIVersion
 import net.minusmc.minusbounce.plugin.PluginManager
 import net.minusmc.minusbounce.ui.client.altmanager.GuiAltManager
-import net.minusmc.minusbounce.ui.client.clickgui.ClickGui
+import net.minusmc.minusbounce.ui.client.clickgui.styles.StyleMode
 import net.minusmc.minusbounce.ui.client.hud.HUD
 import net.minusmc.minusbounce.ui.client.hud.HUD.Companion.createDefault
 import net.minusmc.minusbounce.ui.font.Fonts
@@ -49,8 +49,6 @@ object MinusBounce {
 
     // HUD & ClickGUI
     lateinit var hud: HUD
-
-    lateinit var clickGui: ClickGui
 
     // Menu Background
     var background: ResourceLocation? = null
@@ -110,7 +108,6 @@ object MinusBounce {
         fileManager.loadConfigs(fileManager.modulesConfig, fileManager.valuesConfig, fileManager.accountsConfig)
         moduleManager.initModeListValues()
 
-        clickGui = ClickGui()
         fileManager.loadConfig(fileManager.clickGuiConfig)
 
         // Set HUD

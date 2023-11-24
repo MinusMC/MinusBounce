@@ -1119,11 +1119,6 @@ object RenderUtils : MinecraftInstance() {
     fun drawRect(x: Int, y: Int, x2: Int, y2: Int, color: Color) {
         drawRect(x, y, x2, y2, color.rgb)
     }
-
-    fun drawRect(x: Float, y: Float, x2: Float, y2: Float, color: Color) {
-        drawRect(x, y, x2, y2, color.rgb)
-    }
-
     fun drawRect(x: Float, y: Float, x2: Float, y2: Float, color: Int) {
         GL11.glPushMatrix()
         GL11.glEnable(GL11.GL_BLEND)

@@ -1,5 +1,7 @@
 package net.minusmc.minusbounce.utils
 
+import java.math.BigDecimal
+
 object MathUtils {
 
 	@JvmStatic

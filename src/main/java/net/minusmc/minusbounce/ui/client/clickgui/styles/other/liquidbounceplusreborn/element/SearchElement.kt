@@ -2,7 +2,7 @@ package net.minusmc.minusbounce.ui.client.clickgui.style.styles.newVer.element
 
 import net.minusmc.minusbounce.ui.client.clickgui.style.styles.newVer.ColorManager
 import net.minusmc.minusbounce.ui.client.clickgui.style.styles.newVer.IconManager
-import net.minusmc.minusbounce.ui.client.clickgui.style.styles.newVer.NewUi
+import net.minusmc.minusbounce.ui.client.clickgui.styles.other.LiquidBouncePlusRebornStyle
 import net.minusmc.minusbounce.ui.client.clickgui.styles.newVer.element.module.ModuleElement
 import net.minusmc.minusbounce.ui.client.clickgui.style.styles.newVer.extensions.animSmooth
 import net.minusmc.minusbounce.ui.font.Fonts
@@ -11,6 +11,8 @@ import net.minusmc.minusbounce.utils.render.RenderUtils
 import net.minusmc.minusbounce.utils.render.ShaderUtils
 import net.minusmc.minusbounce.utils.render.Stencil
 import net.minecraft.client.renderer.GlStateManager
+import net.minusmc.minusbounce.MinusBounce
+import net.minusmc.minusbounce.features.module.modules.client.ClickGUI
 import org.lwjgl.opengl.GL11
 import java.awt.Color
 import kotlin.math.abs
@@ -75,8 +77,11 @@ class SearchElement(var xPos: Float, var yPos: Float, var width: Float, val heig
 
 
 //        Fonts.fontLarge.drawString("Search", x + 10F, y + 10F, -1)
-        Fonts.fontSmall.drawString("Search", NewUi.getInstance().windowXStart + 20f, y - 12F, -1)
-        RenderUtils.drawImage2(IconManager.back, NewUi.getInstance().windowXStart + 4f, y - 15F, 10, 10)
+        val clickGui = MinusBounce.moduleManager[ClickGUI::class.java]!!.style
+        if (clickGui is LiquidBouncePlusRebornStyle) {
+            Fonts.fontSmall.drawString("Search", clickGui.windowXStart + 20f, y - 12F, -1)
+            RenderUtils.drawImage2(IconManager.back, clickGui.windowXStart + 4f, y - 15F, 10, 10)
+        }
 
         var startY = y + startYY
         if (mouseY < y + startYY || mouseY >= y + h)

@@ -7,19 +7,23 @@ import net.minecraft.util.MathHelper
 import net.minecraft.util.ResourceLocation
 import net.minusmc.minusbounce.features.module.modules.client.ClickGUI.accentColor
 import net.minusmc.minusbounce.ui.client.clickgui.Panel
-import net.minusmc.minusbounce.ui.client.clickgui.styles.StyleMode
 import net.minusmc.minusbounce.ui.client.clickgui.elements.ButtonElement
 import net.minusmc.minusbounce.ui.client.clickgui.elements.ModuleElement
+import net.minusmc.minusbounce.ui.client.clickgui.styles.DropDownClickGui
 import net.minusmc.minusbounce.ui.font.Fonts
 import net.minusmc.minusbounce.ui.font.GameFontRenderer
 import net.minusmc.minusbounce.utils.block.BlockUtils.getBlockName
+import net.minusmc.minusbounce.utils.render.ColorUtils
 import net.minusmc.minusbounce.utils.render.RenderUtils
 import net.minusmc.minusbounce.value.*
 import org.lwjgl.input.Mouse
 import java.awt.Color
 import java.util.*
+import kotlin.math.min
+import kotlin.math.max
+import kotlin.math.round
 
-class AstolfoStyle : StyleMode("Astolfo"), DropDownClickGui {
+class AstolfoStyle: DropDownClickGui("Astolfo") {
     private fun getCategoryColor(categoryName: String): Color? {
         return when (categoryName.lowercase()) {
             "combat" -> Color(231, 75, 58, 175)
@@ -48,12 +52,12 @@ class AstolfoStyle : StyleMode("Astolfo"), DropDownClickGui {
     }
 
     override fun drawButtonElement(mouseX: Int, mouseY: Int, buttonElement: ButtonElement?) {
-        Gui.drawRect(buttonElement!!.x - 1, buttonElement.y + 1, buttonElement.x + buttonElement.width + 1, buttonElement.y + buttonElement.height + 2, hoverColor(if (buttonElement.color != Int.MAX_VALUE) accentColor else Color(26, 26, 26), buttonElement.hoverTime).rgb)
+        Gui.drawRect(buttonElement!!.x - 1, buttonElement.y + 1, buttonElement.x + buttonElement.width + 1, buttonElement.y + buttonElement.height + 2, ColorUtils.hoverColor(if (buttonElement.color != Int.MAX_VALUE) accentColor else Color(26, 26, 26), buttonElement.hoverTime).rgb)
         GlStateManager.resetColor()
         Fonts.minecraftFont.drawString(buttonElement.displayName!!.lowercase(), buttonElement.x + 3, buttonElement.y + 6, Color.WHITE.rgb)
     }
 
-    override fun drawValues(moduleElement: ModuleElement) {
+    override fun drawValues(moduleElement: ModuleElement, mouseX: Int, mouseY: Int) {
         val moduleValues = moduleElement.module.values
         if (moduleValues.isNotEmpty()) {
             Fonts.minecraftFont.drawString("+", moduleElement.x + moduleElement.width - 8, moduleElement.y + moduleElement.height / 2, Color(255, 255, 255, 200).rgb)
@@ -82,13 +86,12 @@ class AstolfoStyle : StyleMode("Astolfo"), DropDownClickGui {
     }
 
     override fun drawModuleElement(mouseX: Int, mouseY: Int, moduleElement: ModuleElement?) {
-        Gui.drawRect(moduleElement!!.x + 1, moduleElement.y + 1, moduleElement.x + moduleElement.width - 1, moduleElement.y + moduleElement.height + 2, hoverColor(Color(26, 26, 26), moduleElement.hoverTime).rgb)
+        Gui.drawRect(moduleElement!!.x + 1, moduleElement.y + 1, moduleElement.x + moduleElement.width - 1, moduleElement.y + moduleElement.height + 2, ColorUtils.hoverColor(Color(26, 26, 26), moduleElement.hoverTime).rgb)
         val categoryColor = getCategoryColor(moduleElement.module.category.name)!!
-        Gui.drawRect(moduleElement.x + 1, moduleElement.y + 1, moduleElement.x + moduleElement.width - 1, moduleElement.y + moduleElement.height + 2, hoverColor(Color(getCategoryColor(categoryColor.red, getCategoryColor(categoryColor.green, categoryColor.blue, moduleElement.slowlyFade), moduleElement.hoverTime).rgb)
-        val guiColor = accentColor!!.rgb
+        Gui.drawRect(moduleElement.x + 1, moduleElement.y + 1, moduleElement.x + moduleElement.width - 1, moduleElement.y + moduleElement.height + 2, ColorUtils.hoverColor(Color(categoryColor.red, categoryColor.green, categoryColor.blue, moduleElement.slowlyFade), moduleElement.hoverTime).rgb)
         GlStateManager.resetColor()
         Fonts.minecraftFont.drawString(moduleElement.displayName!!.lowercase(), moduleElement.x + 3, moduleElement.y + 7, Int.MAX_VALUE)
-        drawValues()
+        drawValues(moduleElement, mouseX, mouseY)
     }
 
     override fun drawBoolValue(value: BoolValue, moduleElement: ModuleElement, mouseX: Int, mouseY: Int) {
@@ -162,7 +165,7 @@ class AstolfoStyle : StyleMode("Astolfo"), DropDownClickGui {
         yPos += 22
     }
 
-    override fun drawIntegerValue(value: IntergerValue, moduleElement: ModuleElement, mouseX: Int, mouseY: Int) {
+    override fun drawIntegerValue(value: IntegerValue, moduleElement: ModuleElement, mouseX: Int, mouseY: Int) {
         val text = value.name + "§f: §c" + (if (value is BlockValue) getBlockName(value.get()) + " (${value.get()})" else value.get())
         val textWidth = Fonts.minecraftFont.getStringWidth(text).toFloat()
         if (moduleElement.settingsWidth < textWidth + 8) moduleElement.settingsWidth = textWidth + 8

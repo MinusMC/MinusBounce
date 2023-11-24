@@ -9,6 +9,8 @@ import net.minecraft.client.audio.PositionedSoundRecord
 import net.minecraft.util.ResourceLocation
 import net.minusmc.minusbounce.MinusBounce
 import net.minusmc.minusbounce.features.module.Module
+import net.minusmc.minusbounce.features.module.modules.client.ClickGUI
+import net.minusmc.minusbounce.ui.client.clickgui.styles.DropDownClickGui
 import org.lwjgl.input.Mouse
 
 class ModuleElement(module: Module) : ButtonElement(null) {
@@ -25,7 +27,9 @@ class ModuleElement(module: Module) : ButtonElement(null) {
     }
 
     override fun drawScreen(mouseX: Int, mouseY: Int, button: Float) {
-        MinusBounce.clickGui.style.drawModuleElement(mouseX, mouseY, this)
+        val clickGui = MinusBounce.moduleManager[ClickGUI::class.java]!!.style
+        if (clickGui is DropDownClickGui)
+            clickGui.drawModuleElement(mouseX, mouseY, this)
     }
 
     override fun mouseClicked(mouseX: Int, mouseY: Int, mouseButton: Int): Boolean {

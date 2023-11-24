@@ -3,7 +3,7 @@
  * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
  * https://github.com/MinusMC/MinusBounce
  */
-package net.minusmc.minusbounce.ui.client.clickgui.style.styles
+package net.minusmc.minusbounce.ui.client.clickgui.styles.dropdown
 
 import net.minecraft.client.audio.PositionedSoundRecord
 import net.minecraft.client.renderer.GlStateManager
@@ -16,7 +16,7 @@ import net.minusmc.minusbounce.features.module.modules.client.ClickGUI.accentCol
 import net.minusmc.minusbounce.ui.client.clickgui.Panel
 import net.minusmc.minusbounce.ui.client.clickgui.elements.ButtonElement
 import net.minusmc.minusbounce.ui.client.clickgui.elements.ModuleElement
-import net.minusmc.minusbounce.ui.client.clickgui.styles.StyleMode
+import net.minusmc.minusbounce.ui.client.clickgui.styles.DropDownClickGui
 import net.minusmc.minusbounce.ui.font.AWTFontRenderer.Companion.assumeNonVolatile
 import net.minusmc.minusbounce.ui.font.Fonts
 import net.minusmc.minusbounce.ui.font.GameFontRenderer
@@ -27,8 +27,9 @@ import org.lwjgl.input.Mouse
 import java.awt.Color
 import kotlin.math.max
 import kotlin.math.min
+import kotlin.math.round
 
-class LiquidBounceStyle : StyleMode("LiquidBounce"), DropDownClickGui {
+class LiquidBounceStyle : DropDownClickGui("LiquidBounce") {
     override fun drawPanel(mouseX: Int, mouseY: Int, panel: Panel?) {
         RenderUtils.drawBorderedRect(panel!!.x.toFloat() - if (panel.scrollbar) 4 else 0, panel.y.toFloat(), panel.x.toFloat() + panel.width, panel.y.toFloat() + 19 + panel.getFade(), 1f, Color(255, 255, 255, 90).rgb, Int.MIN_VALUE)
         val textWidth = Fonts.font35.getStringWidth("§f" + StringUtils.stripControlCodes(panel.name)).toFloat()
@@ -49,10 +50,10 @@ class LiquidBounceStyle : StyleMode("LiquidBounce"), DropDownClickGui {
 
     override fun drawButtonElement(mouseX: Int, mouseY: Int, buttonElement: ButtonElement?) {
         GlStateManager.resetColor()
-        Fonts.font35.drawString(buttonElement!!.displayName, (buttonElement.x + 5), buttonElement.y + 7, buttonElement.colo )
+        Fonts.font35.drawString(buttonElement!!.displayName, (buttonElement.x + 5), buttonElement.y + 7, buttonElement.color)
     }
 
-    override fun drawValues(moduleElement: ModuleElement) {
+    override fun drawValues(moduleElement: ModuleElement, mouseX: Int, mouseY: Int) {
         val moduleValues = moduleElement.module.values
         if (moduleValues.isNotEmpty()) {
             Fonts.font35.drawString("+", moduleElement.x + moduleElement.width - 8, moduleElement.y + moduleElement.height / 2, Color.WHITE.rgb)
@@ -88,7 +89,7 @@ class LiquidBounceStyle : StyleMode("LiquidBounce"), DropDownClickGui {
         val guiColor = accentColor!!.rgb
         GlStateManager.resetColor()
         Fonts.font35.drawString(moduleElement!!.displayName, (moduleElement.x + 5), moduleElement.y + 7, if (moduleElement.module.state) guiColor else Int.MAX_VALUE)
-        drawValues()
+        drawValues(moduleElement, mouseX, mouseY)
     }
 
     
@@ -167,14 +168,14 @@ class LiquidBounceStyle : StyleMode("LiquidBounce"), DropDownClickGui {
         yPos += 22
     }
 
-    override fun drawIntegerValue(value: IntergerValue, moduleElement: ModuleElement, mouseX: Int, mouseY: Int) {
+    override fun drawIntegerValue(value: IntegerValue, moduleElement: ModuleElement, mouseX: Int, mouseY: Int) {
         val text = value.name + "§f: §c" + if (value is BlockValue) getBlockName(value.get()) + " (" + value.get() + ")" else value.get().toString() + value.suffix
         val textWidth = Fonts.font35.getStringWidth(text).toFloat()
         if (moduleElement.settingsWidth < textWidth + 8) moduleElement.settingsWidth = textWidth + 8
         RenderUtils.drawRect((moduleElement.x + moduleElement.width + 4).toFloat(), (yPos + 2).toFloat(), moduleElement.x + moduleElement.width + moduleElement.settingsWidth, (yPos + 24).toFloat(), Int.MIN_VALUE)
         RenderUtils.drawRect((moduleElement.x + moduleElement.width + 8).toFloat(), (yPos + 18).toFloat(), moduleElement.x + moduleElement.width + moduleElement.settingsWidth - 4, (yPos + 19).toFloat(), Int.MAX_VALUE)
         val sliderValue = moduleElement.x + moduleElement.width + (moduleElement.settingsWidth - 12) * (value.get() - value.minimum) / (value.maximum - value.minimum)
-        RenderUtils.drawRect(8 + sliderValue, (yPos + 15).toFloat(), sliderValue + 11, (yPos + 21).toFloat)
+        RenderUtils.drawRect(8 + sliderValue, (yPos + 15).toFloat(), sliderValue + 11, (yPos + 21).toFloat(), guiColor)
         if (mouseX >= moduleElement.x + moduleElement.width + 4 && mouseX <= moduleElement.x + moduleElement.width + moduleElement.settingsWidth && mouseY >= yPos + 15 && mouseY <= yPos + 21) {
             val dWheel = Mouse.getDWheel()
             if (Mouse.hasWheel() && dWheel != 0) {
