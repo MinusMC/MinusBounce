@@ -249,7 +249,7 @@ open class IntRangeValue(name: String, minValue: Int, maxValue: Int, val minimum
     override fun toJson(): JsonElement = Gson().toJsonTree(value)
     override fun fromJson(element: JsonElement) {
         if (element.isJsonObject) {
-            changeValue(Gson().fromJson(element.asString, IntRange::class.java))
+            changeValue(Gson().fromJson(element.asJsonObject.asString, IntRange::class.java))
         }
     }
 }
