@@ -71,7 +71,6 @@ class KillAura : Module() {
     private val intaveRandomAmount =
         FloatValue("RandomAmount", 4f, 0.25f, 10f) { rotations.get().equals("Intave", true) }
 
-<<<<<<< HEAD
     // Turn Speed
     private val maxTurnSpeed: FloatValue =
         object : FloatValue("MaxTurnSpeed", 180f, 0f, 180f, "°", { !rotations.get().equals("none", true) }) {
@@ -88,9 +87,8 @@ class KillAura : Module() {
                 if (v < newValue) set(v)
             }
         }
-=======
+
     private val turnSpeed = FloatRangeValue("TurnSpeed", 180f, 180f, 0f, 180f, "°")
->>>>>>> ed6cf269f48955db36765b9fd06d8b9c7c8aabbd
 
     private val noHitCheck = BoolValue("NoHitCheck", false) { !rotations.get().equals("none", true) }
     private val blinkCheck = BoolValue("BlinkCheck", true)
