@@ -103,7 +103,7 @@ object ColorUtils {
     }
 
     @JvmStatic
-    fun TwoRainbow(offset: Long,alpha: Float): Color {
+    fun TwoRainbow(offset: Long, alpha: Float): Color {
         var currentColor = Color(Color.HSBtoRGB((System.nanoTime() + offset) / 8.9999999E10F % 1, 0.75F, 0.8F));
         return Color(currentColor.getRed() / 255.0F * 1.0F, currentColor.getGreen() / 255.0F * 1.0F, currentColor.getBlue() / 255.0F * 1.0F, alpha);
     }
@@ -128,6 +128,14 @@ object ColorUtils {
         glColor4f(r, g, b, a)
     }
     
+    @JvmStatic
+    fun hoverColor(color: Color?, hover: Int): Color {
+        val r = color!!.red - (hover * 2)
+        val g = color.green - (hover * 2)
+        val b = color.blue - (hover * 2)
+        return Color(max(r.toDouble(), 0.0).toInt(), max(g.toDouble(), 0.0).toInt(), max(b.toDouble(), 0.0).toInt(), color.alpha)
+    }
+
     @JvmStatic
     fun reAlpha(color: Color, alpha: Int): Color = Color(color.red, color.green, color.blue, alpha.coerceIn(0, 255))
 
