@@ -9,6 +9,7 @@ import net.minusmc.minusbounce.MinusBounce
 import net.minusmc.minusbounce.event.EventTarget
 import net.minusmc.minusbounce.event.KeyEvent
 import net.minusmc.minusbounce.event.Listenable
+import net.minusmc.minusbounce.features.module.modules.client.ClickGUI
 import net.minusmc.minusbounce.utils.ClientUtils
 import net.minusmc.minusbounce.utils.ClassUtils
 import java.util.*
@@ -32,6 +33,7 @@ class ModuleManager : Listenable {
     fun registerModules() {
         ClientUtils.logger.info("[ModuleManager] Loading modules...")
         ClassUtils.resolvePackage("${this.javaClass.`package`.name}.modules", Module::class.java).forEach(this::registerModule)
+        registerModule(ClickGUI)
         modules.forEach {it.onInitialize()}
         ClientUtils.logger.info("[ModuleManager] Successfully loaded ${modules.size} modules.")
     }
@@ -52,9 +54,12 @@ class ModuleManager : Listenable {
      */
     private fun registerModule(moduleClass: Class<out Module>) {
         try {
-            registerModule(moduleClass.newInstance())
+            val instance = moduleClass.newInstance()
+            registerModule(instance)
         } catch (e: IllegalAccessException) {
-            registerModule(ClassUtils.getObjectInstance(moduleClass) as Module)
+            val instance = ClassUtils.getObjectInstance(moduleClass) as Module
+            if (instance !is ClickGui) // lateinit clickgui
+                registerModule(instance)
         } catch (e: Throwable) {
             ClientUtils.logger.error("Failed to load module: ${moduleClass.name} (${e.javaClass.name}: ${e.message})")
         }

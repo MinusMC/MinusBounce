@@ -43,7 +43,11 @@ abstract class DropDownClickGui(styleName: String): StyleMode(styleName) {
         var yPos = 5
         for (category in ModuleCategory.values()) {
             panels.add(object : Panel(category.displayName, 100, yPos, width, height, false) {
-                override fun setupItems() = MinusBounce.moduleManager.modules.filter {it.category === category}.forEach { elements.add(ModuleElement(it)) }
+                override fun setupItems() {
+                    for (module in MinusBounce.moduleManager.modules) 
+                        if (module.category === category)
+                            elements.add(ModuleElement(module))
+                }
             })
             yPos += 20
         }
@@ -102,15 +106,20 @@ abstract class DropDownClickGui(styleName: String): StyleMode(styleName) {
             }
             "none" -> GlStateManager.scale(scale, scale, scale)
         }
-        panels.forEach {
-            it.updateFade(RenderUtils.deltaTime)
-            it.drawScreen(mouseX, mouseY, partialTicks)
+        for (panel in panels) {
+            panel.updateFade(RenderUtils.deltaTime)
+            panel.drawScreen(mouseX, mouseY, partialTicks)
         }
-        panels.forEach {
-            for (element in it.elements)
-                if (element is ModuleElement)
-                    if (mouseX != 0 && mouseY != 0 && element.isHovering(mouseX, mouseY) && element.isVisible && element.y <= it.y + it.getFade())
-                        drawDescription(mouseX, mouseY, element.module.description)
+        for (panel in panels) {
+            for (element in panel.elements) {
+                if (element is ModuleElement) {
+                    if (mouseX != 0 && mouseY != 0 && element.isHovering(
+                            mouseX,
+                            mouseY
+                        ) && element.isVisible && element.y <= panel.y + panel.getFade()
+                    ) drawDescription(mouseX, mouseY, element.module.description)
+                }
+            }
         }
 
         GlStateManager.disableLighting()
