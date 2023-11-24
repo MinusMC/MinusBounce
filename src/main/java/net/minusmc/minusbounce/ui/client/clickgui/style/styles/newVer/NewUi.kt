@@ -2,7 +2,6 @@ package net.minusmc.minusbounce.ui.client.clickgui.style.styles.newVer
 
 import net.minusmc.minusbounce.MinusBounce
 import net.minusmc.minusbounce.features.module.ModuleCategory
-import net.minusmc.minusbounce.features.module.modules.client.ClickGUI
 import net.minusmc.minusbounce.ui.client.clickgui.style.styles.newVer.element.CategoryElement
 import net.minusmc.minusbounce.ui.client.clickgui.style.styles.newVer.element.SearchElement
 import net.minusmc.minusbounce.ui.font.Fonts

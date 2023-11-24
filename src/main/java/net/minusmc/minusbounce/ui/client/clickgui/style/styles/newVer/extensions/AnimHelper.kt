@@ -1,6 +1,5 @@
 package net.minusmc.minusbounce.ui.client.clickgui.style.styles.newVer.extensions
 
-import net.minusmc.minusbounce.features.module.modules.client.ClickGUI
 import net.minusmc.minusbounce.utils.AnimationUtils
 import net.minusmc.minusbounce.utils.render.RenderUtils
 

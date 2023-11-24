@@ -20,11 +20,10 @@ class Cape : Module() {
     override fun onInitialize() {
         ClassUtils.capeFiles.forEach {
             val name = it.split("/").last().replace(".png", "")
-            capeCache[name.lowercase()] = ResourceLocation(it) // sua gi
+            capeCache[name.lowercase()] = ResourceLocation(it)
         }
-
-        if (capeCache.isEmpty()) return
-        styleValue.changeListValues(capeCache.keys.toTypedArray()) // uhhh no deo load
+        if (capeCache.isEmpty()) return // out of index when running in idea
+        styleValue.changeListValues(capeCache.keys.toTypedArray())
     }
 
     val cape: ResourceLocation?

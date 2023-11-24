@@ -24,9 +24,9 @@ import java.util.Objects;
 @Mixin(RenderPlayer.class)
 public class MixinRenderPlayer {
 
-    private final ResourceLocation rabbit = new ResourceLocation("liquidbounce+/models/rabbit.png");
-    private final ResourceLocation freddy = new ResourceLocation("liquidbounce+/models/freddy.png");
-    private final ResourceLocation amogus = new ResourceLocation("liquidbounce+/models/amogus.png");
+    private final ResourceLocation rabbit = new ResourceLocation("minusbounce/models/rabbit.png");
+    private final ResourceLocation freddy = new ResourceLocation("minusbounce/models/freddy.png");
+    private final ResourceLocation amogus = new ResourceLocation("minusbounce/models/amogus.png");
     @Redirect(method = "renderRightArm", at = @At(value = "FIELD", target = "Lnet/minecraft/client/model/ModelPlayer;isSneak:Z", ordinal = 0))
     private void resetArmState(ModelPlayer modelPlayer, boolean value) {
         modelPlayer.isRiding = modelPlayer.isSneak = false;

@@ -53,7 +53,7 @@ object ClickGUI: Module() {
     val animSpeedValue = FloatValue("AnimSpeed", 1F, 0.01F, 5F, "x")
 
     val accentColor: Color?
-    	get() = when (colorModeValue.get().lowercase()) {
+        get() = when (colorModeValue.get().lowercase()) {
             "custom" -> Color(colorRedValue.get(), colorGreenValue.get(), colorBlueValue.get())
             "rainbow" -> Color(RenderUtils.getRainbowOpaque(mixerSecondsValue.get(), saturationValue.get(), brightnessValue.get(), 0))
             "sky" -> RenderUtils.skyRainbow(0, saturationValue.get(), brightnessValue.get())

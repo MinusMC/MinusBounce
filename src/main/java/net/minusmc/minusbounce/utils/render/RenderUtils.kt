@@ -6,8 +6,12 @@
 package net.minusmc.minusbounce.utils.render
 
 import net.minecraft.client.gui.Gui
+import net.minecraft.client.gui.Gui.drawModalRectWithCustomSizedTexture
 import net.minecraft.client.gui.ScaledResolution
-import net.minecraft.client.renderer.*
+import net.minecraft.client.renderer.GlStateManager
+import net.minecraft.client.renderer.OpenGlHelper
+import net.minecraft.client.renderer.RenderHelper
+import net.minecraft.client.renderer.Tessellator
 import net.minecraft.client.renderer.culling.Frustum
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats
 import net.minecraft.enchantment.Enchantment
@@ -30,22 +34,7 @@ import net.minusmc.minusbounce.utils.MinecraftInstance
 import net.minusmc.minusbounce.utils.block.BlockUtils
 import net.minusmc.minusbounce.utils.render.ColorUtils.setColour
 import org.lwjgl.opengl.GL11
-import org.lwjgl.opengl.GL11.GL_BLEND
-import org.lwjgl.opengl.GL11.GL_FLAT
-import org.lwjgl.opengl.GL11.GL_LINE_LOOP
-import org.lwjgl.opengl.GL11.GL_LINE_SMOOTH
-import org.lwjgl.opengl.GL11.GL_ONE_MINUS_SRC_ALPHA
-import org.lwjgl.opengl.GL11.GL_SMOOTH
-import org.lwjgl.opengl.GL11.GL_SRC_ALPHA
-import org.lwjgl.opengl.GL11.GL_TEXTURE_2D
-import org.lwjgl.opengl.GL11.glBegin
-import org.lwjgl.opengl.GL11.glEnd
-import org.lwjgl.opengl.GL11.glLineWidth
-import org.lwjgl.opengl.GL11.glPopAttrib
-import org.lwjgl.opengl.GL11.glPushAttrib
-import org.lwjgl.opengl.GL11.glScaled
-import org.lwjgl.opengl.GL11.glShadeModel
-import org.lwjgl.opengl.GL11.glVertex2d
+import org.lwjgl.opengl.GL11.*
 import java.awt.Color
 import kotlin.math.*
 
@@ -1297,6 +1286,10 @@ object RenderUtils : MinecraftInstance() {
         GlStateManager.disableBlend()
     }
 
+    fun drawRect(rect: net.minusmc.minusbounce.utils.geom.Rectangle, color: Int) {
+        drawRect(rect.x, rect.y, rect.x + rect.width, rect.y + rect.height, color)
+    }
+
     /**
      * Like [.drawRect], but without setup
      */
@@ -1320,6 +1313,31 @@ object RenderUtils : MinecraftInstance() {
     ) {
         drawRect(x, y, x2, y2, color2)
         drawBorder(x, y, x2, y2, width, color1)
+    }
+
+    fun drawShadow(x: Float, y: Float, width: Float, height: Float) {
+        drawTexturedRect(x - 9, y - 9, 9f, 9f, "paneltopleft")
+        drawTexturedRect(x - 9, y + height, 9f, 9f, "panelbottomleft")
+        drawTexturedRect(x + width, y + height, 9f, 9f, "panelbottomright")
+        drawTexturedRect(x + width, y - 9, 9f, 9f, "paneltopright")
+        drawTexturedRect(x - 9, y, 9f, height, "panelleft")
+        drawTexturedRect(x + width, y, 9f, height, "panelright")
+        drawTexturedRect(x, y - 9, width, 9f, "paneltop")
+        drawTexturedRect(x, y + height, width, 9f, "panelbottom")
+    }
+
+    fun drawTexturedRect(x: Float, y: Float, width: Float, height: Float, image: String) {
+        glPushMatrix()
+        val enableBlend = glIsEnabled(GL_BLEND)
+        val disableAlpha = !glIsEnabled(GL_ALPHA_TEST)
+        if (!enableBlend) glEnable(GL_BLEND)
+        if (!disableAlpha) glDisable(GL_ALPHA_TEST)
+        mc.textureManager.bindTexture(ResourceLocation("minusbounce/ui/$image.png"))
+        GlStateManager.color(1f, 1f, 1f, 1f)
+        drawModalRectWithCustomSizedTexture(x.toInt(), y.toInt(), 0f, 0f, width.toInt(), height.toInt(), width, height)
+        if (!enableBlend) glDisable(GL_BLEND)
+        if (!disableAlpha) glEnable(GL_ALPHA_TEST)
+        glPopMatrix()
     }
 
     fun drawBorder(x: Float, y: Float, x2: Float, y2: Float, width: Float, color1: Int) {

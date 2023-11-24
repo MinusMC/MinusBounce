@@ -7,6 +7,7 @@ package net.minusmc.minusbounce.file
 
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
+import net.ccbluex.liquidbounce.file.configs.FriendsConfig
 import net.minecraft.client.renderer.texture.DynamicTexture
 import net.minecraft.util.ResourceLocation
 import net.minusmc.minusbounce.MinusBounce
@@ -16,6 +17,7 @@ import net.minusmc.minusbounce.utils.MinecraftInstance
 import java.io.File
 import java.io.FileInputStream
 import javax.imageio.ImageIO
+
 
 class FileManager: MinecraftInstance() {
 
@@ -29,6 +31,7 @@ class FileManager: MinecraftInstance() {
     val valuesConfig = ValuesConfig(File(dir, "values.json"))
     val clickGuiConfig = ClickGuiConfig(File(dir, "clickgui.json"))
     val accountsConfig = AccountsConfig(File(dir, "accounts.json"))
+    val friendsConfig = FriendsConfig(File(dir, "friends.json"))
     val hudConfig = HudConfig(File(dir, "hud.json"))
 
     private val backgroundFile = File(dir, "userbackground.png")
