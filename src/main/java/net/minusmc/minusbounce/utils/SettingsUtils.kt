@@ -100,6 +100,8 @@ object SettingsUtils {
                             is IntegerValue -> moduleValue.changeValue(value.toInt())
                             is TextValue -> moduleValue.changeValue(value)
                             is ListValue -> moduleValue.changeValue(value)
+                            is IntRangeValue -> moduleValue.changeValue(args[2].toInt(), args[3].toInt())
+                            is FloatRangeValue -> moduleValue.changeValue(args[2].toFloat(), args[3].toFloat())
                         }
 
                         ClientUtils.displayChatMessage("§7[§3§lAutoSettings§7] §a§l${module.name}§7 value §8§l${moduleValue.name}§7 set to §c§l$value§7.")
@@ -125,7 +127,11 @@ object SettingsUtils {
             it !is Animations
         }.forEach {
             if (values)
-                it.values.forEach { value -> stringBuilder.append("${it.name} ${value.name} ${value.get()}").append("\n") }
+                it.values.forEach { value -> when (value) {
+                    is IntRangeValue -> stringBuilder.append("${it.name} ${value.name} ${value.get().getMin()} ${value.get().getMax()}").append("\n")
+                    is FloatRangeValue -> stringBuilder.append("${it.name} ${value.name} ${value.get().getMin()} ${value.get().getMax()}").append("\n")
+                    else -> stringBuilder.append("${it.name} ${value.name} ${value.get()}").append("\n")
+                } }
 
             if (states)
                 stringBuilder.append("${it.name} toggle ${it.state}").append("\n")

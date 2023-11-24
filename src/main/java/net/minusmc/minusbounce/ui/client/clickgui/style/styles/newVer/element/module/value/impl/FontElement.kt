@@ -21,7 +21,7 @@ class FontElement(val saveValue: FontValue): ValueElement<FontRenderer>(saveValu
     private val maxSubWidth = -(saveValue.values.map { -Fonts.font40.getStringWidth(it.getName()) }.minOrNull() ?: 0F).toFloat() + 20F
 
     companion object {
-        val expanding = ResourceLocation("liquidbounce+/expand.png") }
+        val expanding = ResourceLocation("minusbounce/expand.png") }
 
     override fun drawElement(mouseX: Int, mouseY: Int, x: Float, y: Float, width: Float, bgColor: Color, accentColor: Color): Float {
         expandHeight = expandHeight.animSmooth(if (expansion) 16F * (saveValue.values.size - 1F) else 0F, 0.5F)

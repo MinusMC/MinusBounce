@@ -53,7 +53,8 @@ object Animations : Module() {
             "Flux",
             "Stella",
             "Tifality",
-            "OldExhibition"
+            "OldExhibition",
+            "Old"
         ), "Minecraft"
     )
 

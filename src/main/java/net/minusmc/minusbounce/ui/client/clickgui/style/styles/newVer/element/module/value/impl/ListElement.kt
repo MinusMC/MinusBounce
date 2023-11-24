@@ -1,4 +1,4 @@
-package net.minusmc.minusbounce.ui.client.clickgui.styles.newVer.element.module.value.impl
+package net.minusmc.minusbounce.ui.client.clickgui.style.styles.newVer.element.module.value.impl
 
 import net.minusmc.minusbounce.ui.client.clickgui.style.styles.newVer.ColorManager
 import net.minusmc.minusbounce.ui.client.clickgui.styles.newVer.element.module.value.ValueElement
@@ -20,7 +20,7 @@ class ListElement(val saveValue: ListValue): ValueElement<String>(saveValue) {
     private val maxSubWidth = -(saveValue.values.map { -Fonts.font40.getStringWidth(it) }.sorted().firstOrNull() ?: 0F).toFloat() + 20F
 
     companion object {
-        val expanding = ResourceLocation("liquidbounce+/expand.png") }
+        val expanding = ResourceLocation("minusbounce/expand.png") }
 
     override fun drawElement(mouseX: Int, mouseY: Int, x: Float, y: Float, width: Float, bgColor: Color, accentColor: Color): Float {
         expandHeight = expandHeight.animSmooth(if (expansion) 16F * (saveValue.values.size - 1F) else 0F, 0.5F)

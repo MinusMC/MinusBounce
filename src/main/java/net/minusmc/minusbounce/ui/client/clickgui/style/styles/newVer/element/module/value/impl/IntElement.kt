@@ -1,4 +1,4 @@
-package net.minusmc.minusbounce.ui.client.clickgui.styles.newVer.element.module.value.impl
+package net.minusmc.minusbounce.ui.client.clickgui.style.styles.newVer.element.module.value.impl
 
 import net.minusmc.minusbounce.ui.client.clickgui.style.styles.newVer.ColorManager
 import net.minusmc.minusbounce.ui.client.clickgui.styles.newVer.element.components.Slider
