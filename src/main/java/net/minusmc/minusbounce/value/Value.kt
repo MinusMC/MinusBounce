@@ -280,7 +280,7 @@ open class FloatRangeValue(name: String, minValue: Float, maxValue: Float, val m
     override fun toJson(): JsonElement = Gson().toJsonTree(value)
     override fun fromJson(element: JsonElement) {
         if (element.isJsonObject) {
-            changeValue(Gson().fromJson(element.asString, FloatRange::class.java))
+            changeValue(Gson().fromJson(element.toString(), FloatRange::class.java))
         }
     }
 }
