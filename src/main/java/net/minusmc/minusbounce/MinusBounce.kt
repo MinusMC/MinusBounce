@@ -109,6 +109,8 @@ object MinusBounce {
         fileManager.loadConfigs(fileManager.modulesConfig, fileManager.valuesConfig, fileManager.accountsConfig)
         moduleManager.initModeListValues()
 
+
+        ClickGUI.initClickGui()
         fileManager.loadConfig(fileManager.clickGuiConfig)
 
         // Set HUD

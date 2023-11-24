@@ -5,6 +5,7 @@
  */
 package net.minusmc.minusbounce.features.module.modules.client
 
+import net.minusmc.minusbounce.MinusBounce
 import net.minusmc.minusbounce.features.module.Module
 import net.minusmc.minusbounce.features.module.ModuleCategory
 import net.minusmc.minusbounce.features.module.ModuleInfo
@@ -22,9 +23,9 @@ import java.awt.Color
 
 @ModuleInfo(name = "ClickGUI", description = "Opens the ClickGUI.", category = ModuleCategory.CLIENT, keyBind = Keyboard.KEY_RSHIFT, forceNoSound = true, onlyEnable = true)
 object ClickGUI: Module() {
-    private val styles = ClassUtils.resolvePackage("net.minusmc.minusbounce.ui.client.clickgui.styles", StyleMode::class.java)
-        .map {it.newInstance() as StyleMode}
-        .sortedBy { it.styleName }
+    val styleClazzes = ClassUtils.resolvePackage("net.minusmc.minusbounce.ui.client.clickgui.styles", StyleMode::class.java)
+    
+    var styles = styleClazzes.map {it.newInstance() as StyleMode}.sortedBy { it.styleName }
 
     val style: StyleMode
         get() = styles.find {styleValue.get().equals(it.styleName, true)} ?: throw NullPointerException()
@@ -63,6 +64,11 @@ object ClickGUI: Module() {
             "fade" -> ColorUtils.fade(Color(colorRedValue.get(), colorGreenValue.get(), colorBlueValue.get()), 0, 100)
             else -> null
         }
+
+    @JvmStatic
+    fun initClickGui() {
+        MinusBounce.moduleManager[ClickGUI::class.java]!!.styles = styleClazzes.map {it.newInstance() as StyleMode}.sortedBy { it.styleName }
+    }
 
     override fun onEnable() {
         if (style is DropDownClickGui) {
