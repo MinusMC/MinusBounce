@@ -27,7 +27,7 @@ import org.lwjgl.input.Mouse
 import java.awt.Color
 import kotlin.math.max
 import kotlin.math.min
-import kotlin.math.round
+import net.minusmc.minusbounce.utils.MathUtils.round
 
 class NullStyle : DropDownClickGui("Null") {
 

@@ -30,7 +30,7 @@ object ClickGUI: Module() {
     val style: StyleMode
         get() = styles.find {styleValue.get().equals(it.styleName, true)} ?: throw NullPointerException()
 
-    val styleValue = ListValue("Style", styles.map {it.styleName}.toTypedArray(), "LiquidBounce")
+    private val styleValue = ListValue("Style", styles.map {it.styleName}.toTypedArray(), "LiquidBounce")
 
     val fastRenderValue = BoolValue("FastRender", true)
 
@@ -64,11 +64,6 @@ object ClickGUI: Module() {
             "fade" -> ColorUtils.fade(Color(colorRedValue.get(), colorGreenValue.get(), colorBlueValue.get()), 0, 100)
             else -> null
         }
-
-    @JvmStatic
-    fun initClickGui() {
-        MinusBounce.moduleManager[ClickGUI::class.java]!!.styles = styleClazzes.map {it.newInstance() as StyleMode}.sortedBy { it.styleName }
-    }
 
     override fun onEnable() {
         if (style is DropDownClickGui) {

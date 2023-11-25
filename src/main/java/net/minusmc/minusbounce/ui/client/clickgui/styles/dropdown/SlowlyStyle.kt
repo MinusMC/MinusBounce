@@ -28,7 +28,7 @@ import java.awt.Color
 import java.math.BigDecimal
 import kotlin.math.max
 import kotlin.math.min
-import kotlin.math.round
+import net.minusmc.minusbounce.utils.MathUtils.round
 
 class SlowlyStyle : DropDownClickGui("Slowly") {
     override fun drawPanel(mouseX: Int, mouseY: Int, panel: Panel?) {

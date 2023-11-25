@@ -83,7 +83,6 @@ abstract class DropDownClickGui(styleName: String): StyleMode(styleName) {
         when (clickGuiModule.backgroundValue.get()) {
             "Default" -> drawDefaultBackground()
             "Gradient" -> drawGradientRect(0, 0, width, height, ColorUtils.reAlpha(ClickGUI.accentColor!!, clickGuiModule.gradEndValue.get()).rgb, ColorUtils.reAlpha(ClickGUI.accentColor!!, clickGuiModule.gradStartValue.get()).rgb)
-            else -> null
         }
         GlStateManager.disableAlpha()
         GlStateManager.enableAlpha()

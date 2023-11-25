@@ -22,7 +22,7 @@ import java.awt.Color
 import java.util.*
 import kotlin.math.min
 import kotlin.math.max
-import kotlin.math.round
+import net.minusmc.minusbounce.utils.MathUtils.round
 
 class AstolfoStyle: DropDownClickGui("Astolfo") {
     private fun getCategoryColor(categoryName: String): Color? {

@@ -26,9 +26,9 @@ import net.minusmc.minusbounce.utils.render.RenderUtils
 import net.minusmc.minusbounce.value.*
 import org.lwjgl.input.Mouse
 import java.awt.Color
+import net.minusmc.minusbounce.utils.MathUtils.round
 import kotlin.math.max
 import kotlin.math.min
-import kotlin.math.round
 
 class LiquidBounceStyle : DropDownClickGui("LiquidBounce") {
     override fun drawPanel(mouseX: Int, mouseY: Int, panel: Panel?) {

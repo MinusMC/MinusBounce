@@ -33,7 +33,6 @@ class ModuleManager : Listenable {
     fun registerModules() {
         ClientUtils.logger.info("[ModuleManager] Loading modules...")
         ClassUtils.resolvePackage("${this.javaClass.`package`.name}.modules", Module::class.java).forEach(this::registerModule)
-        registerModule(ClickGUI)
         modules.forEach {it.onInitialize()}
         ClientUtils.logger.info("[ModuleManager] Successfully loaded ${modules.size} modules.")
     }
@@ -41,7 +40,7 @@ class ModuleManager : Listenable {
     /**
      * Register [module]
      */
-     fun registerModule(module: Module) {
+    private fun registerModule(module: Module) {
         modules += module
         moduleClassMap[module.javaClass] = module
 
@@ -54,12 +53,9 @@ class ModuleManager : Listenable {
      */
     private fun registerModule(moduleClass: Class<out Module>) {
         try {
-            val instance = moduleClass.newInstance()
-            registerModule(instance)
+            registerModule(moduleClass.newInstance())
         } catch (e: IllegalAccessException) {
-            val instance = ClassUtils.getObjectInstance(moduleClass) as Module
-            if (instance !is ClickGUI) // lateinit clickgui
-                registerModule(instance)
+            registerModule(ClassUtils.getObjectInstance(moduleClass) as Module)
         } catch (e: Throwable) {
             ClientUtils.logger.error("Failed to load module: ${moduleClass.name} (${e.javaClass.name}: ${e.message})")
         }

@@ -109,8 +109,9 @@ object MinusBounce {
         fileManager.loadConfigs(fileManager.modulesConfig, fileManager.valuesConfig, fileManager.accountsConfig)
         moduleManager.initModeListValues()
 
+        val clickGuiModule = moduleManager[ClickGUI::class.java]!!
+        clickGuiModule.styles = clickGuiModule.styleClazzes.map {it.newInstance() as StyleMode}.sortedBy { it.styleName }
 
-        ClickGUI.initClickGui()
         fileManager.loadConfig(fileManager.clickGuiConfig)
 
         // Set HUD
