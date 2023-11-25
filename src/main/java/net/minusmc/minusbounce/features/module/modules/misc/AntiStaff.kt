@@ -37,8 +37,6 @@ class AntiStaff : Module() {
     override fun onInitialize() {
         thread {
             staffs.addAll(HttpUtils.get(bmcstaffList).split(","))
-
-            ClientUtils.logger.info("[Staff/main] $staffs")
         }
     }
 

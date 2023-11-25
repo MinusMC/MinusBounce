@@ -20,6 +20,7 @@ import net.minusmc.minusbounce.ui.client.clickgui.DropDownClickGui
 import net.minusmc.minusbounce.ui.font.AWTFontRenderer.Companion.assumeNonVolatile
 import net.minusmc.minusbounce.ui.font.Fonts
 import net.minusmc.minusbounce.ui.font.GameFontRenderer
+import net.minusmc.minusbounce.utils.MinecraftInstance
 import net.minusmc.minusbounce.utils.block.BlockUtils.getBlockName
 import net.minusmc.minusbounce.utils.render.RenderUtils
 import net.minusmc.minusbounce.value.*
@@ -102,7 +103,7 @@ class LiquidBounceStyle : DropDownClickGui("LiquidBounce") {
         if ((mouseX >= moduleElement.x + moduleElement.width + 4) && (mouseX <= (moduleElement.x + moduleElement.width + moduleElement.settingsWidth)) && (mouseY >= yPos + 2) && (mouseY <= yPos + 14)) {
             if (Mouse.isButtonDown(0) && moduleElement.isntPressed()) {
                 value.set(!value.get())
-                mc.soundHandler.playSound(PositionedSoundRecord.create(ResourceLocation("gui.button.press"), 1.0f))
+                MinecraftInstance.mc.soundHandler.playSound(PositionedSoundRecord.create(ResourceLocation("gui.button.press"), 1.0f))
             }
         }
         GlStateManager.resetColor()
@@ -121,7 +122,7 @@ class LiquidBounceStyle : DropDownClickGui("LiquidBounce") {
         if (mouseX >= moduleElement.x + moduleElement.width + 4 && mouseX <= moduleElement.x + moduleElement.width + moduleElement.settingsWidth && mouseY >= yPos + 2 && mouseY <= yPos + 14) {
             if (Mouse.isButtonDown(0) && moduleElement.isntPressed()) {
                 value.openList = !value.openList
-                mc.soundHandler.playSound(PositionedSoundRecord.create(ResourceLocation("gui.button.press"), 1.0f))
+                MinecraftInstance.mc.soundHandler.playSound(PositionedSoundRecord.create(ResourceLocation("gui.button.press"), 1.0f))
             }
         }
         yPos += 12
@@ -133,7 +134,7 @@ class LiquidBounceStyle : DropDownClickGui("LiquidBounce") {
                 if (mouseX >= moduleElement.x + moduleElement.width + 4 && mouseX <= moduleElement.x + moduleElement.width + moduleElement.settingsWidth && mouseY >= yPos + 2 && mouseY <= yPos + 14) {
                     if (Mouse.isButtonDown(0) && moduleElement.isntPressed()) {
                         value.set(valueOfList)
-                        mc.soundHandler.playSound(PositionedSoundRecord.create(ResourceLocation("gui.button.press"), 1.0f))
+                        MinecraftInstance.mc.soundHandler.playSound(PositionedSoundRecord.create(ResourceLocation("gui.button.press"), 1.0f))
                     }
                 }
                 GlStateManager.resetColor()
@@ -160,7 +161,7 @@ class LiquidBounceStyle : DropDownClickGui("LiquidBounce") {
             }
             if (Mouse.isButtonDown(0)) {
                 val i = MathHelper.clamp_double(((mouseX - moduleElement.x - moduleElement.width - 8) / (moduleElement.settingsWidth - 12)).toDouble(), 0.0, 1.0)
-                value.set(round((value.minimum + (value.maximum - value.minimum) * i).toFloat()).toFloat())
+                value.set(round((value.minimum + (value.maximum - value.minimum) * i).toFloat()))
             }
         }
         GlStateManager.resetColor()
@@ -307,7 +308,7 @@ class LiquidBounceStyle : DropDownClickGui("LiquidBounce") {
                 }
                 if (Mouse.isButtonDown(0)) {
                     val i = MathHelper.clamp_double(((mouseX - moduleElement.x - moduleElement.width - 8) / (moduleElement.settingsWidth - 12)).toDouble(), 0.0, 1.0)
-                    value.setMaxValue(round((value.minimum + (value.maximum - value.minimum) * i).toFloat()).toFloat())
+                    value.setMaxValue(round((value.minimum + (value.maximum - value.minimum) * i).toFloat()))
                 }
             } else if ((mouseX >= moduleElement.x + moduleElement.width + 4 && mouseX <= sliderMinValue + 11) || (mouseX >= sliderMinValue + 8 && mouseX <= moduleElement.x + moduleElement.width + moduleElement.settingsWidth / 2 - 2)) {
                 if (Mouse.hasWheel() && dWheel != 0) {
@@ -316,7 +317,7 @@ class LiquidBounceStyle : DropDownClickGui("LiquidBounce") {
                 }
                 if (Mouse.isButtonDown(0)) {
                     val i = MathHelper.clamp_double(((mouseX - moduleElement.x - moduleElement.width - 8) / (moduleElement.settingsWidth - 12)).toDouble(), 0.0, 1.0)
-                    value.setMinValue(round((value.minimum + (value.maximum - value.minimum) * i).toFloat()).toFloat())
+                    value.setMinValue(round((value.minimum + (value.maximum - value.minimum) * i).toFloat()))
                 }
             }
         }

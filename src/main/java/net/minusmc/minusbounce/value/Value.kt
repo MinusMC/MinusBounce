@@ -249,7 +249,6 @@ open class IntRangeValue(name: String, minValue: Int, maxValue: Int, val minimum
     override fun toJson(): JsonElement = Gson().toJsonTree(value)
     override fun fromJson(element: JsonElement) {
         if (element.isJsonObject) {
-            val jsonObject = element.asJsonObject
             changeValue(element.asJsonObject["minimum"].asInt, element.asJsonObject["maximum"].asInt)
         }
     }
@@ -281,7 +280,6 @@ open class FloatRangeValue(name: String, minValue: Float, maxValue: Float, val m
     override fun toJson(): JsonElement = Gson().toJsonTree(value)
     override fun fromJson(element: JsonElement) {
         if (element.isJsonObject) {
-            val jsonObject = element.asJsonObject
             changeValue(element.asJsonObject["minimum"].asFloat, element.asJsonObject["maximum"].asFloat)
         }
     }

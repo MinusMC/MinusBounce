@@ -28,7 +28,7 @@ import kotlin.math.abs
  * @author inf (original java code)
  * @author pie (refactored)
  */
-class LiquidBouncePlusRebornStyle: StyleMode("LiquidBounce+Reborn") {
+class LiquidBouncePlusStyle: StyleMode("LiquidBounce+") {
     private val categoryElements: MutableList<CategoryElement> = ArrayList()
     private var startYAnim = height / 2f
     private var endYAnim = height / 2f

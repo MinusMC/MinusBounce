@@ -18,6 +18,7 @@ import net.minusmc.minusbounce.ui.client.clickgui.DropDownClickGui
 import net.minusmc.minusbounce.ui.font.AWTFontRenderer.Companion.assumeNonVolatile
 import net.minusmc.minusbounce.ui.font.Fonts
 import net.minusmc.minusbounce.ui.font.GameFontRenderer
+import net.minusmc.minusbounce.utils.MinecraftInstance
 import net.minusmc.minusbounce.utils.block.BlockUtils.getBlockName
 import net.minusmc.minusbounce.utils.render.ColorUtils
 import net.minusmc.minusbounce.utils.render.RenderUtils
@@ -103,7 +104,7 @@ class SlowlyStyle : DropDownClickGui("Slowly") {
         if (moduleElement.settingsWidth < textWidth + 8) moduleElement.settingsWidth = textWidth + 8
         if (mouseX >= moduleElement.x + moduleElement.width + 4 && mouseX <= moduleElement.x + moduleElement.width + moduleElement.settingsWidth && mouseY >= yPos && mouseY <= yPos + 12 && Mouse.isButtonDown(0) && moduleElement.isntPressed()) {
             value.set(!value.get())
-            mc.soundHandler.playSound(PositionedSoundRecord.create(ResourceLocation("gui.button.press"), 1.0f))
+            MinecraftInstance.mc.soundHandler.playSound(PositionedSoundRecord.create(ResourceLocation("gui.button.press"), 1.0f))
         }
         Fonts.font35.drawString(text, moduleElement.x + moduleElement.width + 6, yPos + 2, if (value.get()) Color.WHITE.rgb else Int.MAX_VALUE)
         yPos += 11
@@ -117,7 +118,7 @@ class SlowlyStyle : DropDownClickGui("Slowly") {
         Fonts.font35.drawString(if (value.openList) "-" else "+", (moduleElement.x + moduleElement.width + moduleElement.settingsWidth - if (value.openList) 5 else 6).toInt(), yPos + 2, 0xffffff)
         if (mouseX >= moduleElement.x + moduleElement.width + 4 && mouseX <= moduleElement.x + moduleElement.width + moduleElement.settingsWidth && mouseY >= yPos && mouseY <= yPos + Fonts.font35.FONT_HEIGHT && Mouse.isButtonDown(0) && moduleElement.isntPressed()) {
             value.openList = !value.openList
-            mc.soundHandler.playSound(PositionedSoundRecord.create(ResourceLocation("gui.button.press"), 1.0f))
+            MinecraftInstance.mc.soundHandler.playSound(PositionedSoundRecord.create(ResourceLocation("gui.button.press"), 1.0f))
         }
         yPos += Fonts.font35.FONT_HEIGHT + 1
         for (valueOfList in value.values) {
@@ -126,7 +127,7 @@ class SlowlyStyle : DropDownClickGui("Slowly") {
             if (value.openList) {
                 if (mouseX >= moduleElement.x + moduleElement.width + 4 && mouseX <= moduleElement.x + moduleElement.width + moduleElement.settingsWidth && mouseY >= yPos + 2 && mouseY <= yPos + 14 && Mouse.isButtonDown(0) && moduleElement.isntPressed()) {
                     value.set(valueOfList)
-                    mc.soundHandler.playSound(PositionedSoundRecord.create(ResourceLocation("gui.button.press"), 1.0f))
+                    MinecraftInstance.mc.soundHandler.playSound(PositionedSoundRecord.create(ResourceLocation("gui.button.press"), 1.0f))
                 }
                 GlStateManager.resetColor()
                 Fonts.font35.drawString("> $valueOfList", moduleElement.x + moduleElement.width + 6, yPos + 2, if (value.get().equals(valueOfList, ignoreCase = true)) Color.WHITE.rgb else Int.MAX_VALUE)
@@ -270,7 +271,7 @@ class SlowlyStyle : DropDownClickGui("Slowly") {
                 }
                 if (Mouse.isButtonDown(0)) {
                     val i = MathHelper.clamp_double(((mouseX - moduleElement.x - moduleElement.width - 8) / (moduleElement.settingsWidth - 12)).toDouble(), 0.0, 1.0)
-                    value.setMaxValue(round((value.minimum + (value.maximum - value.minimum) * i).toFloat()).toFloat())
+                    value.setMaxValue(round((value.minimum + (value.maximum - value.minimum) * i).toFloat()))
                 }
             } else if ((mouseX >= moduleElement.x + moduleElement.width + 4 && mouseX <= sliderMinValue + 11) || (mouseX >= sliderMinValue + 8 && mouseX <= moduleElement.x + moduleElement.width + moduleElement.settingsWidth / 2 - 2)) {
                 if (Mouse.hasWheel() && dWheel != 0) {
@@ -279,7 +280,7 @@ class SlowlyStyle : DropDownClickGui("Slowly") {
                 }
                 if (Mouse.isButtonDown(0)) {
                     val i = MathHelper.clamp_double(((mouseX - moduleElement.x - moduleElement.width - 8) / (moduleElement.settingsWidth - 12)).toDouble(), 0.0, 1.0)
-                    value.setMinValue(round((value.minimum + (value.maximum - value.minimum) * i).toFloat()).toFloat())
+                    value.setMinValue(round((value.minimum + (value.maximum - value.minimum) * i).toFloat()))
                 }
             }
         }
@@ -293,7 +294,7 @@ class SlowlyStyle : DropDownClickGui("Slowly") {
         val sliderValue = x.toFloat() + width.toFloat() * (displayValue - min) / (max - min)
         RenderUtils.drawRect(x.toFloat(), y.toFloat(), (x + width).toFloat(), (y + 2).toFloat(), Int.MAX_VALUE)
         RenderUtils.drawRect(x.toFloat(), y.toFloat(), sliderValue, (y + 2).toFloat(), color!!)
-        RenderUtils.drawFilledCircle(sliderValue.toInt(), y + 1, 3f, color!!)
+        RenderUtils.drawFilledCircle(sliderValue.toInt(), y + 1, 3f, color)
         if (mouseX >= x && mouseX <= x + width && mouseY >= y && mouseY <= y + 3) {
             val dWheel = Mouse.getDWheel()
             if (Mouse.hasWheel() && dWheel != 0) {
