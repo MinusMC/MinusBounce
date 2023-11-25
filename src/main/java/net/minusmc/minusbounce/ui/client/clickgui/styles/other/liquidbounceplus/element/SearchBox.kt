@@ -1,4 +1,4 @@
-package net.minusmc.minusbounce.ui.client.clickgui.style.styles.newVer.element
+package net.minusmc.minusbounce.ui.client.clickgui.styles.other.liquidbounceplus.element
 
 import net.minusmc.minusbounce.ui.font.Fonts
 import net.minecraft.client.gui.GuiTextField

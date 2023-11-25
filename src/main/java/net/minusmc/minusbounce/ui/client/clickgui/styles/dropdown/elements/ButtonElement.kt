@@ -3,12 +3,11 @@
  * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
  * https://github.com/MinusMC/MinusBounce
  */
-package net.minusmc.minusbounce.ui.client.clickgui.elements
+package net.minusmc.minusbounce.ui.client.clickgui.styles.dropdown.elements
 
 import net.minusmc.minusbounce.MinusBounce
 import net.minusmc.minusbounce.features.module.modules.client.ClickGUI
 import net.minusmc.minusbounce.ui.client.clickgui.DropDownClickGui
-import net.minusmc.minusbounce.ui.client.hud.element.elements.targets.impl.Minus
 
 open class ButtonElement(displayName: String?) : Element() {
     var displayName: String? = null

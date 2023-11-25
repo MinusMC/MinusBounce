@@ -3,7 +3,7 @@
  * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
  * https://github.com/MinusMC/MinusBounce
  */
-package net.minusmc.minusbounce.ui.client.clickgui.elements
+package net.minusmc.minusbounce.ui.client.clickgui.styles.dropdown.elements
 
 import net.minusmc.minusbounce.utils.MinecraftInstance
 

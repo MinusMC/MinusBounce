@@ -1,7 +1,7 @@
-package net.minusmc.minusbounce.ui.client.clickgui.styles.newVer.element.components
+package net.minusmc.minusbounce.ui.client.clickgui.styles.other.liquidbounceplus.element.components
 
-import net.minusmc.minusbounce.ui.client.clickgui.style.styles.newVer.ColorManager
-import net.minusmc.minusbounce.ui.client.clickgui.style.styles.newVer.extensions.animSmooth
+import net.minusmc.minusbounce.ui.client.clickgui.styles.other.liquidbounceplus.ColorManager
+import net.minusmc.minusbounce.ui.client.clickgui.styles.other.liquidbounceplus.extensions.animSmooth
 import net.minusmc.minusbounce.utils.render.ShaderUtils
 import java.awt.Color
 

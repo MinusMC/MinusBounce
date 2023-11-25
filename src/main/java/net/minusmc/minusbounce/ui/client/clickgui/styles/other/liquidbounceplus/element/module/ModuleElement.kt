@@ -1,10 +1,10 @@
 package net.minusmc.minusbounce.ui.client.clickgui.styles.newVer.element.module
 
 import net.minusmc.minusbounce.features.module.Module
-import net.minusmc.minusbounce.ui.client.clickgui.style.styles.newVer.ColorManager
-import net.minusmc.minusbounce.ui.client.clickgui.styles.newVer.element.components.ToggleSwitch
-import net.minusmc.minusbounce.ui.client.clickgui.styles.newVer.element.module.value.ValueElement
-import net.minusmc.minusbounce.ui.client.clickgui.style.styles.newVer.extensions.animSmooth
+import net.minusmc.minusbounce.ui.client.clickgui.styles.other.liquidbounceplus.ColorManager
+import net.minusmc.minusbounce.ui.client.clickgui.styles.other.liquidbounceplus.element.components.ToggleSwitch
+import net.minusmc.minusbounce.ui.client.clickgui.styles.other.liquidbounceplus.element.module.value.ValueElement
+import net.minusmc.minusbounce.ui.client.clickgui.styles.other.liquidbounceplus.extensions.animSmooth
 import net.minusmc.minusbounce.ui.font.Fonts
 import net.minusmc.minusbounce.utils.MinecraftInstance
 import net.minusmc.minusbounce.utils.MouseUtils
@@ -15,7 +15,7 @@ import net.minusmc.minusbounce.utils.render.Stencil
 import net.minusmc.minusbounce.value.*
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.util.ResourceLocation
-import net.minusmc.minusbounce.ui.client.clickgui.style.styles.newVer.element.module.value.impl.*
+import net.minusmc.minusbounce.ui.client.clickgui.styles.other.liquidbounceplus.element.module.value.impl.*
 import org.lwjgl.input.Keyboard
 import org.lwjgl.opengl.GL11.*
 import java.awt.Color

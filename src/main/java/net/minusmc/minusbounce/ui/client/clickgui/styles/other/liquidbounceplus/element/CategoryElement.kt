@@ -2,9 +2,9 @@ package net.minusmc.minusbounce.ui.client.clickgui.style.styles.newVer.element
 
 import net.minusmc.minusbounce.MinusBounce
 import net.minusmc.minusbounce.features.module.ModuleCategory
-import net.minusmc.minusbounce.ui.client.clickgui.style.styles.newVer.ColorManager
+import net.minusmc.minusbounce.ui.client.clickgui.styles.other.liquidbounceplus.ColorManager
 import net.minusmc.minusbounce.ui.client.clickgui.styles.newVer.element.module.ModuleElement
-import net.minusmc.minusbounce.ui.client.clickgui.style.styles.newVer.extensions.animSmooth
+import net.minusmc.minusbounce.ui.client.clickgui.styles.other.liquidbounceplus.extensions.animSmooth
 import net.minusmc.minusbounce.ui.font.Fonts
 import net.minusmc.minusbounce.utils.MinecraftInstance
 import net.minusmc.minusbounce.utils.MouseUtils

@@ -35,8 +35,8 @@ class GuiMainMenu : GuiScreen(), GuiYesNoCallback {
         var id = 201
         MinusBounce.mainMenuButton.forEach {
             val width = this.width / 2 + when (id % 2) {
-                0 -> 40
-                else -> -140
+                0 -> 32
+                else -> -148
             }
             val height = defaultHeight + 45 * 2 + 45 * ((id - 201) / 2)
             this.buttonList.add(MainMenuButton(id, width, height, it.key))

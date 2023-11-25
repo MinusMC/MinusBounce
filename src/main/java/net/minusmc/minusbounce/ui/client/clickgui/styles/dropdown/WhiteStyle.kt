@@ -12,8 +12,8 @@ import net.minecraft.util.MathHelper
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.StringUtils
 import net.minusmc.minusbounce.ui.client.clickgui.Panel
-import net.minusmc.minusbounce.ui.client.clickgui.elements.ButtonElement
-import net.minusmc.minusbounce.ui.client.clickgui.elements.ModuleElement
+import net.minusmc.minusbounce.ui.client.clickgui.styles.dropdown.elements.ButtonElement
+import net.minusmc.minusbounce.ui.client.clickgui.styles.dropdown.elements.ModuleElement
 import net.minusmc.minusbounce.ui.client.clickgui.DropDownClickGui
 import net.minusmc.minusbounce.ui.font.Fonts
 import net.minusmc.minusbounce.ui.font.GameFontRenderer

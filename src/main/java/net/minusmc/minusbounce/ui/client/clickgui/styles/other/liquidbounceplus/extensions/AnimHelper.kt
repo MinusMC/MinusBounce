@@ -1,4 +1,4 @@
-package net.minusmc.minusbounce.ui.client.clickgui.style.styles.newVer.extensions
+package net.minusmc.minusbounce.ui.client.clickgui.styles.other.liquidbounceplus.extensions
 
 import net.minusmc.minusbounce.features.module.modules.client.ClickGUI
 import net.minusmc.minusbounce.utils.AnimationUtils

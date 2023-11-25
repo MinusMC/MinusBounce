@@ -1,4 +1,4 @@
-package net.minusmc.minusbounce.ui.client.clickgui.styles.newVer.element.module.value
+package net.minusmc.minusbounce.ui.client.clickgui.styles.other.liquidbounceplus.element.module.value
 
 import net.minusmc.minusbounce.utils.MinecraftInstance
 import net.minusmc.minusbounce.value.Value

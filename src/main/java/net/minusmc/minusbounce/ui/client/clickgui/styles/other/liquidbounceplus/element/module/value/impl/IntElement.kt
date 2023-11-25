@@ -1,8 +1,8 @@
-package net.minusmc.minusbounce.ui.client.clickgui.style.styles.newVer.element.module.value.impl
+package net.minusmc.minusbounce.ui.client.clickgui.styles.other.liquidbounceplus.element.module.value.impl
 
-import net.minusmc.minusbounce.ui.client.clickgui.style.styles.newVer.ColorManager
-import net.minusmc.minusbounce.ui.client.clickgui.styles.newVer.element.components.Slider
-import net.minusmc.minusbounce.ui.client.clickgui.styles.newVer.element.module.value.ValueElement
+import net.minusmc.minusbounce.ui.client.clickgui.styles.other.liquidbounceplus.ColorManager
+import net.minusmc.minusbounce.ui.client.clickgui.styles.other.liquidbounceplus.element.components.Slider
+import net.minusmc.minusbounce.ui.client.clickgui.styles.other.liquidbounceplus.element.module.value.ValueElement
 import net.minusmc.minusbounce.ui.font.Fonts
 import net.minusmc.minusbounce.utils.MouseUtils
 import net.minusmc.minusbounce.utils.render.RenderUtils

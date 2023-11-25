@@ -12,9 +12,8 @@ import net.minusmc.minusbounce.MinusBounce
 import net.minusmc.minusbounce.features.module.modules.client.ClickGUI
 import net.minusmc.minusbounce.file.FileConfig
 import net.minusmc.minusbounce.file.FileManager
-import net.minusmc.minusbounce.ui.client.clickgui.elements.ModuleElement
+import net.minusmc.minusbounce.ui.client.clickgui.styles.dropdown.elements.ModuleElement
 import net.minusmc.minusbounce.ui.client.clickgui.DropDownClickGui
-import net.minusmc.minusbounce.ui.client.hud.element.elements.targets.impl.Minus
 import net.minusmc.minusbounce.utils.ClientUtils
 import java.io.*
 

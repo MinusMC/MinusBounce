@@ -1,4 +1,4 @@
-package net.minusmc.minusbounce.ui.client.clickgui.style.styles.newVer
+package net.minusmc.minusbounce.ui.client.clickgui.styles.other.liquidbounceplus
 
 import net.minecraft.util.ResourceLocation
 

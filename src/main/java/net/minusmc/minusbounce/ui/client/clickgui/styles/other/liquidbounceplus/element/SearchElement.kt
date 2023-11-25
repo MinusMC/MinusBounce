@@ -1,10 +1,10 @@
 package net.minusmc.minusbounce.ui.client.clickgui.style.styles.newVer.element
 
-import net.minusmc.minusbounce.ui.client.clickgui.style.styles.newVer.ColorManager
-import net.minusmc.minusbounce.ui.client.clickgui.style.styles.newVer.IconManager
+import net.minusmc.minusbounce.ui.client.clickgui.styles.other.liquidbounceplus.ColorManager
+import net.minusmc.minusbounce.ui.client.clickgui.styles.other.liquidbounceplus.IconManager
 import net.minusmc.minusbounce.ui.client.clickgui.styles.other.LiquidBouncePlusStyle
 import net.minusmc.minusbounce.ui.client.clickgui.styles.newVer.element.module.ModuleElement
-import net.minusmc.minusbounce.ui.client.clickgui.style.styles.newVer.extensions.animSmooth
+import net.minusmc.minusbounce.ui.client.clickgui.styles.other.liquidbounceplus.extensions.animSmooth
 import net.minusmc.minusbounce.ui.font.Fonts
 import net.minusmc.minusbounce.utils.MouseUtils
 import net.minusmc.minusbounce.utils.render.RenderUtils
@@ -13,6 +13,7 @@ import net.minusmc.minusbounce.utils.render.Stencil
 import net.minecraft.client.renderer.GlStateManager
 import net.minusmc.minusbounce.MinusBounce
 import net.minusmc.minusbounce.features.module.modules.client.ClickGUI
+import net.minusmc.minusbounce.ui.client.clickgui.styles.other.liquidbounceplus.element.SearchBox
 import org.lwjgl.opengl.GL11
 import java.awt.Color
 import kotlin.math.abs

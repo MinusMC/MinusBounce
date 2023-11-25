@@ -1,6 +1,6 @@
-package net.minusmc.minusbounce.ui.client.clickgui.style.styles.newVer.element.components
+package net.minusmc.minusbounce.ui.client.clickgui.styles.other.liquidbounceplus.element.components
 
-import net.minusmc.minusbounce.ui.client.clickgui.style.styles.newVer.extensions.animLinear
+import net.minusmc.minusbounce.ui.client.clickgui.styles.other.liquidbounceplus.extensions.animLinear
 import net.minusmc.minusbounce.utils.render.BlendUtils
 import net.minusmc.minusbounce.utils.render.RenderUtils
 import net.minusmc.minusbounce.utils.render.ShaderUtils
