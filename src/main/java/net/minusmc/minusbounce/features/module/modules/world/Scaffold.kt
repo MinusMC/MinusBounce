@@ -41,9 +41,7 @@ import kotlin.math.*
 @ModuleInfo(name = "Scaffold", description = "Automatically places blocks beneath your feet.", category = ModuleCategory.WORLD, keyBind = Keyboard.KEY_I)
 class Scaffold: Module() {
     // add scaffold modes? ex: telly, ninja, fruit, moonwalk?
-	private val placeableDelay = ListValue("PlaceableDelay", arrayOf("Normal", "Telly", "Smart", "Off"), "Normal")
-
-    private val tellyTicks = IntegerValue("TellyTicks", 3, 1, 5) { placeableDelay.get() == "Telly" }
+	private val placeableDelay = ListValue("PlaceableDelay", arrayOf("Normal", "Smart", "Off"), "Normal")
 
 	private val maxDelayValue: IntegerValue = object: IntegerValue("MaxDelay", 0, 0, 1000, "ms", {!placeableDelay.get().equals("off", true)}) {
         override fun onChanged(oldValue: Int, newValue: Int) {
@@ -74,7 +72,7 @@ class Scaffold: Module() {
     }
     private val expandLengthValue = IntegerValue("ExpandLength", 1, 1, 6, " blocks")
     
-    val rotationsValue = ListValue("Rotation", arrayOf("Normal", "AAC", "Novoline", "Spin", "Grim", "Intave", "Rise", "Backwards", "Custom", "None"), "Normal")
+    val rotationsValue = ListValue("Rotation", arrayOf("Normal", "AAC", "Novoline", "Spin", "Intave", "Rise", "Backwards", "Custom", "None"), "Normal")
 
     private val aacOffsetValue = FloatValue("AAC-Offset", 4f, 0f, 50f, "°") { rotationsValue.get().equals("aac", true) }
 
@@ -132,13 +130,13 @@ class Scaffold: Module() {
 
     // Tower
     private val onTowerValue = ListValue("OnTower", arrayOf("Always", "PressSpace", "NoMove", "Off"))
-    private val towerModeValue = ListValue("TowerMode", arrayOf("Jump", "Vanilla", "NCP", "MotionTP2", "AAC3.3.9", "AAC3.6.4", "Verus", "Universocraft"), "Jump") {
+    private val towerModeValue = ListValue("TowerMode", arrayOf("Jump", "Motion", "NCP", "MotionTP", "AAC3.3.9", "AAC3.6.4", "Verus", "Universocraft"), "Jump") {
         !onTowerValue.get().equals("None", true)
     }
     private val stopWhenBlockAbove = BoolValue("StopWhenBlockAbove", false) { !onTowerValue.get().equals("None", true) }
     private val towerTimerValue = FloatValue("TowerTimer", 1F, 0.1F, 10F) { !onTowerValue.get().equals("None", true) }
 
-    private val autoJumpValue = BoolValue("SameY-AutoJump", false)
+    private val sameYValue = ListValue("SameY", arrayOf("Simple", "AutoJump", "Off"), "Off")
     private val safeWalkValue = ListValue("SafeWalk", arrayOf("Ground", "Air", "Off"), "Off")
     private val hitableCheckValue = BoolValue("HitableCheck", true)
     // Blocks
@@ -174,7 +172,6 @@ class Scaffold: Module() {
     // Zitter
     private var zitterDirection = false
 
-    // Delay
     private val delayTimer = MSTimer()
     private val zitterTimer = MSTimer()
     private var delay = 0L
@@ -208,6 +205,18 @@ class Scaffold: Module() {
 
     private fun tower(event: MotionEvent) {
         when (towerModeValue.get().lowercase()) {
+            "jump" -> {
+                if (mc.thePlayer.onGround) {
+                    fakeJump()
+                    mc.thePlayer.motionY = 0.42
+                }
+            }
+            "motion" -> {
+                if (mc.thePlayer.onGround) {
+                    fakeJump()
+                    mc.thePlayer.motionY = 0.42
+                } else if (mc.thePlayer.motionY < 0.1) mc.thePlayer.motionY = -0.3
+            }
             "ncp" -> {
                 if (mc.thePlayer.posY % 1 <= 0.00153598) {
                     mc.thePlayer.setPosition(mc.thePlayer.posX, floor(mc.thePlayer.posY), mc.thePlayer.posZ)
@@ -215,13 +224,7 @@ class Scaffold: Module() {
                 } else if (mc.thePlayer.posY % 1 < 0.1 && offGroundTicks != 0)
                     mc.thePlayer.setPosition(mc.thePlayer.posX, floor(mc.thePlayer.posY), mc.thePlayer.posZ)
             }
-            "jump" -> {
-                if (mc.thePlayer.onGround) {
-                    fakeJump()
-                    mc.thePlayer.motionY = 0.41
-                }
-            }
-            "motiontp2" -> {
+            "motiontp" -> {
                 if (mc.thePlayer.onGround) {
                     fakeJump()
                     mc.thePlayer.motionY = 0.41999998688698
@@ -302,10 +305,13 @@ class Scaffold: Module() {
             canSameY = false
             launchY = mc.thePlayer.posY.toInt()
         } else {
-            if(autoJumpValue.get()) {
-                canSameY = true
-                if (mc.thePlayer.onGround && MovementUtils.isMoving)
-                    mc.thePlayer.jump()
+            when (sameYValue.get().lowercase()) {
+                "simple" -> canSameY = true
+                "autojump" -> {
+                    canSameY = true
+                    if (mc.thePlayer.onGround && MovementUtils.isMoving)
+                        mc.thePlayer.jump()
+                }
             }
             
             if (mc.thePlayer.onGround)
@@ -931,7 +937,6 @@ class Scaffold: Module() {
                 }
                 "normal" -> placeRotation.rotation
                 "aac" -> Rotation(mc.thePlayer.rotationYaw + (if (mc.thePlayer.movementInput.moveForward < 0) 0 else 180) + aacOffsetValue.get(), placeRotation.rotation.pitch)
-                "grim" -> if (mc.thePlayer.onGround) Rotation(mc.thePlayer.rotationYaw, 80f) else return false
                 "rise" -> {
                     val blockData = get(blockPosition) ?: return false
                     RotationUtils.getDirectionToBlock(blockData.blockPos.x.toDouble(), blockData.blockPos.y.toDouble(), blockData.blockPos.z.toDouble(), blockData.enumFacing)

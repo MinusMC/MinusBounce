@@ -159,7 +159,7 @@ object Fonts {
                 field.isAccessible = true
                 val o = field[null]
                 if (o is FontRenderer) {
-                    val fontDetails = field.getAnnotation(FontDetails::class.java)!!
+                    val fontDetails = field.getAnnotation(FontDetails::class.java) ?: continue
                     if (fontDetails.fontName == name && fontDetails.fontSize == size) return o
                 }
             } catch (e: IllegalAccessException) {

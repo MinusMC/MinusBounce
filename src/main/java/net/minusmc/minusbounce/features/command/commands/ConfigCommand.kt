@@ -10,11 +10,10 @@ import net.minusmc.minusbounce.features.command.Command
 import net.minusmc.minusbounce.ui.client.hud.element.elements.Notification
 import net.minusmc.minusbounce.utils.ClientUtils
 import net.minusmc.minusbounce.utils.SettingsUtils
-import net.minusmc.minusbounce.utils.misc.StringUtils
 import java.io.File
 import java.io.IOException
 
-class LocalAutoSettingsCommand: Command("config", arrayOf("localsetting", "locateautosettings", "locateautosetting", "localsettings", "localconfig")) {
+class ConfigCommand: Command("config", arrayOf("settings")) {
     /**
      * Execute commands with provided [args]
      */
@@ -35,6 +34,34 @@ class LocalAutoSettingsCommand: Command("config", arrayOf("localsetting", "locat
                     chat("> " + file.name)
                 return
             }
+            "create" -> createConfig(args)
+        }
+    }
+
+    private fun createConfig(args: Array<String>) {
+        if (args.size <= 2) {
+            chatSyntax("config create <name>")
+            return
+        }
+
+        val scriptFile = File(MinusBounce.fileManager.settingsDir, args[2])
+
+        try {
+            if (scriptFile.exists()) {
+                chatSyntax("Config has existed.")
+                return
+            }
+            scriptFile.createNewFile()
+
+            chat("§9Creating config...")
+            val settingsScript = SettingsUtils.generateDefault()
+            chat("§9Loading config...")
+            scriptFile.writeText(settingsScript)
+            SettingsUtils.executeScript(settingsScript)
+            chat("§6Config created successfully.")
+        } catch (throwable: Throwable) {
+            chat("§cFailed to create config: §3${throwable.message}")
+            ClientUtils.logger.error("Failed to create config.", throwable)
         }
     }
 
@@ -56,17 +83,8 @@ class LocalAutoSettingsCommand: Command("config", arrayOf("localsetting", "locat
                     return
                 }
 
-            val option = if (args.size > 3) StringUtils.toCompleteString(args, 3).lowercase() else "values states"
-            val values = option.contains("all") || option.contains("values")
-            val binds = option.contains("all") || option.contains("binds")
-            val states = option.contains("all") || option.contains("states")
-            if (!values && !binds && !states) {
-                chatSyntaxError()
-                return
-            }
-
             chat("§9Creating config...")
-            val settingsScript = SettingsUtils.generateScript(values, binds, states)
+            val settingsScript = SettingsUtils.generateScript()
             chat("§9Saving config...")
             scriptFile.writeText(settingsScript)
             chat("§6Config saved successfully.")

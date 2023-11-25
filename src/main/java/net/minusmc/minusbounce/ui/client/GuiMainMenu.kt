@@ -23,23 +23,23 @@ class GuiMainMenu : GuiScreen(), GuiYesNoCallback {
     override fun initGui() {
         val defaultHeight = (this.height / 2.5).toInt()
 
-        this.buttonList.add(MainMenuButton(0, this.width / 2 - 148, defaultHeight, "Singleplayer"))
-        this.buttonList.add(MainMenuButton(1, this.width / 2 + 32, defaultHeight, "Multiplayer"))
-        this.buttonList.add(MainMenuButton(2, this.width / 2 - 148, defaultHeight + 45, "Alt manager"))
-        this.buttonList.add(MainMenuButton(3, this.width / 2 + 32, defaultHeight + 45, "Mods and plugins"))
-        this.buttonList.add(CircleButton(4, this.width - 80, 8, "Options", ResourceLocation("minusbounce/menu/settings.png")))
-        this.buttonList.add(CircleButton(5, this.width - 40, 8, "Quit", ResourceLocation("minusbounce/menu/quit.png")))
-        this.buttonList.add(CircleButton(6, this.width - 120, 8, "Background", ResourceLocation("minusbounce/menu/wallpaper.png")))
+        buttonList.add(MainMenuButton(0, width / 2 - 148, defaultHeight, "Singleplayer"))
+        buttonList.add(MainMenuButton(1, width / 2 + 32, defaultHeight, "Multiplayer"))
+        buttonList.add(MainMenuButton(2, width / 2 - 148, defaultHeight + 45, "Alt manager"))
+        buttonList.add(MainMenuButton(3, width / 2 + 32, defaultHeight + 45, "Mods and plugins"))
+        buttonList.add(CircleButton(4, width - 80, 8, "Options", ResourceLocation("minusbounce/menu/settings.png")))
+        buttonList.add(CircleButton(5, width - 40, 8, "Quit", ResourceLocation("minusbounce/menu/quit.png")))
+        buttonList.add(CircleButton(6, width - 120, 8, "Background", ResourceLocation("minusbounce/menu/wallpaper.png")))
 
 
         var id = 201
         MinusBounce.mainMenuButton.forEach {
-            val width = this.width / 2 + when (id % 2) {
+            val width = width / 2 + when (id % 2) {
                 0 -> 32
                 else -> -148
             }
             val height = defaultHeight + 45 * 2 + 45 * ((id - 201) / 2)
-            this.buttonList.add(MainMenuButton(id, width, height, it.key))
+            buttonList.add(MainMenuButton(id, width, height, it.key))
             buttons[id] = it.value
             id++
         }
@@ -109,6 +109,7 @@ class MainMenuButton(buttonId: Int, x: Int, y: Int, buttonText: String): GuiButt
 
     override fun drawButton(mc: Minecraft?, mouseX: Int, mouseY: Int) {
         RenderUtils.drawRoundedRect(xPosition.toFloat(), yPosition.toFloat(), (xPosition + width).toFloat(), (yPosition + height).toFloat(), 4f, Color(249, 246, 238, 220).rgb)
+        GlStateManager.resetColor()
         Fonts.font50.drawCenteredString(displayString, xPosition.toFloat() + width.toFloat() / 2f, yPosition.toFloat() + height.toFloat() / 2 - mc!!.fontRendererObj.FONT_HEIGHT / 2, Color(54, 69, 79).rgb, false)
     }
 }

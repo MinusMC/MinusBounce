@@ -7,6 +7,7 @@ package net.minusmc.minusbounce.features.module.modules.misc
 
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.item.ItemArmor
 import net.minecraft.network.play.server.*
 import net.minecraft.world.WorldSettings
 import net.minusmc.minusbounce.MinusBounce
@@ -50,16 +51,17 @@ object AntiBot : Module() {
     private val spawnInCombatValue = BoolValue("SpawnInCombat", false)
     private val duplicateInWorldValue = BoolValue("DuplicateInWorld", false)
     private val duplicateInTabValue = BoolValue("DuplicateInTab", false)
-    private val duplicateCompareModeValue = ListValue(
-        "DuplicateCompareMode",
-        arrayOf("OnTime", "WhenSpawn"),
-        "OnTime"
-    ) { duplicateInTabValue.get() || duplicateInWorldValue.get() }
+    private val duplicateCompareModeValue = ListValue("DuplicateCompareMode", arrayOf("OnTime", "WhenSpawn"), "OnTime") {
+        duplicateInTabValue.get() || duplicateInWorldValue.get()
+    }
     private val experimentalNPCDetection = BoolValue("ExperimentalNPCDetection", false)
     private val illegalName = BoolValue("IllegalName", false)
     private val removeFromWorld = BoolValue("RemoveFromWorld", false)
     private val removeIntervalValue = IntegerValue("Remove-Interval", 20, 1, 100, " tick")
     private val debugValue = BoolValue("Debug", false)
+
+    private val sameArmorOnBedwars = BoolValue("SameArmorOnBedwars", false)
+
     private val ground = mutableListOf<Int>()
     private val air = mutableListOf<Int>()
     private val invalidGround = mutableMapOf<Int, Int>()
@@ -176,58 +178,67 @@ object AntiBot : Module() {
     fun isBot(entity: EntityLivingBase): Boolean {
         if (entity !is EntityPlayer || entity == mc.thePlayer)
             return false
+
         if (!state) return false
-        if (experimentalNPCDetection.get() && (entity.getDisplayName().unformattedText.lowercase()
-                .contains("npc") || entity.getDisplayName().unformattedText.lowercase().contains("cit-"))
-        )
+
+        if (experimentalNPCDetection.get() && (entity.getDisplayName().unformattedText.lowercase().contains("npc") || entity.getDisplayName().unformattedText.lowercase().contains("cit-")))
             return true
-        if (illegalName.get() && (entity.getName()
-                .contains(" ") || entity.getDisplayName().unformattedText.contains(" "))
-        )
+
+        if (illegalName.get() && (entity.getName().contains(" ") || entity.getDisplayName().unformattedText.contains(" ")))
             return true
+
         if (colorValue.get() && !entity.getDisplayName().formattedText.replace("§r", "").contains("§"))
             return true
+
         if (livingTimeValue.get() && entity.ticksExisted < livingTimeTicksValue.get())
             return true
+
         if (groundValue.get() && !ground.contains(entity.entityId))
             return true
+
         if (airValue.get() && !air.contains(entity.entityId))
             return true
-        if (spawnInCombatValue.get() && spawnInCombat.contains(entity.entityId)) {
+
+        if (spawnInCombatValue.get() && spawnInCombat.contains(entity.entityId))
             return true
-        }
+
         if(swingValue.get() && !swing.contains(entity.entityId))
             return true
+
         if(healthValue.get() && (entity.getHealth() > maxHealthValue.get() || entity.getHealth() < minHealthValue.get()))
             return true
+
         if(entityIDValue.get() && (entity.entityId >= 1000000000 || entity.entityId <= -1))
             return true
+
         if(derpValue.get() && (entity.rotationPitch > 90F || entity.rotationPitch < -90F))
             return true
+
         if(wasInvisibleValue.get() && invisible.contains(entity.entityId))
             return true
+
         if(armorValue.get()) {
             if (entity.inventory.armorInventory[0] == null && entity.inventory.armorInventory[1] == null && entity.inventory.armorInventory[2] == null && entity.inventory.armorInventory[3] == null)
                 return true
         }
+
         if(pingValue.get()) {
             if (mc.netHandler.getPlayerInfo(entity.uniqueID) != null && mc.netHandler.getPlayerInfo(entity.uniqueID).responseTime == 0)
                 return true
         }
+
         if(needHitValue.get() && !hitted.contains(entity.entityId))
             return true
+
         if(invalidGroundValue.get() && invalidGround.getOrDefault(entity.entityId, 0) >= 10)
             return true
+
         if(tabValue.get()) {
             val targetName = ColorUtils.stripColor(entity.getDisplayName().formattedText)
             if (targetName != null) {
                 for (networkPlayerInfo in mc.netHandler.playerInfoMap) {
                     val networkName = ColorUtils.stripColor(EntityUtils.getName(networkPlayerInfo)) ?: continue
-                    if ((tabModeValue.get().equals("Equals", true) && targetName.equals(
-                            networkName,
-                            true
-                        )) || (targetName.contains(networkName))
-                    )
+                    if ((tabModeValue.get().equals("Equals", true) && targetName.equals(networkName, true)) || (targetName.contains(networkName)))
                         return false
                 }
                 return true
@@ -241,6 +252,18 @@ object AntiBot : Module() {
         }
         if (duplicateInTabValue.get() && duplicateCompareModeValue.equals("OnTime") && mc.netHandler.playerInfoMap.count { entity.name == it.gameProfile.name } > 1) {
             return true
+        }
+
+        if (sameArmorOnBedwars.get()) {
+            val helmet = entity.inventory.armorInventory[3]
+            val chestplate = entity.inventory.armorInventory[2]
+
+            if (helmet == null || chestplate == null || helmet.item == null || chestplate.item == null)
+                return true
+
+            val helmetColor = (helmet.item as ItemArmor).getColor(helmet)
+            val chestplateColor = (chestplate.item as ItemArmor).getColor(chestplate)
+            return !(chestplateColor > 0 && helmetColor > 0 && chestplateColor == helmetColor)
         }
 
         return entity.getName().isEmpty() || entity.getName().equals(mc.thePlayer.name)

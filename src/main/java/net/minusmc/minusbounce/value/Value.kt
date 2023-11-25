@@ -19,7 +19,7 @@ import java.awt.Color
 import java.util.*
 
 abstract class Value<T>(var name: String, protected var value: T, var canDisplay: () -> Boolean) {
-
+    val defaultValue = value
     val displayableFunction: () -> Boolean
         get() = canDisplay
 
