@@ -45,4 +45,4 @@ jobs:
         env:
           REPO_USERNAME: ${{ secrets.REPO_USERNAME }}
           REPO_TOKEN: ${{ secrets.REPO_TOKEN }}
-        if: ${{startsWith(github.repository, "MinusMCNetwork")}}
+        if: ${{startsWith(github.repository, MinusMCNetwork)}}
