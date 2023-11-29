@@ -6,11 +6,9 @@
 package net.minusmc.minusbounce.utils.render
 
 import net.minecraft.client.gui.Gui
+import net.minecraft.client.gui.Gui.drawModalRectWithCustomSizedTexture
 import net.minecraft.client.gui.ScaledResolution
-import net.minecraft.client.renderer.GlStateManager
-import net.minecraft.client.renderer.OpenGlHelper
-import net.minecraft.client.renderer.RenderHelper
-import net.minecraft.client.renderer.Tessellator
+import net.minecraft.client.renderer.*
 import net.minecraft.client.renderer.culling.Frustum
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats
 import net.minecraft.enchantment.Enchantment
@@ -32,7 +30,6 @@ import net.minusmc.minusbounce.ui.font.Fonts
 import net.minusmc.minusbounce.utils.MinecraftInstance
 import net.minusmc.minusbounce.utils.block.BlockUtils
 import net.minusmc.minusbounce.utils.render.ColorUtils.setColour
-import net.minecraft.client.renderer.*
 import org.lwjgl.opengl.GL11
 import org.lwjgl.opengl.GL11.*
 import java.awt.Color
@@ -907,6 +904,31 @@ object RenderUtils : MinecraftInstance() {
         GlStateManager.resetColor()
         GL11.glDepthMask(true)
         resetCaps()
+    }
+
+    fun drawShadow(x: Float, y: Float, width: Float, height: Float) {
+        drawTexturedRect(x - 9, y - 9, 9f, 9f, "paneltopleft")
+        drawTexturedRect(x - 9, y + height, 9f, 9f, "panelbottomleft")
+        drawTexturedRect(x + width, y + height, 9f, 9f, "panelbottomright")
+        drawTexturedRect(x + width, y - 9, 9f, 9f, "paneltopright")
+        drawTexturedRect(x - 9, y, 9f, height, "panelleft")
+        drawTexturedRect(x + width, y, 9f, height, "panelright")
+        drawTexturedRect(x, y - 9, width, 9f, "paneltop")
+        drawTexturedRect(x, y + height, width, 9f, "panelbottom")
+    }
+
+    fun drawTexturedRect(x: Float, y: Float, width: Float, height: Float, image: String) {
+        glPushMatrix()
+        val enableBlend = glIsEnabled(GL_BLEND)
+        val disableAlpha = !glIsEnabled(GL_ALPHA_TEST)
+        if (!enableBlend) glEnable(GL_BLEND)
+        if (!disableAlpha) glDisable(GL_ALPHA_TEST)
+        mc.textureManager.bindTexture(ResourceLocation("liquidbounce+/ui/$image.png"))
+        GlStateManager.color(1f, 1f, 1f, 1f)
+        drawModalRectWithCustomSizedTexture(x.toInt(), y.toInt(), 0f, 0f, width.toInt(), height.toInt(), width, height)
+        if (!enableBlend) glDisable(GL_BLEND)
+        if (!disableAlpha) glEnable(GL_ALPHA_TEST)
+        glPopMatrix()
     }
 
     fun drawSelectionBoundingBox(boundingBox: AxisAlignedBB) {

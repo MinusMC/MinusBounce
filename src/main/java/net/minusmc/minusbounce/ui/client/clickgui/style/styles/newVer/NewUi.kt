@@ -2,6 +2,7 @@ package net.minusmc.minusbounce.ui.client.clickgui.style.styles.newVer
 
 import net.minusmc.minusbounce.MinusBounce
 import net.minusmc.minusbounce.features.module.ModuleCategory
+import net.minusmc.minusbounce.features.module.modules.client.ClickGUI
 import net.minusmc.minusbounce.ui.client.clickgui.style.styles.newVer.element.CategoryElement
 import net.minusmc.minusbounce.ui.client.clickgui.style.styles.newVer.element.SearchElement
 import net.minusmc.minusbounce.ui.font.Fonts
@@ -137,7 +138,7 @@ class NewUi private constructor() : GuiScreen() {
 //        xAnimDelta = AnimationHelper.animation(xAnimDelta, lastMouseX, 0.01f)
 //        yAnimDelta = AnimationHelper.animation(yAnimDelta, lastMouseY, 0.01f)
     }
-    
+
 //    private fun handlingPreRotationAnimation(): Boolean {
 //        if (!isDoneRotatingAnimation()) {
 //            GlStateManager.pushMatrix()
@@ -293,19 +294,19 @@ class NewUi private constructor() : GuiScreen() {
                 lastFastYEnd = startY + elementHeight - 6f
                 startYAnim = if (ClickGUI.fastRenderValue.get())
                     startY + 6f
-                             else
-                                 AnimationUtils.animate(startY + 6f,
-                                    startYAnim,
-                                    (if (startYAnim - (startY + 5f) > 0) 0.65f else 0.55f) * RenderUtils.deltaTime * 0.025f
-                                )
+                else
+                    AnimationUtils.animate(startY + 6f,
+                        startYAnim,
+                        (if (startYAnim - (startY + 5f) > 0) 0.65f else 0.55f) * RenderUtils.deltaTime * 0.025f
+                    )
                 endYAnim =  if (ClickGUI.fastRenderValue.get())
-                                startY + elementHeight - 6f
-                            else
-                                AnimationUtils.animate(
-                                    startY + elementHeight - 6f,
-                                    endYAnim,
-                                    (if (endYAnim - (startY + elementHeight - 5f) < 0) 0.65f else 0.55f) * RenderUtils.deltaTime * 0.025f
-                                )
+                    startY + elementHeight - 6f
+                else
+                    AnimationUtils.animate(
+                        startY + elementHeight - 6f,
+                        endYAnim,
+                        (if (endYAnim - (startY + elementHeight - 5f) < 0) 0.65f else 0.55f) * RenderUtils.deltaTime * 0.025f
+                    )
                 ce.drawPanel(mouseX, mouseY, (windowXStart + xOffset) + categoryXOffset, (windowYStart + yOffset) + categoriesTopMargin, windowWidth - categoryXOffset, windowHeight - categoriesBottommargin, Mouse.getDWheel(), accentColor)
                 Fonts.font40.drawString(ce.name, (windowXStart + xOffset) + 7, (windowYStart + yOffset) + 7, -1)
             }

@@ -128,6 +128,74 @@ object ColorUtils {
         glColor4f(r, g, b, a)
     }
 
+    fun colorCode(code: String, alpha: Int = 255): Color {
+        when (code.lowercase()) {
+            "0" -> {
+                return Color(0, 0, 0, alpha)
+            }
+
+            "1" -> {
+                return Color(0, 0, 170, alpha)
+            }
+
+            "2" -> {
+                return Color(0, 170, 0, alpha)
+            }
+
+            "3" -> {
+                return Color(0, 170, 170, alpha)
+            }
+
+            "4" -> {
+                return Color(170, 0, 0, alpha)
+            }
+
+            "5" -> {
+                return Color(170, 0, 170, alpha)
+            }
+
+            "6" -> {
+                return Color(255, 170, 0, alpha)
+            }
+
+            "7" -> {
+                return Color(170, 170, 170, alpha)
+            }
+
+            "8" -> {
+                return Color(85, 85, 85, alpha)
+            }
+
+            "9" -> {
+                return Color(85, 85, 255, alpha)
+            }
+
+            "a" -> {
+                return Color(85, 255, 85, alpha)
+            }
+
+            "b" -> {
+                return Color(85, 255, 255, alpha)
+            }
+
+            "c" -> {
+                return Color(255, 85, 85, alpha)
+            }
+
+            "d" -> {
+                return Color(255, 85, 255, alpha)
+            }
+
+            "e" -> {
+                return Color(255, 255, 85, alpha)
+            }
+
+            else -> {
+                return Color(255, 255, 255, alpha)
+            }
+        }
+    }
+
     @JvmStatic
     fun reAlpha(color: Color, alpha: Int): Color = Color(color.red, color.green, color.blue, alpha.coerceIn(0, 255))
 

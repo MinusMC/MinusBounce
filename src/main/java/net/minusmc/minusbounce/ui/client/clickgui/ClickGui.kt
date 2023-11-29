@@ -10,6 +10,9 @@ import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.client.renderer.RenderHelper
 import net.minusmc.minusbounce.MinusBounce
 import net.minusmc.minusbounce.features.module.ModuleCategory
+import net.minusmc.minusbounce.features.module.modules.client.ClickGUI
+import net.minusmc.minusbounce.features.module.modules.client.ClickGUI.accentColor
+import net.minusmc.minusbounce.features.module.modules.client.ClickGUI.animSpeedValue
 import net.minusmc.minusbounce.ui.client.clickgui.elements.ButtonElement
 import net.minusmc.minusbounce.ui.client.clickgui.elements.ModuleElement
 import net.minusmc.minusbounce.ui.client.clickgui.style.Style
@@ -23,8 +26,6 @@ import org.lwjgl.input.Mouse
 import java.io.IOException
 import java.util.*
 
-
-// lq+ reborn de trong này
 class ClickGui : GuiScreen() {
     val panels: MutableList<Panel> = ArrayList()
     var style: Style = SlowlyStyle()

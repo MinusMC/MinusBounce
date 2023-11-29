@@ -11,7 +11,6 @@ import net.minusmc.minusbounce.features.module.ModuleCategory
 import net.minusmc.minusbounce.features.module.ModuleInfo
 import net.minusmc.minusbounce.ui.client.clickgui.style.styles.*
 import net.minusmc.minusbounce.ui.client.clickgui.style.styles.newVer.NewUi
-import net.minusmc.minusbounce.ui.client.clickgui.style.styles.skeet.SkeetClickGUI;
 import net.minusmc.minusbounce.utils.render.ColorUtils
 import net.minusmc.minusbounce.utils.render.RenderUtils
 import net.minusmc.minusbounce.value.BoolValue
@@ -23,7 +22,7 @@ import java.awt.Color
 
 @ModuleInfo(name = "ClickGUI", description = "Opens the ClickGUI.", category = ModuleCategory.CLIENT, keyBind = Keyboard.KEY_RSHIFT, forceNoSound = true, onlyEnable = true)
 object ClickGUI: Module() {
-    private val styleValue: ListValue = object: ListValue("Style", arrayOf("LiquidBounce", "Null", "Slowly", "White", "Astolfo", "LiquidBounce+", "Skeet"), "Null") {
+    private val styleValue: ListValue = object: ListValue("Style", arrayOf("LiquidBounce", "Null", "Slowly", "White", "Astolfo", "LiquidBounce+"), "Null") {
         override fun onChanged(oldValue: String, newValue: String) {
             updateStyle()
         }

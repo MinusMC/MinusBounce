@@ -15,10 +15,7 @@ import net.minecraft.entity.item.EntityArmorStand
 import net.minecraft.item.ItemSword
 import net.minecraft.network.play.client.*
 import net.minecraft.potion.Potion
-import net.minecraft.util.BlockPos
-import net.minecraft.util.EnumFacing
-import net.minecraft.util.MathHelper
-import net.minecraft.util.Vec3
+import net.minecraft.util.*
 import net.minecraft.world.WorldSettings
 import net.minusmc.minusbounce.MinusBounce
 import net.minusmc.minusbounce.event.*
@@ -50,6 +47,7 @@ import java.awt.Color
 import java.util.*
 import kotlin.math.*
 
+
 @ModuleInfo(name = "KillAura", spacedName = "Kill Aura", description = "Automatically attacks targets around you.",
         category = ModuleCategory.COMBAT, keyBind = Keyboard.KEY_R)
 class KillAura : Module() {
@@ -65,7 +63,7 @@ class KillAura : Module() {
     // Modes
     private val rotations = ListValue(
         "RotationMode",
-        arrayOf("Vanilla", "BackTrack", "NCP", "Grim", "Intave", "Smooth", "None"),
+        arrayOf("Vanilla", "BackTrack", "NCP", "Grim", "Intave", "Test", "Smooth", "None"),
         "BackTrack"
     )
     private val intaveRandomAmount =

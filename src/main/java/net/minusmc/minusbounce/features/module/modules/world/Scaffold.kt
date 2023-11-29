@@ -670,7 +670,7 @@ class Scaffold: Module() {
             blockSlot = InventoryUtils.findAutoBlockBlock()
             if (blockSlot == -1) return
 
-            if (autoBlockMode.get().equals("LiteSpoof", true) || autoBlockMode.get().equals("Spoof", true))
+            if (autoBlockMode.get().equals("LiteSpoof", true))
                 mc.netHandler.addToSendQueue(C09PacketHeldItemChange(blockSlot - 36))
             else 
                 mc.thePlayer.inventory.currentItem = blockSlot - 36
@@ -695,6 +695,9 @@ class Scaffold: Module() {
         if (autoBlockMode.get().equals("LiteSpoof", true) && blockSlot >= 0) {
             mc.netHandler.addToSendQueue(C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem))
         }
+
+        if (autoBlockMode.get().equals("Spoof", true))
+            mc.netHandler.addToSendQueue(C09PacketHeldItemChange(blockSlot - 36))
 
         targetPlace = null
 

@@ -9,6 +9,7 @@ import net.minecraft.client.audio.PositionedSoundRecord
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.StringUtils
 import net.minusmc.minusbounce.MinusBounce
+import net.minusmc.minusbounce.features.module.modules.client.ClickGUI
 import net.minusmc.minusbounce.ui.client.clickgui.elements.Element
 import net.minusmc.minusbounce.utils.MinecraftInstance
 import java.util.*
