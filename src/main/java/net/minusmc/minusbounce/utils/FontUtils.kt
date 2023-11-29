@@ -6,7 +6,7 @@ import net.minecraft.client.gui.FontRenderer
 object FontUtils {
     private val cache: MutableList<Pair<String, FontRenderer>> = mutableListOf()
 
-    fun updateCache() {
+    private fun updateCache() {
         cache.clear()
         for (fontOfFonts in Fonts.fonts) {
             val details = Fonts.getFontDetails(fontOfFonts) ?: continue

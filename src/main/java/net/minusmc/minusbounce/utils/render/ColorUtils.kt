@@ -6,12 +6,12 @@
 package net.minusmc.minusbounce.utils.render
 
 import net.minecraft.util.ChatAllowedCharacters
-import net.minusmc.minusbounce.features.module.modules.client.HUD
 import org.lwjgl.opengl.GL11.glColor4f
 import java.awt.Color
 import java.util.*
 import java.util.regex.Pattern
 import kotlin.math.abs
+import kotlin.math.max
 
 object ColorUtils {
 
@@ -103,7 +103,7 @@ object ColorUtils {
     }
 
     @JvmStatic
-    fun TwoRainbow(offset: Long,alpha: Float): Color {
+    fun TwoRainbow(offset: Long, alpha: Float): Color {
         var currentColor = Color(Color.HSBtoRGB((System.nanoTime() + offset) / 8.9999999E10F % 1, 0.75F, 0.8F));
         return Color(currentColor.getRed() / 255.0F * 1.0F, currentColor.getGreen() / 255.0F * 1.0F, currentColor.getBlue() / 255.0F * 1.0F, alpha);
     }
@@ -128,72 +128,12 @@ object ColorUtils {
         glColor4f(r, g, b, a)
     }
 
-    fun colorCode(code: String, alpha: Int = 255): Color {
-        when (code.lowercase()) {
-            "0" -> {
-                return Color(0, 0, 0, alpha)
-            }
-
-            "1" -> {
-                return Color(0, 0, 170, alpha)
-            }
-
-            "2" -> {
-                return Color(0, 170, 0, alpha)
-            }
-
-            "3" -> {
-                return Color(0, 170, 170, alpha)
-            }
-
-            "4" -> {
-                return Color(170, 0, 0, alpha)
-            }
-
-            "5" -> {
-                return Color(170, 0, 170, alpha)
-            }
-
-            "6" -> {
-                return Color(255, 170, 0, alpha)
-            }
-
-            "7" -> {
-                return Color(170, 170, 170, alpha)
-            }
-
-            "8" -> {
-                return Color(85, 85, 85, alpha)
-            }
-
-            "9" -> {
-                return Color(85, 85, 255, alpha)
-            }
-
-            "a" -> {
-                return Color(85, 255, 85, alpha)
-            }
-
-            "b" -> {
-                return Color(85, 255, 255, alpha)
-            }
-
-            "c" -> {
-                return Color(255, 85, 85, alpha)
-            }
-
-            "d" -> {
-                return Color(255, 85, 255, alpha)
-            }
-
-            "e" -> {
-                return Color(255, 255, 85, alpha)
-            }
-
-            else -> {
-                return Color(255, 255, 255, alpha)
-            }
-        }
+    @JvmStatic
+    fun hoverColor(color: Color?, hover: Int): Color {
+        val r = color!!.red - (hover * 2)
+        val g = color.green - (hover * 2)
+        val b = color.blue - (hover * 2)
+        return Color(max(r.toDouble(), 0.0).toInt(), max(g.toDouble(), 0.0).toInt(), max(b.toDouble(), 0.0).toInt(), color.alpha)
     }
 
     @JvmStatic
@@ -204,4 +144,7 @@ object ColorUtils {
 
     @JvmStatic
     fun getOppositeColor(color: Color): Color = Color(255 - color.red, 255 - color.green, 255 - color.blue, color.alpha)
+
+    @JvmStatic
+    fun modifyAlpha(col: Color?, alpha: Int) = Color(col!!.red, col.green, col.blue, alpha)
 }

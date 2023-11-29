@@ -19,7 +19,7 @@ import java.awt.Color
 import java.util.*
 
 abstract class Value<T>(var name: String, protected var value: T, var canDisplay: () -> Boolean) {
-
+    val defaultValue = value
     val displayableFunction: () -> Boolean
         get() = canDisplay
 
@@ -249,7 +249,7 @@ open class IntRangeValue(name: String, minValue: Int, maxValue: Int, val minimum
     override fun toJson(): JsonElement = Gson().toJsonTree(value)
     override fun fromJson(element: JsonElement) {
         if (element.isJsonObject) {
-            changeValue(Gson().fromJson(element.asString, IntRange::class.java))
+            changeValue(element.asJsonObject["minimum"].asInt, element.asJsonObject["maximum"].asInt)
         }
     }
 }
@@ -280,7 +280,7 @@ open class FloatRangeValue(name: String, minValue: Float, maxValue: Float, val m
     override fun toJson(): JsonElement = Gson().toJsonTree(value)
     override fun fromJson(element: JsonElement) {
         if (element.isJsonObject) {
-            changeValue(Gson().fromJson(element.asString, FloatRange::class.java))
+            changeValue(element.asJsonObject["minimum"].asFloat, element.asJsonObject["maximum"].asFloat)
         }
     }
 }

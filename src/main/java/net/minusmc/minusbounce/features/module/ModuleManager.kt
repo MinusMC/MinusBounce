@@ -9,6 +9,7 @@ import net.minusmc.minusbounce.MinusBounce
 import net.minusmc.minusbounce.event.EventTarget
 import net.minusmc.minusbounce.event.KeyEvent
 import net.minusmc.minusbounce.event.Listenable
+import net.minusmc.minusbounce.features.module.modules.client.ClickGUI
 import net.minusmc.minusbounce.utils.ClientUtils
 import net.minusmc.minusbounce.utils.ClassUtils
 import java.util.*
@@ -39,7 +40,7 @@ class ModuleManager : Listenable {
     /**
      * Register [module]
      */
-     fun registerModule(module: Module) {
+    fun registerModule(module: Module) {
         modules += module
         moduleClassMap[module.javaClass] = module
 

@@ -10,12 +10,11 @@ import net.minecraft.util.ResourceLocation
 import net.minecraft.util.StringUtils
 import net.minusmc.minusbounce.MinusBounce
 import net.minusmc.minusbounce.features.module.modules.client.ClickGUI
-import net.minusmc.minusbounce.ui.client.clickgui.elements.Element
+import net.minusmc.minusbounce.ui.client.clickgui.styles.dropdown.elements.Element
 import net.minusmc.minusbounce.utils.MinecraftInstance
 import java.util.*
 
-abstract class Panel(val name: String, var x: Int, var y: Int, val width: Int, val height: Int, var open: Boolean) :
-    MinecraftInstance() {
+abstract class Panel(val name: String, var x: Int, var y: Int, val width: Int, val height: Int, var open: Boolean): MinecraftInstance() {
     var x2 = 0
     var y2 = 0
     private var scroll = 0
@@ -36,6 +35,8 @@ abstract class Panel(val name: String, var x: Int, var y: Int, val width: Int, v
 
     abstract fun setupItems()
     fun drawScreen(mouseX: Int, mouseY: Int, button: Float) {
+        val clickGui = MinusBounce.moduleManager[ClickGUI::class.java]!!.style
+        if (clickGui !is DropDownClickGui) return
         if (!isVisible) return
         val maxElements = Objects.requireNonNull(
             MinusBounce.moduleManager.getModule(
@@ -53,7 +54,7 @@ abstract class Panel(val name: String, var x: Int, var y: Int, val width: Int, v
         elementsHeight = (getElementsHeight() - 1).toFloat()
         val scrollbar = elements.size >= maxElements
         if (this.scrollbar != scrollbar) this.scrollbar = scrollbar
-        MinusBounce.clickGui.style.drawPanel(mouseX, mouseY, this)
+        clickGui.drawPanel(mouseX, mouseY, this)
         var y = y + height - 2
         var count = 0
         for (element in elements) {

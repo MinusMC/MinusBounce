@@ -9,9 +9,11 @@ import com.google.gson.JsonNull
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import net.minusmc.minusbounce.MinusBounce
+import net.minusmc.minusbounce.features.module.modules.client.ClickGUI
 import net.minusmc.minusbounce.file.FileConfig
 import net.minusmc.minusbounce.file.FileManager
-import net.minusmc.minusbounce.ui.client.clickgui.elements.ModuleElement
+import net.minusmc.minusbounce.ui.client.clickgui.styles.dropdown.elements.ModuleElement
+import net.minusmc.minusbounce.ui.client.clickgui.DropDownClickGui
 import net.minusmc.minusbounce.utils.ClientUtils
 import java.io.*
 
@@ -20,7 +22,9 @@ class ClickGuiConfig(file: File?) : FileConfig(file!!) {
         val jsonElement = JsonParser().parse(BufferedReader(FileReader(file)))
         if (jsonElement is JsonNull) return
         val jsonObject = jsonElement as JsonObject
-        for (panel in MinusBounce.clickGui.panels) {
+        val clickGui = MinusBounce.moduleManager[ClickGUI::class.java]!!.style
+        if (clickGui !is DropDownClickGui) return
+        for (panel in clickGui.panels) {
             if (!jsonObject.has(panel.name)) continue
             try {
                 val panelObject = jsonObject.getAsJsonObject(panel.name)
@@ -50,7 +54,9 @@ class ClickGuiConfig(file: File?) : FileConfig(file!!) {
 
     override fun saveConfig() {
         val jsonObject = JsonObject()
-        for (panel in MinusBounce.clickGui.panels) {
+        val clickGui = MinusBounce.moduleManager[ClickGUI::class.java]!!.style
+        if (clickGui !is DropDownClickGui) return
+        for (panel in clickGui.panels) {
             val panelObject = JsonObject()
             panelObject.addProperty("open", panel.open)
             panelObject.addProperty("visible", panel.isVisible)

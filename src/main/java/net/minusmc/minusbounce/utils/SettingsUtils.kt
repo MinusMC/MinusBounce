@@ -118,7 +118,7 @@ object SettingsUtils {
     /**
      * Generate settings script
      */
-    fun generateScript(values: Boolean, binds: Boolean, states: Boolean): String {
+    fun generateScript(): String {
         val stringBuilder = StringBuilder()
 
         MacroManager.macroMapping.filter { it.key != 0 }.forEach { stringBuilder.append("macro ${it.key} ${it.value}").append("\n") }
@@ -126,18 +126,33 @@ object SettingsUtils {
         MinusBounce.moduleManager.modules.filter{
             it !is Animations
         }.forEach {
-            if (values)
-                it.values.forEach { value -> when (value) {
-                    is IntRangeValue -> stringBuilder.append("${it.name} ${value.name} ${value.get().getMin()} ${value.get().getMax()}").append("\n")
-                    is FloatRangeValue -> stringBuilder.append("${it.name} ${value.name} ${value.get().getMin()} ${value.get().getMax()}").append("\n")
-                    else -> stringBuilder.append("${it.name} ${value.name} ${value.get()}").append("\n")
-                } }
+            it.values.forEach { value -> when (value) {
+                is IntRangeValue -> stringBuilder.append("${it.name} ${value.name} ${value.get().getMin()} ${value.get().getMax()}").append("\n")
+                is FloatRangeValue -> stringBuilder.append("${it.name} ${value.name} ${value.get().getMin()} ${value.get().getMax()}").append("\n")
+                else -> stringBuilder.append("${it.name} ${value.name} ${value.get()}").append("\n")
+            } }
 
-            if (states)
-                stringBuilder.append("${it.name} toggle ${it.state}").append("\n")
+            stringBuilder.append("${it.name} toggle ${it.state}").append("\n")
+            stringBuilder.append("${it.name} bind ${Keyboard.getKeyName(it.keyBind)}").append("\n")
+        }
 
-            if (binds)
-                stringBuilder.append("${it.name} bind ${Keyboard.getKeyName(it.keyBind)}").append("\n")
+        return stringBuilder.toString()
+    }
+
+    fun generateDefault(): String {
+        val stringBuilder = StringBuilder()
+        MacroManager.macroMapping.filter { it.key != 0 }.forEach { stringBuilder.append("macro ${it.key} ${it.value}").append("\n") }
+
+        MinusBounce.moduleManager.modules.filter {
+            it !is Animations
+        }.forEach {
+            it.values.forEach {
+                value -> when (value) {
+                    is IntRangeValue -> stringBuilder.append("${it.name} ${value.name} ${value.defaultValue.getMin()} ${value.defaultValue.getMax()}").append("\n")
+                    is FloatRangeValue -> stringBuilder.append("${it.name} ${value.name} ${value.defaultValue.getMin()} ${value.defaultValue.getMax()}").append("\n")
+                    else -> stringBuilder.append("${it.name} ${value.name} ${value.defaultValue}").append("\n")
+                }
+            }
         }
 
         return stringBuilder.toString()

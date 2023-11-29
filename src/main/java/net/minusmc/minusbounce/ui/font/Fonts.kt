@@ -92,7 +92,7 @@ object Fonts {
         fontTahoma = GameFontRenderer(getFont("TahomaBold.ttf", 35))
         fontTahomaSmall = TTFFontRenderer(getFont("Tahoma.ttf", 11))
         fontBangers = GameFontRenderer(getFont("Bangers-Regular.ttf", 45))
-        fontBlanka = GameFontRenderer(getFont("Blanka-Regular.ttf", 70))
+        fontBlanka = GameFontRenderer(getFont("Blanka-Regular.otf", 70))
         fontTenacity35 = GameFontRenderer(getFont("Tenacity.ttf", 35))
         fontTenacity40 = GameFontRenderer(getFont("Tenacity.ttf", 40))
         fontTenacityBold35 = GameFontRenderer(getFont("Tenacity-Bold.ttf", 35))
@@ -157,9 +157,9 @@ object Fonts {
         for (field in Fonts::class.java.getDeclaredFields()) {
             try {
                 field.isAccessible = true
-                val o = field[null]
+                val o = field[null] ?: continue
                 if (o is FontRenderer) {
-                    val fontDetails = field.getAnnotation(FontDetails::class.java)!!
+                    val fontDetails = field.getAnnotation(FontDetails::class.java)
                     if (fontDetails.fontName == name && fontDetails.fontSize == size) return o
                 }
             } catch (e: IllegalAccessException) {

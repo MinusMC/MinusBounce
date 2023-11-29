@@ -24,7 +24,6 @@ class VerusSpeed: SpeedMode("Verus", SpeedType.VERUS) {
         when (verusMode.get().lowercase()) {
             "hop" -> {
                 if (MovementUtils.isMoving && mc.thePlayer.onGround) {
-                    mc.gameSettings.keyBindJump.pressed = false
                     if (mc.thePlayer.onGround) {
                         mc.thePlayer.jump()
                         MovementUtils.strafe(0.48f)

@@ -137,6 +137,17 @@ tasks.reobfShadowJar.mustRunAfter shadowJar
 tasks.reobfJar.dependsOn(shadowJar)
 
 publishing {
+    repositories {
+        maven {
+            name = "MinusMCRepo"
+            url = "https://repo.minusbounce.lol/snapshots"
+            credentials {
+                username = System.getenv("REPO_USERNAME")
+                password = System.getenv("REPO_TOKEN")
+            }
+        }
+    }
+
     publications {
         maven(MavenPublication) {
             groupId = project.group

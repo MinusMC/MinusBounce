@@ -16,14 +16,14 @@ jobs:
           distribution: 'adopt'
           java-version: 8
           check-latest: true
-      - name: Set env
+      - name: Set version
         run: echo "VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
       - name: Python setup
         uses: actions/setup-python@v4
         with:
           python-version: '3.10' 
       - name: Config repo
-        run: python config_releases.py
+        run: python config_version.py
       - uses: burrunan/gradle-cache-action@v1
         name: Build
         with:
@@ -37,3 +37,11 @@ jobs:
             build/libs/minusbounce-${{ env.VERSION }}.jar
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Publish package
+        uses: gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1
+        with:
+          arguments: publish
+        env:
+          REPO_USERNAME: ${{ secrets.REPO_USERNAME }}
+          REPO_TOKEN: ${{ secrets.REPO_TOKEN }}
+        if: ${{startsWith(github.repository, 'MinusMCNetwork')}}
