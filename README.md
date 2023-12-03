@@ -36,6 +36,10 @@ Fork this repo, make changes, create a [pull request](https://github.com/MinusMC
    - For IntelliJ: `gradlew setupDevWorkspace idea genIntellijRuns build`
    - For Eclipse: `gradlew setupDevWorkspace eclipse build`
 
+### Todo
+- intergrate [this proxy mod](https://github.com/ArtFect/Proxy-Server/tree/1.8.9-forge)
+- improove clickgui, visual and some misc modules
+
 ### License
 This project is subject to the [GNU General Public License v3.0](LICENSE). This does only apply for source code located directly in this clean repository. During the development and compilation process, additional source code may be used to which we have obtained no rights. Such code is not covered by the GPL license.
 
