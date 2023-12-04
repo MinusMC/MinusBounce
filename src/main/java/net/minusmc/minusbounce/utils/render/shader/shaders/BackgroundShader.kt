@@ -6,6 +6,7 @@
 package net.minusmc.minusbounce.utils.render.shader.shaders
 
 import net.minecraft.client.gui.ScaledResolution
+import net.minusmc.minusbounce.utils.ClientUtils
 import net.minusmc.minusbounce.utils.render.RenderUtils
 import net.minusmc.minusbounce.utils.render.shader.Shader
 import org.lwjgl.opengl.Display
@@ -34,5 +35,8 @@ class BackgroundShader : Shader("background.frag") {
     companion object {
         @JvmField
         val BACKGROUND_SHADER = BackgroundShader()
+        init {
+            ClientUtils.displayChatMessage("background shader loaded here =====================================================")
+        }
     }
 }

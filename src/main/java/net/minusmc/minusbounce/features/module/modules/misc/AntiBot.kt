@@ -30,6 +30,7 @@ object AntiBot : Module() {
     private val czechHekValue = BoolValue("CzechMatrix", false)
     private val czechHekPingCheckValue = BoolValue("PingCheck", true) { czechHekValue.get() }
     private val czechHekGMCheckValue = BoolValue("GamemodeCheck", true) { czechHekValue.get() }
+    private val sameArmorOnBedwars = BoolValue("SameArmorOnBedwars", false) // method by pie
     private val tabValue = BoolValue("Tab", true)
     private val tabModeValue = ListValue("TabMode", arrayOf("Equals", "Contains"), "Contains")
     private val entityIDValue = BoolValue("EntityID", true)
@@ -59,8 +60,6 @@ object AntiBot : Module() {
     private val removeFromWorld = BoolValue("RemoveFromWorld", false)
     private val removeIntervalValue = IntegerValue("Remove-Interval", 20, 1, 100, " tick")
     private val debugValue = BoolValue("Debug", false)
-
-    private val sameArmorOnBedwars = BoolValue("SameArmorOnBedwars", false)
 
     private val ground = mutableListOf<Int>()
     private val air = mutableListOf<Int>()
