@@ -6,7 +6,6 @@
 package net.minusmc.minusbounce.utils
 
 import net.minusmc.minusbounce.MinusBounce
-import net.minusmc.minusbounce.features.module.ModuleCategory
 import net.minusmc.minusbounce.features.module.modules.client.Animations
 import net.minusmc.minusbounce.features.special.MacroManager
 import net.minusmc.minusbounce.ui.font.Fonts
@@ -36,14 +35,13 @@ object SettingsUtils {
 
                 "load" -> {
                     val urlRaw = StringUtils.toCompleteString(args, 1)
-                    val url = urlRaw
 
                     try {
-                        ClientUtils.displayChatMessage("§7[§3§lAutoSettings§7] §7Loading settings from §a§l$url§7...")
-                        executeScript(get(url))
-                        ClientUtils.displayChatMessage("§7[§3§lAutoSettings§7] §7Loaded settings from §a§l$url§7.")
+                        ClientUtils.displayChatMessage("§7[§3§lAutoSettings§7] §7Loading settings from §a§l$urlRaw§7...")
+                        executeScript(get(urlRaw))
+                        ClientUtils.displayChatMessage("§7[§3§lAutoSettings§7] §7Loaded settings from §a§l$urlRaw§7.")
                     } catch (e: Exception) {
-                        ClientUtils.displayChatMessage("§7[§3§lAutoSettings§7] §7Failed to load settings from §a§l$url§7.")
+                        ClientUtils.displayChatMessage("§7[§3§lAutoSettings§7] §7Failed to load settings from §a§l$urlRaw§7.")
                     }
                 }
 
@@ -100,7 +98,10 @@ object SettingsUtils {
                             is FloatValue -> moduleValue.changeValue(value.toFloat())
                             is IntegerValue -> moduleValue.changeValue(value.toInt())
                             is TextValue -> moduleValue.changeValue(value)
-                            is ListValue -> moduleValue.changeValue(value)
+                            is ListValue -> {
+                                LateinitValue.applyValue(valueName, value, moduleName)
+                                moduleValue.changeValue(value)
+                            }
                             is FontValue -> moduleValue.changeValue(args[2], args[3].toInt())
                             is IntRangeValue -> moduleValue.changeValue(args[2].toInt(), args[3].toInt())
                             is FloatRangeValue -> moduleValue.changeValue(args[2].toFloat(), args[3].toFloat())
@@ -114,6 +115,7 @@ object SettingsUtils {
             }
         }
 
+        MinusBounce.moduleManager.initModeListValues()
         MinusBounce.fileManager.saveConfig(MinusBounce.fileManager.valuesConfig)
     }
 

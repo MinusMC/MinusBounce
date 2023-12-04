@@ -107,7 +107,6 @@ object MinusBounce {
         // plugin load command
 
         fileManager.loadConfigs(fileManager.modulesConfig, fileManager.valuesConfig, fileManager.accountsConfig)
-        moduleManager.initModeListValues()
 
         val clickGuiModule = moduleManager[ClickGUI::class.java]!!
         clickGuiModule.styles = clickGuiModule.styleClazzes.map {it.newInstance() as StyleMode}.sortedBy { it.styleName }
@@ -117,6 +116,8 @@ object MinusBounce {
         // Set HUD
         hud = createDefault()
         fileManager.loadConfig(fileManager.hudConfig)
+
+        moduleManager.initModeListValues()
 
         // Load generators
         GuiAltManager.loadActiveGenerators()

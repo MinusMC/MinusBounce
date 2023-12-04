@@ -7,6 +7,7 @@ import net.minusmc.minusbounce.features.module.ModuleInfo
 import net.minusmc.minusbounce.features.module.modules.movement.speeds.SpeedMode
 import net.minusmc.minusbounce.features.module.modules.movement.speeds.SpeedType
 import net.minusmc.minusbounce.utils.ClassUtils
+import net.minusmc.minusbounce.utils.LateinitValue
 import net.minusmc.minusbounce.utils.MovementUtils
 import net.minusmc.minusbounce.value.BoolValue
 import net.minusmc.minusbounce.value.ListValue
@@ -52,6 +53,7 @@ class Speed: Module() {
 
 	override fun onInitModeListValue() {
 		modeValue.changeListValues(modesForType)
+		modeValue.set(LateinitValue.speedModeValue)
 	}
 
 	override fun onEnable() {mode.onEnable()}

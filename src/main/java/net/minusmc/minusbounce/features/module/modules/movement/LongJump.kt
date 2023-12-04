@@ -82,10 +82,10 @@ class LongJump: Module() {
 
     override val values = super.values.toMutableList().also {
         modes.map {
-                mode -> mode.values.forEach { value ->
-            val displayableFunction = value.displayableFunction
-            it.add(value.displayable { displayableFunction.invoke() && modeValue.get().equals(mode.modeName, true) })
-        }
+            mode -> mode.values.forEach { value ->
+                val displayableFunction = value.displayableFunction
+                it.add(value.displayable { displayableFunction.invoke() && modeValue.get().equals(mode.modeName, true) })
+            }
         }
     }
 

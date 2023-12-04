@@ -25,6 +25,7 @@ import net.minusmc.minusbounce.value.ListValue
 
 @ModuleInfo(name = "Rotations", description = "Allows you to see server-sided head and body rotations.", category = ModuleCategory.CLIENT)
 class Rotations : Module() {
+    val rotationSensitivity = ListValue("Sensitivity", arrayOf("New", "Old", "None"), "New")
     val modeValue = ListValue("Mode", arrayOf("Head", "Body"), "Body")
 
     private var playerYaw: Float? = null

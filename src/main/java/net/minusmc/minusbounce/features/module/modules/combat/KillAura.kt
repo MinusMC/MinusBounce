@@ -259,14 +259,13 @@ class KillAura : Module() {
             target ?: return
             currentTarget ?: return
 
-            // Update hitable
             updateHitable()
 
             // AutoBlock
             if (autoBlockModeValue.get().equals("AfterTick", true) && canBlock)
                 startBlocking(currentTarget!!, hitable)
 
-            if (autoBlockModeValue.get().equals("RightHold", true) && canBlock) {
+            if (autoBlockModeValue.get().equals("RightHold", true) && canBlock && mc.thePlayer.getDistanceToEntityBox(target!!) < maxRange) {
                 mc.gameSettings.keyBindUseItem.pressed = true
             }
 
@@ -838,12 +837,6 @@ class KillAura : Module() {
                 pitch += (Math.random() * 0.5 - 0.25).toFloat()
 
                 Rotation(yaw, pitch)
-            }
-            "fixed" -> {
-                val yaw = fixedRotation!!.yaw
-                val pitch = fixedRotation!!.pitch
-                Rotation(yaw, pitch)
-
             }
             else -> RotationUtils.serverRotation
         }

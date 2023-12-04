@@ -25,6 +25,6 @@ class AACv3LongJump : LongJumpMode("AACv3") {
 	}
 
     override fun onJump(event: JumpEvent) {
-        teleported = true
+        teleported = false
     }
 }

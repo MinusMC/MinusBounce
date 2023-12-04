@@ -204,7 +204,7 @@ open class ListValue(name: String, var values: Array<String>, value: String, dis
 
     fun changeListValues(newValue: Array<String>) {
         this.values = newValue
-        this.value = newValue[0]
+        this.value = values[0]
     }
 
     override fun toJson() = JsonPrimitive(value)
