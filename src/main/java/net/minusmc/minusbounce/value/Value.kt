@@ -153,6 +153,10 @@ class FontValue(valueName: String, value: FontRenderer, displayable: () -> Boole
         value = Fonts.getFontRenderer(valueObject["fontName"].asString, valueObject["fontSize"].asInt)
     }
 
+    fun changeValue(name: String, size: Int) {
+        value = Fonts.getFontRenderer(name, size)
+    }
+
     val values
         get() = FontUtils.getAllFontDetails().map { it.second }
 

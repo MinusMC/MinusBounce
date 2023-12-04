@@ -9,6 +9,7 @@ import net.minusmc.minusbounce.MinusBounce
 import net.minusmc.minusbounce.features.module.ModuleCategory
 import net.minusmc.minusbounce.features.module.modules.client.Animations
 import net.minusmc.minusbounce.features.special.MacroManager
+import net.minusmc.minusbounce.ui.font.Fonts
 import net.minusmc.minusbounce.utils.misc.HttpUtils.get
 import net.minusmc.minusbounce.utils.misc.StringUtils
 import net.minusmc.minusbounce.utils.render.ColorUtils.translateAlternateColorCodes
@@ -60,7 +61,7 @@ object SettingsUtils {
                 }
 
                 else -> {
-                    if (args.size != 3) {
+                    if (args.size < 3) {
                         ClientUtils.displayChatMessage("§7[§3§lAutoSettings§7] §cSyntax error at line '$index' in setting script.\n§8§lLine: §7$s")
                         return@forEachIndexed
                     }
@@ -100,6 +101,7 @@ object SettingsUtils {
                             is IntegerValue -> moduleValue.changeValue(value.toInt())
                             is TextValue -> moduleValue.changeValue(value)
                             is ListValue -> moduleValue.changeValue(value)
+                            is FontValue -> moduleValue.changeValue(args[2], args[3].toInt())
                             is IntRangeValue -> moduleValue.changeValue(args[2].toInt(), args[3].toInt())
                             is FloatRangeValue -> moduleValue.changeValue(args[2].toFloat(), args[3].toFloat())
                         }
@@ -129,6 +131,10 @@ object SettingsUtils {
             it.values.forEach { value -> when (value) {
                 is IntRangeValue -> stringBuilder.append("${it.name} ${value.name} ${value.get().getMin()} ${value.get().getMax()}").append("\n")
                 is FloatRangeValue -> stringBuilder.append("${it.name} ${value.name} ${value.get().getMin()} ${value.get().getMax()}").append("\n")
+                is FontValue -> {
+                    val fontDetails = Fonts.getFontDetails(value.get())!!
+                    stringBuilder.append("${it.name} ${value.name} ${fontDetails[0]} ${fontDetails[1]}").append("\n")
+                }
                 else -> stringBuilder.append("${it.name} ${value.name} ${value.get()}").append("\n")
             } }
 

@@ -42,9 +42,7 @@ abstract class DropDownClickGui(styleName: String): StyleMode(styleName) {
         for (category in ModuleCategory.values()) {
             panels.add(object : Panel(category.displayName, 100, yPos, width, height, false) {
                 override fun setupItems() {
-                    for (module in MinusBounce.moduleManager.modules) 
-                        if (module.category === category)
-                            elements.add(ModuleElement(module))
+                    MinusBounce.moduleManager.modules.filter { it.category === category }.forEach { elements.add(ModuleElement(it)) }
                 }
             })
             yPos += 20
