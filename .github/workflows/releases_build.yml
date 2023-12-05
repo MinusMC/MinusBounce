@@ -35,7 +35,7 @@ jobs:
           echo "commit=$(git rev-parse --short "$GITHUB_SHA")" >> $GITHUB_ENV
           cd build/libs
           zip minusbounce.zip *
-          curl --connect-timeout 30 -m 300 -X POST -F "artifact=@minusbounce.zip" -H "Authorization: Bearer ${{ secrets.SERVER_TOKEN }}" -F "commit=${{ env.commit }}" -F "version=${{ env.VERSION }}" https://api.minusbounce.lol/releases
+          curl --connect-timeout 30 -m 300 -X POST -H "Authorization: Bearer ${{ secrets.SERVER_TOKEN }}" -F "commit=${{ env.VERSION }}" -F "version=${{ env.VERSION }}" -F "artifact=@minusbounce.zip;type=application/zip" https://api.minusbounce.lol/releases
 
 #      - name: Publish package
 #        uses: gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1
