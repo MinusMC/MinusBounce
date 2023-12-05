@@ -31,6 +31,7 @@ abstract class FlyMode(val modeName: String, val typeName: FlyType): MinecraftIn
     }
 
     open fun handleUpdate() {
+        mc.thePlayer ?: return
         if (fly.fakeDmgValue.get()) mc.thePlayer.handleStatusUpdate(2.toByte())
     }
 

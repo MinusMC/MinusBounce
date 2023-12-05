@@ -66,7 +66,7 @@ class KillAura : Module() {
     private val noHitCheck = BoolValue("NoHitCheck", false) { !rotations.get().equals("none", true) }
     private val blinkCheck = BoolValue("BlinkCheck", true)
 
-    private val priorityValue = ListValue("Priority", arrayOf("Health", "Distance", "Insane", "LivingTime", "Armor", "HurtResistance", "HurtTime", "HealthAbsorption", "RegenAmplifier"), "Distance")
+    private val priorityValue = ListValue("Priority", arrayOf("Health", "Distance", "FOV", "LivingTime", "Armor", "HurtResistance", "HurtTime", "HealthAbsorption", "RegenAmplifier"), "Distance")
     val targetModeValue = ListValue("TargetMode", arrayOf("Single", "Switch", "Multi"), "Switch")
 
     private val switchDelayValue = IntegerValue("SwitchDelay", 1000, 1, 2000, "ms") {
@@ -92,6 +92,7 @@ class KillAura : Module() {
             "Vulcan",
             "Grim",
             "Verus",
+            "Test",
             "RightHold",
             "OldHypixel"
         ),
@@ -400,11 +401,7 @@ class KillAura : Module() {
     @EventTarget
     fun onPacket(event: PacketEvent) {
         val packet = event.packet
-        if (verusBlocking
-            && ((packet is C07PacketPlayerDigging
-                    && packet.status == C07PacketPlayerDigging.Action.RELEASE_USE_ITEM)
-                    || packet is C08PacketPlayerBlockPlacement)
-            && autoBlockModeValue.get().equals("Verus", true))
+        if (verusBlocking && ((packet is C07PacketPlayerDigging && packet.status == C07PacketPlayerDigging.Action.RELEASE_USE_ITEM) || packet is C08PacketPlayerBlockPlacement) && autoBlockModeValue.get().equals("Verus", true))
             event.cancelEvent()
 
         if (packet is C09PacketHeldItemChange)
@@ -412,9 +409,7 @@ class KillAura : Module() {
     }
 
     fun update() {
-        if (cancelRun || (noInventoryAttackValue.get() && (mc.currentScreen is GuiContainer ||
-                    System.currentTimeMillis() - containerOpen < noInventoryDelayValue.get()))
-        )
+        if (cancelRun || (noInventoryAttackValue.get() && (mc.currentScreen is GuiContainer || System.currentTimeMillis() - containerOpen < noInventoryDelayValue.get())))
             return
 
         // Update target
@@ -629,7 +624,7 @@ class KillAura : Module() {
         when (priorityValue.get().lowercase()) {
             "distance" -> targets.sortBy { mc.thePlayer.getDistanceToEntityBox(it) } // Sort by distance
             "health" -> targets.sortBy { it.health } // Sort by health
-            "insane" -> targets.sortBy { RotationUtils.getRotationDifference(it) } // Sort by FOV
+            "fov" -> targets.sortBy { RotationUtils.getRotationDifference(it) } // Sort by FOV
             "livingtime" -> targets.sortBy { -it.ticksExisted } // Sort by existence
             "hurtresistance" -> targets.sortBy { it.hurtResistantTime } // Sort by armor hurt time
             "hurttime" -> targets.sortBy { it.hurtTime } // Sort by hurt time
@@ -893,6 +888,16 @@ class KillAura : Module() {
                 blockingStatus = false
             }
             "aftertick" -> stopBlocking()
+            "test" -> {
+                if (mc.thePlayer.swingProgressInt == 0) stopBlocking()
+                when (mc.thePlayer.ticksExisted % 20) {
+                    in 0..9 -> {
+                        mc.netHandler.addToSendQueue(C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem % 8 + 1))
+                        mc.netHandler.addToSendQueue(C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem))
+                    }
+                    else -> PacketUtils.sendPacketNoEvent(C08PacketPlayerBlockPlacement(mc.thePlayer.inventory.getCurrentItem()))
+                }
+            }
             else -> return
         }
     }
@@ -908,7 +913,8 @@ class KillAura : Module() {
             return
 
         when (autoBlockModeValue.get().lowercase()) {
-            "vanilla", "oldintave" -> startBlocking(entity, interactAutoBlockValue.get())
+            "vanilla" -> startBlocking(entity, interactAutoBlockValue.get())
+            "test" -> if (mc.thePlayer.ticksExisted.let { it in 0..15 && it % 5 == 0 }) startBlocking(entity, interactAutoBlockValue.get())
             "polar" -> if (mc.thePlayer.hurtTime < 8 && mc.thePlayer.hurtTime != 1 && mc.thePlayer.fallDistance > 0) startBlocking(entity, interactAutoBlockValue.get())
             else -> return
         }
