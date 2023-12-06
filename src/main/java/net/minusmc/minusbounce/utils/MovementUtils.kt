@@ -205,19 +205,18 @@ object MovementUtils : MinecraftInstance() {
         return baseSpeed
     }
 
-    fun getJumpBoostModifier(baseJumpHeight: Double): Double {
+    fun getJumpBoostModifier(baseJumpHeight: Float): Double {
         return getJumpBoostModifier(baseJumpHeight, true)
     }
 
-    fun getJumpBoostModifier(baseJumpHeight: Double, potionJump: Boolean): Double {
+    fun getJumpBoostModifier(baseJumpHeight: Float, potionJump: Boolean): Double {
         var baseJumpHeight = baseJumpHeight
         if (mc.thePlayer.isPotionActive(Potion.jump) && potionJump) {
             val amplifier = mc.thePlayer.getActivePotionEffect(Potion.jump).amplifier
-            baseJumpHeight += ((amplifier + 1).toFloat() * 0.1f).toDouble()
+            baseJumpHeight += (amplifier + 1) * 0.1f
         }
-        return baseJumpHeight
+        return baseJumpHeight.toDouble()
     }
-
     fun setMotion(event: MoveEvent, speed: Double, motion: Double, smoothStrafe: Boolean) {
         var forward = mc.thePlayer.movementInput.moveForward.toDouble()
         var strafe = mc.thePlayer.movementInput.moveStrafe.toDouble()
@@ -366,5 +365,14 @@ object MovementUtils : MinecraftInstance() {
 
     val movingYaw: Float
         get() = (direction * 180f / Math.PI).toFloat()
+
+    fun setMotion2(d: Double, f: Float) {
+        mc.thePlayer.motionX = -Math.sin(Math.toRadians(f.toDouble())) * d
+        mc.thePlayer.motionZ = Math.cos(Math.toRadians(f.toDouble())) * d
+    }
+
+    fun speed(): Double {
+        return Math.hypot(mc.thePlayer.motionX, mc.thePlayer.motionZ)
+    }
 
 }

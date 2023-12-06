@@ -14,7 +14,7 @@ import net.minusmc.minusbounce.MinusBounce
 import net.minusmc.minusbounce.ui.client.altmanager.GuiAltManager
 import net.minusmc.minusbounce.ui.font.Fonts
 import net.minusmc.minusbounce.utils.render.RenderUtils
-import org.lwjgl.opengl.GL11
+import net.minusmc.minusbounce.utils.render.ShaderUtils
 import java.awt.Color
 
 class GuiMainMenu : GuiScreen(), GuiYesNoCallback {
@@ -80,24 +80,15 @@ class GuiMainMenu : GuiScreen(), GuiYesNoCallback {
     override fun keyTyped(typedChar: Char, keyCode: Int) {}
 }
 
-class CircleButton(buttonId: Int, x: Int, y: Int, buttonText: String, private val image: ResourceLocation): GuiButton(buttonId, x, y, buttonText) {
+class CircleButton(buttonId: Int, val x: Int, val y: Int, buttonText: String, private val image: ResourceLocation): GuiButton(buttonId, x, y, buttonText) {
     private val radius = 15f
     init {
         width = radius.toInt() * 2
         height = radius.toInt() * 2
     }
     override fun drawButton(mc: Minecraft?, mouseX: Int, mouseY: Int) {
-        GlStateManager.enableBlend()
-        GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0)
-        GlStateManager.blendFunc(770, 771)
-        RenderUtils.drawFilledCircle(xPosition.toFloat() + radius, yPosition.toFloat() + radius, radius, Color(249, 246, 238, 220))
-        RenderUtils.drawCircle(xPosition.toFloat() + radius, yPosition.toFloat() + radius, radius, 2f, 0, 360, Color(54, 69, 79))
-        GL11.glPushMatrix()
-        GL11.glPushAttrib(1048575)
-        GL11.glScaled(1.0, 1.0, 1.0)
+        ShaderUtils.drawFilledCircle(x + radius, y + radius, radius, Color(249, 246, 238, 220))
         RenderUtils.drawImage(image, xPosition + radius.toInt() / 2, yPosition + radius.toInt() / 2, 16, 16)
-        GL11.glPopAttrib()
-        GL11.glPopMatrix()
     }
 }
 
@@ -108,8 +99,8 @@ class MainMenuButton(buttonId: Int, x: Int, y: Int, buttonText: String): GuiButt
     }
 
     override fun drawButton(mc: Minecraft?, mouseX: Int, mouseY: Int) {
-        RenderUtils.drawRoundedRect(xPosition.toFloat(), yPosition.toFloat(), (xPosition + width).toFloat(), (yPosition + height).toFloat(), 4f, Color(249, 246, 238, 220).rgb)
+        ShaderUtils.drawRoundedRect(xPosition.toFloat(), yPosition.toFloat(), (xPosition + width).toFloat(), (yPosition + height).toFloat(), 4f, Color(249, 246, 238, 220).rgb)
         GlStateManager.resetColor()
-        Fonts.font50.drawCenteredString(displayString, xPosition.toFloat() + width.toFloat() / 2f, yPosition.toFloat() + height.toFloat() / 2 - mc!!.fontRendererObj.FONT_HEIGHT / 2, Color(54, 69, 79).rgb, false)
+        Fonts.font50.drawCenteredString(displayString, xPosition + width / 2f, yPosition + (height - Fonts.font50.FONT_HEIGHT) / 2f + 2, Color(54, 69, 79).rgb, false)
     }
 }

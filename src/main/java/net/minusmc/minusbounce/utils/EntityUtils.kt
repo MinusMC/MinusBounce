@@ -22,8 +22,8 @@ import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.scoreboard.ScorePlayerTeam
 import net.minusmc.minusbounce.MinusBounce
 import net.minusmc.minusbounce.features.module.modules.client.Target
+import net.minusmc.minusbounce.features.module.modules.combat.AntiBot.isBot
 import net.minusmc.minusbounce.features.module.modules.combat.KillAura
-import net.minusmc.minusbounce.features.module.modules.misc.AntiBot.isBot
 import net.minusmc.minusbounce.features.module.modules.misc.Teams
 
 object EntityUtils : MinecraftInstance() {

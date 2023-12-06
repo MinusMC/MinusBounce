@@ -15,7 +15,10 @@ import net.minecraft.entity.item.EntityArmorStand
 import net.minecraft.item.ItemSword
 import net.minecraft.network.play.client.*
 import net.minecraft.potion.Potion
-import net.minecraft.util.*
+import net.minecraft.util.BlockPos
+import net.minecraft.util.EnumFacing
+import net.minecraft.util.MathHelper
+import net.minecraft.util.Vec3
 import net.minecraft.world.WorldSettings
 import net.minusmc.minusbounce.MinusBounce
 import net.minusmc.minusbounce.event.*
@@ -28,22 +31,17 @@ import net.minusmc.minusbounce.features.module.modules.movement.TargetStrafe
 import net.minusmc.minusbounce.features.module.modules.player.Blink
 import net.minusmc.minusbounce.features.module.modules.render.FreeCam
 import net.minusmc.minusbounce.features.module.modules.world.Scaffold
-import net.minusmc.minusbounce.ui.font.GameFontRenderer
 import net.minusmc.minusbounce.utils.*
 import net.minusmc.minusbounce.utils.EntityUtils.isAlive
 import net.minusmc.minusbounce.utils.EntityUtils.isEnemy
 import net.minusmc.minusbounce.utils.extensions.getDistanceToEntityBox
 import net.minusmc.minusbounce.utils.extensions.getNearestPointBB
 import net.minusmc.minusbounce.utils.misc.RandomUtils
-import net.minusmc.minusbounce.utils.render.BlendUtils
-import net.minusmc.minusbounce.utils.render.ColorUtils
-import net.minusmc.minusbounce.utils.render.RenderUtils
 import net.minusmc.minusbounce.utils.timer.MSTimer
 import net.minusmc.minusbounce.utils.timer.TimeUtils
 import net.minusmc.minusbounce.value.*
 import org.lwjgl.input.Keyboard
 import org.lwjgl.opengl.GL11
-import java.awt.Color
 import java.util.*
 import kotlin.math.*
 
@@ -51,6 +49,8 @@ import kotlin.math.*
 @ModuleInfo(name = "KillAura", spacedName = "Kill Aura", description = "Automatically attacks targets around you.",
         category = ModuleCategory.COMBAT, keyBind = Keyboard.KEY_R)
 class KillAura : Module() {
+
+    // CPS - Attack speed
 
     private val cps = IntRangeValue("CPS", 5, 8, 1, 20)
 
@@ -63,67 +63,25 @@ class KillAura : Module() {
     // Modes
     private val rotations = ListValue(
         "RotationMode",
-        arrayOf("Vanilla", "BackTrack", "NCP", "Grim", "Intave", "Test", "Smooth", "None"),
-        "BackTrack"
+        arrayOf("Normal", "BackTrack", "NCP", "Grim", "None"),
+        "Normal"
     )
-    private val intaveRandomAmount =
-        FloatValue("RandomAmount", 4f, 0.25f, 10f) { rotations.get().equals("Intave", true) }
 
     // Turn Speed
-    private val maxTurnSpeed: FloatValue =
-        object : FloatValue("MaxTurnSpeed", 180f, 0f, 180f, "°", { !rotations.get().equals("none", true) }) {
-            override fun onChanged(oldValue: Float, newValue: Float) {
-                val v = minTurnSpeed.get()
-                if (v > newValue) set(v)
-            }
-        }
-
-    private val minTurnSpeed: FloatValue =
-        object : FloatValue("MinTurnSpeed", 180f, 0f, 180f, "°", { !rotations.get().equals("none", true) }) {
-            override fun onChanged(oldValue: Float, newValue: Float) {
-                val v = maxTurnSpeed.get()
-                if (v < newValue) set(v)
-            }
-        }
-
-    private val turnSpeed = FloatRangeValue("TurnSpeed", 180f, 180f, 0f, 180f, "°")
+    private val turnSpeed = FloatRangeValue("TurnSpeed", 180f, 180f, 0f, 180f, "°", {!rotations.get().equals("none", true)})
 
     private val noHitCheck = BoolValue("NoHitCheck", false) { !rotations.get().equals("none", true) }
     private val blinkCheck = BoolValue("BlinkCheck", true)
 
-    private val priorityValue = ListValue(
-        "Priority",
-        arrayOf(
-            "Health",
-            "Distance",
-            "Insane",
-            "LivingTime",
-            "Armor",
-            "HurtResistance",
-            "HurtTime",
-            "HealthAbsorption",
-            "RegenAmplifier"
-        ),
-        "Distance"
-    )
+    private val priorityValue = ListValue("Priority", arrayOf("Health", "Distance", "HurtTime",), "Health")
     val targetModeValue = ListValue("TargetMode", arrayOf("Single", "Switch", "Multi"), "Switch")
 
     private val switchDelayValue = IntegerValue("SwitchDelay", 1000, 1, 2000, "ms") {
         targetModeValue.get().equals("switch", true)
     }
-
     // Bypass
-    private val swingValue = ListValue("Swing", arrayOf("Normal", "Packet", "None"), "Normal")
+    private val swingValue = BoolValue("Swing", true)
     private val keepSprintValue = BoolValue("KeepSprint", true)
-    private val targetespValue = ListValue("Target ESP Mode: ", arrayOf("Box"), "Box")
-    private val boxmodeValue = ListValue("Box Mode: ", arrayOf("Full"), "Full") {
-        !targetespValue.get().equals("Box", true)
-    }
-    private val colorModeValue =
-        ListValue("Color", arrayOf("Custom", "Rainbow", "Sky", "LiquidSlowly", "Fade", "Health"), "Custom")
-
-    private val colorTeam = BoolValue("Team", false)
-
     private val attackModeValue = ListValue("AttackTiming", arrayOf("Pre", "Post", "Normal", "All"), "Normal")
     val autoBlockModeValue = ListValue(
         "AutoBlock",
@@ -131,7 +89,7 @@ class KillAura : Module() {
             "None",
             "Fake",
             "AfterTick",
-            "Vanilla",
+            "Vanilla", // remove it ab lai
             "Packet",
             "Polar",
             "OldIntave",
@@ -150,7 +108,7 @@ class KillAura : Module() {
     }
     private val interactAutoBlockValue = BoolValue("InteractAutoBlock", true) {
         !autoBlockModeValue.get().equals("None", true) && !autoBlockModeValue.get().equals("Fake", true)
-    }
+    } //
     private val abThruWallValue = BoolValue("AutoBlockThroughWalls", false) {
         !autoBlockModeValue.get().equals("None", true) && !autoBlockModeValue.get().equals("Fake", true)
     }
@@ -192,33 +150,6 @@ class KillAura : Module() {
         }
 
     private val randomCenterValue = BoolValue("RandomCenter", false) { !rotations.get().equals("none", true) }
-    private val randomCenterNewValue = BoolValue("NewCalc", true) {
-        !rotations.get().equals("none", true) && randomCenterValue.get()
-    }
-    private val minRand: FloatValue = object : FloatValue(
-        "MinMultiply",
-        0.8f,
-        0f,
-        2f,
-        "x",
-        { !rotations.get().equals("none", true) && randomCenterValue.get() }) {
-        override fun onChanged(oldValue: Float, newValue: Float) {
-            val v = maxRand.get()
-            if (v < newValue) set(v)
-        }
-    }
-    private val maxRand: FloatValue = object : FloatValue(
-        "MaxMultiply",
-        0.8f,
-        0f,
-        2f,
-        "x",
-        { !rotations.get().equals("none", true) && randomCenterValue.get() }) {
-        override fun onChanged(oldValue: Float, newValue: Float) {
-            val v = minRand.get()
-            if (v > newValue) set(v)
-        }
-    }
     private val outborderValue = BoolValue("Outborder", false)
 
     // Bypass
@@ -285,9 +216,6 @@ class KillAura : Module() {
     }
 
     override fun onDisable() {
-        if (target != null && rotations.get().equals("Smooth", true)) {
-            mc.thePlayer.rotationYaw = fixedRotation!!.yaw
-        }
 
         target = null
         currentTarget = null
@@ -602,15 +530,6 @@ class KillAura : Module() {
 
             GL11.glPopMatrix()
         }
-        if (boxmodeValue.get().equals("Box", true)) {
-            if (targetModeValue.get().equals("Multi", true) && target != null) {
-                target?.let {
-                    val color =
-                        if (hitable) ColorUtils.reAlpha(getColor(it)!!, alpha.get()) else Color(255, 0, 0, alpha.get())
-                    RenderUtils.drawEntityBox(it, color, false)
-                }
-            }
-        }
 
         if (cancelRun) {
             target = null
@@ -633,34 +552,11 @@ class KillAura : Module() {
         target ?: return
 
         if (currentTarget != null && attackTimer.hasTimePassed(attackDelay) &&
-            currentTarget!!.hurtTime <= hurtTimeValue.get()
-        ) {
+            currentTarget!!.hurtTime <= hurtTimeValue.get()) {
             clicks++
             attackTimer.reset()
             attackDelay = TimeUtils.randomClickDelay(cps.get().getMin(), cps.get().getMax())
         }
-    }
-
-    fun getColor(ent: Entity?): Color? {
-        if (ent is EntityLivingBase) {
-            if (colorModeValue.get().equals("Health", ignoreCase = true)) return BlendUtils.getHealthColor(
-                ent.health,
-                ent.maxHealth
-            )
-            if (colorTeam.get()) {
-                val chars = ent.displayName.formattedText.toCharArray()
-                var color = Int.MAX_VALUE
-                for (i in chars.indices) {
-                    if (chars[i] != '§' || i + 1 >= chars.size) continue
-                    val index = GameFontRenderer.getColorIndex(chars[i + 1])
-                    if (index < 0 || index > 15) continue
-                    color = ColorUtils.hexColors[index]
-                    break
-                }
-                return Color(color)
-            }
-        }
-        return null
     }
 
     @EventTarget
@@ -672,7 +568,7 @@ class KillAura : Module() {
 
         updateHitable()
     }
-    private fun runAttack() {
+    private fun runAttack() { // r bat dau ra soat tat ca module xem ntn
         target ?: return
         currentTarget ?: return
 
@@ -729,10 +625,7 @@ class KillAura : Module() {
     }
 
     private fun runSwing() {
-        when (swingValue.get().lowercase()) {
-            "normal" -> mc.thePlayer.swingItem()
-            "packet" -> mc.netHandler.addToSendQueue(C0APacketAnimation())
-        }
+        if (swingValue.get()) mc.thePlayer.swingItem()
     }
 
     private fun updateTarget() {
@@ -759,12 +652,7 @@ class KillAura : Module() {
         when (priorityValue.get().lowercase()) {
             "distance" -> targets.sortBy { mc.thePlayer.getDistanceToEntityBox(it) } // Sort by distance
             "health" -> targets.sortBy { it.health } // Sort by health
-            "insane" -> targets.sortBy { RotationUtils.getRotationDifference(it) } // Sort by FOV
-            "livingtime" -> targets.sortBy { -it.ticksExisted } // Sort by existence
-            "hurtresistance" -> targets.sortBy { it.hurtResistantTime } // Sort by armor hurt time
             "hurttime" -> targets.sortBy { it.hurtTime } // Sort by hurt time
-            "healthabsorption" -> targets.sortBy { it.health + it.absorptionAmount } // Sort by full health with absorption effect
-            "regenamplifier" -> targets.sortBy { if (it.isPotionActive(Potion.regeneration)) it.getActivePotionEffect(Potion.regeneration).amplifier else -1 }
         }
 
         var found = false
@@ -894,7 +782,7 @@ class KillAura : Module() {
 
         val rotationSpeed = (Math.random() * (turnSpeed.get().getMax() - turnSpeed.get().getMin()) + turnSpeed.get().getMin()).toFloat()
         return when (rotations.get().lowercase()) {
-            "vanilla" -> {
+            "normal" -> {
                 if (turnSpeed.get().getMax() <= 0F) RotationUtils.serverRotation
 
                 val (_, rotation) = RotationUtils.searchCenter(
@@ -904,8 +792,6 @@ class KillAura : Module() {
                         predictValue.get(),
                         mc.thePlayer!!.getDistanceToEntityBox(entity) < throughWallsRangeValue.get(),
                         maxRange,
-                        RandomUtils.nextFloat(minRand.get(), maxRand.get()),
-                        randomCenterNewValue.get()
                 ) ?: return null
 
                 val limitedRotation = RotationUtils.limitAngleChange(RotationUtils.serverRotation!!, rotation, rotationSpeed)
@@ -920,59 +806,6 @@ class KillAura : Module() {
             }
             "grim" -> {
                 RotationUtils.calculate(getNearestPointBB(mc.thePlayer.getPositionEyes(1F), boundingBox))
-            }
-            "intave" -> {
-                val rotation: Rotation? = RotationUtils.getAngles(entity)
-                val amount = intaveRandomAmount.get()
-                val yaw = rotation!!.yaw + Math.random() * amount - amount / 2
-                val pitch = rotation.pitch + Math.random() * amount - amount / 2
-                Rotation(yaw.toFloat(), pitch.toFloat())
-            }
-            "ncp" -> {
-                val rotation = RotationUtils.otherRotation(boundingBox, RotationUtils.getCenter(entity.entityBoundingBox), false, mc.thePlayer!!.getDistanceToEntityBox(entity) < rangeValue.get() - 0.5f, maxRange)
-                val limitedRotation = RotationUtils.limitAngleChange(RotationUtils.serverRotation!!, rotation, rotationSpeed)
-                limitedRotation
-            }
-            "smooth" -> {
-                var yaw = fixedRotation!!.yaw
-                val rots = RotationUtils.getRotationsToEntity(entity as EntityLivingBase, false)
-                val currentYaw = MathHelper.wrapAngleTo180_float(yaw)
-                val diff = abs(currentYaw - rots!!.yaw)
-
-                if (diff >= 8) {
-                    if (diff > 35) {
-                        rotSpeed += 4 - Math.random()
-                        rotSpeed = rotSpeed.coerceAtLeast(31.0 - Math.random())
-                    } else {
-                        rotSpeed -= 6.5 - Math.random()
-                        rotSpeed = rotSpeed.coerceAtLeast(14.0 - Math.random())
-                    }
-                    if (diff <= 180) {
-                        if (currentYaw > rots.yaw) yaw -= rotSpeed.toFloat()
-                        else yaw += rotSpeed.toFloat()
-                    } else {
-                        if (currentYaw > rots.yaw) yaw += rotSpeed.toFloat()
-                        else yaw -= rotSpeed.toFloat()
-                    }
-                } else {
-                    if (currentYaw > rots.yaw) {
-                        yaw -= diff * 0.8f
-                    } else {
-                        yaw += diff * 0.8f
-                    }
-                }
-
-                yaw += (Math.random() * 0.7 - 0.35).toFloat()
-                var pitch = (mc.thePlayer.rotationPitch + (rots.pitch - mc.thePlayer.rotationPitch) * 0.6).toFloat()
-                pitch += (Math.random() * 0.5 - 0.25).toFloat()
-
-                Rotation(yaw, pitch)
-            }
-            "fixed" -> {
-                val yaw = fixedRotation!!.yaw
-                val pitch = fixedRotation!!.pitch
-                Rotation(yaw, pitch)
-
             }
             else -> RotationUtils.serverRotation
         }

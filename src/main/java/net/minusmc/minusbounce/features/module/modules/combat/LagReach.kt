@@ -13,26 +13,60 @@ import net.minecraft.network.play.client.*
 import net.minecraft.network.play.server.*
 import net.minecraft.network.play.INetHandlerPlayClient
 import net.minecraft.world.WorldSettings
+import net.minusmc.minusbounce.utils.extensions.getDistanceToEntityBox
+import java.text.DecimalFormat
+import java.text.DecimalFormatSymbols
+import java.util.*
 import java.util.concurrent.LinkedBlockingQueue
 
 @ModuleInfo(name = "LagReach", description = "Very Lag reach", category = ModuleCategory.COMBAT)
 object LagReach: Module() {
-    private val modeValue = ListValue("Mode", arrayOf("FakePlayer", "IntaveTest", "AllIncomingPackets", "TargetPackets"), "FakePlayer")
+    private val modeValue = ListValue("Mode", arrayOf("MinusBounce", "FakePlayer", "Intave", "AllIncomingPackets", "TargetPackets"), "FakePlayer")
+    private val typeValue = ListValue("Type", arrayOf("Normal", "Boost"), "Normal") { modeValue.get().equals("MinusBounce", true) }
     private val pulseDelayValue = IntegerValue("PulseDelay", 200, 50, 500)
     private val onlyAuraValue = BoolValue("OnlyAura", false)
-    private val intavetesthurttime = IntegerValue("Packets", 5, 0, 30) { modeValue.get().equals("IntaveTest", true) }
+    private val intavetesthurttime = IntegerValue("Packets", 5, 0, 30) { modeValue.get().equals("Intave", true) }
+    val ReachMax: FloatValue = object : FloatValue("Max", 3.2f, 3f, 7f, {modeValue.get().equals("MinusBounce", true)}) {
+        override fun onChanged(oldValue: Float, newValue: Float) {
+            val v = ReachMin.get()
+            if (v > newValue) set(v)
+        }
+    }
+    val ReachMin: FloatValue = object : FloatValue("Min", 3.0f, 3f, 7f, {modeValue.get().equals("MinusBounce", true)}) {
+        override fun onChanged(oldValue: Float, newValue: Float) {
+            val v = ReachMax.get()
+            if (v < newValue) set(v)
+        }
+    }
+    private val ticksValue = IntegerValue("Ticks", 3, 1, 10) { typeValue.get().equals("Normal", true) }
+    private var ticks = 0
 
+    private val ticksAmount = IntegerValue("BoostTicks", 10, 3, 20) { typeValue.get().equals("Boost", true) }
+    private val boostAmount = FloatValue("BoostTimer", 10f, 1f, 50f) { typeValue.get().equals("Boost", true) }
+    private val chargeAmount = FloatValue("ChargeTimer", 0.11f, 0.05f, 1f) { typeValue.get().equals("Boost", true) }
+
+    private var counter = -1
+    var freezing = false
+    var targetTickBase: EntityLivingBase? = null
     var fakePlayer: EntityOtherPlayerMP? = null
     private val pulseTimer = MSTimer()
     var currentTarget: EntityLivingBase? = null
     private var shown = false
-    
-    private val packets = LinkedBlockingQueue<Packet<INetHandlerPlayClient>>()
 
+    private val packets = LinkedBlockingQueue<Packet<INetHandlerPlayClient>>()
+    private lateinit var killAura: KillAura
+
+    override fun onInitialize() {
+        killAura = MinusBounce.moduleManager[KillAura::class.java] as KillAura
+    }
 
     override fun onEnable() {
-        if (modeValue.get().equals("AllIncomingPackets", true)) 
+        if (modeValue.get().equals("AllIncomingPackets", true))
             BlinkUtils.setBlinkState(all = true)
+        if (modeValue.get().equals("MinusBounce", true))
+            counter = -1
+        freezing = false
+        mc.timer.timerSpeed = 1f
     }
 
     override fun onDisable() {
@@ -40,6 +74,8 @@ object LagReach: Module() {
         clearPackets()
         if (modeValue.get().equals("AllIncomingPackets", true))
             BlinkUtils.setBlinkState(off = true, release = true)
+        if (modeValue.get().equals("MinusBounce", true))
+            mc.timer.timerSpeed = 1f
     }
 
     private fun removeFakePlayer() {
@@ -48,7 +84,7 @@ object LagReach: Module() {
         mc.theWorld.removeEntity(fakePlayer)
         fakePlayer = null
     }
-    
+
     private fun clearPackets() {
         while (!packets.isEmpty())
             PacketUtils.handlePacket(packets.take() as Packet<*>)
@@ -67,7 +103,7 @@ object LagReach: Module() {
     @EventTarget
     fun onAttack(event: AttackEvent) {
         mc.theWorld ?: return
-        if (modeValue.get().equals("FakePlayer", true) || modeValue.get().equals("IntaveTest", true)) {
+        if (modeValue.get().equals("FakePlayer", true) || modeValue.get().equals("Intave", true)) {
             clearPackets()
             if (fakePlayer == null) {
                 currentTarget = event.targetEntity as EntityLivingBase?
@@ -109,15 +145,25 @@ object LagReach: Module() {
     @EventTarget
     fun onUpdate(event: UpdateEvent) {
         if (!MinusBounce.combatManager.inCombat) {
-           removeFakePlayer()
+            removeFakePlayer()
         }
-
-        if (modeValue.get().equals("FakePlayer", true) || modeValue.get().equals("IntaveTest", true) ) {
+        if (!typeValue.get().equals("Boost", true)) return
+        if (ticks == ticksAmount.get()) {
+            mc.timer.timerSpeed = chargeAmount.get()
+            ticks --
+        } else if (ticks > 1) {
+            mc.timer.timerSpeed = boostAmount.get()
+            ticks --
+        } else if (ticks == 1) {
+            mc.timer.timerSpeed = 1f
+            ticks --
+        }
+        if (modeValue.get().equals("FakePlayer", true) || modeValue.get().equals("Intave", true) ) {
             if (onlyAuraValue.get() && !MinusBounce.moduleManager[KillAura::class.java]!!.state) {
                 removeFakePlayer()
             }
             mc.theWorld ?: return
-            mc.thePlayer ?: return 
+            mc.thePlayer ?: return
             fakePlayer ?: return
             currentTarget ?: return
             if (EntityUtils.isRendered(fakePlayer!!) && (currentTarget!!.isDead || !EntityUtils.isRendered(currentTarget!!))) {
@@ -132,7 +178,7 @@ object LagReach: Module() {
                     fakePlayer!!.setCurrentItemOrArmor(index, equipmentInSlot)
                 }
             }
-            if (modeValue.get().equals("IntaveTest", true) && mc.thePlayer.ticksExisted % intavetesthurttime.get() == 0) {
+            if (modeValue.get().equals("Intave", true) && mc.thePlayer.ticksExisted % intavetesthurttime.get() == 0) {
                 if (fakePlayer != null) {
                     fakePlayer!!.rotationYawHead = currentTarget!!.rotationYawHead
                     fakePlayer!!.renderYawOffset = currentTarget!!.renderYawOffset
@@ -175,12 +221,26 @@ object LagReach: Module() {
             }
         }
     }
-    
+
+    @EventTarget
+    fun onMotion(event: MotionEvent) {
+        if (event.eventState == EventState.POST && freezing && typeValue.get().equals("Normal", true)) {
+            mc.thePlayer.posX = mc.thePlayer.lastTickPosX
+            mc.thePlayer.posY = mc.thePlayer.lastTickPosY
+            mc.thePlayer.posZ = mc.thePlayer.lastTickPosZ
+        }
+    }
+
+    @EventTarget
+    fun onRender3D(event: Render3DEvent) {
+        if (freezing && typeValue.get().equals("Normal", true)) mc.timer.renderPartialTicks = 0F
+    }
+
     @EventTarget
     fun onPacket(event: PacketEvent) {
         val packet = event.packet
         if (onlyAuraValue.get() && !MinusBounce.moduleManager[KillAura::class.java]!!.state) return
-        
+
         if (modeValue.equals("TargetPackets")) {
             if (packet is S14PacketEntity && MinusBounce.combatManager.inCombat) {
                 if (packet.getEntity(mc.theWorld) == currentTarget) {
@@ -196,4 +256,24 @@ object LagReach: Module() {
             }
         }
     }
+    fun getExtraTicks(): Int {
+        if (counter-- > 0) return -1
+        freezing = false
+
+        if (killAura.state && (killAura.target == null || mc.thePlayer.getDistanceToEntityBox(killAura.target!!) > killAura.rangeValue.get())) {
+            if (targetTickBase != null && mc.thePlayer.hurtTime <= 2) {
+                counter = ticksValue.get()
+                return counter
+            }
+        }
+
+        return 0
+    }
+    fun getReach(): Double {
+        val min: Double = Math.min(ReachMin.get(), ReachMax.get()).toDouble()
+        val max: Double = Math.max(ReachMin.get(), ReachMax.get()).toDouble()
+        return Math.random() * (max - min) + min
+    }
+    override val tag: String?
+        get() = "${ DecimalFormat("0.##", DecimalFormatSymbols(Locale.ENGLISH)).format(ReachMax.get())} - ${ DecimalFormat("0.##", DecimalFormatSymbols(Locale.ENGLISH)).format(ReachMin.get())}"
 }

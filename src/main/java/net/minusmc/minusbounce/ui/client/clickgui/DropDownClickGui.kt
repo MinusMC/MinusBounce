@@ -28,7 +28,7 @@ abstract class DropDownClickGui(styleName: String): StyleMode(styleName) {
     var progress = 0.0
     var lastMS = System.currentTimeMillis()
 
-	var mouseDown = false
+    var mouseDown = false
     var rightMouseDown = false
     val guiColor: Int
         get() = ClickGUI.accentColor!!.rgb
@@ -42,7 +42,7 @@ abstract class DropDownClickGui(styleName: String): StyleMode(styleName) {
         for (category in ModuleCategory.values()) {
             panels.add(object : Panel(category.displayName, 100, yPos, width, height, false) {
                 override fun setupItems() {
-                    for (module in MinusBounce.moduleManager.modules) 
+                    for (module in MinusBounce.moduleManager.modules)
                         if (module.category === category)
                             elements.add(ModuleElement(module))
                 }
@@ -205,9 +205,6 @@ abstract class DropDownClickGui(styleName: String): StyleMode(styleName) {
         MinusBounce.fileManager.saveConfig(MinusBounce.fileManager.valuesConfig)
     }
 
-    override fun doesGuiPauseGame(): Boolean {
-        return false
-    }
     abstract fun drawPanel(mouseX: Int, mouseY: Int, panel: Panel?)
     abstract fun drawDescription(mouseX: Int, mouseY: Int, text: String?)
     abstract fun drawButtonElement(mouseX: Int, mouseY: Int, buttonElement: ButtonElement?)
@@ -222,4 +219,5 @@ abstract class DropDownClickGui(styleName: String): StyleMode(styleName) {
     abstract fun drawFontValue(value: FontValue, moduleElement: ModuleElement, mouseX: Int, mouseY: Int)
     abstract fun drawTextValue(value: TextValue, moduleElement: ModuleElement, mouseX: Int, mouseY: Int)
     abstract fun drawIntRangeValue(value: IntRangeValue, moduleElement: ModuleElement, mouseX: Int, mouseY: Int)
+    abstract fun drawFloatRangeValue(value: FloatRangeValue, moduleElement: ModuleElement, mouseX: Int, mouseY: Int)
 }

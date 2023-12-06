@@ -5,9 +5,8 @@
  */
 package net.minusmc.minusbounce.features.command.commands
 
-import net.minusmc.minusbounce.MinusBounce
 import net.minusmc.minusbounce.features.command.Command
-import net.minusmc.minusbounce.features.module.modules.misc.AntiBot
+import net.minusmc.minusbounce.features.module.modules.combat.AntiBot
 import net.minusmc.minusbounce.features.special.UUIDSpoofer
 
 class UUIDCommand : Command("uuid", emptyArray()) {

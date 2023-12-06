@@ -11,7 +11,6 @@ import net.minusmc.minusbounce.event.Render3DEvent
 import net.minusmc.minusbounce.features.module.Module
 import net.minusmc.minusbounce.features.module.ModuleCategory
 import net.minusmc.minusbounce.features.module.ModuleInfo
-import net.minusmc.minusbounce.features.module.modules.misc.AntiBot
 import net.minusmc.minusbounce.features.module.modules.misc.Teams
 import net.minusmc.minusbounce.ui.font.Fonts
 import net.minusmc.minusbounce.utils.EntityUtils
@@ -20,6 +19,7 @@ import net.minusmc.minusbounce.utils.render.RenderUtils
 import net.minusmc.minusbounce.value.*
 import net.minecraft.client.renderer.GlStateManager.resetColor
 import net.minecraft.entity.EntityLivingBase
+import net.minusmc.minusbounce.features.module.modules.combat.AntiBot
 import net.minusmc.minusbounce.utils.render.RenderUtils.disableGlCap
 import net.minusmc.minusbounce.utils.render.RenderUtils.drawRect
 import net.minusmc.minusbounce.utils.render.RenderUtils.drawRoundedRect

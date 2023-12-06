@@ -2,7 +2,7 @@ package net.minusmc.minusbounce.ui.client.clickgui
 
 import net.minusmc.minusbounce.utils.AnimationHelper
 
-class Opacity(opacity: Int) {
+class Opacity(opacity: Int) { // uk chac la lay tu dau v lq+ reborned
     var opacity: Float
     private var lastMS: Long
 

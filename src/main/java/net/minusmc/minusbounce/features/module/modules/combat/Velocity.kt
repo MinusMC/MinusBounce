@@ -37,19 +37,6 @@ class Velocity : Module() {
         }
     }
 
-    /**
-     * OPTIONS
-     */
-    val horizontalValue = FloatValue("Horizontal", 0F, -1F, 1F, "x")
-    val verticalValue = FloatValue("Vertical", 0F, -1F, 1F, "x")
-    private val onExplosionValue = BoolValue("OnExplosion", true)
-    private val horizontalExplosionValue = FloatValue("HorizontalExplosion", 0F, 0F, 1F) { onExplosionValue.get() }
-    private val verticalExplosionValue = FloatValue("VerticalExplosion", 0F, 0F, 1F) { onExplosionValue.get() }
-
-    // Affect chance
-    private val reduceChance = FloatValue("Reduce-Chance", 100F, 0F, 100F, "%")
-    private var shouldAffect : Boolean = true
-
     override fun onInitialize() {
         modes.map { mode -> mode.values.forEach { value -> value.name = "${mode.modeName}-${value.name}" } }
     }
@@ -58,29 +45,10 @@ class Velocity : Module() {
         mc.thePlayer?.speedInAir = 0.02F
     }
 
-    @EventTarget
-    fun onUpdate(event: UpdateEvent) {
-        if (mc.thePlayer.hurtTime <= 0) shouldAffect = (Math.random().toFloat() < reduceChance.get() / 100F)
-        if (mc.thePlayer.isInWater || mc.thePlayer.isInLava || mc.thePlayer.isInWeb || !shouldAffect)
-            return
-        mode.onUpdate()
-    }
-
-    @EventTarget
-    fun onPacket(event: PacketEvent) {
-        mode.onPacket(event)
-        val packet = event.packet
-        if (onExplosionValue.get() && packet is S27PacketExplosion) {
-            mc.thePlayer.motionX += packet.func_149149_c() * (horizontalExplosionValue.get())
-            mc.thePlayer.motionY += packet.func_149144_d() * (verticalExplosionValue.get())
-            mc.thePlayer.motionZ += packet.func_149147_e() * (horizontalExplosionValue.get())
-            event.cancelEvent()
-        }
-    }
 
     @EventTarget
     fun onJump(event: JumpEvent) {
-        if (mc.thePlayer == null || mc.thePlayer.isInWater || mc.thePlayer.isInLava || mc.thePlayer.isInWeb || !shouldAffect)
+        if (mc.thePlayer == null || mc.thePlayer.isInWater || mc.thePlayer.isInLava || mc.thePlayer.isInWeb)
             return
         mode.onJump(event)
     }

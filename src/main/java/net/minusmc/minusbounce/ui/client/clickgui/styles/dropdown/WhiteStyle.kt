@@ -222,7 +222,7 @@ class WhiteStyle : DropDownClickGui("White") {
         val sliderMaxValue = moduleElement.x + moduleElement.width + (moduleElement.settingsWidth - 12) * (value.get().getMax() - value.minimum) / (value.maximum - value.minimum)
         RenderUtils.drawRect(8 + sliderMaxValue, (yPos + 15).toFloat(), sliderMaxValue + 11, (yPos + 21).toFloat(), guiColor)
         if (mouseX >= moduleElement.x + moduleElement.width + 4 && mouseX <= moduleElement.x + moduleElement.width + moduleElement.settingsWidth && mouseY >= yPos + 15 && mouseY <= yPos + 21) {
-            val dWheel = Mouse.getDWheel()
+            val dWheel = Mouse.getDWheel() // ê t định remove may cai xàm cặc bên killaura
 
             if ((mouseX >= sliderMaxValue + 12 && mouseX <= moduleElement.x + moduleElement.width + moduleElement.settingsWidth - 4) || (mouseX >= moduleElement.x + moduleElement.width + moduleElement.settingsWidth / 2 - 2 && mouseX <= sliderMaxValue + 14)) {
                 if (Mouse.hasWheel() && dWheel != 0) {

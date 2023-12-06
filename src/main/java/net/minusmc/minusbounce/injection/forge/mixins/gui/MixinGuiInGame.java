@@ -9,6 +9,7 @@ import net.minusmc.minusbounce.MinusBounce;
 import net.minusmc.minusbounce.event.Render2DEvent;
 import net.minusmc.minusbounce.features.module.modules.render.AntiBlind;
 import net.minusmc.minusbounce.features.module.modules.client.HUD;
+import net.minusmc.minusbounce.injection.access.StaticStorage;
 import net.minusmc.minusbounce.ui.font.AWTFontRenderer;
 import net.minusmc.minusbounce.utils.ClassUtils;
 import net.minusmc.minusbounce.utils.render.ColorUtils;

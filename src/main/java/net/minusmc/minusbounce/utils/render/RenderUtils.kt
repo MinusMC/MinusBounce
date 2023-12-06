@@ -16,6 +16,7 @@ import net.minecraft.enchantment.EnchantmentHelper
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.entity.projectile.EntityEgg
 import net.minecraft.item.ItemArmor
 import net.minecraft.item.ItemBow
 import net.minecraft.item.ItemStack
@@ -29,6 +30,8 @@ import net.minusmc.minusbounce.features.module.modules.render.TargetMark
 import net.minusmc.minusbounce.ui.font.Fonts
 import net.minusmc.minusbounce.utils.MinecraftInstance
 import net.minusmc.minusbounce.utils.block.BlockUtils
+import net.minusmc.minusbounce.utils.particles.Particle
+import net.minusmc.minusbounce.utils.render.ColorUtils.getColor
 import net.minusmc.minusbounce.utils.render.ColorUtils.setColour
 import org.lwjgl.opengl.GL11
 import org.lwjgl.opengl.GL11.*
@@ -71,6 +74,113 @@ object RenderUtils : MinecraftInstance() {
         quickDrawRect(4f, -20.3f, 7.3f, -20f)
         quickDrawRect(-7.3f, -20.3f, -4f, -20f)
         GL11.glEndList()
+    }
+
+    fun renderParticles(particles: List<Particle>) {
+        glEnable(GL_BLEND)
+        glDisable(GL_TEXTURE_2D)
+        glEnable(GL_LINE_SMOOTH)
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+        var i = 0
+        try {
+            for (particle in particles) {
+                i++
+                val v = particle.position
+                var draw = true
+                val x = v.xCoord - mc.renderManager.renderPosX
+                val y = v.yCoord - mc.renderManager.renderPosY
+                val z = v.zCoord - mc.renderManager.renderPosZ
+                val distanceFromPlayer = mc.thePlayer.getDistance(v.xCoord, v.yCoord - 1, v.zCoord)
+                var quality = (distanceFromPlayer * 4 + 10).toInt()
+                if (quality > 350) quality = 350
+                if (!isInViewFrustrum(EntityEgg(mc.theWorld, v.xCoord, v.yCoord, v.zCoord))) draw = false
+                if (i % 10 != 0 && distanceFromPlayer > 25) draw = false
+                if (i % 3 == 0 && distanceFromPlayer > 15) draw = false
+                if (draw) {
+                    glPushMatrix()
+                    glTranslated(x, y, z)
+                    val scale = 0.04f
+                    glScalef(-scale, -scale, -scale)
+                    glRotated((-mc.renderManager.playerViewY).toDouble(), 0.0, 1.0, 0.0)
+                    glRotated(
+                        mc.renderManager.playerViewX.toDouble(),
+                        if (mc.gameSettings.thirdPersonView === 2) -1.0 else 1.0,
+                        0.0,
+                        0.0
+                    )
+                    val c = Color(getColor(-(1 + 5 * 1.7f), 0.7f, 1f))
+                    drawFilledCircleNoGL(0, 0, 0.7, c.hashCode(), quality)
+                    if (distanceFromPlayer < 4) drawFilledCircleNoGL(
+                        0,
+                        0,
+                        1.4,
+                        Color(c.red, c.green, c.blue, 50).hashCode(),
+                        quality
+                    )
+                    if (distanceFromPlayer < 20) drawFilledCircleNoGL(
+                        0,
+                        0,
+                        2.3,
+                        Color(c.red, c.green, c.blue, 30).hashCode(),
+                        quality
+                    )
+                    glScalef(0.8f, 0.8f, 0.8f)
+                    glPopMatrix()
+                }
+            }
+        } catch (ignored: ConcurrentModificationException) {
+        }
+        glDisable(GL_LINE_SMOOTH)
+        glEnable(GL_TEXTURE_2D)
+        glDisable(GL_BLEND)
+        glColor3d(255.0, 255.0, 255.0)
+    }
+
+    fun drawFilledCircleNoGL(x: Int, y: Int, r: Double, c: Int, quality: Int) {
+        val f = (c shr 24 and 0xff) / 255f
+        val f1 = (c shr 16 and 0xff) / 255f
+        val f2 = (c shr 8 and 0xff) / 255f
+        val f3 = (c and 0xff) / 255f
+        glColor4f(f1, f2, f3, f)
+        glBegin(GL_TRIANGLE_FAN)
+        for (i in 0..360 / quality) {
+            val x2 = Math.sin(i * quality * Math.PI / 180) * r
+            val y2 = Math.cos(i * quality * Math.PI / 180) * r
+            glVertex2d(x + x2, y + y2)
+        }
+        glEnd()
+    }
+
+    private fun quickPolygonCircle(x: Float, y: Float, xRadius: Float, yRadius: Float, start: Int, end: Int) {
+        var i = end
+        while (i >= start) {
+            glVertex2d(x + Math.sin(i * Math.PI / 180.0) * xRadius, y + Math.cos(i * Math.PI / 180.0) * yRadius)
+            i -= 4
+        }
+    }
+
+    fun drawRoundedCornerRect(x: Float, y: Float, x1: Float, y1: Float, radius: Float, color: Int) {
+        glEnable(GL_BLEND)
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+        glDisable(GL_TEXTURE_2D)
+        val hasCull = glIsEnabled(GL_CULL_FACE)
+        glDisable(GL_CULL_FACE)
+        glColor(color)
+        drawRoundedCornerRect(x, y, x1, y1, radius)
+        glEnable(GL_TEXTURE_2D)
+        glDisable(GL_BLEND)
+        setGlState(GL_CULL_FACE, hasCull)
+    }
+
+    fun drawRoundedCornerRect(x: Float, y: Float, x1: Float, y1: Float, radius: Float) {
+        glBegin(GL_POLYGON)
+        val xRadius = Math.min((x1 - x) * 0.5, radius.toDouble()).toFloat()
+        val yRadius = Math.min((y1 - y) * 0.5, radius.toDouble()).toFloat()
+        quickPolygonCircle(x + xRadius, y + yRadius, xRadius, yRadius, 180, 270)
+        quickPolygonCircle(x1 - xRadius, y + yRadius, xRadius, yRadius, 90, 180)
+        quickPolygonCircle(x1 - xRadius, y1 - yRadius, xRadius, yRadius, 0, 90)
+        quickPolygonCircle(x + xRadius, y1 - yRadius, xRadius, yRadius, 270, 360)
+        glEnd()
     }
 
     fun color(color: Int) = color(color, ((color shr 24 and 0xFF) / 255).toFloat())
@@ -1379,29 +1489,57 @@ object RenderUtils : MinecraftInstance() {
     }
 
     fun drawImage(image: ResourceLocation?, x: Int, y: Int, width: Int, height: Int) {
-        GL11.glDisable(GL11.GL_DEPTH_TEST)
-        GL11.glEnable(GL11.GL_BLEND)
-        GL11.glDepthMask(false)
-        OpenGlHelper.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, GL11.GL_ONE, GL11.GL_ZERO)
-        GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f)
+        glDisable(GL_DEPTH_TEST)
+        glEnable(GL_BLEND)
+        glDepthMask(false)
+        OpenGlHelper.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO)
+        glColor4f(1.0f, 1.0f, 1.0f, 1.0f)
         mc.textureManager.bindTexture(image)
-        Gui.drawModalRectWithCustomSizedTexture(x, y, 0f, 0f, width, height, width.toFloat(), height.toFloat())
-        GL11.glDepthMask(true)
-        GL11.glDisable(GL11.GL_BLEND)
-        GL11.glEnable(GL11.GL_DEPTH_TEST)
+        drawModalRectWithCustomSizedTexture(x.toInt(),
+            y.toInt(), 0f, 0f, width.toInt(), height.toInt(), width.toFloat(), height.toFloat())
+        glDepthMask(true)
+        glDisable(GL_BLEND)
+        glEnable(GL_DEPTH_TEST)
     }
 
     fun drawImage(image: ResourceLocation?, x: Int, y: Int, width: Int, height: Int, alpha: Float) {
-        GL11.glDisable(GL11.GL_DEPTH_TEST)
-        GL11.glEnable(GL11.GL_BLEND)
-        GL11.glDepthMask(false)
-        OpenGlHelper.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, GL11.GL_ONE, GL11.GL_ZERO)
-        GL11.glColor4f(1.0f, 1.0f, 1.0f, alpha)
+        glDisable(GL_DEPTH_TEST)
+        glEnable(GL_BLEND)
+        glDepthMask(false)
+        OpenGlHelper.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO)
+        glColor4f(1.0f, 1.0f, 1.0f, alpha)
         mc.textureManager.bindTexture(image)
-        Gui.drawModalRectWithCustomSizedTexture(x, y, 0f, 0f, width, height, width.toFloat(), height.toFloat())
-        GL11.glDepthMask(true)
-        GL11.glDisable(GL11.GL_BLEND)
-        GL11.glEnable(GL11.GL_DEPTH_TEST)
+        drawModalRectWithCustomSizedTexture(x, y, 0f, 0f, width, height, width.toFloat(), height.toFloat())
+        glDepthMask(true)
+        glDisable(GL_BLEND)
+        glEnable(GL_DEPTH_TEST)
+    }
+
+    fun drawImagee(image: ResourceLocation?, x: Double, y: Double, width: Double, height: Double) {
+        glDisable(GL_DEPTH_TEST)
+        glEnable(GL_BLEND)
+        glDepthMask(false)
+        OpenGlHelper.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO)
+        glColor4f(1.0f, 1.0f, 1.0f, 1.0f)
+        mc.textureManager.bindTexture(image)
+        drawModalRectWithCustomSizedTexture(x.toInt(),
+            y.toInt(), 0f, 0f, width.toInt(), height.toInt(), width.toFloat(), height.toFloat())
+        glDepthMask(true)
+        glDisable(GL_BLEND)
+        glEnable(GL_DEPTH_TEST)
+    }
+
+    fun drawImagee(image: ResourceLocation?, x: Int, y: Int, width: Int, height: Int, alpha: Float) {
+        glDisable(GL_DEPTH_TEST)
+        glEnable(GL_BLEND)
+        glDepthMask(false)
+        OpenGlHelper.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO)
+        glColor4f(1.0f, 1.0f, 1.0f, alpha)
+        mc.textureManager.bindTexture(image)
+        drawModalRectWithCustomSizedTexture(x, y, 0f, 0f, width, height, width.toFloat(), height.toFloat())
+        glDepthMask(true)
+        glDisable(GL_BLEND)
+        glEnable(GL_DEPTH_TEST)
     }
 
     fun drawImage2(image: ResourceLocation?, x: Float, y: Float, width: Int, height: Int) {

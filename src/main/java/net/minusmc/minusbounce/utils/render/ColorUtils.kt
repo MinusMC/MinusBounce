@@ -119,6 +119,12 @@ object ColorUtils {
         return Color(Color.HSBtoRGB(hsb[0], hsb[1], hsb[2]))
     }
 
+    fun getColor(hueoffset: Float, saturation: Float, brightness: Float): Int {
+        val speed = 4500f
+        val hue = System.currentTimeMillis() % speed.toInt() / speed
+        return Color.HSBtoRGB(hue - hueoffset / 54, saturation, brightness)
+    }
+
     @JvmStatic
     fun setColour(colour: Int) {
         val a = (colour shr 24 and 0xFF) / 255.0f
@@ -126,6 +132,24 @@ object ColorUtils {
         val g = (colour shr 8 and 0xFF) / 255.0f
         val b = (colour and 0xFF) / 255.0f
         glColor4f(r, g, b, a)
+    }
+    @JvmStatic
+    fun getColor(n: Int): String? {
+        if (n != 1) {
+            if (n == 2) {
+                return "\u00a7a"
+            }
+            if (n == 3) {
+                return "\u00a73"
+            }
+            if (n == 4) {
+                return "\u00a74"
+            }
+            if (n >= 5) {
+                return "\u00a7e"
+            }
+        }
+        return "\u00a7f"
     }
 
     @JvmStatic
@@ -147,4 +171,57 @@ object ColorUtils {
 
     @JvmStatic
     fun modifyAlpha(col: Color?, alpha: Int) = Color(col!!.red, col.green, col.blue, alpha)
+
+    fun colorCode(code: String, alpha: Int = 255): Color {
+        when (code.lowercase()) {
+            "0" -> {
+                return Color(0, 0, 0, alpha)
+            }
+            "1" -> {
+                return Color(0, 0, 170, alpha)
+            }
+            "2" -> {
+                return Color(0, 170, 0, alpha)
+            }
+            "3" -> {
+                return Color(0, 170, 170, alpha)
+            }
+            "4" -> {
+                return Color(170, 0, 0, alpha)
+            }
+            "5" -> {
+                return Color(170, 0, 170, alpha)
+            }
+            "6" -> {
+                return Color(255, 170, 0, alpha)
+            }
+            "7" -> {
+                return Color(170, 170, 170, alpha)
+            }
+            "8" -> {
+                return Color(85, 85, 85, alpha)
+            }
+            "9" -> {
+                return Color(85, 85, 255, alpha)
+            }
+            "a" -> {
+                return Color(85, 255, 85, alpha)
+            }
+            "b" -> {
+                return Color(85, 255, 255, alpha)
+            }
+            "c" -> {
+                return Color(255, 85, 85, alpha)
+            }
+            "d" -> {
+                return Color(255, 85, 255, alpha)
+            }
+            "e" -> {
+                return Color(255, 255, 85, alpha)
+            }
+            else -> {
+                return Color(255, 255, 255, alpha)
+            }
+        }
+    }
 }

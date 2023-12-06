@@ -13,6 +13,12 @@ import net.minusmc.minusbounce.value.FloatValue
 import net.minusmc.minusbounce.value.IntegerValue
 import net.minusmc.minusbounce.value.ListValue
 
+
+/*
+TASK:
+-
+ */
+
 @ModuleInfo(name = "Animations", description = "Render items Animations", category = ModuleCategory.CLIENT)
 object Animations : Module() {
     // some ListValue

@@ -25,12 +25,19 @@ import net.minusmc.minusbounce.value.IntegerValue
 import net.minusmc.minusbounce.value.ListValue
 import net.minusmc.minusbounce.value.TextValue
 
+/*
+TASK:
+- More button from pvp client
+Lunar, Badlion, ...
+ */
 @ModuleInfo(name = "HUD", description = "Toggles visibility of the HUD.", category = ModuleCategory.CLIENT, array = false)
 class HUD : Module() {
     val tabHead = BoolValue("Tab-HeadOverlay", true)
     val animHotbarValue = BoolValue("AnimatedHotbar", true)
     val blackHotbarValue = BoolValue("BlackHotbar", true)
     val inventoryParticle = BoolValue("InventoryParticle", false)
+
+    // Chat
     val fontChatValue = BoolValue("FontChat", false)
     val cmdBorderValue = BoolValue("CommandChatBorder", true)
     val fontType = FontValue("Font", Fonts.font40) { fontChatValue.get() }

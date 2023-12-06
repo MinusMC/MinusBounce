@@ -408,19 +408,4 @@ class LiquidBouncePlusStyle: StyleMode("LiquidBounce+") {
     override fun doesGuiPauseGame(): Boolean {
         return false
     }
-<<<<<<< HEAD:src/main/java/net/minusmc/minusbounce/ui/client/clickgui/style/styles/newVer/NewUi.kt
-
-    companion object {
-        private var instance: NewUi? = null
-        fun getInstance(): NewUi {
-            return if (instance == null) NewUi().also { instance = it } else instance!!
-        }
-
-        fun resetInstance() {
-            instance = NewUi()
-        }
-    }
 }
-=======
-}
->>>>>>> b8b04e6d490b04fac59a66f0a192bdc3c886518e:src/main/java/net/minusmc/minusbounce/ui/client/clickgui/styles/other/LiquidBouncePlusStyle.kt

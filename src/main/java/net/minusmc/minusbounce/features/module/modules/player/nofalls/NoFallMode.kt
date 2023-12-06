@@ -27,6 +27,7 @@ abstract class NoFallMode(val modeName: String): MinecraftInstance() {
     open fun onMove(event: MoveEvent) {}
     open fun onWorld(event: WorldEvent) {}
     open fun onJump() {}
+	open fun onRender2D() {}
 	open fun onEventEarlyTick(event: EventEarlyTick) {}
 	open fun onEventClick(event: UpdateEvent) {}
 }

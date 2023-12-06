@@ -186,7 +186,6 @@ class AutoPlay : Module() {
             }
         }
     }
-
     private fun queueAutoPlay(delay: Long = delayValue.get().toLong() * 1000, runnable: () -> Unit) {
         if (queued)
             return
@@ -202,6 +201,7 @@ class AutoPlay : Module() {
             MinusBounce.hud.addNotification(Notification("Sending you to a new game in ${delayValue.get()}s!", Notification.Type.INFO, delayValue.get().toLong() * 1000L))
         }
     }
+
 
     @EventTarget
     fun onWorld(event: WorldEvent) {
