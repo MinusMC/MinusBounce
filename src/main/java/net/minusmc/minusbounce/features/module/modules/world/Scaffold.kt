@@ -155,6 +155,7 @@ class Scaffold: Module() {
     private var targetPlace: PlaceInfo? = null
 
     private var lockRotation: Rotation? = null
+    private var speenRotation: Rotation? = null
 
     // Launch pos
     private var launchY = 0
@@ -191,8 +192,6 @@ class Scaffold: Module() {
     // Same Y
     private var canSameY = false
 
-    private var faceBlock = false
-
     override fun onEnable() {
         mc.thePlayer ?: return
 
@@ -200,8 +199,6 @@ class Scaffold: Module() {
         spinYaw = 0f
         launchY = mc.thePlayer.posY.toInt()
         slot = mc.thePlayer.inventory.currentItem
-
-        faceBlock = false
 
         lastMS = System.currentTimeMillis()
     }
@@ -413,7 +410,7 @@ class Scaffold: Module() {
                 zitterDirection = !zitterDirection
             }
         }
-        if (placeModeValue.get().equals("Legit", true) && (rotationsValue.get().equals("None", true) || faceBlock)) place()
+        if (placeModeValue.get() == "Legit") place()
     }
 
     @EventTarget
@@ -454,16 +451,16 @@ class Scaffold: Module() {
 
         if (towerStatus && event.eventState == EventState.POST) tower(event)
 
-        if (!rotationsValue.get().equals("None", true))
-            rotation()
-
-        // autoblock fix
-        for (i in 0..7) {
-            if (mc.thePlayer.inventory.mainInventory[i] != null && mc.thePlayer.inventory.mainInventory[i].stackSize <= 0)
-                mc.thePlayer.inventory.mainInventory[i] = null
+        if (!rotationsValue.get().equals("None", true) && keepRotationValue.get() && lockRotation != null) {
+            if (rotationsValue.get().equals("Spin", true)) {
+                spinYaw += speenSpeedValue.get()
+                spinYaw = MathHelper.wrapAngleTo180_float(spinYaw)
+                speenRotation = Rotation(spinYaw, speenPitchValue.get())
+                RotationUtils.setTargetRot(speenRotation!!)
+            } else {
+                RotationUtils.setTargetRot(RotationUtils.limitAngleChange(RotationUtils.serverRotation!!, lockRotation!!, rotationSpeed))
+            }
         }
-
-        if (placeModeValue.get().equals(eventState.stateName, true) && (rotationsValue.get().equals("None", true) || faceBlock)) place()
 
         if (eventState == EventState.PRE) {
             if (!placeCondition || if (!autoBlockMode.get().equals("off", true)) InventoryUtils.findAutoBlockBlock() == -1 else mc.thePlayer.heldItem == null || !(mc.thePlayer.heldItem.item is ItemBlock && isBlockToScaffold(mc.thePlayer.heldItem.item as ItemBlock))) {
@@ -477,63 +474,8 @@ class Scaffold: Module() {
         if (targetPlace == null && !placeableDelay.get().equals("Off", true) && !towerStatus) {
             delayTimer.reset()
         }
-    }
 
-    private fun rotation() {
-        val blockPosition = if (shouldGoDown) {
-            if (mc.thePlayer.posY == mc.thePlayer.posY.toInt() + 0.5)
-                BlockPos(mc.thePlayer.posX, mc.thePlayer.posY - 0.6, mc.thePlayer.posZ)
-            else
-                BlockPos(mc.thePlayer.posX, mc.thePlayer.posY - 0.6, mc.thePlayer.posZ).down()
-        } else if (mc.thePlayer.posY == mc.thePlayer.posY.toInt() + 0.5 && !canSameY) {
-            BlockPos(mc.thePlayer)
-        } else if (canSameY && launchY <= mc.thePlayer.posY) {
-            BlockPos(mc.thePlayer.posX, launchY - 1.0, mc.thePlayer.posZ)
-        } else {
-            BlockPos(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ).down()
-        }
-
-        val blockData = get(blockPosition)
-
-        when(rotationsValue.get().lowercase()) {
-            "custom" -> {
-                lockRotation = Rotation(mc.thePlayer.rotationYaw + customYawValue.get(), customPitchValue.get())
-            }
-            "spin" -> {
-                spinYaw += speenSpeedValue.get()
-                spinYaw = MathHelper.wrapAngleTo180_float(spinYaw)
-                lockRotation = Rotation(spinYaw, speenPitchValue.get())
-            }
-            "novoline" -> {
-                val entity = EntityPig(mc.theWorld)
-                if (blockData != null) {
-                    entity.posX = blockData.blockPos.x + 0.5
-                    entity.posY = blockData.blockPos.y + 0.5
-                    entity.posZ = blockData.blockPos.z + 0.5
-                }
-
-                lockRotation = RotationUtils.getAngles(entity)
-            }
-            "rise" -> if (blockData != null) {
-                val x = blockData.blockPos.x.toDouble()
-                val y = blockData.blockPos.y.toDouble()
-                val z = blockData.blockPos.z.toDouble()
-                lockRotation = RotationUtils.getDirectionToBlock(x, y, z, blockData.enumFacing)
-            }
-            "backwards" -> {
-                val calcyaw = ((MovementUtils.movingYaw - 180) / 45).roundToInt() * 45
-                val calcpitch = if (calcyaw % 90 == 0) 82f else 78f
-                lockRotation = Rotation(calcyaw.toFloat(), calcpitch)
-            }
-        }
-
-        faceBlock = true
-
-        if (keepRotationValue.get()) {
-            RotationUtils.setTargetRot(lockRotation!!)
-        } else {
-            RotationUtils.setTargetRot(lockRotation!!, keepLengthValue.get())
-        }
+        if (placeModeValue.get().equals(eventState.stateName, true)) place()
     }
 
     @EventTarget // From LBplus reborn
@@ -767,8 +709,6 @@ class Scaffold: Module() {
         lockRotation = null
         mc.timer.timerSpeed = 1f
         shouldGoDown = false
-
-        faceBlock = false
 
         val limitedRotation = RotationUtils.limitAngleChange(RotationUtils.serverRotation!!,
             Rotation(mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch), 58f)
