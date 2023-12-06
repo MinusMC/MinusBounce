@@ -41,7 +41,6 @@ object LagReach: Module() {
     private val ticksValue = IntegerValue("Ticks", 3, 1, 10) { typeValue.get().equals("Normal", true) }
     private var ticks = 0
 
-<<<<<<< HEAD
     private val ticksAmount = IntegerValue("BoostTicks", 10, 3, 20) { typeValue.get().equals("Boost", true) }
     private val boostAmount = FloatValue("BoostTimer", 10f, 1f, 50f) { typeValue.get().equals("Boost", true) }
     private val chargeAmount = FloatValue("ChargeTimer", 0.11f, 0.05f, 1f) { typeValue.get().equals("Boost", true) }
@@ -50,9 +49,7 @@ object LagReach: Module() {
     var freezing = false
     var targetTickBase: EntityLivingBase? = null
     var fakePlayer: EntityOtherPlayerMP? = null
-=======
-    private var fakePlayer: EntityOtherPlayerMP? = null
->>>>>>> 14d778140b4d17a2a964a1dfa3612d9dd4d56ba1
+
     private val pulseTimer = MSTimer()
     private var currentTarget: EntityLivingBase? = null
     private var shown = false
