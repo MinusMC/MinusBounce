@@ -45,6 +45,9 @@ class ReloadCommand : Command("reload", arrayOf("configreload")) {
         chat("§c§lReloading ClickGUI...")
         MinusBounce.moduleManager[ClickGUI::class.java]!!.style::class.java.newInstance()
         MinusBounce.fileManager.loadConfig(MinusBounce.fileManager.clickGuiConfig)
+
+        MinusBounce.moduleManager.initModeListValues()
+
         MinusBounce.isStarting = false
         chat("Reloaded.")
     }

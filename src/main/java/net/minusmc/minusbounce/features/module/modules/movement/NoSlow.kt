@@ -100,6 +100,7 @@ class NoSlow : Module() {
 
     @EventTarget
     fun onPacket(event: PacketEvent) {
+        mc.thePlayer ?: return
         val packet = event.packet
         if (antiSwitchItem.get() && packet is S09PacketHeldItemChange && (mc.thePlayer.isUsingItem || mc.thePlayer.isBlocking)) {
             event.cancelEvent()

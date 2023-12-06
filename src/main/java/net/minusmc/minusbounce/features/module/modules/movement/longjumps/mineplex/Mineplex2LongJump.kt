@@ -12,8 +12,12 @@ class Mineplex2LongJump : LongJumpMode("Mineplex2") {
 	}
 
 	override fun onUpdate() {
-		if (!canMineplexBoost)
+        if (mc.thePlayer.onGround || mc.thePlayer.capabilities.isFlying) {
+            canMineplexBoost = false
             return
+        }
+
+		if (!canMineplexBoost) return
 
         mc.thePlayer.jumpMovementFactor = 0.1F
 

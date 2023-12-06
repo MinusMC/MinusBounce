@@ -35,6 +35,7 @@ class MatrixFlagLongJump : LongJumpMode("MatrixFlag") {
     }
 
     override fun onEnable() {
+        mc.thePlayer ?: return
     	hasFell = false
     	flagged = false
         posLookInstance.reset()

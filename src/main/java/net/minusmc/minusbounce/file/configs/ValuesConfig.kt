@@ -18,6 +18,8 @@ import net.minusmc.minusbounce.file.FileManager
 import net.minusmc.minusbounce.ui.client.GuiBackground.Companion.enabled
 import net.minusmc.minusbounce.ui.client.GuiBackground.Companion.particles
 import net.minusmc.minusbounce.ui.client.altmanager.menus.GuiTheAltening.Companion.apiKey
+import net.minusmc.minusbounce.utils.LateinitValue
+import net.minusmc.minusbounce.value.ListValue
 import net.minusmc.minusbounce.value.Value
 import java.io.*
 import java.util.function.Consumer
@@ -63,7 +65,11 @@ class ValuesConfig(file: File?) : FileConfig(file!!) {
                     val jsonModule = value as JsonObject
                     for (moduleValue in module.values) {
                         val element = jsonModule[moduleValue.name]
-                        if (element != null) moduleValue.fromJson(element)
+                        if (element != null) {
+                            moduleValue.fromJson(element)
+                            if (moduleValue is ListValue)
+                                LateinitValue.applyValue(moduleValue, element, key)
+                        }
                     }
                 }
             }

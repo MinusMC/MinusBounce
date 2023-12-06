@@ -1,5 +1,6 @@
 package net.minusmc.minusbounce.features.module.modules.movement.longjumps.other
 
+import net.minusmc.minusbounce.event.JumpEvent
 import net.minusmc.minusbounce.features.module.modules.movement.longjumps.LongJumpMode
 import net.minusmc.minusbounce.utils.MovementUtils
 import net.minusmc.minusbounce.value.FloatValue
@@ -15,6 +16,12 @@ class NCPLongJump : LongJumpMode("NCP") {
 	}
 
 	override fun onUpdate() {
+		if (mc.thePlayer.onGround || mc.thePlayer.capabilities.isFlying) {
+			mc.thePlayer.motionX = 0.0
+			mc.thePlayer.motionZ = 0.0
+			return
+		}
+
 		val boost = if (canBoost) ncpBoostValue.get() else 1f
 		MovementUtils.strafe(MovementUtils.speed * boost)
         canBoost = false
@@ -26,5 +33,9 @@ class NCPLongJump : LongJumpMode("NCP") {
             mc.thePlayer.motionZ = 0.0
             event.zeroXZ()
         }
+	}
+
+	override fun onJump(event: JumpEvent) {
+		canBoost = true
 	}
 }

@@ -59,8 +59,7 @@ class AnimationHelper {
         fun animate(target: Double, current: Double, speed: Double): Double {
             var current = current
             var speed = speed
-            val larger: Boolean
-            larger = target > current
+            val larger: Boolean = target > current
             val bl = larger
             if (speed < 0.0) {
                 speed = 0.0

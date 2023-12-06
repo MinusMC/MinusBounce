@@ -7,6 +7,7 @@ import net.minusmc.minusbounce.features.module.ModuleInfo
 import net.minusmc.minusbounce.features.module.modules.movement.flys.FlyMode
 import net.minusmc.minusbounce.features.module.modules.movement.flys.FlyType
 import net.minusmc.minusbounce.utils.ClassUtils
+import net.minusmc.minusbounce.utils.LateinitValue
 import net.minusmc.minusbounce.value.BoolValue
 import net.minusmc.minusbounce.value.FloatValue
 import net.minusmc.minusbounce.value.ListValue
@@ -54,6 +55,7 @@ class Fly: Module() {
 
     override fun onInitModeListValue() {
     	modeValue.changeListValues(modesForType)
+		modeValue.set(LateinitValue.flyModeValue)
     }
 
 	override fun onEnable() {
