@@ -260,10 +260,11 @@ class LiquidBounceStyle : DropDownClickGui("LiquidBounce") {
         RenderUtils.drawRect(8 + sliderMinValue, (yPos + 15).toFloat(), sliderMinValue + 10, (yPos + 21).toFloat(), guiColor)
         val sliderMaxValue = moduleElement.x + moduleElement.width + (moduleElement.settingsWidth - 12) * (value.get().getMax() - value.minimum) / (value.maximum - value.minimum)
         RenderUtils.drawRect(8 + sliderMaxValue, (yPos + 15).toFloat(), sliderMaxValue + 11, (yPos + 21).toFloat(), guiColor)
+        val distBetMaxAndMin = (moduleElement.settingsWidth - 12) * (value.get().getMax() - value.get().getMin()) / (value.maximum - value.minimum)
         if (mouseX >= moduleElement.x + moduleElement.width + 4 && mouseX <= moduleElement.x + moduleElement.width + moduleElement.settingsWidth && mouseY >= yPos + 15 && mouseY <= yPos + 21) {
             val dWheel = Mouse.getDWheel()
 
-            if ((mouseX >= sliderMaxValue + 12 && mouseX <= moduleElement.x + moduleElement.width + moduleElement.settingsWidth - 4) || (mouseX >= moduleElement.x + moduleElement.width + moduleElement.settingsWidth / 2 - 2 && mouseX <= sliderMaxValue + 14)) {
+            if ((mouseX >= sliderMaxValue + 12 && mouseX <= moduleElement.x + moduleElement.width + moduleElement.settingsWidth - 4) || (mouseX >= sliderMaxValue - distBetMaxAndMin / 2 - 2 && mouseX <= sliderMaxValue + 14)) {
                 if (Mouse.hasWheel() && dWheel != 0) {
                     if (dWheel > 0) value.setMaxValue(min((value.get().getMax() + 1).toDouble(), value.maximum.toDouble()))
                     if (dWheel < 0) value.setMaxValue(max((value.get().getMax() - 1).toDouble(), value.minimum.toDouble()))
@@ -272,7 +273,7 @@ class LiquidBounceStyle : DropDownClickGui("LiquidBounce") {
                     val i = MathHelper.clamp_double(((mouseX - moduleElement.x - moduleElement.width - 8) / (moduleElement.settingsWidth - 12)).toDouble(), 0.0, 1.0)
                     value.setMaxValue((value.minimum + (value.maximum - value.minimum) * i).toInt())
                 }
-            } else if ((mouseX >= moduleElement.x + moduleElement.width + 4 && mouseX <= sliderMinValue + 11) || (mouseX >= sliderMinValue + 8 && mouseX <= moduleElement.x + moduleElement.width + moduleElement.settingsWidth / 2 - 2)) {
+            } else if ((mouseX >= moduleElement.x + moduleElement.width + 4 && mouseX <= sliderMinValue + 11) || (mouseX >= sliderMinValue + 8 && mouseX <= sliderMinValue + distBetMaxAndMin / 2 - 2)) {
                 if (Mouse.hasWheel() && dWheel != 0) {
                     if (dWheel > 0) value.setMinValue(min((value.get().getMin() + 1).toDouble(), value.maximum.toDouble()))
                     if (dWheel < 0) value.setMinValue(max((value.get().getMin() - 1).toDouble(), value.minimum.toDouble()))
@@ -298,10 +299,12 @@ class LiquidBounceStyle : DropDownClickGui("LiquidBounce") {
         RenderUtils.drawRect(8 + sliderMinValue, (yPos + 15).toFloat(), sliderMinValue + 10, (yPos + 21).toFloat(), guiColor)
         val sliderMaxValue = moduleElement.x + moduleElement.width + (moduleElement.settingsWidth - 12) * (value.get().getMax() - value.minimum) / (value.maximum - value.minimum)
         RenderUtils.drawRect(8 + sliderMaxValue, (yPos + 15).toFloat(), sliderMaxValue + 11, (yPos + 21).toFloat(), guiColor)
+        val distBetMaxAndMin = (moduleElement.settingsWidth - 12) * (value.get().getMax() - value.get().getMin()) / (value.maximum - value.minimum)
+
         if (mouseX >= moduleElement.x + moduleElement.width + 4 && mouseX <= moduleElement.x + moduleElement.width + moduleElement.settingsWidth && mouseY >= yPos + 15 && mouseY <= yPos + 21) {
             val dWheel = Mouse.getDWheel()
 
-            if ((mouseX >= sliderMaxValue + 12 && mouseX <= moduleElement.x + moduleElement.width + moduleElement.settingsWidth - 4) || (mouseX >= moduleElement.x + moduleElement.width + moduleElement.settingsWidth / 2 - 2 && mouseX <= sliderMaxValue + 14)) {
+            if ((mouseX >= sliderMaxValue + 12 && mouseX <= moduleElement.x + moduleElement.width + moduleElement.settingsWidth - 4) || (mouseX >= sliderMaxValue - distBetMaxAndMin / 2 - 2 && mouseX <= sliderMaxValue + 14)) {
                 if (Mouse.hasWheel() && dWheel != 0) {
                     if (dWheel > 0) value.setMaxValue(min((value.get().getMax() + 0.01f).toDouble(), value.maximum.toDouble()))
                     if (dWheel < 0) value.setMaxValue(max((value.get().getMax() - 0.01f).toDouble(), value.minimum.toDouble()))
@@ -310,7 +313,7 @@ class LiquidBounceStyle : DropDownClickGui("LiquidBounce") {
                     val i = MathHelper.clamp_double(((mouseX - moduleElement.x - moduleElement.width - 8) / (moduleElement.settingsWidth - 12)).toDouble(), 0.0, 1.0)
                     value.setMaxValue(round((value.minimum + (value.maximum - value.minimum) * i).toFloat()))
                 }
-            } else if ((mouseX >= moduleElement.x + moduleElement.width + 4 && mouseX <= sliderMinValue + 11) || (mouseX >= sliderMinValue + 8 && mouseX <= moduleElement.x + moduleElement.width + moduleElement.settingsWidth / 2 - 2)) {
+            } else if ((mouseX >= moduleElement.x + moduleElement.width + 4 && mouseX <= sliderMinValue + 11) || (mouseX >= sliderMinValue + 8 && mouseX <= sliderMinValue + distBetMaxAndMin / 2 - 2)) {
                 if (Mouse.hasWheel() && dWheel != 0) {
                     if (dWheel > 0) value.setMinValue(min((value.get().getMin() + 0.01f).toDouble(), value.maximum.toDouble()))
                     if (dWheel < 0) value.setMinValue(max((value.get().getMin() - 0.01f).toDouble(), value.minimum.toDouble()))

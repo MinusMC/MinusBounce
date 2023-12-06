@@ -139,6 +139,7 @@ class Scaffold: Module() {
     private val safeWalkValue = ListValue("SafeWalk", arrayOf("Ground", "Air", "Off"), "Off")
     private val hitableCheckValue = BoolValue("HitableCheck", true)
     // Blocks
+    private val blocksPerJump = IntegerValue("BlocksPerJump", 5, 0, 10)
     private val allowTntBlock = BoolValue("AllowTntBlock", false)
 
     private val counterDisplayValue = ListValue("Counter", arrayOf("Simple", "Advanced", "Rise", "Sigma", "Novoline", "Off"), "Simple")
@@ -192,8 +193,12 @@ class Scaffold: Module() {
     // Same Y
     private var canSameY = false
 
+    private var blocksStart = 0
+
     override fun onEnable() {
         mc.thePlayer ?: return
+
+        blocksStart = blocksAmount
 
         progress = 0f
         spinYaw = 0f
@@ -303,9 +308,21 @@ class Scaffold: Module() {
                         mc.thePlayer.jump()
                 }
             }
+
+            if (blocksPerJump.get() != 0 && blocksStart - blocksAmount >= blocksPerJump.get()) {
+                canSameY = false
+                if (mc.thePlayer.onGround && MovementUtils.isMoving) {
+                    mc.thePlayer.jump()
+                    blocksStart = blocksAmount
+                }
+            }
+
             if (mc.thePlayer.onGround)
                 launchY = mc.thePlayer.posY.toInt()
         }
+
+        if (blocksStart < blocksAmount)
+            blocksStart = blocksAmount
 
         mc.thePlayer.isSprinting = canSprint
 

@@ -266,8 +266,8 @@ class KillAura : Module() {
             if (autoBlockModeValue.get().equals("AfterTick", true) && canBlock)
                 startBlocking(currentTarget!!, hitable)
 
-            if (autoBlockModeValue.get().equals("RightHold", true) && canBlock && mc.thePlayer.getDistanceToEntityBox(target!!) < maxRange) {
-                mc.gameSettings.keyBindUseItem.pressed = true
+            if (autoBlockModeValue.get().equals("RightHold", true) && canBlock) {
+                mc.gameSettings.keyBindUseItem.pressed = mc.thePlayer.getDistanceToEntityBox(target!!) < maxRange
             }
 
             if (autoBlockModeValue.get().equals("OldHypixel", true)) {

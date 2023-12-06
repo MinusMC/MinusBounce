@@ -229,7 +229,7 @@ abstract class MinMaxRange<T>(protected var minimum: T, protected var maximum: T
 
 class IntRange(minimum: Int, maximum: Int): MinMaxRange<Int>(minimum, maximum)
 
-open class IntRangeValue(name: String, minValue: Int, maxValue: Int, val minimum: Int = 0, val maximum: Int = Int.MAX_VALUE, suffix: String = "", displayable: () -> Boolean): Value<IntRange>(name, IntRange(minValue, maxValue), displayable) {
+open class IntRangeValue(name: String, minValue: Int, maxValue: Int, val minimum: Int = 0, val maximum: Int = Int.MAX_VALUE, val suffix: String = "", displayable: () -> Boolean): Value<IntRange>(name, IntRange(minValue, maxValue), displayable) {
     constructor(name: String, minValue: Int, maxValue: Int, minimum: Int, maximum: Int, displayable: () -> Boolean): this(name, minValue, maxValue, minimum, maximum, "", displayable)
     constructor(name: String, minValue: Int, maxValue: Int, minimum: Int, maximum: Int, suffix: String): this(name, minValue, maxValue, minimum, maximum, suffix, {true})
     constructor(name: String, minValue: Int, maxValue: Int, minimum: Int, maximum: Int): this(name, minValue, maxValue, minimum, maximum, "", {true})
