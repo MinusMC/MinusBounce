@@ -487,12 +487,13 @@ class Scaffold: Module() {
             findBlock(expandLengthValue.get() > 1 && !towerStatus)
         }
 
+        if (placeModeValue.get().equals(eventState.stateName, true)) place()
+
         // Placeable delay
         if (targetPlace == null && !placeableDelay.get().equals("Off", true) && !towerStatus) {
             delayTimer.reset()
         }
-
-        if (placeModeValue.get().equals(eventState.stateName, true)) place()
+        
     }
 
     @EventTarget // From LBplus reborn
