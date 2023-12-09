@@ -82,5 +82,47 @@ class MaterialNotification: NotificationStyle("Material") {
 
         GlStateManager.resetColor()
     }
+
+    override fun drawNotifications(notifications: MutableList<Notification>, yPos: Float) {
+        var yPos = yPos
+        var idx = 0
+        for (notification in notifications) {
+            if (indexz == 0 && side.vertical != Side.Vertical.DOWN)
+                yPos -= i.notifHeight - (if (inst.barValue.get()) 2F else 0F)
+
+            drawNotification(yPos, this)
+            if (indexz < notifications.size - 1) indexz++
+
+            if (side.vertical == Side.Vertical.DOWN)
+                yPos += this.animationY
+            else 
+                yPos -= this.animationY
+        }
+    }
+
+    override fun drawElement(): Border? {
+        if (mc.currentScreen !is GuiHudDesigner || notifications.isNotEmpty()) {
+            drawNotifications(notifications, 30F)
+        else
+            exampleNotification.drawNotification(30f - if (side.vertical != Side.Vertical.DOWN) (exampleNotification.notifHeight - 5F - (if (barValue.get()) 2F else 0F)) else 0F, this)
+
+        if (mc.currentScreen is GuiHudDesigner) {
+            exampleNotification.fadeState = Notification.FadeState.STAY
+            exampleNotification.x = 160F
+
+            if (exampleNotification.stayTimer.hasTimePassed(exampleNotification.displayTime)) 
+                exampleNotification.stayTimer.reset()
+
+            return if (side.vertical == Side.Vertical.DOWN) Border(-160F, -50F, 0F, -30F) else Border(-160F, -20F, 0F, 0F)
+        }
+
+        return null
+    }
+
+    override val animationY: Float
+        get() = (if (side.vertical == Side.Vertical.DOWN) i.notifHeight 
+                else notifications[indexz].notifHeight) + 5F + (if (barValue.get()) 2F else 0F)
+
+        
 }
 

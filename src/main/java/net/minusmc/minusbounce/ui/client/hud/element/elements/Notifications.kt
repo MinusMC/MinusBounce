@@ -27,8 +27,7 @@ import org.lwjgl.opengl.GL11
 import java.awt.Color
 
 @ElementInfo(name = "Notifications", single = true)
-class Notifications(x: Double = 0.0, y: Double = 30.0, scale: Float = 1F,
-                    side: Side = Side(Side.Horizontal.RIGHT, Side.Vertical.DOWN)) : Element(x, y, scale, side) {
+class Notifications(x: Double = 0.0, y: Double = 30.0, scale: Float = 1F, side: Side = Side(Side.Horizontal.RIGHT, Side.Vertical.DOWN)) : Element(x, y, scale, side) {
 
     val styleValue = ListValue("Style", arrayOf("Full", "Full2", "Compact", "Material", "Test"), "Material")
     val barValue = BoolValue("Bar", true) { styleValue.get().equals("material", true) }
@@ -46,67 +45,19 @@ class Notifications(x: Double = 0.0, y: Double = 30.0, scale: Float = 1F,
     }
 
     /**
-     * Example notification for CustomHUD designer
-     */
-    private val exampleNotification = Notification("Tested", Notification.Type.INFO)
-
-    /**
      * Draw element
      */
-    override fun drawElement(): Border? {
-        var animationY = 30F
-        val notifications = mutableListOf<Notification>()
-
-        for (i in hud.notifications)
-            notifications.add(i)
-        
-        if (mc.currentScreen !is GuiHudDesigner || notifications.isNotEmpty()) {
-            var indexz = 0
-            for (i in notifications) {
-                if (indexz == 0 && styleValue.get().equals("material", true) && side.vertical != Side.Vertical.DOWN) animationY -= i.notifHeight - (if (barValue.get()) 2F else 0F)
-                i.drawNotification(animationY, this)
-                if (indexz < notifications.size - 1) indexz++
-                animationY += (when (styleValue.get().lowercase()) {
-                                    "compact" -> 20F
-                                    "full" -> 30F
-                                    "full2" -> 30F
-                                    "test" -> 30F
-                                    else -> (if (side.vertical == Side.Vertical.DOWN) i.notifHeight else notifications[indexz].notifHeight) + 5F + (if (barValue.get()) 2F else 0F)
-                                }) * (if (side.vertical == Side.Vertical.DOWN) 1F else -1F)
-            }
-        } else {
-            exampleNotification.drawNotification(animationY - if (styleValue.get().equals("material", true) && side.vertical != Side.Vertical.DOWN) (exampleNotification.notifHeight - 5F - (if (barValue.get()) 2F else 0F)) else 0F, this)
-        }
-
-        if (mc.currentScreen is GuiHudDesigner) {
-            exampleNotification.fadeState = Notification.FadeState.STAY
-            exampleNotification.x = if (styleValue.get().equals("material", true)) 160F else exampleNotification.textLength + 8F
-
-            if (exampleNotification.stayTimer.hasTimePassed(exampleNotification.displayTime)) 
-                exampleNotification.stayTimer.reset()
-
-            return getNotifBorder()
-        }
-
-        return null
-    }
+    override fun drawElement(): Border? = style.drawElement()
 
     private fun getNotifBorder() = when (styleValue.get().lowercase()) {
         "full" -> Border(-130F, -58F, 0F, -30F)
         "full2" -> Border(-130F, -58F, 0F, -30F)
         "test" -> Border(-130F, -58F, 0F, -30F)
         "compact" -> Border(-102F, -48F, 0F, -30F)
-        else -> if (side.vertical == Side.Vertical.DOWN) Border(-160F, -50F, 0F, -30F) else Border(-160F, -20F, 0F, 0F)
     }
 }
 
 class Notification(message : String, type : Type, displayLength: Long) {
-    private val notifyDir = "minusbounce/notification/"
-
-    private val imgSuccess = ResourceLocation("${notifyDir}checkmark.png")
-    private val imgError = ResourceLocation("${notifyDir}error.png")
-    private val imgWarning = ResourceLocation("${notifyDir}warning.png")
-    private val imgInfo = ResourceLocation("${notifyDir}info.png")
 
     private val newSuccess = ResourceLocation("${notifyDir}new/checkmark.png")
     private val newError = ResourceLocation("${notifyDir}new/error.png")

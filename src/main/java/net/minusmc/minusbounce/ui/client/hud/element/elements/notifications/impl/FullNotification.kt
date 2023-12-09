@@ -11,6 +11,12 @@ import java.awt.Color
 
 
 class FullNotification: NotificationStyle("Full") {
+    private val notifyDir = "minusbounce/notification/"
+    private val imgSuccess = ResourceLocation("${notifyDir}checkmark.png")
+    private val imgError = ResourceLocation("${notifyDir}error.png")
+    private val imgWarning = ResourceLocation("${notifyDir}warning.png")
+    private val imgInfo = ResourceLocation("${notifyDir}info.png")
+
 	override fun drawStyle() {
 		val dist = (x + 1 + 26F) - (x - 8 - textLength)
         val kek = -x - 1 - 26F

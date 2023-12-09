@@ -31,4 +31,6 @@ class CompactNotification: NotificationStyle("Compact") {
         GlStateManager.resetColor()
         Fonts.font40.drawString(message, -x + 3, -13F - y, -1)
 	}
+
+    override val animationY = 20f
 }

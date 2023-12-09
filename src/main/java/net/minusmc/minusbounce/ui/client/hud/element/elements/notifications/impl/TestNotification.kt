@@ -10,6 +10,12 @@ import org.lwjgl.opengl.GL11
 import java.awt.Color
 
 class TestNotification: NotificationStyle("Test") {
+    private val notifyDir = "minusbounce/notification/"
+    private val imgSuccess = ResourceLocation("${notifyDir}checkmark.png")
+    private val imgError = ResourceLocation("${notifyDir}error.png")
+    private val imgWarning = ResourceLocation("${notifyDir}warning.png")
+    private val imgInfo = ResourceLocation("${notifyDir}info.png")
+    
 	override fun drawStyle() {
 		val kek = -x - 1 - 20F
 
