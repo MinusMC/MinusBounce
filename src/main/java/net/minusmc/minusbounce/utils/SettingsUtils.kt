@@ -6,9 +6,9 @@
 package net.minusmc.minusbounce.utils
 
 import net.minusmc.minusbounce.MinusBounce
-import net.minusmc.minusbounce.features.module.ModuleCategory
 import net.minusmc.minusbounce.features.module.modules.client.Animations
 import net.minusmc.minusbounce.features.special.MacroManager
+import net.minusmc.minusbounce.ui.font.Fonts
 import net.minusmc.minusbounce.utils.misc.HttpUtils.get
 import net.minusmc.minusbounce.utils.misc.StringUtils
 import net.minusmc.minusbounce.utils.render.ColorUtils.translateAlternateColorCodes
@@ -35,14 +35,13 @@ object SettingsUtils {
 
                 "load" -> {
                     val urlRaw = StringUtils.toCompleteString(args, 1)
-                    val url = urlRaw
 
                     try {
-                        ClientUtils.displayChatMessage("§7[§3§lAutoSettings§7] §7Loading settings from §a§l$url§7...")
-                        executeScript(get(url))
-                        ClientUtils.displayChatMessage("§7[§3§lAutoSettings§7] §7Loaded settings from §a§l$url§7.")
+                        ClientUtils.displayChatMessage("§7[§3§lAutoSettings§7] §7Loading settings from §a§l$urlRaw§7...")
+                        executeScript(get(urlRaw))
+                        ClientUtils.displayChatMessage("§7[§3§lAutoSettings§7] §7Loaded settings from §a§l$urlRaw§7.")
                     } catch (e: Exception) {
-                        ClientUtils.displayChatMessage("§7[§3§lAutoSettings§7] §7Failed to load settings from §a§l$url§7.")
+                        ClientUtils.displayChatMessage("§7[§3§lAutoSettings§7] §7Failed to load settings from §a§l$urlRaw§7.")
                     }
                 }
 
@@ -60,7 +59,7 @@ object SettingsUtils {
                 }
 
                 else -> {
-                    if (args.size != 3) {
+                    if (args.size < 3) {
                         ClientUtils.displayChatMessage("§7[§3§lAutoSettings§7] §cSyntax error at line '$index' in setting script.\n§8§lLine: §7$s")
                         return@forEachIndexed
                     }
@@ -99,7 +98,11 @@ object SettingsUtils {
                             is FloatValue -> moduleValue.changeValue(value.toFloat())
                             is IntegerValue -> moduleValue.changeValue(value.toInt())
                             is TextValue -> moduleValue.changeValue(value)
-                            is ListValue -> moduleValue.changeValue(value)
+                            is ListValue -> {
+                                LateinitValue.applyValue(valueName, value, moduleName)
+                                moduleValue.changeValue(value)
+                            }
+                            is FontValue -> moduleValue.changeValue(args[2], args[3].toInt())
                             is IntRangeValue -> moduleValue.changeValue(args[2].toInt(), args[3].toInt())
                             is FloatRangeValue -> moduleValue.changeValue(args[2].toFloat(), args[3].toFloat())
                         }
@@ -112,6 +115,7 @@ object SettingsUtils {
             }
         }
 
+        MinusBounce.moduleManager.initModeListValues()
         MinusBounce.fileManager.saveConfig(MinusBounce.fileManager.valuesConfig)
     }
 
@@ -129,6 +133,10 @@ object SettingsUtils {
             it.values.forEach { value -> when (value) {
                 is IntRangeValue -> stringBuilder.append("${it.name} ${value.name} ${value.get().getMin()} ${value.get().getMax()}").append("\n")
                 is FloatRangeValue -> stringBuilder.append("${it.name} ${value.name} ${value.get().getMin()} ${value.get().getMax()}").append("\n")
+                is FontValue -> {
+                    val fontDetails = Fonts.getFontDetails(value.get())!!
+                    stringBuilder.append("${it.name} ${value.name} ${fontDetails[0]} ${fontDetails[1]}").append("\n")
+                }
                 else -> stringBuilder.append("${it.name} ${value.name} ${value.get()}").append("\n")
             } }
 

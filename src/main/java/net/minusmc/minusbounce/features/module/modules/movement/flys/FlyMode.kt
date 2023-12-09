@@ -19,6 +19,7 @@ abstract class FlyMode(val modeName: String, val typeName: FlyType): MinecraftIn
 		get() = ClassUtils.getValues(this.javaClass, this)
 
     open fun initEnable() {
+        mc.thePlayer ?: return
         startY = mc.thePlayer.posY
     }
     open fun resetMotion() {
@@ -30,6 +31,7 @@ abstract class FlyMode(val modeName: String, val typeName: FlyType): MinecraftIn
     }
 
     open fun handleUpdate() {
+        mc.thePlayer ?: return
         if (fly.fakeDmgValue.get()) mc.thePlayer.handleStatusUpdate(2.toByte())
     }
 

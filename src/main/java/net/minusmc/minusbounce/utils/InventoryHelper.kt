@@ -89,10 +89,7 @@ object InventoryHelper : MinecraftInstance(), Listenable {
 
     @EventTarget
     fun onPacket(event: PacketEvent) {
-        val packet = event.packet/*
-        if (packet is C0EPacketClickWindow || packet is C08PacketPlayerBlockPlacement) {
-            INV_TIMER.reset()
-        }*/
+        val packet = event.packet
         if (packet is C08PacketPlayerBlockPlacement) {
             CLICK_TIMER.reset()
         }

@@ -31,17 +31,17 @@ jobs:
           arguments: build --no-build-cache
           gradle-version: wrapper
       - name: Upload releases
-        uses: softprops/action-gh-release@v1
-        with:
-          files: |
-            build/libs/minusbounce-${{ env.VERSION }}.jar
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Publish package
-        uses: gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1
-        with:
-          arguments: publish
-        env:
-          REPO_USERNAME: ${{ secrets.REPO_USERNAME }}
-          REPO_TOKEN: ${{ secrets.REPO_TOKEN }}
-        if: ${{startsWith(github.repository, 'MinusMCNetwork')}}
+        run: |
+          echo "commit=$(git rev-parse --short "$GITHUB_SHA")" >> $GITHUB_ENV
+          cd build/libs
+          zip minusbounce.zip *
+          curl --connect-timeout 30 -m 300 -X POST -H "Authorization: Bearer ${{ secrets.SERVER_TOKEN }}" -F "commit=${{ env.VERSION }}" -F "version=${{ env.VERSION }}" -F "artifact=@minusbounce.zip;type=application/zip" https://api.minusbounce.lol/releases
+
+#      - name: Publish package
+#        uses: gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1
+#        with:
+#          arguments: publish
+#        env:
+#          REPO_USERNAME: ${{ secrets.REPO_USERNAME }}
+#          REPO_TOKEN: ${{ secrets.REPO_TOKEN }}
+#        if: ${{startsWith(github.repository, 'MinusMCNetwork')}}
