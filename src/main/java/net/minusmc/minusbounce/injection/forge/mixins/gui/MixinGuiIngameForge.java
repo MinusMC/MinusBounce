@@ -10,7 +10,7 @@ import net.minecraft.client.Minecraft;
 import net.minusmc.minusbounce.MinusBounce;
 import net.minusmc.minusbounce.features.module.modules.client.Animations;
 import net.minusmc.minusbounce.features.module.modules.client.HUD;
-import net.minusmc.minusbounce.utils.AnimationUtils;
+import net.minusmc.minusbounce.utils.render.AnimationUtils;
 import net.minusmc.minusbounce.utils.render.EaseUtils;
 import net.minusmc.minusbounce.utils.render.RenderUtils;
 import net.minecraft.client.Minecraft;

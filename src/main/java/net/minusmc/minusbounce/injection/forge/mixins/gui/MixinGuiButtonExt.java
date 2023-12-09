@@ -8,7 +8,7 @@ package net.minusmc.minusbounce.injection.forge.mixins.gui;
 import net.minusmc.minusbounce.MinusBounce;
 import net.minusmc.minusbounce.features.module.modules.client.HUD;
 import net.minusmc.minusbounce.ui.font.Fonts;
-import net.minusmc.minusbounce.utils.AnimationUtils;
+import net.minusmc.minusbounce.utils.render.AnimationUtils;
 import net.minusmc.minusbounce.utils.render.RenderUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;

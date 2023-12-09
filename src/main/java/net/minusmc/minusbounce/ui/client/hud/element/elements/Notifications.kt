@@ -193,7 +193,7 @@ class Notification(message : String, type : Type, displayLength: Long) {
             FadeState.IN -> {
                 if (x < width) {
                     x = if (hAnimMode.equals("smooth", true))
-                        net.minusmc.minusbounce.utils.AnimationUtils.animate(width, x, animSpeed * 0.025F * delta)
+                        net.minusmc.minusbounce.utils.render.AnimationUtils.animate(width, x, animSpeed * 0.025F * delta)
                     else
                         AnimationUtils.easeOut(fadeStep, width) * width
                     fadeStep += delta / 4F
@@ -219,7 +219,7 @@ class Notification(message : String, type : Type, displayLength: Long) {
 
             FadeState.OUT -> if (x > 0) {
                 x = if (hAnimMode.equals("smooth", true))
-                    net.minusmc.minusbounce.utils.AnimationUtils.animate(-width / 2F, x, animSpeed * 0.025F * delta)
+                    net.minusmc.minusbounce.utils.render.AnimationUtils.animate(-width / 2F, x, animSpeed * 0.025F * delta)
                 else
                     AnimationUtils.easeOut(fadeStep, width) * width
 

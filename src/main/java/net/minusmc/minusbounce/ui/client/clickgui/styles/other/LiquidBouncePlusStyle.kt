@@ -10,7 +10,7 @@ import net.minusmc.minusbounce.ui.client.clickgui.style.styles.newVer.element.Ca
 import net.minusmc.minusbounce.ui.client.clickgui.style.styles.newVer.element.SearchElement
 import net.minusmc.minusbounce.ui.client.clickgui.styles.StyleMode
 import net.minusmc.minusbounce.ui.font.Fonts
-import net.minusmc.minusbounce.utils.AnimationUtils
+import net.minusmc.minusbounce.utils.render.AnimationUtils
 import net.minusmc.minusbounce.utils.MouseUtils.mouseWithinBounds
 import net.minusmc.minusbounce.utils.extensions.setAlpha
 import net.minusmc.minusbounce.utils.geom.Rectangle
