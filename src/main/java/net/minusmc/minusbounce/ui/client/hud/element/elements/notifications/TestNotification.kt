@@ -1,5 +1,14 @@
 package net.minusmc.minusbounce.ui.client.hud.element.elements.notifications
 
+import net.minusmc.minusbounce.ui.client.hud.element.elements.Notification.Type
+import net.minusmc.minusbounce.ui.font.Fonts
+import net.minusmc.minusbounce.utils.render.Stencil
+import net.minusmc.minusbounce.utils.render.RenderUtils
+import net.minusmc.minusbounce.utils.render.BlurUtils
+import net.minecraft.client.renderer.GlStateManager
+import org.lwjgl.opengl.GL11
+import java.awt.Color
+
 class TestNotification: NotificationStyle("Test") {
 	override fun drawStyle() {
 		val kek = -x - 1 - 20F
