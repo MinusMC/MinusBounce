@@ -4,7 +4,7 @@ import net.minusmc.minusbounce.utils.MinecraftInstance
 import net.minusmc.minusbounce.ui.client.hud.designer.GuiHudDesigner
 import net.minusmc.minusbounce.ui.client.hud.element.Border
 
-abstract class NotificationStyle(val styleName: String, inst: Notifications): MinecraftInstance() {
+abstract class NotificationStyle(val styleName: String, val inst: Notifications): MinecraftInstance() {
 	protected val exampleNotification = Notification("Tested", Notification.Type.INFO)
 	open val animationY = 30f
 

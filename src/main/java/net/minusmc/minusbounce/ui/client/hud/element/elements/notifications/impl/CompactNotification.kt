@@ -10,6 +10,11 @@ import java.awt.Color
 
 class CompactNotification: NotificationStyle("Compact") {
 	override fun drawStyle() {
+        val x = inst.x
+        val textLength = inst.textLength
+        val originalX = parent.renderX.toFloat()
+        val originalY = parent.renderY.toFloat()
+
 		GlStateManager.resetColor()
 
         if (blur) {
@@ -29,7 +34,7 @@ class CompactNotification: NotificationStyle("Compact") {
         })
 
         GlStateManager.resetColor()
-        Fonts.font40.drawString(message, -x + 3, -13F - y, -1)
+        Fonts.font40.drawString(inst.message, -x + 3, -13F - y, -1)
 	}
 
     override val animationY = 20f

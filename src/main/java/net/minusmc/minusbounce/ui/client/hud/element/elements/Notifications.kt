@@ -59,6 +59,10 @@ class Notifications(x: Double = 0.0, y: Double = 30.0, scale: Float = 1F, side: 
 
 class Notification(message : String, type : Type, displayLength: Long) {
 
+    constructor(message: String, type: Type) : this(message, type, 2000L)
+    constructor(message: String) : this(message, Type.INFO, 500L)
+    constructor(message: String, displayLength: Long) : this(message, Type.INFO, displayLength)
+
     private val newSuccess = ResourceLocation("${notifyDir}new/checkmark.png")
     private val newError = ResourceLocation("${notifyDir}new/error.png")
     private val newWarning = ResourceLocation("${notifyDir}new/warning.png")
@@ -88,12 +92,6 @@ class Notification(message : String, type : Type, displayLength: Long) {
         this.textLength = Fonts.font40.getStringWidth(message)
     }
 
-    constructor(message: String, type: Type) : this(message, type, 2000L)
-
-    constructor(message: String) : this(message, Type.INFO, 500L)
-
-    constructor(message: String, displayLength: Long) : this(message, Type.INFO, displayLength)
-
     enum class Type {
         SUCCESS, INFO, WARNING, ERROR
     }
@@ -115,8 +113,7 @@ class Notification(message : String, type : Type, displayLength: Long) {
         val vAnimMode = parent.vAnimModeValue.get()
         val animSpeed = parent.animationSpeed.get()
 
-        val originalX = parent.renderX.toFloat()
-        val originalY = parent.renderY.toFloat()
+        
         val width = if (style.equals("material", true)) 160F else textLength.toFloat() + 8.0f
 
         val backgroundColor = Color(0, 0, 0, parent.bgAlphaValue.get())
