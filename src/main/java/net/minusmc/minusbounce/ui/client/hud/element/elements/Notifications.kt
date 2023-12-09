@@ -99,6 +99,7 @@ class Notifications(x: Double = 0.0, y: Double = 30.0, scale: Float = 1F,
         else -> if (side.vertical == Side.Vertical.DOWN) Border(-160F, -50F, 0F, -30F) else Border(-160F, -20F, 0F, 0F)
     }
 }
+
 class Notification(message : String, type : Type, displayLength: Long) {
     private val notifyDir = "minusbounce/notification/"
 
@@ -169,247 +170,24 @@ class Notification(message : String, type : Type, displayLength: Long) {
 
         val backgroundColor = Color(0, 0, 0, parent.bgAlphaValue.get())
         val enumColor = when (type) {
-                            Type.SUCCESS -> Color(80, 255, 80).rgb
-                            Type.ERROR -> Color(255, 80, 80).rgb
-                            Type.INFO -> Color(255, 255, 255).rgb
-                            Type.WARNING -> Color(255, 255, 0).rgb
-                        }
+            Type.SUCCESS -> Color(80, 255, 80).rgb
+            Type.ERROR -> Color(255, 80, 80).rgb
+            Type.INFO -> Color(255, 255, 255).rgb
+            Type.WARNING -> Color(255, 255, 0).rgb
+        }
 
         firstY = if (vAnimMode.equals("smooth", true)) {
             if (firstY == 19190.0F)
                 animationY
             else
-                net.minusmc.minusbounce.utils.AnimationUtils.animate(animationY, firstY, 0.02F * delta)
+                AnimationUtils.animate(animationY, firstY, 0.02F * delta)
         } else {
             animationY
         }
 
         val y = firstY
 
-        when (style.lowercase()) {
-            "compact" -> {
-                GlStateManager.resetColor()
-
-                if (blur) {
-                    GL11.glTranslatef(-originalX, -originalY, 0F)
-                    GL11.glPushMatrix()
-                    BlurUtils.blurAreaRounded(originalX + -x - 5F, originalY + -18F - y, originalX + -x + 8F + textLength, originalY + -y, 3F, strength)
-                    GL11.glPopMatrix()
-                    GL11.glTranslatef(originalX, originalY, 0F)
-                }
-
-                RenderUtils.customRounded(-x + 8F + textLength, -y, -x - 2F, -18F - y, 0F, 3F, 3F, 0F, backgroundColor.rgb)
-                RenderUtils.customRounded(-x - 2F, -y, -x - 5F, -18F - y, 3F, 0F, 0F, 3F, when(type) {
-                    Type.SUCCESS -> Color(80, 255, 80).rgb
-                    Type.ERROR -> Color(255, 80, 80).rgb
-                    Type.INFO -> Color(255, 255, 255).rgb
-                    Type.WARNING -> Color(255, 255, 0).rgb
-                })
-
-                GlStateManager.resetColor()
-                Fonts.font40.drawString(message, -x + 3, -13F - y, -1)
-            }
-            "full" -> {
-                val dist = (x + 1 + 26F) - (x - 8 - textLength)
-                val kek = -x - 1 - 26F
-
-                GlStateManager.resetColor()
-
-                if (blur) {
-                    GL11.glTranslatef(-originalX, -originalY, 0F)
-                    GL11.glPushMatrix()
-                    BlurUtils.blurArea(originalX + kek, originalY + -28F - y, originalX + -x + 8 + textLength, originalY + -y, strength)
-                    GL11.glPopMatrix()
-                    GL11.glTranslatef(originalX, originalY, 0F)
-                }
-
-                RenderUtils.drawRect(-x + 8 + textLength, -y, kek, -28F - y, backgroundColor.rgb)
-
-                GL11.glPushMatrix()
-                GlStateManager.disableAlpha()
-                RenderUtils.drawImage2(when (type) {
-                    Type.SUCCESS -> imgSuccess
-                    Type.ERROR -> imgError
-                    Type.WARNING -> imgWarning
-                    Type.INFO -> imgInfo
-                }, kek, -27F - y, 26, 26)
-                GlStateManager.enableAlpha()
-                GL11.glPopMatrix()
-
-                GlStateManager.resetColor()
-                if (fadeState == FadeState.STAY && !stayTimer.hasTimePassed(displayTime))
-                    RenderUtils.drawRect(kek, -y, kek + (dist * if (stayTimer.hasTimePassed(displayTime)) 0F else ((displayTime - (System.currentTimeMillis() - stayTimer.time)).toFloat() / displayTime.toFloat())), -1F - y, enumColor)
-                else if (fadeState == FadeState.IN)
-                    RenderUtils.drawRect(kek, -y, kek + dist, -1F - y, enumColor)
-
-                GlStateManager.resetColor()
-                Fonts.font40.drawString(message, -x + 2, -18F - y, -1)
-            }
-            "full2" -> {
-                val dist = (x + 1 + 26F) - (x - 8 - textLength)
-                val kek = -x - 1 - 26F
-
-                GlStateManager.resetColor()
-
-                if (blur) {
-                    GL11.glTranslatef(-originalX, -originalY, 0F)
-                    GL11.glPushMatrix()
-                    BlurUtils.blurAreaRounded(originalX + kek, originalY + -28F - y, originalX + -x + 8 + textLength, originalY + -y, 1.8f, strength)
-                    GL11.glPopMatrix()
-                    GL11.glTranslatef(originalX, originalY, 0F)
-                }
-
-                RenderUtils.drawRoundedRect(-x + 8 + textLength, -y, kek, -28F - y, 1.8f, backgroundColor.rgb)
-
-                GL11.glPushMatrix()
-                GlStateManager.disableAlpha()
-                RenderUtils.drawImage2(when (type) {
-                    Type.SUCCESS -> newSuccess
-                    Type.ERROR -> newError
-                    Type.WARNING -> newWarning
-                    Type.INFO -> newInfo
-                }, kek, -27F - y, 26, 26)
-                GlStateManager.enableAlpha()
-                GL11.glPopMatrix()
-
-                GlStateManager.resetColor()
-                if (fadeState == FadeState.STAY && !stayTimer.hasTimePassed(displayTime))
-                    RenderUtils.drawRoundedRect(kek, -y, kek + (dist * if (stayTimer.hasTimePassed(displayTime)) 0F else ((displayTime - (System.currentTimeMillis() - stayTimer.time)).toFloat() / displayTime.toFloat())), -1F - y, 1.8f, enumColor)
-                else if (fadeState == FadeState.IN)
-                    RenderUtils.drawRoundedRect(kek, -y, kek + dist, -1F - y, 1.8f, enumColor)
-
-                GlStateManager.resetColor()
-                Fonts.fontSFUI40.drawStringWithShadow(message, -x + 2, -18F - y, enumColor)
-            }
-            "test" -> {
-                val kek = -x - 1 - 20F
-
-                GlStateManager.resetColor()
-                if (blur) {
-                    GL11.glTranslatef(-originalX, -originalY, 0F)
-                    GL11.glPushMatrix()
-                    BlurUtils.blurAreaRounded(originalX + kek, originalY + -28F - y, originalX + -x + 8 + textLength, originalY + -y, 3F, strength)
-                    GL11.glPopMatrix()
-                    GL11.glTranslatef(originalX, originalY, 0F)
-                }
-
-                Stencil.write(true)
-
-                if (type == Type.ERROR) {
-                    RenderUtils.drawRoundedRect(-x + 9 + textLength, -y + 1, kek - 1, -28F - y - 1, 0F, Color(115,69,75).rgb)
-                    RenderUtils.drawRoundedRect(-x + 8 + textLength, -y, kek, -28F - y, 0F, Color(89,61,65).rgb)
-                    Fonts.minecraftFont.drawStringWithShadow("Error:", -x - 4, -25F - y, Color(249,130,108).rgb)
-                }
-                if (type == Type.INFO) {
-                    RenderUtils.drawRoundedRect(-x + 9 + textLength, -y + 1, kek - 1, -28F - y - 1, 0F, Color(70,94,115).rgb)
-                    RenderUtils.drawRoundedRect(-x + 8 + textLength, -y, kek, -28F - y, 0F, Color(61,72,87).rgb)
-                    Fonts.minecraftFont.drawStringWithShadow("Information:", -x - 4, -25F - y, Color(119,145,147).rgb)
-                }
-                if (type == Type.SUCCESS) {
-                    RenderUtils.drawRoundedRect(-x + 9 + textLength, -y + 1, kek - 1, -28F - y - 1, 0F, Color(67,104,67).rgb)
-                    RenderUtils.drawRoundedRect(-x + 8 + textLength, -y, kek, -28F - y, 0F, Color(55,78,55).rgb)
-                    Fonts.minecraftFont.drawStringWithShadow("Success:", -x - 4, -25F - y, Color(10,142,2).rgb)
-                }
-                if (type == Type.WARNING) {
-                    RenderUtils.drawRoundedRect(-x + 9 + textLength, -y + 1, kek - 1, -28F - y - 1, 0F, Color(103,103,63).rgb)
-                    RenderUtils.drawRoundedRect(-x + 8 + textLength, -y, kek, -28F - y, 0F, Color(80,80,57).rgb)
-                    Fonts.minecraftFont.drawStringWithShadow("Warning:", -x - 4, -25F - y, Color(175,163,0).rgb)
-                }
-
-                Stencil.erase(true)
-
-                GlStateManager.resetColor()
-
-                Stencil.dispose()
-
-                GL11.glPushMatrix()
-                GlStateManager.disableAlpha()
-                GlStateManager.resetColor()
-                GL11.glColor4f(1F, 1F, 1F, 1F)
-                RenderUtils.drawImage2(when (type) {
-                    Type.SUCCESS -> imgSuccess
-                    Type.ERROR -> imgError
-                    Type.WARNING -> imgWarning
-                    Type.INFO -> imgInfo
-                }, kek + 5, -25F - y, 7, 7)
-                GlStateManager.enableAlpha()
-                GL11.glPopMatrix()
-
-                Fonts.minecraftFont.drawStringWithShadow(message, -x - 4, -13F - y, -1)
-            }
-            "material" -> {
-                GlStateManager.resetColor()
-
-                GL11.glPushMatrix()
-                GL11.glTranslatef(-x, -y - notifHeight - (if (barMaterial) 2F else 0F), 0F)
-
-                RenderUtils.originalRoundedRect(1F, -1F, 159F, notifHeight + (if (barMaterial) 2F else 0F) + 1F, 1F, when (type) {
-                        Type.SUCCESS -> Color(72, 210, 48, 70).rgb
-                        Type.ERROR -> Color(227, 28, 28, 70).rgb
-                        Type.WARNING -> Color(245, 212, 25, 70).rgb
-                        Type.INFO -> Color(255, 255, 255, 70).rgb
-                    })
-        		RenderUtils.originalRoundedRect(-1F, 1F, 161F, notifHeight + (if (barMaterial) 2F else 0F) - 1F, 1F, when (type) {
-                        Type.SUCCESS -> Color(72, 210, 48, 70).rgb
-                        Type.ERROR -> Color(227, 28, 28, 70).rgb
-                        Type.WARNING -> Color(245, 212, 25, 70).rgb
-                        Type.INFO -> Color(255, 255, 255, 70).rgb
-                    })
-        		RenderUtils.originalRoundedRect(-0.5F, -0.5F, 160.5F, notifHeight + (if (barMaterial) 2F else 0F) + 0.5F, 1F, when (type) {
-                        Type.SUCCESS -> Color(72, 210, 48, 80).rgb
-                        Type.ERROR -> Color(227, 28, 28, 80).rgb
-                        Type.WARNING -> Color(245, 212, 25, 80).rgb
-                        Type.INFO -> Color(255, 255, 255, 80).rgb
-                    })
-
-                if (barMaterial) {
-                    Stencil.write(true)
-                    RenderUtils.originalRoundedRect(0F, 0F, 160F, notifHeight + 2F, 1F, when (type) {
-                        Type.SUCCESS -> Color(72, 210, 48, 255).rgb
-                        Type.ERROR -> Color(227, 28, 28, 255).rgb
-                        Type.WARNING -> Color(245, 212, 25, 255).rgb
-                        Type.INFO -> Color(255, 255, 255, 255).rgb
-                    })
-                    Stencil.erase(true)
-                    if (fadeState == FadeState.STAY) RenderUtils.newDrawRect(0F, notifHeight, 160F * if (stayTimer.hasTimePassed(displayTime)) 1F else ((System.currentTimeMillis() - stayTimer.time).toFloat() / displayTime.toFloat()), notifHeight + 2F, when (type) {
-                        Type.SUCCESS -> Color(72 + 90, 210 + 30, 48 + 90, 255).rgb
-                        Type.ERROR -> Color(227 + 20, 28 + 90, 28 + 90, 255).rgb
-                        Type.WARNING -> Color(245 - 70, 212 - 70, 25, 255).rgb
-                        Type.INFO -> Color(155, 155, 155, 255).rgb
-                    })
-                    Stencil.dispose()
-                } else RenderUtils.originalRoundedRect(0F, 0F, 160F, notifHeight, 1F, when (type) {
-                    Type.SUCCESS -> Color(72, 210, 48, 255).rgb
-                    Type.ERROR -> Color(227, 28, 28, 255).rgb
-                    Type.WARNING -> Color(245, 212, 25, 255).rgb
-                    Type.INFO -> Color(255, 255, 255, 255).rgb
-                })
-
-                var yHeight = 7F
-                for (s in messageList) {
-                    Fonts.font40.drawString(s, 30F, yHeight, if (type == Type.ERROR) -1 else 0)
-                    yHeight += Fonts.font40.FONT_HEIGHT.toFloat() + 2F
-                }
-
-                GL11.glPushMatrix()
-                GlStateManager.disableAlpha()
-                RenderUtils.drawImage3(when (type) {
-                    Type.SUCCESS -> newSuccess
-                    Type.ERROR -> newError
-                    Type.WARNING -> newWarning
-                    Type.INFO -> newInfo
-                }, 9F, notifHeight / 2F - 6F, 12, 12,
-                if (type == Type.ERROR) 1F else 0F,
-                if (type == Type.ERROR) 1F else 0F,
-                if (type == Type.ERROR) 1F else 0F, 1F)
-                GlStateManager.enableAlpha()
-                GL11.glPopMatrix()
-
-                GL11.glPopMatrix()
-
-                GlStateManager.resetColor()
-            }
-        }
+        // draw style
 
         when (fadeState) {
             FadeState.IN -> {

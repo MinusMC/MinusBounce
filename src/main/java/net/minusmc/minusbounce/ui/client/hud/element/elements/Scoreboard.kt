@@ -35,7 +35,7 @@ import java.awt.Color
  * Allows to move and customize minecraft scoreboard
  */
 @ElementInfo(name = "Scoreboard")
-class ScoreboardElement(x: Double = 5.0, y: Double = 0.0, scale: Float = 1F,
+class Scoreboard(x: Double = 5.0, y: Double = 0.0, scale: Float = 1F,
                         side: Side = Side(Side.Horizontal.RIGHT, Side.Vertical.MIDDLE)) : Element(x, y, scale, side) {
 
     private val useVanillaBackground = BoolValue("UseVanillaBackground", false)
@@ -83,8 +83,8 @@ class ScoreboardElement(x: Double = 5.0, y: Double = 0.0, scale: Float = 1F,
     private val antiSnipeMatch = BoolValue("AntiSnipeMatch", true)
     private val changeDomain = BoolValue("ChangeDomain", false)
     private val showRedNumbersValue = BoolValue("ShowRedNumbers", false)
-    private val fontValue = FontValue("Font", Fonts.font40)
-    private val domainFontValue = FontValue("DomainFont", Fonts.font40)
+    private val fontValue = FontValue("Font", Fonts.minecraftFont)
+    private val domainFontValue = FontValue("DomainFont", Fonts.minecraftFont)
     private val domainFontYValue = FloatValue("Domain-TextY", 0F, 0F, 3F)
     private val domainShadowValue = ListValue("Domain-Shadow", arrayOf("None", "Outline", "Default"), "None")
     private val outlineWidthValue = FloatValue("OutlineWidth", 0.5F, 0.5F, 2F)

@@ -30,7 +30,9 @@ object ClickGUI: Module() {
     val style: StyleMode
         get() = styles.find {styleValue.get().equals(it.styleName, true)} ?: throw NullPointerException()
 
-    private val styleValue = ListValue("Style", styles.map {it.styleName}.toTypedArray(), "LiquidBounce")
+    private val styleValue: ListValue = object: ListValue("Style", styles.map {it.styleName}.toTypedArray(), "LiquidBounce") {
+        override fun onChanged(oldValue: String, newValue: String) = changeClickGui()
+    }
 
     val fastRenderValue = BoolValue("FastRender", true)
 
@@ -65,7 +67,7 @@ object ClickGUI: Module() {
             else -> null
         }
 
-    override fun onEnable() {
+    fun changeClickGui() {
         if (style is DropDownClickGui) {
             val dropDown = style as DropDownClickGui
             dropDown.progress = 0.0
@@ -73,6 +75,10 @@ object ClickGUI: Module() {
             dropDown.lastMS = System.currentTimeMillis()
         }
         mc.displayGuiScreen(style)
+    }
+
+    override fun onEnable() {
+        changeClickGui()
     }
 
 }

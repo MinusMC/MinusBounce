@@ -14,7 +14,7 @@ import net.minusmc.minusbounce.value.ListValue
 
 @ModuleInfo(name = "Cape", description = "MinusBounce capes.", category = ModuleCategory.CLIENT)
 class Cape : Module() {
-    private val styleValue = ListValue("Style", arrayOf("Dark"), "Dark")
+    private val styleValue = ListValue("Style", arrayOf("MinusBounce"), "MinusBounce")
     private val capeCache = hashMapOf<String, ResourceLocation>()
 
     override fun onInitialize() {
