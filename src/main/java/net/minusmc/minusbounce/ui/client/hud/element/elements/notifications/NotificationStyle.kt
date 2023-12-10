@@ -1,5 +1,8 @@
 package net.minusmc.minusbounce.ui.client.hud.element.elements.notifications
 
+import net.minusmc.minusbounce.ui.client.hud.element.elements.Notifications
+import net.minusmc.minusbounce.ui.client.hud.element.elements.Notification
+import net.minusmc.minusbounce.ui.client.hud.element.Side
 import net.minusmc.minusbounce.utils.MinecraftInstance
 import net.minusmc.minusbounce.ui.client.hud.designer.GuiHudDesigner
 import net.minusmc.minusbounce.ui.client.hud.element.Border
@@ -15,7 +18,7 @@ abstract class NotificationStyle(val styleName: String, val inst: Notifications)
 		var idx = 0
 		for (notification in notifications) {
 			notification.drawNotification(yPos, this)
-            if (indexz < notifications.size - 1) indexz++
+            if (idx < notifications.size - 1) idx++
             if (side.vertical == Side.Vertical.DOWN)
                 yPos += this.animationY
             else 
@@ -23,8 +26,8 @@ abstract class NotificationStyle(val styleName: String, val inst: Notifications)
 		}
 	}
 
-	open fun drawElement(): Border? {
-        if (mc.currentScreen !is GuiHudDesigner || notifications.isNotEmpty()) {
+	open fun drawElement(notifications: MutableList<Notification>): Border? {
+        if (mc.currentScreen !is GuiHudDesigner || notifications.isNotEmpty())
             drawNotifications(notifications, 30F)
         else
             exampleNotification.drawNotification(30f, this)
@@ -36,10 +39,11 @@ abstract class NotificationStyle(val styleName: String, val inst: Notifications)
             if (exampleNotification.stayTimer.hasTimePassed(exampleNotification.displayTime)) 
                 exampleNotification.stayTimer.reset()
 
-            return getNotifBorder()
+            return border
         }
 
         return null
     }
 
+    open val border = Border(0f, 0f, 0f, 0f)
 }

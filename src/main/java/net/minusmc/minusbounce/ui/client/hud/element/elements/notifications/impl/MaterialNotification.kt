@@ -123,6 +123,7 @@ class MaterialNotification: NotificationStyle("Material") {
         get() = (if (side.vertical == Side.Vertical.DOWN) i.notifHeight 
                 else notifications[indexz].notifHeight) + 5F + (if (barValue.get()) 2F else 0F)
 
-        
+    override val border: Border?
+        get() = if (side.vertical == Side.Vertical.DOWN) Border(-160F, -50F, 0F, -30F) else Border(-160F, -20F, 0F, 0F)
 }
 
