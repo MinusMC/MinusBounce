@@ -3,6 +3,7 @@ package net.minusmc.minusbounce.ui.client.hud.element.elements.notifications
 import net.minusmc.minusbounce.ui.client.hud.element.elements.Notifications
 import net.minusmc.minusbounce.ui.client.hud.element.elements.Notification
 import net.minusmc.minusbounce.ui.client.hud.element.Side
+import net.minusmc.minusbounce.ui.client.hud.element.Border
 import net.minusmc.minusbounce.utils.MinecraftInstance
 import net.minusmc.minusbounce.ui.client.hud.designer.GuiHudDesigner
 import net.minusmc.minusbounce.ui.client.hud.element.Border

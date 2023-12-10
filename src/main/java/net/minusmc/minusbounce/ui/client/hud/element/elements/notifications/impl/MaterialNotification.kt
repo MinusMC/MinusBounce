@@ -1,6 +1,7 @@
 package net.minusmc.minusbounce.ui.client.hud.element.elements.notifications
 
 import net.minusmc.minusbounce.ui.client.hud.element.elements.Notification.Type
+import net.minusmc.minusbounce.ui.client.hud.element.Border
 import net.minusmc.minusbounce.ui.font.Fonts
 import net.minusmc.minusbounce.utils.render.Stencil
 import net.minusmc.minusbounce.utils.render.RenderUtils

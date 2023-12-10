@@ -1,5 +1,6 @@
 package net.minusmc.minusbounce.ui.client.hud.element.elements.notifications
 
+import net.minusmc.minusbounce.ui.client.hud.element.elements.Notifications
 import net.minusmc.minusbounce.ui.client.hud.element.elements.Notification.Type
 import net.minusmc.minusbounce.ui.client.hud.element.elements.Notification.FadeState
 import net.minusmc.minusbounce.ui.font.Fonts
@@ -9,7 +10,7 @@ import net.minecraft.client.renderer.GlStateManager
 import org.lwjgl.opengl.GL11
 import java.awt.Color
 
-class Full2Notification: NotificationStyle("Full2") {
+class Full2Notification(inst: Notifications): NotificationStyle("Full2") {
 	override fun drawStyle() {
 		val dist = (x + 1 + 26F) - (x - 8 - textLength)
         val kek = -x - 1 - 26F

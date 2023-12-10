@@ -1,6 +1,8 @@
 package net.minusmc.minusbounce.ui.client.hud.element.elements.notifications
 
+import net.minusmc.minusbounce.ui.client.hud.element.elements.Notifications
 import net.minusmc.minusbounce.ui.client.hud.element.elements.Notification.Type
+import net.minusmc.minusbounce.ui.client.hud.element.Border
 import net.minusmc.minusbounce.ui.font.Fonts
 import net.minusmc.minusbounce.utils.render.RenderUtils
 import net.minusmc.minusbounce.utils.render.BlurUtils
@@ -8,7 +10,7 @@ import net.minecraft.client.renderer.GlStateManager
 import org.lwjgl.opengl.GL11
 import java.awt.Color
 
-class CompactNotification: NotificationStyle("Compact") {
+class CompactNotification(inst: Notifications): NotificationStyle("Compact") {
 	override fun drawStyle() {
         val x = inst.x
         val textLength = inst.textLength
@@ -38,4 +40,5 @@ class CompactNotification: NotificationStyle("Compact") {
 	}
 
     override val animationY = 20f
+    override val border = Border(-102F, -48F, 0F, -30F)
 }

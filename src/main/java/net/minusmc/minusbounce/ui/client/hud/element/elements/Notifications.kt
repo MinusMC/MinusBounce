@@ -53,7 +53,6 @@ class Notifications(x: Double = 0.0, y: Double = 30.0, scale: Float = 1F, side: 
         "full" -> Border(-130F, -58F, 0F, -30F)
         "full2" -> Border(-130F, -58F, 0F, -30F)
         "test" -> Border(-130F, -58F, 0F, -30F)
-        "compact" -> Border(-102F, -48F, 0F, -30F)
     }
 }
 
@@ -63,10 +62,10 @@ class Notification(message : String, type : Type, displayLength: Long) {
     constructor(message: String) : this(message, Type.INFO, 500L)
     constructor(message: String, displayLength: Long) : this(message, Type.INFO, displayLength)
 
-    private val newSuccess = ResourceLocation("${notifyDir}new/checkmark.png")
-    private val newError = ResourceLocation("${notifyDir}new/error.png")
-    private val newWarning = ResourceLocation("${notifyDir}new/warning.png")
-    private val newInfo = ResourceLocation("${notifyDir}new/info.png")
+    // private val newSuccess = ResourceLocation("${notifyDir}new/checkmark.png")
+    // private val newError = ResourceLocation("${notifyDir}new/error.png")
+    // private val newWarning = ResourceLocation("${notifyDir}new/warning.png")
+    // private val newInfo = ResourceLocation("${notifyDir}new/info.png")
 
     var x = 0F
     var textLength = 0
