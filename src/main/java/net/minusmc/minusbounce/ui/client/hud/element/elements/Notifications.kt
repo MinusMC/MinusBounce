@@ -90,7 +90,6 @@ class Notification(val message: String, val type: Type, val displayTime: Long) {
         val delta = RenderUtils.deltaTime
 
         val style = parent.styleValue.get()
-        val barMaterial = parent.barValue.get()
 
         val hAnimMode = parent.hAnimModeValue.get()
         val vAnimMode = parent.vAnimModeValue.get()
