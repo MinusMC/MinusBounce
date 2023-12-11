@@ -12,6 +12,14 @@ import java.awt.Color
 
 class MaterialNotification: NotificationStyle("Material") {
     override fun drawStyle() {
+        val x = notification.x
+        val textLength = notification.textLength
+        val blur = inst.blurValue.get()
+        val originalX = inst.renderX.toFloat()
+        val originalY = inst.renderY.toFloat()
+        val strength = inst.blurStrength.get()
+        val backgroundColor = Color(0, 0, 0, inst.bgAlphaValue.get())
+        
         GlStateManager.resetColor()
 
         GL11.glPushMatrix()
@@ -102,7 +110,7 @@ class MaterialNotification: NotificationStyle("Material") {
     }
 
     override fun drawElement(): Border? {
-        if (mc.currentScreen !is GuiHudDesigner || notifications.isNotEmpty()) {
+        if (mc.currentScreen !is GuiHudDesigner || notifications.isNotEmpty())
             drawNotifications(notifications, 30F)
         else
             exampleNotification.drawNotification(30f - if (side.vertical != Side.Vertical.DOWN) (exampleNotification.notifHeight - 5F - (if (barValue.get()) 2F else 0F)) else 0F, this)

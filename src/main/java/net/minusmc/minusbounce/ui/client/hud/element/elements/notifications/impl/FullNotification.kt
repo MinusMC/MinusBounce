@@ -15,7 +15,7 @@ import org.lwjgl.opengl.GL11
 import java.awt.Color
 
 
-class FullNotification: NotificationStyle("Full") {
+class FullNotification: NotificationStyle("Full", inst) {
     private val notifyDir = "minusbounce/notification/"
     private val imgSuccess = ResourceLocation("${notifyDir}checkmark.png")
     private val imgError = ResourceLocation("${notifyDir}error.png")
@@ -55,7 +55,7 @@ class FullNotification: NotificationStyle("Full") {
 
         GL11.glPushMatrix()
         GlStateManager.disableAlpha()
-        RenderUtils.drawImage2(when (type) {
+        RenderUtils.drawImage2(when (notification.type) {
             Type.SUCCESS -> imgSuccess
             Type.ERROR -> imgError
             Type.WARNING -> imgWarning
@@ -65,8 +65,8 @@ class FullNotification: NotificationStyle("Full") {
         GL11.glPopMatrix()
 
         GlStateManager.resetColor()
-        if (notification.fadeState == FadeState.STAY && !stayTimer.hasTimePassed(notification.displayTime))
-            RenderUtils.drawRect(kek, -y, kek + (dist * if (stayTimer.hasTimePassed(notification.displayTime)) 0F else ((notification.displayTime - (System.currentTimeMillis() - stayTimer.time)).toFloat() / notification.displayTime.toFloat())), -1F - y, enumColor)
+        if (notification.fadeState == FadeState.STAY && !notification.stayTimer.hasTimePassed(notification.displayTime))
+            RenderUtils.drawRect(kek, -y, kek + (dist * if (notification.stayTimer.hasTimePassed(notification.displayTime)) 0F else ((notification.displayTime - (System.currentTimeMillis() - notification.stayTimer.time)).toFloat() / notification.displayTime.toFloat())), -1F - y, enumColor)
         else if (notification.fadeState == FadeState.IN)
             RenderUtils.drawRect(kek, -y, kek + dist, -1F - y, enumColor)
 
