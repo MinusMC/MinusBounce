@@ -13,7 +13,7 @@ import java.awt.Color
 
 class CompactNotification(inst: Notifications): NotificationStyle("Compact", inst) {
 	override fun drawStyle(notification: Notification, y: Float) {
-        val x = inst.x
+        val x = notification.x
         val textLength = notification.textLength
         val blur = inst.blurValue.get()
         val originalX = inst.renderX.toFloat()

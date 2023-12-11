@@ -55,7 +55,7 @@ class Notifications(x: Double = 0.0, y: Double = 30.0, scale: Float = 1F, side: 
     }
 }
 
-class Notification(message: String, type: Type, displayLength: Long) {
+class Notification(val message: String, val type: Type, displayLength: Long) {
 
     constructor(message: String, type: Type) : this(message, type, 2000L)
     constructor(message: String) : this(message, Type.INFO, 500L)
@@ -72,12 +72,10 @@ class Notification(message: String, type: Type, displayLength: Long) {
     var displayTime = 0L
     var stayTimer = MSTimer()
     var notifHeight = 0F
-    private var message = ""
     private var messageList : List<String>
     private var stay = 0F
     private var fadeStep = 0F
     private var firstY = 0f
-    private var type: Type
 
     init {
         this.message = message
