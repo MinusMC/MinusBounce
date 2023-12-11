@@ -8,12 +8,19 @@ import net.minusmc.minusbounce.ui.client.hud.element.Border
 import net.minusmc.minusbounce.ui.font.Fonts
 import net.minusmc.minusbounce.utils.render.RenderUtils
 import net.minusmc.minusbounce.utils.render.BlurUtils
+import net.minusmc.minusbounce.value.BoolValue
+import net.minusmc.minusbounce.value.FloatValue
+import net.minusmc.minusbounce.value.IntegerValue
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.util.ResourceLocation
 import org.lwjgl.opengl.GL11
 import java.awt.Color
 
 class Full2Notification(inst: Notifications): NotificationStyle("Full2", inst) {
+    private val bgAlphaValue = IntegerValue("Background-Alpha", 120, 0, 255)
+    private val blurValue = BoolValue("Blur", false)
+    private val blurStrength = FloatValue("Strength", 0F, 0F, 30F)
+
     private val notifyDir = "minusbounce/notification/"
     private val newSuccess = ResourceLocation("${notifyDir}new/checkmark.png")
     private val newError = ResourceLocation("${notifyDir}new/error.png")
@@ -25,9 +32,9 @@ class Full2Notification(inst: Notifications): NotificationStyle("Full2", inst) {
         val originalX = inst.renderX.toFloat()
         val originalY = inst.renderY.toFloat()
         val textLength = notification.textLength
-        val blur = inst.blurValue.get()
-        val strength = inst.blurStrength.get()
-        val backgroundColor = Color(0, 0, 0, inst.bgAlphaValue.get())
+        val blur = blurValue.get()
+        val strength = blurStrength.get()
+        val backgroundColor = Color(0, 0, 0, bgAlphaValue.get())
 
         val enumColor = when (notification.type) {
             Type.SUCCESS -> Color(80, 255, 80).rgb

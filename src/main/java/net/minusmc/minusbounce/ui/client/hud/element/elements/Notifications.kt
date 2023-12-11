@@ -29,12 +29,6 @@ import java.awt.Color
 class Notifications(x: Double = 0.0, y: Double = 30.0, scale: Float = 1F, side: Side = Side(Side.Horizontal.RIGHT, Side.Vertical.DOWN)) : Element(x, y, scale, side) {
 
     val styleValue = ListValue("Style", arrayOf("Full", "Full2", "Compact", "Material", "Test"), "Material")
-    val barValue = BoolValue("Bar", true) { styleValue.get().equals("material", true) }
-    val bgAlphaValue = IntegerValue("Background-Alpha", 120, 0, 255) { !styleValue.get().equals("material", true) }
-    val blurValue = BoolValue("Blur", false) { !styleValue.get().equals("material", true) }
-    val blurStrength = FloatValue("Strength", 0F, 0F, 30F) {
-        !styleValue.get().equals("material", true) && blurValue.get()
-    }
 
     val hAnimModeValue = ListValue("H-Animation", arrayOf("LiquidBounce", "Smooth"), "LiquidBounce")
     val vAnimModeValue = ListValue("V-Animation", arrayOf("None", "Smooth"), "Smooth")
@@ -48,8 +42,6 @@ class Notifications(x: Double = 0.0, y: Double = 30.0, scale: Float = 1F, side: 
     override fun drawElement(): Border? = style.drawElement()
 
     // private fun getNotifBorder() = when (styleValue.get().lowercase()) {
-    //     "full" -> Border(-130F, -58F, 0F, -30F)
-    //     "full2" -> Border(-130F, -58F, 0F, -30F)
     //     "test" -> Border(-130F, -58F, 0F, -30F)
     // }
 }
@@ -64,15 +56,12 @@ class Notification(val message: String, val type: Type, val displayTime: Long) {
     var textLength = 0
     var fadeState = FadeState.IN
     var stayTimer = MSTimer()
-    var notifHeight = 0F
-    private var messageList : List<String>
+    
     private var stay = 0F
     private var fadeStep = 0F
     private var firstY = 0f
 
     init {
-        this.messageList = Fonts.font40.listFormattedStringToWidth(message, 105)
-        this.notifHeight = messageList.size.toFloat() * (Fonts.font40.FONT_HEIGHT.toFloat() + 2F) + 8F
         this.firstY = 19190F
         this.stayTimer.reset()
         this.textLength = Fonts.font40.getStringWidth(message)

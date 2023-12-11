@@ -9,12 +9,15 @@ import net.minusmc.minusbounce.ui.font.Fonts
 import net.minusmc.minusbounce.utils.render.Stencil
 import net.minusmc.minusbounce.utils.render.RenderUtils
 import net.minusmc.minusbounce.utils.render.BlurUtils
+import net.minusmc.minusbounce.value.BoolValue
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.util.ResourceLocation
 import org.lwjgl.opengl.GL11
 import java.awt.Color
 
 class MaterialNotification(inst: Notifications): NotificationStyle("Material", inst) {
+    val barValue = BoolValue("Bar", true)
+
     private val notifyDir = "minusbounce/notification/"
     private val newSuccess = ResourceLocation("${notifyDir}new/checkmark.png")
     private val newError = ResourceLocation("${notifyDir}new/error.png")
@@ -30,6 +33,9 @@ class MaterialNotification(inst: Notifications): NotificationStyle("Material", i
         val strength = inst.blurStrength.get()
         val barMaterial = inst.barValue.get()
         val backgroundColor = Color(0, 0, 0, inst.bgAlphaValue.get())
+        val notifHeight = messageList.size.toFloat() * (Fonts.font40.FONT_HEIGHT.toFloat() + 2F) + 8F
+
+        var messageList = Fonts.font40.listFormattedStringToWidth(message, 105)
 
         GlStateManager.resetColor()
 

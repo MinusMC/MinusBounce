@@ -7,19 +7,26 @@ import net.minusmc.minusbounce.ui.client.hud.element.Border
 import net.minusmc.minusbounce.ui.font.Fonts
 import net.minusmc.minusbounce.utils.render.RenderUtils
 import net.minusmc.minusbounce.utils.render.BlurUtils
+import net.minusmc.minusbounce.value.BoolValue
+import net.minusmc.minusbounce.value.FloatValue
+import net.minusmc.minusbounce.value.IntegerValue
 import net.minecraft.client.renderer.GlStateManager
 import org.lwjgl.opengl.GL11
 import java.awt.Color
 
 class CompactNotification(inst: Notifications): NotificationStyle("Compact", inst) {
+    private val bgAlphaValue = IntegerValue("Background-Alpha", 120, 0, 255)
+    private val blurValue = BoolValue("Blur", false)
+    private val blurStrength = FloatValue("Strength", 0F, 0F, 30F)
+
 	override fun drawStyle(notification: Notification, y: Float) {
         val x = notification.x
         val textLength = notification.textLength
-        val blur = inst.blurValue.get()
+        val blur = blurValue.get()
         val originalX = inst.renderX.toFloat()
         val originalY = inst.renderY.toFloat()
-        val strength = inst.blurStrength.get()
-        val backgroundColor = Color(0, 0, 0, inst.bgAlphaValue.get())
+        val strength = blurStrength.get()
+        val backgroundColor = Color(0, 0, 0, bgAlphaValue.get())
         
 		GlStateManager.resetColor()
 
