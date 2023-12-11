@@ -24,18 +24,16 @@ class MaterialNotification(inst: Notifications): NotificationStyle("Material", i
     private val newWarning = ResourceLocation("${notifyDir}new/warning.png")
     private val newInfo = ResourceLocation("${notifyDir}new/info.png")
 
+    private val notifHeight = 0f
+
     override fun drawStyle(notification: Notification, y: Float) {
         val x = notification.x
         val textLength = notification.textLength
-        val blur = inst.blurValue.get()
         val originalX = inst.renderX.toFloat()
         val originalY = inst.renderY.toFloat()
-        val strength = inst.blurStrength.get()
-        val barMaterial = inst.barValue.get()
-        val backgroundColor = Color(0, 0, 0, inst.bgAlphaValue.get())
-        val notifHeight = messageList.size.toFloat() * (Fonts.font40.FONT_HEIGHT.toFloat() + 2F) + 8F
-
-        var messageList = Fonts.font40.listFormattedStringToWidth(message, 105)
+        val barMaterial = barValue.get()
+        var messageList = Fonts.font40.listFormattedStringToWidth(notification.message, 105)
+        notifHeight = messageList.size.toFloat() * (Fonts.font40.FONT_HEIGHT.toFloat() + 2F) + 8F
 
         GlStateManager.resetColor()
 
@@ -70,7 +68,7 @@ class MaterialNotification(inst: Notifications): NotificationStyle("Material", i
                 Type.INFO -> Color(255, 255, 255, 255).rgb
             })
             Stencil.erase(true)
-            if (fadeState == FadeState.STAY) RenderUtils.newDrawRect(0F, notifHeight, 160F * if (stayTimer.hasTimePassed(displayTime)) 1F else ((System.currentTimeMillis() - stayTimer.time).toFloat() / displayTime.toFloat()), notifHeight + 2F, when (notification.type) {
+            if (notification.fadeState == FadeState.STAY) RenderUtils.newDrawRect(0F, notifHeight, 160F * if (notification.stayTimer.hasTimePassed(notification.displayTime)) 1F else ((System.currentTimeMillis() - notification.stayTimer.time).toFloat() / notification.displayTime.toFloat()), notifHeight + 2F, when (notification.type) {
                 Type.SUCCESS -> Color(72 + 90, 210 + 30, 48 + 90, 255).rgb
                 Type.ERROR -> Color(227 + 20, 28 + 90, 28 + 90, 255).rgb
                 Type.WARNING -> Color(245 - 70, 212 - 70, 25, 255).rgb
@@ -113,11 +111,11 @@ class MaterialNotification(inst: Notifications): NotificationStyle("Material", i
         var yPos = yPos
         var idx = 0
         for (notification in notifications) {
-            if (indexz == 0 && side.vertical != Side.Vertical.DOWN)
-                yPos -= i.notifHeight - (if (inst.barValue.get()) 2F else 0F)
+            if (idx == 0 && side.vertical != Side.Vertical.DOWN)
+                yPos -= notifHeight - (if (barValue.get()) 2F else 0F)
 
             drawNotification(yPos, this)
-            if (indexz < notifications.size - 1) indexz++
+            if (idx < notifications.size - 1) idx++
 
             if (side.vertical == Side.Vertical.DOWN)
                 yPos += this.animationY
