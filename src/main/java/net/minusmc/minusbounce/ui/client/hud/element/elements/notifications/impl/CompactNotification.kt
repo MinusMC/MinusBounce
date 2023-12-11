@@ -20,7 +20,7 @@ class CompactNotification(inst: Notifications): NotificationStyle("Compact", ins
         val originalY = inst.renderY.toFloat()
         val strength = inst.blurStrength.get()
         val backgroundColor = Color(0, 0, 0, inst.bgAlphaValue.get())
-
+        
 		GlStateManager.resetColor()
 
         if (blur) {
