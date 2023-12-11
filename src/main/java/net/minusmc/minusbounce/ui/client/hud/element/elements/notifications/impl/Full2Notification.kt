@@ -7,6 +7,7 @@ import net.minusmc.minusbounce.ui.font.Fonts
 import net.minusmc.minusbounce.utils.render.RenderUtils
 import net.minusmc.minusbounce.utils.render.BlurUtils
 import net.minecraft.client.renderer.GlStateManager
+import net.minecraft.util.ResourceLocation
 import org.lwjgl.opengl.GL11
 import java.awt.Color
 
@@ -17,7 +18,7 @@ class Full2Notification(inst: Notifications): NotificationStyle("Full2", inst) {
     private val newWarning = ResourceLocation("${notifyDir}new/warning.png")
     private val newInfo = ResourceLocation("${notifyDir}new/info.png")
 
-	override fun drawStyle() {
+	override fun drawStyle(notification: Notification, y: Float) {
         val x = notification.x
         val originalX = inst.renderX.toFloat()
         val originalY = inst.renderY.toFloat()
@@ -53,9 +54,9 @@ class Full2Notification(inst: Notifications): NotificationStyle("Full2", inst) {
         GL11.glPopMatrix()
 
         GlStateManager.resetColor()
-        if (fadeState == FadeState.STAY && !stayTimer.hasTimePassed(displayTime))
-            RenderUtils.drawRoundedRect(kek, -y, kek + (dist * if (stayTimer.hasTimePassed(displayTime)) 0F else ((displayTime - (System.currentTimeMillis() - stayTimer.time)).toFloat() / displayTime.toFloat())), -1F - y, 1.8f, enumColor)
-        else if (fadeState == FadeState.IN)
+        if (notification.fadeState == FadeState.STAY && !notification.stayTimer.hasTimePassed(notification.displayTime))
+            RenderUtils.drawRoundedRect(kek, -y, kek + (dist * if (notification.stayTimer.hasTimePassed(notification.displayTime)) 0F else ((displayTime - (System.currentTimeMillis() - stayTimer.time)).toFloat() / displayTime.toFloat())), -1F - y, 1.8f, enumColor)
+        else if (notification.fadeState == FadeState.IN)
             RenderUtils.drawRoundedRect(kek, -y, kek + dist, -1F - y, 1.8f, enumColor)
 
         GlStateManager.resetColor()

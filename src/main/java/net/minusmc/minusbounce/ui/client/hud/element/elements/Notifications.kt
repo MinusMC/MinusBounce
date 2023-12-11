@@ -6,7 +6,6 @@
 package net.minusmc.minusbounce.ui.client.hud.element.elements
 
 import net.minecraft.client.renderer.GlStateManager
-import net.minecraft.util.ResourceLocation
 import net.minusmc.minusbounce.MinusBounce.hud
 import net.minusmc.minusbounce.ui.client.hud.designer.GuiHudDesigner
 import net.minusmc.minusbounce.ui.client.hud.element.Border
@@ -55,16 +54,15 @@ class Notifications(x: Double = 0.0, y: Double = 30.0, scale: Float = 1F, side: 
     // }
 }
 
-class Notification(val message: String, val type: Type, displayLength: Long) {
+class Notification(val message: String, val type: Type, val displayTime: Long) {
 
     constructor(message: String, type: Type) : this(message, type, 2000L)
     constructor(message: String) : this(message, Type.INFO, 500L)
-    constructor(message: String, displayLength: Long) : this(message, Type.INFO, displayLength)
+    constructor(message: String, displayTime: Long) : this(message, Type.INFO, displayTime)
 
     var x = 0F
     var textLength = 0
     var fadeState = FadeState.IN
-    var displayTime = 0L
     var stayTimer = MSTimer()
     var notifHeight = 0F
     private var messageList : List<String>
@@ -75,7 +73,6 @@ class Notification(val message: String, val type: Type, displayLength: Long) {
     init {
         this.messageList = Fonts.font40.listFormattedStringToWidth(message, 105)
         this.notifHeight = messageList.size.toFloat() * (Fonts.font40.FONT_HEIGHT.toFloat() + 2F) + 8F
-        this.displayTime = displayLength
         this.firstY = 19190F
         this.stayTimer.reset()
         this.textLength = Fonts.font40.getStringWidth(message)
@@ -99,15 +96,7 @@ class Notification(val message: String, val type: Type, displayLength: Long) {
         val vAnimMode = parent.vAnimModeValue.get()
         val animSpeed = parent.animationSpeed.get()
 
-        
         val width = if (style.equals("material", true)) 160F else textLength.toFloat() + 8.0f
-
-        val enumColor = when (type) {
-            Type.SUCCESS -> Color(80, 255, 80).rgb
-            Type.ERROR -> Color(255, 80, 80).rgb
-            Type.INFO -> Color(255, 255, 255).rgb
-            Type.WARNING -> Color(255, 255, 0).rgb
-        }
 
         firstY = if (vAnimMode.equals("smooth", true)) {
             if (firstY == 19190.0F)

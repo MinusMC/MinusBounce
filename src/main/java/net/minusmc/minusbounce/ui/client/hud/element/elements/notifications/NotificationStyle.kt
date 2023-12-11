@@ -46,4 +46,11 @@ abstract class NotificationStyle(val styleName: String, val inst: Notifications)
     }
 
     open val border = Border(0f, 0f, 0f, 0f)
+
+    protected val enumColor = when (type) {
+        Type.SUCCESS -> Color(80, 255, 80).rgb
+        Type.ERROR -> Color(255, 80, 80).rgb
+        Type.INFO -> Color(255, 255, 255).rgb
+        Type.WARNING -> Color(255, 255, 0).rgb
+    }
 }
