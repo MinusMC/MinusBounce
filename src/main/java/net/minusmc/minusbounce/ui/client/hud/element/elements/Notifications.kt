@@ -48,11 +48,11 @@ class Notifications(x: Double = 0.0, y: Double = 30.0, scale: Float = 1F, side: 
      */
     override fun drawElement(): Border? = style.drawElement()
 
-    private fun getNotifBorder() = when (styleValue.get().lowercase()) {
-        "full" -> Border(-130F, -58F, 0F, -30F)
-        "full2" -> Border(-130F, -58F, 0F, -30F)
-        "test" -> Border(-130F, -58F, 0F, -30F)
-    }
+    // private fun getNotifBorder() = when (styleValue.get().lowercase()) {
+    //     "full" -> Border(-130F, -58F, 0F, -30F)
+    //     "full2" -> Border(-130F, -58F, 0F, -30F)
+    //     "test" -> Border(-130F, -58F, 0F, -30F)
+    // }
 }
 
 class Notification(val message: String, val type: Type, displayLength: Long) {
@@ -60,11 +60,6 @@ class Notification(val message: String, val type: Type, displayLength: Long) {
     constructor(message: String, type: Type) : this(message, type, 2000L)
     constructor(message: String) : this(message, Type.INFO, 500L)
     constructor(message: String, displayLength: Long) : this(message, Type.INFO, displayLength)
-
-    // private val newSuccess = ResourceLocation("${notifyDir}new/checkmark.png")
-    // private val newError = ResourceLocation("${notifyDir}new/error.png")
-    // private val newWarning = ResourceLocation("${notifyDir}new/warning.png")
-    // private val newInfo = ResourceLocation("${notifyDir}new/info.png")
 
     var x = 0F
     var textLength = 0
@@ -78,10 +73,8 @@ class Notification(val message: String, val type: Type, displayLength: Long) {
     private var firstY = 0f
 
     init {
-        this.message = message
         this.messageList = Fonts.font40.listFormattedStringToWidth(message, 105)
         this.notifHeight = messageList.size.toFloat() * (Fonts.font40.FONT_HEIGHT.toFloat() + 2F) + 8F
-        this.type = type
         this.displayTime = displayLength
         this.firstY = 19190F
         this.stayTimer.reset()

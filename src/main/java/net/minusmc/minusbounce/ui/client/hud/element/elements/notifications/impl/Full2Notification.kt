@@ -10,8 +10,22 @@ import net.minecraft.client.renderer.GlStateManager
 import org.lwjgl.opengl.GL11
 import java.awt.Color
 
-class Full2Notification(inst: Notifications): NotificationStyle("Full2") {
+class Full2Notification(inst: Notifications): NotificationStyle("Full2", inst) {
+    private val notifyDir = "minusbounce/notification/"
+    private val newSuccess = ResourceLocation("${notifyDir}new/checkmark.png")
+    private val newError = ResourceLocation("${notifyDir}new/error.png")
+    private val newWarning = ResourceLocation("${notifyDir}new/warning.png")
+    private val newInfo = ResourceLocation("${notifyDir}new/info.png")
+
 	override fun drawStyle() {
+        val x = notification.x
+        val originalX = inst.renderX.toFloat()
+        val originalY = inst.renderY.toFloat()
+        val textLength = notification.textLength
+        val blur = inst.blurValue.get()
+        val strength = inst.blurStrength.get()
+        val backgroundColor = Color(0, 0, 0, inst.bgAlphaValue.get())
+
 		val dist = (x + 1 + 26F) - (x - 8 - textLength)
         val kek = -x - 1 - 26F
 
@@ -29,7 +43,7 @@ class Full2Notification(inst: Notifications): NotificationStyle("Full2") {
 
         GL11.glPushMatrix()
         GlStateManager.disableAlpha()
-        RenderUtils.drawImage2(when (type) {
+        RenderUtils.drawImage2(when (notification.type) {
             Type.SUCCESS -> newSuccess
             Type.ERROR -> newError
             Type.WARNING -> newWarning
@@ -45,6 +59,9 @@ class Full2Notification(inst: Notifications): NotificationStyle("Full2") {
             RenderUtils.drawRoundedRect(kek, -y, kek + dist, -1F - y, 1.8f, enumColor)
 
         GlStateManager.resetColor()
-        Fonts.fontSFUI40.drawStringWithShadow(message, -x + 2, -18F - y, enumColor)
+        Fonts.fontSFUI40.drawStringWithShadow(notification.message, -x + 2, -18F - y, enumColor)
 	}
+
+    override val animationY = 30f
+    override val border = Border(-130F, -58F, 0F, -30F)
 }
