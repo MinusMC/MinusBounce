@@ -11,7 +11,7 @@ abstract class NotificationStyle(val styleName: String, val inst: Notifications)
 	protected val exampleNotification = Notification("Tested", Notification.Type.INFO)
 	open val animationY = 30f
 
-	open fun drawStyle() {}
+	open fun drawStyle(notification: Notification, y: Float) {}
 
 	open fun drawNotifications(notifications: MutableList<Notification>, yPos: Float) {
 		var yPos = yPos

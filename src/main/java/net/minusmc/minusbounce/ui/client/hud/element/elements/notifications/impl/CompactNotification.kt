@@ -11,11 +11,13 @@ import org.lwjgl.opengl.GL11
 import java.awt.Color
 
 class CompactNotification(inst: Notifications): NotificationStyle("Compact", inst) {
-	override fun drawStyle() {
+	override fun drawStyle(notification: Notification, y: Float) {
         val x = inst.x
-        val textLength = inst.textLength
+        val textLength = notification.textLength
+        val blur = inst.blurValue.get()
         val originalX = inst.renderX.toFloat()
         val originalY = inst.renderY.toFloat()
+        val strength = inst.blurStrength.get()
 
 		GlStateManager.resetColor()
 

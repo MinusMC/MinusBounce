@@ -32,7 +32,6 @@ class Notifications(x: Double = 0.0, y: Double = 30.0, scale: Float = 1F, side: 
     val styleValue = ListValue("Style", arrayOf("Full", "Full2", "Compact", "Material", "Test"), "Material")
     val barValue = BoolValue("Bar", true) { styleValue.get().equals("material", true) }
     val bgAlphaValue = IntegerValue("Background-Alpha", 120, 0, 255) { !styleValue.get().equals("material", true) }
-
     val blurValue = BoolValue("Blur", false) { !styleValue.get().equals("material", true) }
     val blurStrength = FloatValue("Strength", 0F, 0F, 30F) {
         !styleValue.get().equals("material", true) && blurValue.get()
@@ -56,7 +55,7 @@ class Notifications(x: Double = 0.0, y: Double = 30.0, scale: Float = 1F, side: 
     }
 }
 
-class Notification(message : String, type : Type, displayLength: Long) {
+class Notification(message: String, type: Type, displayLength: Long) {
 
     constructor(message: String, type: Type) : this(message, type, 2000L)
     constructor(message: String) : this(message, Type.INFO, 500L)
@@ -105,9 +104,6 @@ class Notification(message : String, type : Type, displayLength: Long) {
         val style = parent.styleValue.get()
         val barMaterial = parent.barValue.get()
 
-        val blur = parent.blurValue.get()
-        val strength = parent.blurStrength.get()
-
         val hAnimMode = parent.hAnimModeValue.get()
         val vAnimMode = parent.vAnimModeValue.get()
         val animSpeed = parent.animationSpeed.get()
@@ -135,6 +131,7 @@ class Notification(message : String, type : Type, displayLength: Long) {
         val y = firstY
 
         // draw style
+        style.drawStyle(this, y)
 
         when (fadeState) {
             FadeState.IN -> {
