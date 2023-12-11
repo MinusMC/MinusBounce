@@ -111,7 +111,6 @@ class Notification(message: String, type: Type, displayLength: Long) {
         
         val width = if (style.equals("material", true)) 160F else textLength.toFloat() + 8.0f
 
-        val backgroundColor = Color(0, 0, 0, parent.bgAlphaValue.get())
         val enumColor = when (type) {
             Type.SUCCESS -> Color(80, 255, 80).rgb
             Type.ERROR -> Color(255, 80, 80).rgb

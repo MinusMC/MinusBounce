@@ -1,6 +1,7 @@
 package net.minusmc.minusbounce.ui.client.hud.element.elements.notifications
 
 import net.minusmc.minusbounce.ui.client.hud.element.elements.Notifications
+import net.minusmc.minusbounce.ui.client.hud.element.elements.Notification
 import net.minusmc.minusbounce.ui.client.hud.element.elements.Notification.Type
 import net.minusmc.minusbounce.ui.client.hud.element.Border
 import net.minusmc.minusbounce.ui.font.Fonts
@@ -18,6 +19,7 @@ class CompactNotification(inst: Notifications): NotificationStyle("Compact", ins
         val originalX = inst.renderX.toFloat()
         val originalY = inst.renderY.toFloat()
         val strength = inst.blurStrength.get()
+        val backgroundColor = Color(0, 0, 0, inst.bgAlphaValue.get())
 
 		GlStateManager.resetColor()
 
@@ -30,7 +32,7 @@ class CompactNotification(inst: Notifications): NotificationStyle("Compact", ins
         }
 
         RenderUtils.customRounded(-x + 8F + textLength, -y, -x - 2F, -18F - y, 0F, 3F, 3F, 0F, backgroundColor.rgb)
-        RenderUtils.customRounded(-x - 2F, -y, -x - 5F, -18F - y, 3F, 0F, 0F, 3F, when(type) {
+        RenderUtils.customRounded(-x - 2F, -y, -x - 5F, -18F - y, 3F, 0F, 0F, 3F, when (notification.type) {
             Type.SUCCESS -> Color(80, 255, 80).rgb
             Type.ERROR -> Color(255, 80, 80).rgb
             Type.INFO -> Color(255, 255, 255).rgb
@@ -38,7 +40,7 @@ class CompactNotification(inst: Notifications): NotificationStyle("Compact", ins
         })
 
         GlStateManager.resetColor()
-        Fonts.font40.drawString(inst.message, -x + 3, -13F - y, -1)
+        Fonts.font40.drawString(notification.message, -x + 3, -13F - y, -1)
 	}
 
     override val animationY = 20f
