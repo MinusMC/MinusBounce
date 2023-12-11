@@ -10,12 +10,12 @@ import net.minecraft.client.renderer.GlStateManager
 import org.lwjgl.opengl.GL11
 import java.awt.Color
 
-class CompactNotification(inst: Notifications): NotificationStyle("Compact") {
+class CompactNotification(inst: Notifications): NotificationStyle("Compact", inst) {
 	override fun drawStyle() {
         val x = inst.x
         val textLength = inst.textLength
-        val originalX = parent.renderX.toFloat()
-        val originalY = parent.renderY.toFloat()
+        val originalX = inst.renderX.toFloat()
+        val originalY = inst.renderY.toFloat()
 
 		GlStateManager.resetColor()
 
