@@ -55,16 +55,20 @@ class Notification(val message: String, val type: Type, val displayTime: Long) {
     var x = 0F
     var textLength = 0
     var fadeState = FadeState.IN
+    var messageList = Fonts.font40.listFormattedStringToWidth(message, 105)
     var stayTimer = MSTimer()
     
     private var stay = 0F
     private var fadeStep = 0F
     private var firstY = 0f
+    var notifHeight = 0f
 
     init {
-        this.firstY = 19190F
-        this.stayTimer.reset()
-        this.textLength = Fonts.font40.getStringWidth(message)
+        firstY = 19190F
+        stayTimer.reset()
+        textLength = Fonts.font40.getStringWidth(message)
+        messageList = Fonts.font40.listFormattedStringToWidth(notification.message, 105)
+        notifHeight = messageList.size.toFloat() * (Fonts.font40.FONT_HEIGHT.toFloat() + 2F) + 8F
     }
 
     enum class Type {

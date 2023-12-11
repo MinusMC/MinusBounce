@@ -30,7 +30,7 @@ class TestNotification(inst: Notifications) : NotificationStyle("Test", inst) {
     private val imgWarning = ResourceLocation("${notifyDir}warning.png")
     private val imgInfo = ResourceLocation("${notifyDir}info.png")
     
-	override fun drawStyle() {
+	override fun drawStyle(notification: Notification, y: Float) {
         val x = notification.x
         val originalX = inst.renderX.toFloat()
         val originalY = inst.renderY.toFloat()
@@ -52,7 +52,7 @@ class TestNotification(inst: Notifications) : NotificationStyle("Test", inst) {
 
         Stencil.write(true)
 
-        when (type) {
+        when (notification.type) {
             Type.ERROR -> {
                 RenderUtils.drawRoundedRect(-x + 9 + textLength, -y + 1, kek - 1, -28F - y - 1, 0F, Color(115,69,75).rgb)
                 RenderUtils.drawRoundedRect(-x + 8 + textLength, -y, kek, -28F - y, 0F, Color(89,61,65).rgb)
@@ -83,7 +83,7 @@ class TestNotification(inst: Notifications) : NotificationStyle("Test", inst) {
         GlStateManager.disableAlpha()
         GlStateManager.resetColor()
         GL11.glColor4f(1F, 1F, 1F, 1F)
-        RenderUtils.drawImage2(when (type) {
+        RenderUtils.drawImage2(when (notification.type) {
             Type.SUCCESS -> imgSuccess
             Type.ERROR -> imgError
             Type.WARNING -> imgWarning
@@ -92,6 +92,6 @@ class TestNotification(inst: Notifications) : NotificationStyle("Test", inst) {
         GlStateManager.enableAlpha()
         GL11.glPopMatrix()
 
-        Fonts.minecraftFont.drawStringWithShadow(message, -x - 4, -13F - y, -1)
+        Fonts.minecraftFont.drawStringWithShadow(notification.message, -x - 4, -13F - y, -1)
 	}
 }
