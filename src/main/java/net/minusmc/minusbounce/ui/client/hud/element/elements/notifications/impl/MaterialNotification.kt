@@ -6,6 +6,7 @@ import net.minusmc.minusbounce.ui.client.hud.element.elements.Notification.Type
 import net.minusmc.minusbounce.ui.client.hud.element.elements.Notification.FadeState
 import net.minusmc.minusbounce.ui.client.hud.element.Side
 import net.minusmc.minusbounce.ui.client.hud.element.Border
+import net.minusmc.minusbounce.ui.client.hud.designer.GuiHudDesigner
 import net.minusmc.minusbounce.ui.font.Fonts
 import net.minusmc.minusbounce.utils.render.Stencil
 import net.minusmc.minusbounce.utils.render.RenderUtils
@@ -115,13 +116,15 @@ class MaterialNotification(inst: Notifications): NotificationStyle("Material", i
             if (idx == 0 && inst.side.vertical != Side.Vertical.DOWN)
                 yPos -= notifHeight - (if (barValue.get()) 2F else 0F)
 
-            notification.drawNotification(yPos, this)
+            notification.drawNotification(yPos, inst)
             if (idx < notifications.size - 1) idx++
 
-            if (side.vertical == Side.Vertical.DOWN)
-                yPos += this.animationY
+            if (inst.side.vertical == Side.Vertical.DOWN)
+                yPos += (if (inst.side.vertical == Side.Vertical.DOWN) notifHeight 
+                else notifications[idx].notifHeight) + 5F + (if (barValue.get()) 2F else 0F)
             else 
-                yPos -= this.animationY
+                yPos -= (if (inst.side.vertical == Side.Vertical.DOWN) notifHeight 
+                else notifications[idx].notifHeight) + 5F + (if (barValue.get()) 2F else 0F)
         }
     }
 
@@ -129,7 +132,7 @@ class MaterialNotification(inst: Notifications): NotificationStyle("Material", i
         if (mc.currentScreen !is GuiHudDesigner || notifications.isNotEmpty())
             drawNotifications(notifications, 30F)
         else
-            exampleNotification.drawNotification(30f - if (inst.side.vertical != Side.Vertical.DOWN) (exampleNotification.notifHeight - 5F - (if (barValue.get()) 2F else 0F)) else 0F, this)
+            exampleNotification.drawNotification(30f - if (inst.side.vertical != Side.Vertical.DOWN) (notifHeight - 5F - (if (barValue.get()) 2F else 0F)) else 0F, inst)
 
         if (mc.currentScreen is GuiHudDesigner) {
             exampleNotification.fadeState = Notification.FadeState.STAY
@@ -143,10 +146,6 @@ class MaterialNotification(inst: Notifications): NotificationStyle("Material", i
 
         return null
     }
-
-    override val animationY: Float
-        get() = (if (inst.side.vertical == Side.Vertical.DOWN) notifHeight 
-                else notifications[indexz].notifHeight) + 5F + (if (barValue.get()) 2F else 0F)
 
     override val border: Border?
         get() = if (inst.side.vertical == Side.Vertical.DOWN) Border(-160F, -50F, 0F, -30F) else Border(-160F, -20F, 0F, 0F)

@@ -51,5 +51,6 @@ class CompactNotification(inst: Notifications): NotificationStyle("Compact", ins
 	}
 
     override val animationY = 20f
-    override val border = Border(-102F, -48F, 0F, -30F)
+    override val border: Border
+        get() = Border(-102F, -48F, 0F, -30F)
 }

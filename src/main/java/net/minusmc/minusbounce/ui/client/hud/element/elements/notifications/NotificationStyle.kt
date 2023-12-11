@@ -46,5 +46,6 @@ abstract class NotificationStyle(val styleName: String, val inst: Notifications)
         return null
     }
 
-    open val border = Border(0f, 0f, 0f, 0f)
+    open val border: Border?
+        get() = Border(0f, 0f, 0f, 0f)
 }

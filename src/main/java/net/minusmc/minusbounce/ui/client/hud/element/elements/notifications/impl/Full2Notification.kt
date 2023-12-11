@@ -81,5 +81,6 @@ class Full2Notification(inst: Notifications): NotificationStyle("Full2", inst) {
 	}
 
     override val animationY = 30f
-    override val border = Border(-130F, -58F, 0F, -30F)
+    override val border: Border
+        get() = Border(-130F, -58F, 0F, -30F)
 }
