@@ -18,6 +18,7 @@ import net.minusmc.minusbounce.utils.render.BlurUtils
 import net.minusmc.minusbounce.utils.render.RenderUtils
 import net.minusmc.minusbounce.utils.render.Stencil
 import net.minusmc.minusbounce.utils.timer.MSTimer
+import net.minusmc.minusbounce.utils.ClassUtils
 import net.minusmc.minusbounce.value.BoolValue
 import net.minusmc.minusbounce.value.FloatValue
 import net.minusmc.minusbounce.value.IntegerValue
@@ -28,7 +29,14 @@ import java.awt.Color
 @ElementInfo(name = "Notifications", single = true)
 class Notifications(x: Double = 0.0, y: Double = 30.0, scale: Float = 1F, side: Side = Side(Side.Horizontal.RIGHT, Side.Vertical.DOWN)) : Element(x, y, scale, side) {
 
-    val styleValue = ListValue("Style", arrayOf("Full", "Full2", "Compact", "Material", "Test"), "Material")
+    private val styles = ClassUtils.resolvePackage("${this.javaClass.`package`.name}.notifications", NotificationStyle::class.java)
+        .map {it.getConstructor(Notifications::class.java).newInstance(this)}
+        .sortedBy {it.styleName}
+
+    val style: NotificationStyle
+        get() = styles.find {styleValue.get().equals(it.styleName, true)} ?: throw NullPointerException()
+
+    val styleValue = ListValue("Style", styles.map {it.styleName}.toTypedArray(), "Compact")
 
     val hAnimModeValue = ListValue("H-Animation", arrayOf("LiquidBounce", "Smooth"), "LiquidBounce")
     val vAnimModeValue = ListValue("V-Animation", arrayOf("None", "Smooth"), "Smooth")
@@ -36,14 +44,7 @@ class Notifications(x: Double = 0.0, y: Double = 30.0, scale: Float = 1F, side: 
         hAnimModeValue.get().equals("smooth", true) || vAnimModeValue.get().equals("smooth", true)
     }
 
-    /**
-     * Draw element
-     */
-    override fun drawElement(): Border? = style.drawElement()
-
-    // private fun getNotifBorder() = when (styleValue.get().lowercase()) {
-    //     "test" -> Border(-130F, -58F, 0F, -30F)
-    // }
+    override fun drawElement(): Border? = style.drawElement(hud.notifications)
 }
 
 class Notification(val message: String, val type: Type, val displayTime: Long) {

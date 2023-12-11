@@ -80,7 +80,7 @@ class MaterialNotification(inst: Notifications): NotificationStyle("Material", i
         })
 
         var yHeight = 7F
-        for (s in messageList) {
+        for (s in notification.messageList) {
             Fonts.font40.drawString(s, 30F, yHeight, if (notification.type == Type.ERROR) -1 else 0)
             yHeight += Fonts.font40.FONT_HEIGHT.toFloat() + 2F
         }
@@ -127,7 +127,7 @@ class MaterialNotification(inst: Notifications): NotificationStyle("Material", i
         if (mc.currentScreen !is GuiHudDesigner || notifications.isNotEmpty())
             drawNotifications(notifications, 30F)
         else
-            exampleNotification.drawNotification(30f - if (inst.side.vertical != Side.Vertical.DOWN) (notification.notifHeight - 5F - (if (barValue.get()) 2F else 0F)) else 0F, inst)
+            exampleNotification.drawNotification(30f - if (inst.side.vertical != Side.Vertical.DOWN) (exampleNotification.notifHeight - 5F - (if (barValue.get()) 2F else 0F)) else 0F, inst)
 
         if (mc.currentScreen is GuiHudDesigner) {
             exampleNotification.fadeState = Notification.FadeState.STAY

@@ -6,11 +6,16 @@ import net.minusmc.minusbounce.ui.client.hud.element.Side
 import net.minusmc.minusbounce.utils.MinecraftInstance
 import net.minusmc.minusbounce.ui.client.hud.designer.GuiHudDesigner
 import net.minusmc.minusbounce.ui.client.hud.element.Border
+import net.minusmc.minusbounce.utils.ClassUtils
+import net.minusmc.minusbounce.value.Value
 import java.awt.Color
 
 abstract class NotificationStyle(val styleName: String, val inst: Notifications): MinecraftInstance() {
 	protected val exampleNotification = Notification("Tested", Notification.Type.INFO)
 	open val animationY = 30f
+
+    open val values: List<Value<*>>
+        get() = ClassUtils.getValues(this.javaClass, this)
 
 	open fun drawStyle(notification: Notification, y: Float) {}
 
