@@ -176,7 +176,11 @@ class Notification(message : String, type : Type, displayLength: Long) {
 
         val originalX = parent.renderX.toFloat()
         val originalY = parent.renderY.toFloat()
-        val width = if (style.equals("material", true)) 160F else textLength.toFloat() + 8.0f
+        val width = when (style.lowercase()) {
+            "material" -> 160F
+            "novoline" -> Fonts.font32.getStringWidth(content) + 53
+            else -> textLength.toFloat() + 8.0f
+        }
 
         val novolineColorStart = Color(parent.novolineColorStartRed.get(), parent.novolineColorStartGreen.get(), parent.novolineColorStartBlue.get())
         val novolineColorEnd = Color(parent.novolineColorEndRed.get(), parent.novolineColorEndGreen.get(), parent.novolineColorEndBlue.get())
@@ -189,7 +193,10 @@ class Notification(message : String, type : Type, displayLength: Long) {
             Type.WARNING -> Color(255, 255, 0).rgb
         }
 
+
+        
         // Novoline
+        val height = 30
         val realY = -(index + 1) * (height + 10)
         val nowTime = System.currentTimeMillis()
 
@@ -483,7 +490,7 @@ class Notification(message : String, type : Type, displayLength: Long) {
                 Fonts.font37.drawStringWithShadow("$title", 24.5F, 7F, Color.WHITE.rgb)
                 Fonts.font32.drawStringWithShadow("$content" + " (" + BigDecimal(((time - time * ((nowTime - displayTime) / (animeTime * 2F + time))) / 1000).toDouble()).setScale(1, BigDecimal.ROUND_HALF_UP).toString() + "s)", 24.5F, 17.3F, Color.WHITE.rgb)
                 drawFilledCircle(13, 15, 8.5F,Color.BLACK)
-                Fonts.Nicon80.drawString(when(type) {
+                Fo-nts.Nicon80.drawString(when(type) {
                     Type.SUCCESS -> "a"
                     Type.ERROR -> "B"
                     Type.WARNING -> "D"
