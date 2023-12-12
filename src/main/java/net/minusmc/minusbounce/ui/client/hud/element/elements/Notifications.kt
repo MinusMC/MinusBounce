@@ -74,7 +74,7 @@ class Notifications(x: Double = 0.0, y: Double = 30.0, scale: Float = 1F,
             var indexz = 0
             for (i in notifications) {
                 if (indexz == 0 && styleValue.get().equals("material", true) && side.vertical != Side.Vertical.DOWN) animationY -= i.notifHeight - (if (barValue.get()) 2F else 0F)
-                if (styleValue.get().equals("Novoline", true)) i.drawNotificationNovoline(indexz) else i.drawNotification(animationY, this)
+                if (styleValue.get().equals("Novoline", true)) i.drawNotificationNovoline(indexz, this) else i.drawNotification(animationY, this)
                 if (indexz < notifications.size - 1) indexz++
                 animationY += (when (styleValue.get().lowercase()) {
                     "compact" -> 20F
@@ -110,7 +110,7 @@ class Notifications(x: Double = 0.0, y: Double = 30.0, scale: Float = 1F,
         else -> if (side.vertical == Side.Vertical.DOWN) Border(-160F, -50F, 0F, -30F) else Border(-160F, -20F, 0F, 0F)
     }
 }
-class Notification(val message: String, val description: String, val type: Type, val displayTime: Long, val animateTime: Long = 500L) {
+class Notification(val message: String, val description: String, val type: Type, val displayTime: Long, val animeTime: Long = 500L) {
     constructor(message: String) : this(message, "", Type.INFO, 500L)
     constructor(message: String, type: Type) : this(message, "", type, 2000L)
     constructor(message: String, displayTime: Long) : this(message, "", Type.INFO, displayTime)
@@ -163,7 +163,11 @@ class Notification(val message: String, val description: String, val type: Type,
         IN, STAY, OUT, END
     }
 
-    fun drawNotificationNovoline(index: Int) {
+    fun drawNotificationNovoline(index: Int, parent: Notifications) {
+        val novolineColorStart = Color(parent.novolineColorStartRed.get(), parent.novolineColorStartGreen.get(), parent.novolineColorStartBlue.get())
+        val novolineColorEnd = Color(parent.novolineColorEndRed.get(), parent.novolineColorEndGreen.get(), parent.novolineColorEndBlue.get())
+        val width = Fonts.font32.getStringWidth(description) + 53
+
         val realY = -(index + 1) * (height + 10)
         val nowTime = System.currentTimeMillis()
 
@@ -212,6 +216,11 @@ class Notification(val message: String, val description: String, val type: Type,
             FadeState.END -> hud.removeNotification(this)
         }
 
+        val novolineIcon80 = when (type) {
+            Type.SUCCESS, Type.ERROR -> Fonts.novolineIcon2
+            else -> Fonts.novolineIcon
+        }
+
         GL11.glScaled(pct, pct, pct)
         GL11.glTranslatef(-width.toFloat() / 2 , -height.toFloat() / 2, 0F)
         RenderUtils.drawRect(0F, 0F, width.toFloat(), height.toFloat(), Color(63, 63, 63, 140))
@@ -220,11 +229,11 @@ class Notification(val message: String, val description: String, val type: Type,
         Fonts.font37.drawStringWithShadow(message, 24.5F, 7F, Color.WHITE.rgb)
         Fonts.font32.drawStringWithShadow(description + " (" + BigDecimal(((displayTime - displayTime * ((nowTime - displayTime) / (animeTime * 2F + displayTime))) / 1000).toDouble()).setScale(1, BigDecimal.ROUND_HALF_UP).toString() + "s)", 24.5F, 17.3F, Color.WHITE.rgb)
         RenderUtils.drawFilledCircle(13, 15, 8.5F,Color.BLACK)
-        Fonts.Nicon80.drawString(when(type) {
-            Type.SUCCESS -> "a"
-            Type.ERROR -> "B"
-            Type.WARNING -> "D"
-            Type.INFO -> "C"
+        Fonts.novolineIcon80.drawString(when(type) {
+            Type.SUCCESS -> "M"
+            Type.ERROR -> "L"
+            Type.WARNING -> "A"
+            Type.INFO -> "B"
         }, 3, 8, Color.WHITE.rgb)
         RenderUtils.drawCircle(12.9f, 15.0f, 8.8f, 0, 360)
         GlStateManager.resetColor()
@@ -247,12 +256,8 @@ class Notification(val message: String, val description: String, val type: Type,
         val originalY = parent.renderY.toFloat()
         width = when (style.lowercase()) {
             "material" -> 160F
-            "novoline" -> Fonts.font32.getStringWidth(description) + 53
             else -> textLength.toFloat() + 8.0f
         }
-
-        val novolineColorStart = Color(parent.novolineColorStartRed.get(), parent.novolineColorStartGreen.get(), parent.novolineColorStartBlue.get())
-        val novolineColorEnd = Color(parent.novolineColorEndRed.get(), parent.novolineColorEndGreen.get(), parent.novolineColorEndBlue.get())
 
         val backgroundColor = Color(0, 0, 0, parent.bgAlphaValue.get())
         val enumColor = when (type) {
@@ -499,47 +504,45 @@ class Notification(val message: String, val description: String, val type: Type,
             }
         }
 
-        if (!styleValue.get().equals("novoline", true)) {
-            when (fadeState) {
-                FadeState.IN -> {
-                    if (x < width) {
-                        x = if (hAnimMode.equals("smooth", true))
-                            net.minusmc.minusbounce.utils.AnimationUtils.animate(width, x, animSpeed * 0.025F * delta)
-                        else
-                            AnimationUtils.easeOut(fadeStep, width) * width
-                        fadeStep += delta / 4F
-                    }
-                    if (x >= width) {
-                        fadeState = FadeState.STAY
-                        x = width
-                        fadeStep = width
-                    }
-
-                    stay = 60F
-                    stayTimer.reset()
-                }
-
-                FadeState.STAY -> {
-                    if (stay > 0) {
-                        stay = 0F
-                        stayTimer.reset()
-                    }
-                    if (stayTimer.hasTimePassed(displayTime))
-                        fadeState = FadeState.OUT
-                }
-
-                FadeState.OUT -> if (x > 0) {
+        when (fadeState) {
+            FadeState.IN -> {
+                if (x < width) {
                     x = if (hAnimMode.equals("smooth", true))
-                        net.minusmc.minusbounce.utils.AnimationUtils.animate(-width / 2F, x, animSpeed * 0.025F * delta)
+                        AnimationUtils.animate(width, x, animSpeed * 0.025F * delta)
                     else
                         AnimationUtils.easeOut(fadeStep, width) * width
+                    fadeStep += delta / 4F
+                }
+                if (x >= width) {
+                    fadeState = FadeState.STAY
+                    x = width
+                    fadeStep = width
+                }
 
-                    fadeStep -= delta / 4F
-                } else
-                    fadeState = FadeState.END
-
-                FadeState.END -> hud.removeNotification(this)
+                stay = 60F
+                stayTimer.reset()
             }
+
+            FadeState.STAY -> {
+                if (stay > 0) {
+                    stay = 0F
+                    stayTimer.reset()
+                }
+                if (stayTimer.hasTimePassed(displayTime))
+                    fadeState = FadeState.OUT
+            }
+
+            FadeState.OUT -> if (x > 0) {
+                x = if (hAnimMode.equals("smooth", true))
+                    AnimationUtils.animate(-width / 2F, x, animSpeed * 0.025F * delta)
+                else
+                    AnimationUtils.easeOut(fadeStep, width) * width
+
+                fadeStep -= delta / 4F
+            } else
+                fadeState = FadeState.END
+
+            FadeState.END -> hud.removeNotification(this)
         }
     }
 }

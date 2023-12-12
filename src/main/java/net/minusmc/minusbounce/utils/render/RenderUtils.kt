@@ -1321,7 +1321,7 @@ object RenderUtils : MinecraftInstance() {
         GL11.glBegin(GL11.GL_LINE_STRIP)
         var i = end.toFloat()
         while (i >= start) {
-            var c = RenderUtils.getGradientOffset(color1, color2, 1), (abs(System.currentTimeMillis() / 360.0 + (i * 34 / 360) * 56 / 100) / 10)).rgb
+            var c = ColorUtils.getGradientOffset(color1, color2, 1, (abs(System.currentTimeMillis() / 360.0 + (i * 34 / 360) * 56 / 100) / 10)).rgb
             val f2 = (c shr 24 and 255).toFloat() / 255.0f
             val f22 = (c shr 16 and 255).toFloat() / 255.0f
             val f3 = (c shr 8 and 255).toFloat() / 255.0f

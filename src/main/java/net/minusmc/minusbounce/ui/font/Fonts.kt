@@ -16,8 +16,14 @@ import java.io.*
 import java.util.zip.ZipInputStream
 
 object Fonts {
+    @field:FontDetails(fontName = "Roboto Medium", fontSize = 32)
+    lateinit var font32: GameFontRenderer
+
     @field:FontDetails(fontName = "Roboto Medium", fontSize = 35)
     lateinit var font35: GameFontRenderer
+
+    @field:FontDetails(fontName = "Roboto Medium", fontSize = 37)
+    lateinit var font37: GameFontRenderer
 
     @field:FontDetails(fontName = "Roboto Medium", fontSize = 40)
     lateinit var font40: GameFontRenderer
@@ -67,6 +73,12 @@ object Fonts {
     @FontDetails(fontName = "TenacityIcon30", fontSize = 30)
     lateinit var fontTenacityIcon30: GameFontRenderer
 
+    @FontDetails(fontName = "NovolineIcon", fontSize = 80)
+    lateinit var novolineIcon: GameFontRenderer
+
+    @FontDetails(fontName = "NovolineIcon2", fontSize = 80)
+    lateinit var novolineIcon2: GameFontRenderer
+
     @field:FontDetails(fontName = "Minecraft Font")
     val minecraftFont: FontRenderer = Minecraft.getMinecraft().fontRendererObj
 
@@ -80,7 +92,9 @@ object Fonts {
         val l = System.currentTimeMillis()
         ClientUtils.logger.info("Loading Fonts.")
         downloadFonts()
+        font32 = GameFontRenderer(getFont("Roboto-Medium.ttf", 32))
         font35 = GameFontRenderer(getFont("Roboto-Medium.ttf", 35))
+        font37 = GameFontRenderer(getFont("Roboto-Medium.ttf", 37))
         font40 = GameFontRenderer(getFont("Roboto-Medium.ttf", 40))
         font50 = GameFontRenderer(getFont("Roboto-Medium.ttf", 50))
         font72 = GameFontRenderer(getFont("Roboto-Medium.ttf", 72))
@@ -98,6 +112,8 @@ object Fonts {
         fontTenacityBold35 = GameFontRenderer(getFont("Tenacity-Bold.ttf", 35))
         fontTenacityBold40 = GameFontRenderer(getFont("Tenacity-Bold.ttf", 40))
         fontTenacityIcon30 = GameFontRenderer(getFont("TenacityIcon.ttf", 30))
+        novolineIcon = GameFontRenderer(getFont("novolineNoti.ttf", 80))
+        novolineIcon2 = GameFontRenderer(getFont("novolineNoti2.ttf", 80))
         try {
             CUSTOM_FONT_RENDERERS.clear()
             val fontsFile = File(MinusBounce.fileManager.fontsDir, "fonts.json")
@@ -131,7 +147,7 @@ object Fonts {
     private fun isExistFonts(): Boolean {
         val outputFile = File(MinusBounce.fileManager.fontsDir, "fonts.zip")
         if (!outputFile.exists()) return false
-        val fonts = arrayOf("sfui.ttf", "Roboto-Medium.ttf", "TahomaBold.ttf", "Tahoma.ttf", "Bangers-Regular.ttf", "Blanka-Regular.otf", "Tenacity.ttf", "Tenacity-Bold.ttf", "TenacityIcon.ttf")
+        val fonts = arrayOf("sfui.ttf", "Roboto-Medium.ttf", "TahomaBold.ttf", "Tahoma.ttf", "Bangers-Regular.ttf", "Blanka-Regular.otf", "Tenacity.ttf", "Tenacity-Bold.ttf", "TenacityIcon.ttf", "novolineIcon.ttf", "novolineIcon2.ttf")
         for (font in fonts) {
             val fontFile = File(MinusBounce.fileManager.fontsDir, font)
             if (!fontFile.exists()) return false

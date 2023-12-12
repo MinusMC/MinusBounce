@@ -7,6 +7,7 @@ package net.minusmc.minusbounce.utils.render
 
 import kotlin.math.max
 import kotlin.math.min
+import kotlin.math.pow
 
 object AnimationUtils {
     fun easeOut(t: Float, d: Float): Float {
