@@ -25,6 +25,8 @@ import net.minusmc.minusbounce.value.IntegerValue
 import net.minusmc.minusbounce.value.ListValue
 import org.lwjgl.opengl.GL11
 import java.awt.Color
+import java.math.BigDecimal
+import kotlin.math.pow
 
 @ElementInfo(name = "Notifications", single = true)
 class Notifications(x: Double = 0.0, y: Double = 30.0, scale: Float = 1F,
@@ -108,7 +110,7 @@ class Notifications(x: Double = 0.0, y: Double = 30.0, scale: Float = 1F,
         else -> if (side.vertical == Side.Vertical.DOWN) Border(-160F, -50F, 0F, -30F) else Border(-160F, -20F, 0F, 0F)
     }
 }
-class Notification(val message: String, val description: String, val type: Type, val displayTime: Long) {
+class Notification(val message: String, val description: String, val type: Type, val displayTime: Long, val animateTime: Long = 500L) {
     constructor(message: String) : this(message, "", Type.INFO, 500L)
     constructor(message: String, type: Type) : this(message, "", type, 2000L)
     constructor(message: String, displayTime: Long) : this(message, "", Type.INFO, displayTime)
@@ -192,7 +194,7 @@ class Notification(val message: String, val description: String, val type: Type,
 
             FadeState.STAY -> {
                 pct = 1.0
-                if ((nowTime - animeXTime) > time) {
+                if ((nowTime - animeXTime) > displayTime) {
                     fadeState = FadeState.OUT
                     animeXTime = nowTime
                 }
@@ -204,7 +206,7 @@ class Notification(val message: String, val description: String, val type: Type,
                     animeXTime = nowTime
                     pct = 1.0
                 }
-                pct = 1 - easeInBack(pct)
+                pct = 1 - AnimationUtils.easeInBack(pct)
             }
 
             FadeState.END -> hud.removeNotification(this)
@@ -213,18 +215,18 @@ class Notification(val message: String, val description: String, val type: Type,
         GL11.glScaled(pct, pct, pct)
         GL11.glTranslatef(-width.toFloat() / 2 , -height.toFloat() / 2, 0F)
         RenderUtils.drawRect(0F, 0F, width.toFloat(), height.toFloat(), Color(63, 63, 63, 140))
-        drawGradientSideways(0.0, height - 1.7,
-            (width * ((nowTime - displayTime) / (animeTime * 2F + time))).toDouble(), height.toDouble(), novolineColorStart.rgb, novolineColorEnd.rgb)
+        RenderUtils.drawGradientSideways(0.0, height - 1.7,
+            (width * ((nowTime - displayTime) / (animeTime * 2F + displayTime))).toDouble(), height.toDouble(), novolineColorStart.rgb, novolineColorEnd.rgb)
         Fonts.font37.drawStringWithShadow(message, 24.5F, 7F, Color.WHITE.rgb)
-        Fonts.font32.drawStringWithShadow(description + " (" + BigDecimal(((time - time * ((nowTime - displayTime) / (animeTime * 2F + time))) / 1000).toDouble()).setScale(1, BigDecimal.ROUND_HALF_UP).toString() + "s)", 24.5F, 17.3F, Color.WHITE.rgb)
-        drawFilledCircle(13, 15, 8.5F,Color.BLACK)
+        Fonts.font32.drawStringWithShadow(description + " (" + BigDecimal(((displayTime - displayTime * ((nowTime - displayTime) / (animeTime * 2F + displayTime))) / 1000).toDouble()).setScale(1, BigDecimal.ROUND_HALF_UP).toString() + "s)", 24.5F, 17.3F, Color.WHITE.rgb)
+        RenderUtils.drawFilledCircle(13, 15, 8.5F,Color.BLACK)
         Fonts.Nicon80.drawString(when(type) {
             Type.SUCCESS -> "a"
             Type.ERROR -> "B"
             Type.WARNING -> "D"
             Type.INFO -> "C"
         }, 3, 8, Color.WHITE.rgb)
-        drawCircle(12.9f, 15.0f, 8.8f, 0, 360)
+        RenderUtils.drawCircle(12.9f, 15.0f, 8.8f, 0, 360)
         GlStateManager.resetColor()
     }
 
@@ -245,7 +247,7 @@ class Notification(val message: String, val description: String, val type: Type,
         val originalY = parent.renderY.toFloat()
         width = when (style.lowercase()) {
             "material" -> 160F
-            "novoline" -> Fonts.font32.getStringWidth(content) + 53
+            "novoline" -> Fonts.font32.getStringWidth(description) + 53
             else -> textLength.toFloat() + 8.0f
         }
 
