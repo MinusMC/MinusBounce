@@ -111,10 +111,11 @@ class Notifications(x: Double = 0.0, y: Double = 30.0, scale: Float = 1F,
 class Notification(val message: String, val description: String, val type: Type, val displayTime: Long) {
     constructor(message: String) : this(message, "", Type.INFO, 500L)
     constructor(message: String, type: Type) : this(message, "", type, 2000L)
-    constructor(message: String, displayLength: Long) : this(message, "", Type.INFO, displayLength)
+    constructor(message: String, displayTime: Long) : this(message, "", Type.INFO, displayTime)
+    constructor(message: String, type: Type, displayTime: Long): this(message, "", type, displayTime)
     constructor(message: String, description: String) : this(message, description, Type.INFO, 500L)
     constructor(message: String, description: String, type: Type) : this(message, description, type, 2000L)
-    constructor(message: String, description: String, displayLength: Long) : this(message, description, Type.INFO, displayLength)
+    constructor(message: String, description: String, displayTime: Long) : this(message, description, Type.INFO, displayTime)
 
 
     private val notifyDir = "minusbounce/notification/"
