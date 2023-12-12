@@ -132,9 +132,9 @@ class Notification(val message: String, val description: String, val type: Type,
 
     var x = 0F
     val height = 30
+    var nowY = -height
     var textLength = 0
     var fadeState = FadeState.IN
-    var displayTime = 0L
     var stayTimer = MSTimer()
     var notifHeight = 0F
     var animeXTime = System.currentTimeMillis()
@@ -171,7 +171,7 @@ class Notification(val message: String, val description: String, val type: Type,
                 nowY = realY
                 pct = 1.0
             } else {
-                pct = easeOutBack(pct)
+                pct = AnimationUtils.easeOutBack(pct)
             }
             GL11.glTranslated(0.0, (realY - nowY) * pct, 0.0)
         } else {
@@ -187,7 +187,7 @@ class Notification(val message: String, val description: String, val type: Type,
                     animeXTime = nowTime
                     pct = 1.0
                 }
-                pct = easeOutBack(pct)
+                pct = AnimationUtils.easeOutBack(pct)
             }
 
             FadeState.STAY -> {
@@ -264,7 +264,7 @@ class Notification(val message: String, val description: String, val type: Type,
             if (firstY == 19190.0F)
                 animationY
             else
-                net.minusmc.minusbounce.utils.AnimationUtils.animate(animationY, firstY, 0.02F * delta)
+                AnimationUtils.animate(animationY, firstY, 0.02F * delta)
         } else {
             animationY
         }
