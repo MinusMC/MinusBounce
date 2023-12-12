@@ -229,7 +229,7 @@ class Notification(val message: String, val description: String, val type: Type,
         Fonts.font37.drawStringWithShadow(message, 24.5F, 7F, Color.WHITE.rgb)
         Fonts.font32.drawStringWithShadow(description + " (" + BigDecimal(((displayTime - displayTime * ((nowTime - displayTime) / (animeTime * 2F + displayTime))) / 1000).toDouble()).setScale(1, BigDecimal.ROUND_HALF_UP).toString() + "s)", 24.5F, 17.3F, Color.WHITE.rgb)
         RenderUtils.drawFilledCircle(13, 15, 8.5F,Color.BLACK)
-        Fonts.novolineIcon80.drawString(when(type) {
+        novolineIcon80.drawString(when(type) {
             Type.SUCCESS -> "M"
             Type.ERROR -> "L"
             Type.WARNING -> "A"
