@@ -127,6 +127,8 @@ class Notification(message : String, type : Type, displayLength: Long) {
     var displayTime = 0L
     var stayTimer = MSTimer()
     var notifHeight = 0F
+    var animeXTime = System.currentTimeMillis()
+    var animeYTime = System.currentTimeMillis()
     private var message = ""
     private var messageList : List<String>
     private var stay = 0F
@@ -176,8 +178,8 @@ class Notification(message : String, type : Type, displayLength: Long) {
         val originalY = parent.renderY.toFloat()
         val width = if (style.equals("material", true)) 160F else textLength.toFloat() + 8.0f
 
-        val novolineColorStart = Color(novolineColorStartRed.get(), novolineColorStartGreen.get(), novolineColorStartBlue.get())
-        val novolineColorEnd = Color(novolineColorEndRed.get(), novolineColorEndGreen.get(), novolineColorEndBlue.get())
+        val novolineColorStart = Color(parent.novolineColorStartRed.get(), parent.novolineColorStartGreen.get(), parent.novolineColorStartBlue.get())
+        val novolineColorEnd = Color(parent.novolineColorEndRed.get(), parent.novolineColorEndGreen.get(), parent.novolineColorEndBlue.get())
 
         val backgroundColor = Color(0, 0, 0, parent.bgAlphaValue.get())
         val enumColor = when (type) {
@@ -218,35 +220,36 @@ class Notification(message : String, type : Type, displayLength: Long) {
 
         val y = firstY
 
-        if (styleValue.get().equals("Novoline", true)) {
-            FadeState.IN -> {
-                if (pct > 1) {
-                    fadeState = FadeState.STAY
-                    animeXTime = nowTime
+        if (styleValue.get().equals("Novoline", true))
+            when (fadeState) {
+                FadeState.IN -> {
+                    if (pct > 1) {
+                        fadeState = FadeState.STAY
+                        animeXTime = nowTime
+                        pct = 1.0
+                    }
+                    pct = easeOutBack(pct)
+                }
+
+                FadeState.STAY -> {
                     pct = 1.0
+                    if ((nowTime - animeXTime) > time) {
+                        fadeState = FadeState.OUT
+                        animeXTime = nowTime
+                    }
                 }
-                pct = easeOutBack(pct)
-            }
 
-            FadeState.STAY -> {
-                pct = 1.0
-                if ((nowTime - animeXTime) > time) {
-                    fadeState = FadeState.OUT
-                    animeXTime = nowTime
+                FadeState.OUT -> {
+                    if (pct > 1) {
+                        fadeState = FadeState.END
+                        animeXTime = nowTime
+                        pct = 1.0
+                    }
+                    pct = 1 - easeInBack(pct)
                 }
-            }
 
-            FadeState.OUT -> {
-                if (pct > 1) {
-                    fadeState = FadeState.END
-                    animeXTime = nowTime
-                    pct = 1.0
-                }
-                pct = 1 - easeInBack(pct)
-            }
-
-            FadeState.END -> hud.removeNotification(this)
-        } 
+                FadeState.END -> hud.removeNotification(this)
+            } 
 
         when (style.lowercase()) {
             "compact" -> {
