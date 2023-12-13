@@ -267,13 +267,13 @@ class KillAura : Module() {
                 startBlocking(currentTarget!!, hitable)
 
             if (autoBlockModeValue.get().equals("RightHold", true) && canBlock) {
-                mc.gameSettings.keyBindUseItem.pressed = mc.thePlayer.getDistanceToEntityBox(target!!) < maxRange
+                mc.gameSettings.keyBindUseItem.pressed = mc.thePlayer.getDistanceToEntityBox(target!!) < range
             }
 
             if (autoBlockModeValue.get().equals("OldHypixel", true)) {
                 when (mc.thePlayer.swingProgressInt) {
                     1 -> stopBlocking()
-                    2 -> startBlocking(currentTarget!!, interactAutoBlockValue.get() && mc.thePlayer.getDistanceToEntityBox(currentTarget!!) < maxRange)
+                    2 -> startBlocking(currentTarget!!, interactAutoBlockValue.get() && mc.thePlayer.getDistanceToEntityBox(currentTarget!!) < range)
                 }
             }
         }
@@ -616,7 +616,7 @@ class KillAura : Module() {
             val distance = mc.thePlayer.getDistanceToEntityBox(entity)
             val entityFov = RotationUtils.getRotationDifference(entity)
 
-            if (distance <= maxRange && (fov == 180F || entityFov <= fov) && entity.hurtTime <= hurtTime)
+            if (distance <= range && (fov == 180F || entityFov <= fov) && entity.hurtTime <= hurtTime)
                 targets.add(entity)
         }
 
@@ -768,7 +768,7 @@ class KillAura : Module() {
                         randomCenterValue.get(),
                         predictValue.get(),
                         mc.thePlayer!!.getDistanceToEntityBox(entity) < throughWallsRangeValue.get(),
-                        maxRange,
+                        range,
                         RandomUtils.nextFloat(minRand.get(), maxRand.get()),
                         randomCenterNewValue.get()
                 ) ?: return null
@@ -778,7 +778,7 @@ class KillAura : Module() {
                 limitedRotation
             }
             "backtrack" -> {
-                val rotation = RotationUtils.otherRotation(boundingBox, RotationUtils.getCenter(entity.entityBoundingBox), predictValue.get(), mc.thePlayer!!.getDistanceToEntityBox(entity) < throughWallsRangeValue.get(), maxRange)
+                val rotation = RotationUtils.otherRotation(boundingBox, RotationUtils.getCenter(entity.entityBoundingBox), predictValue.get(), mc.thePlayer!!.getDistanceToEntityBox(entity) < throughWallsRangeValue.get(), range)
                 val limitedRotation = RotationUtils.limitAngleChange(RotationUtils.serverRotation!!, rotation, rotationSpeed)
 
                 limitedRotation
@@ -794,7 +794,7 @@ class KillAura : Module() {
                 Rotation(yaw.toFloat(), pitch.toFloat())
             }
             "ncp" -> {
-                val rotation = RotationUtils.otherRotation(boundingBox, RotationUtils.getCenter(entity.entityBoundingBox), false, mc.thePlayer!!.getDistanceToEntityBox(entity) < rangeValue.get() - 0.5f, maxRange)
+                val rotation = RotationUtils.otherRotation(boundingBox, RotationUtils.getCenter(entity.entityBoundingBox), false, mc.thePlayer!!.getDistanceToEntityBox(entity) < rangeValue.get() - 0.5f, range)
                 val limitedRotation = RotationUtils.limitAngleChange(RotationUtils.serverRotation!!, rotation, rotationSpeed)
                 limitedRotation
             }
@@ -851,7 +851,7 @@ class KillAura : Module() {
             return
         }
 
-        val reach = min(maxRange.toDouble(), mc.thePlayer.getDistanceToEntityBox(target!!)) + 1
+        val reach = min(range.toDouble(), mc.thePlayer.getDistanceToEntityBox(target!!)) + 1
 
         if (raycastValue.get()) {
             val raycastedEntity = RaycastUtils.raycastEntity(reach, object: RaycastUtils.IEntityFilter {
@@ -903,21 +903,20 @@ class KillAura : Module() {
     }
 
     private fun postBlocking(entity: EntityLivingBase) {
-        if (autoBlockModeValue.get().equals("None", true) || autoBlockModeValue.get().equals("Fake", true))
-            return
+        if (mc.thePlayer.isBlocking || (autoBlockModeValue.get().equals("None", true) || autoBlockModeValue.get().equals("Fake", true) && canBlock) {
+            if (blockRate.get() > 0 && Random().nextInt(100) <= blockRate.get()) {
+                if (smartAutoBlockValue.get() && clicks != 1 && mc.thePlayer.getDistanceToEntityBox(entity) < range && mc.thePlayer.hurtTime < 4)
+                    return
 
-        if (!(blockRate.get() > 0 && Random().nextInt(100) <= blockRate.get()))
-            return
-
-        if (smartAutoBlockValue.get() && clicks != 1 && mc.thePlayer.getDistanceToEntityBox(entity) < maxRange && mc.thePlayer.hurtTime < 4)
-            return
-
-        when (autoBlockModeValue.get().lowercase()) {
-            "vanilla" -> startBlocking(entity, interactAutoBlockValue.get())
-            "test" -> if (mc.thePlayer.ticksExisted.let { it in 0..15 && it % 5 == 0 }) startBlocking(entity, interactAutoBlockValue.get())
-            "polar" -> if (mc.thePlayer.hurtTime < 8 && mc.thePlayer.hurtTime != 1 && mc.thePlayer.fallDistance > 0) startBlocking(entity, interactAutoBlockValue.get())
-            else -> return
+                when (autoBlockModeValue.get().lowercase()) {
+                    "vanilla" -> startBlocking(entity, interactAutoBlockValue.get())
+                    "test" -> if (mc.thePlayer.ticksExisted.let { it in 0..15 && it % 5 == 0 }) startBlocking(entity, interactAutoBlockValue.get())
+                    "polar" -> if (mc.thePlayer.hurtTime < 8 && mc.thePlayer.hurtTime != 1 && mc.thePlayer.fallDistance > 0) startBlocking(entity, interactAutoBlockValue.get())
+                    else -> null
+                }
+            }
         }
+        
     }
 
     private fun startBlocking(interactEntity: Entity, interact: Boolean) {
@@ -942,7 +941,7 @@ class KillAura : Module() {
             val yawSin = sin(-yaw * 0.017453292F - Math.PI.toFloat())
             val pitchCos = -cos(-pitch * 0.017453292F)
             val pitchSin = sin(-pitch * 0.017453292F)
-            val range = min(maxRange.toDouble(), mc.thePlayer!!.getDistanceToEntityBox(interactEntity)) + 1
+            val range = min(range.toDouble(), mc.thePlayer!!.getDistanceToEntityBox(interactEntity)) + 1
             val lookAt = positionEye!!.addVector(yawSin * pitchCos * range, pitchSin * range, yawCos * pitchCos * range)
 
             val movingObject = boundingBox.calculateIntercept(positionEye, lookAt) ?: return
@@ -975,8 +974,8 @@ class KillAura : Module() {
     private val canBlock: Boolean
         get() = mc.thePlayer.heldItem != null && mc.thePlayer.heldItem.item is ItemSword
 
-    private val maxRange: Float
-        get() = max(rangeValue.get(), throughWallsRangeValue.get())
+    private val range: Float
+        get() = if (mc.thePlayer.canEntityBeSeen(entity)) attackRange else throughWallsAttackRange
 
     private fun getRange(entity: Entity) =
         if (mc.thePlayer.getDistanceToEntityBox(entity) >= throughWallsRangeValue.get()) rangeValue.get() else throughWallsRangeValue.get()

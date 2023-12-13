@@ -32,7 +32,7 @@ import kotlin.math.pow
 class Notifications(x: Double = 0.0, y: Double = 30.0, scale: Float = 1F,
                     side: Side = Side(Side.Horizontal.RIGHT, Side.Vertical.DOWN)) : Element(x, y, scale, side) {
 
-    val styleValue = ListValue("Style", arrayOf("Full", "Full2", "Compact", "Material", "Test", "Novoline"), "Material")
+    val styleValue = ListValue("Style", arrayOf("Full", "Full2", "Compact", "Material", "Test"), "Material")
     val barValue = BoolValue("Bar", true) { styleValue.get().equals("material", true) }
     val bgAlphaValue = IntegerValue("Background-Alpha", 120, 0, 255) { !styleValue.get().equals("material", true) }
 
@@ -40,14 +40,6 @@ class Notifications(x: Double = 0.0, y: Double = 30.0, scale: Float = 1F,
     val blurStrength = FloatValue("Strength", 0F, 0F, 30F) {
         !styleValue.get().equals("material", true) && blurValue.get()
     }
-
-    val novolineColorStartRed = IntegerValue("NovolineColorStartRed", 0, 0, 255) {styleValue.get().equals("Novoline", true)}
-    val novolineColorStartGreen = IntegerValue("NovolineColorStartGreen", 0, 0, 255) {styleValue.get().equals("Novoline", true)}
-    val novolineColorStartBlue = IntegerValue("NovolineColorStartBlue", 0, 0, 255) {styleValue.get().equals("Novoline", true)}
-
-    val novolineColorEndRed = IntegerValue("NovolineColorEndRed", 0, 0, 255) {styleValue.get().equals("Novoline", true)}
-    val novolineColorEndGreen = IntegerValue("NovolineColorEndGreen", 0, 0, 255) {styleValue.get().equals("Novoline", true)}
-    val novolineColorEndBlue = IntegerValue("NovolineColorEndBlue", 0, 0, 255) {styleValue.get().equals("Novoline", true)}
 
     val hAnimModeValue = ListValue("H-Animation", arrayOf("LiquidBounce", "Smooth"), "LiquidBounce")
     val vAnimModeValue = ListValue("V-Animation", arrayOf("None", "Smooth"), "Smooth")
@@ -89,6 +81,9 @@ class Notifications(x: Double = 0.0, y: Double = 30.0, scale: Float = 1F,
         }
 
         if (mc.currentScreen is GuiHudDesigner) {
+            if (!LiquidBounce.hud.notifications.contains(exampleNotification))
+                LiquidBounce.hud.addNotification(exampleNotification)
+
             exampleNotification.fadeState = Notification.FadeState.STAY
             exampleNotification.x = if (styleValue.get().equals("material", true)) 160F else exampleNotification.textLength + 8F
 
@@ -106,19 +101,13 @@ class Notifications(x: Double = 0.0, y: Double = 30.0, scale: Float = 1F,
         "full2" -> Border(-130F, -58F, 0F, -30F)
         "test" -> Border(-130F, -58F, 0F, -30F)
         "compact" -> Border(-102F, -48F, 0F, -30F)
-        "novoline" -> Border(-exampleNotification.width.toFloat() + 80, -exampleNotification.height.toFloat() -24.5f, 80F, -24.5F)
         else -> if (side.vertical == Side.Vertical.DOWN) Border(-160F, -50F, 0F, -30F) else Border(-160F, -20F, 0F, 0F)
     }
 }
-class Notification(val message: String, val description: String, val type: Type, val displayTime: Long, val animeTime: Long = 500L) {
-    constructor(message: String) : this(message, "", Type.INFO, 500L)
-    constructor(message: String, type: Type) : this(message, "", type, 2000L)
-    constructor(message: String, displayTime: Long) : this(message, "", Type.INFO, displayTime)
-    constructor(message: String, type: Type, displayTime: Long): this(message, "", type, displayTime)
-    constructor(message: String, description: String) : this(message, description, Type.INFO, 500L)
-    constructor(message: String, description: String, type: Type) : this(message, description, type, 2000L)
-    constructor(message: String, description: String, displayTime: Long) : this(message, description, Type.INFO, displayTime)
-
+class Notification(val message: String, val type: Type, val displayTime: Long) {
+    constructor(message: String) : this(message, Type.INFO, 500L)
+    constructor(message: String, type: Type) : this(message, type, 2000L)
+    constructor(message: String, displayTime: Long) : this(message, Type.INFO, displayTime)
 
     private val notifyDir = "minusbounce/notification/"
 
@@ -161,82 +150,6 @@ class Notification(val message: String, val description: String, val type: Type,
 
     enum class FadeState {
         IN, STAY, OUT, END
-    }
-
-    fun drawNotificationNovoline(index: Int, parent: Notifications) {
-        val novolineColorStart = Color(parent.novolineColorStartRed.get(), parent.novolineColorStartGreen.get(), parent.novolineColorStartBlue.get())
-        val novolineColorEnd = Color(parent.novolineColorEndRed.get(), parent.novolineColorEndGreen.get(), parent.novolineColorEndBlue.get())
-        val width = Fonts.font32.getStringWidth(description) + 53
-
-        val realY = -(index + 1) * (height + 10)
-        val nowTime = System.currentTimeMillis()
-
-        if (nowY != realY) {
-            var pct = (nowTime - animeYTime) / animeTime.toDouble()
-            if (pct > 1) {
-                nowY = realY
-                pct = 1.0
-            } else {
-                pct = AnimationUtils.easeOutBack(pct)
-            }
-            GL11.glTranslated(0.0, (realY - nowY) * pct, 0.0)
-        } else {
-            animeYTime = nowTime
-        }
-        GL11.glTranslated(0.0, nowY.toDouble(), 0.0)
-        var pct = (nowTime - animeXTime) / animeTime.toDouble()
-
-        when (fadeState) {
-            FadeState.IN -> {
-                if (pct > 1) {
-                    fadeState = FadeState.STAY
-                    animeXTime = nowTime
-                    pct = 1.0
-                }
-                pct = AnimationUtils.easeOutBack(pct)
-            }
-
-            FadeState.STAY -> {
-                pct = 1.0
-                if ((nowTime - animeXTime) > displayTime) {
-                    fadeState = FadeState.OUT
-                    animeXTime = nowTime
-                }
-            }
-
-            FadeState.OUT -> {
-                if (pct > 1) {
-                    fadeState = FadeState.END
-                    animeXTime = nowTime
-                    pct = 1.0
-                }
-                pct = 1 - AnimationUtils.easeInBack(pct)
-            }
-
-            FadeState.END -> hud.removeNotification(this)
-        }
-
-        val novolineIcon80 = when (type) {
-            Type.SUCCESS, Type.ERROR -> Fonts.novolineIcon2
-            else -> Fonts.novolineIcon
-        }
-
-        GL11.glScaled(pct, pct, pct)
-        GL11.glTranslatef(-width.toFloat() / 2 , -height.toFloat() / 2, 0F)
-        RenderUtils.drawRect(0F, 0F, width.toFloat(), height.toFloat(), Color(63, 63, 63, 140))
-        RenderUtils.drawGradientSideways(0.0, height - 1.7,
-            (width * ((nowTime - displayTime) / (animeTime * 2F + displayTime))).toDouble(), height.toDouble(), novolineColorStart.rgb, novolineColorEnd.rgb)
-        Fonts.font37.drawStringWithShadow(message, 24.5F, 7F, Color.WHITE.rgb)
-        Fonts.font32.drawStringWithShadow(description + " (" + BigDecimal(((displayTime - displayTime * ((nowTime - displayTime) / (animeTime * 2F + displayTime))) / 1000).toDouble()).setScale(1, BigDecimal.ROUND_HALF_UP).toString() + "s)", 24.5F, 17.3F, Color.WHITE.rgb)
-        RenderUtils.drawFilledCircle(13, 15, 8.5F,Color.BLACK)
-        novolineIcon80.drawString(when(type) {
-            Type.SUCCESS -> "M"
-            Type.ERROR -> "L"
-            Type.WARNING -> "A"
-            Type.INFO -> "B"
-        }, 3, 8, Color.WHITE.rgb)
-        RenderUtils.drawCircle(12.9f, 15.0f, 8.8f, 0, 360)
-        GlStateManager.resetColor()
     }
 
     fun drawNotification(animationY: Float, parent: Notifications) {
