@@ -66,7 +66,7 @@ class Notifications(x: Double = 0.0, y: Double = 30.0, scale: Float = 1F,
             var indexz = 0
             for (i in notifications) {
                 if (indexz == 0 && styleValue.get().equals("material", true) && side.vertical != Side.Vertical.DOWN) animationY -= i.notifHeight - (if (barValue.get()) 2F else 0F)
-                if (styleValue.get().equals("Novoline", true)) i.drawNotificationNovoline(indexz, this) else i.drawNotification(animationY, this)
+                i.drawNotification(animationY, this)
                 if (indexz < notifications.size - 1) indexz++
                 animationY += (when (styleValue.get().lowercase()) {
                     "compact" -> 20F
@@ -81,8 +81,6 @@ class Notifications(x: Double = 0.0, y: Double = 30.0, scale: Float = 1F,
         }
 
         if (mc.currentScreen is GuiHudDesigner) {
-            if (!LiquidBounce.hud.notifications.contains(exampleNotification))
-                LiquidBounce.hud.addNotification(exampleNotification)
 
             exampleNotification.fadeState = Notification.FadeState.STAY
             exampleNotification.x = if (styleValue.get().equals("material", true)) 160F else exampleNotification.textLength + 8F

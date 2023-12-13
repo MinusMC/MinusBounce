@@ -903,7 +903,7 @@ class KillAura : Module() {
     }
 
     private fun postBlocking(entity: EntityLivingBase) {
-        if (mc.thePlayer.isBlocking || (autoBlockModeValue.get().equals("None", true) || autoBlockModeValue.get().equals("Fake", true) && canBlock) {
+        if (mc.thePlayer.isBlocking || (autoBlockModeValue.get().equals("None", true) || autoBlockModeValue.get().equals("Fake", true)) && canBlock) {
             if (blockRate.get() > 0 && Random().nextInt(100) <= blockRate.get()) {
                 if (smartAutoBlockValue.get() && clicks != 1 && mc.thePlayer.getDistanceToEntityBox(entity) < range && mc.thePlayer.hurtTime < 4)
                     return
@@ -975,7 +975,7 @@ class KillAura : Module() {
         get() = mc.thePlayer.heldItem != null && mc.thePlayer.heldItem.item is ItemSword
 
     private val range: Float
-        get() = if (mc.thePlayer.canEntityBeSeen(entity)) attackRange else throughWallsAttackRange
+        get() = if (mc.thePlayer.canEntityBeSeen(entity)) rangeValue else throughWallsRangeValue
 
     private fun getRange(entity: Entity) =
         if (mc.thePlayer.getDistanceToEntityBox(entity) >= throughWallsRangeValue.get()) rangeValue.get() else throughWallsRangeValue.get()
