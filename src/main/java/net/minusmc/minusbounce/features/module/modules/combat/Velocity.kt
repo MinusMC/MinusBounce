@@ -15,6 +15,7 @@ import net.minusmc.minusbounce.value.BoolValue
 import net.minusmc.minusbounce.utils.ClassUtils
 import net.minusmc.minusbounce.features.module.modules.combat.velocitys.VelocityMode
 import net.minecraft.network.play.server.S27PacketExplosion
+import net.minusmc.minusbounce.value.IntegerValue
 
 
 @ModuleInfo(name = "Velocity", description = "Allows you to modify the amount of knockback you take.", category = ModuleCategory.COMBAT)
@@ -37,6 +38,21 @@ class Velocity : Module() {
         }
     }
 
+    /**
+     * OPTIONS
+     */
+    val h = FloatValue("Horizontal", 0F, 0F, 100F).displayable { modeValue.equals("Standard") }
+    val v = FloatValue("Vertical", 0F, 0F, 100F).displayable { modeValue.equals("Standard") }
+    val c = IntegerValue("Chance", 100, 0, 100).displayable { modeValue.equals("Standard") }
+
+    private val og = BoolValue("OnlyGround", false)
+    private val oc = BoolValue("OnlyCombat", false)
+    private val om = BoolValue("OnlyMove", false)
+
+    // Affect chance
+    private val reduceChance = FloatValue("Reduce-Chance", 100F, 0F, 100F, "%")
+    private var shouldAffect : Boolean = true
+
     override fun onInitialize() {
         modes.map { mode -> mode.values.forEach { value -> value.name = "${mode.modeName}-${value.name}" } }
     }
@@ -45,10 +61,17 @@ class Velocity : Module() {
         mc.thePlayer?.speedInAir = 0.02F
     }
 
+    @EventTarget
+    fun onUpdate(event: UpdateEvent) {
+        if (mc.thePlayer.hurtTime <= 0) shouldAffect = (Math.random().toFloat() < reduceChance.get() / 100F)
+        if (mc.thePlayer.isInWater || mc.thePlayer.isInLava || mc.thePlayer.isInWeb || !shouldAffect)
+            return
+        mode.onUpdate()
+    }
 
     @EventTarget
     fun onJump(event: JumpEvent) {
-        if (mc.thePlayer == null || mc.thePlayer.isInWater || mc.thePlayer.isInLava || mc.thePlayer.isInWeb)
+        if (mc.thePlayer == null || mc.thePlayer.isInWater || mc.thePlayer.isInLava || mc.thePlayer.isInWeb || !shouldAffect)
             return
         mode.onJump(event)
     }
@@ -59,13 +82,13 @@ class Velocity : Module() {
     }
     override val tag: String
         get() = modeValue.get()
-        
+
     override val values = super.values.toMutableList().also {
         modes.map {
-            mode -> mode.values.forEach { value ->
-                val displayableFunction = value.displayableFunction
-                it.add(value.displayable { displayableFunction.invoke() && modeValue.get() == mode.modeName })
-            }
+                mode -> mode.values.forEach { value ->
+            val displayableFunction = value.displayableFunction
+            it.add(value.displayable { displayableFunction.invoke() && modeValue.get() == mode.modeName })
+        }
         }
     }
 }

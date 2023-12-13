@@ -27,6 +27,7 @@ import kotlin.math.abs
 /**
  * @author inf (original java code)
  * @author pie (refactored)
+ * t
  */
 class LiquidBouncePlusStyle: StyleMode("LiquidBounce+") {
     private val categoryElements: MutableList<CategoryElement> = ArrayList()

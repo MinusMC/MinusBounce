@@ -20,7 +20,7 @@ import java.util.*
 
 abstract class DropDownClickGui(styleName: String): StyleMode(styleName) {
 
-    val panels: MutableList<Panel> = ArrayList()
+    open val panels: MutableList<Panel> = ArrayList()
     private var clickedPanel: Panel? = null
     private var mouseX = 0
     private var mouseY = 0

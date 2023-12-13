@@ -9,6 +9,8 @@ import net.minecraft.client.gui.Gui
 import net.minecraft.client.gui.Gui.drawModalRectWithCustomSizedTexture
 import net.minecraft.client.gui.ScaledResolution
 import net.minecraft.client.renderer.*
+import net.minecraft.client.renderer.GlStateManager.disableBlend
+import net.minecraft.client.renderer.GlStateManager.enableTexture2D
 import net.minecraft.client.renderer.culling.Frustum
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats
 import net.minecraft.enchantment.Enchantment
@@ -1244,23 +1246,27 @@ object RenderUtils : MinecraftInstance() {
         GL11.glEnd()
     }
 
+    fun drawRect(x: Int, y: Int, x2: Int, y2: Int, color: Int) {
+        drawRect(x.toFloat(), y.toFloat(), x2.toFloat(), y2.toFloat(), color)
+    }
+
     fun drawRect(x: Float, y: Float, x2: Float, y2: Float, color: Int) {
-        GL11.glPushMatrix()
-        GL11.glEnable(GL11.GL_BLEND)
-        GL11.glDisable(GL11.GL_TEXTURE_2D)
-        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA)
-        GL11.glEnable(GL11.GL_LINE_SMOOTH)
+        glPushMatrix()
+        glEnable(GL_BLEND)
+        glDisable(GL_TEXTURE_2D)
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+        glEnable(GL_LINE_SMOOTH)
         glColor(color)
-        GL11.glBegin(GL11.GL_QUADS)
-        GL11.glVertex2d(x2.toDouble(), y.toDouble())
-        GL11.glVertex2d(x.toDouble(), y.toDouble())
-        GL11.glVertex2d(x.toDouble(), y2.toDouble())
-        GL11.glVertex2d(x2.toDouble(), y2.toDouble())
-        GL11.glEnd()
-        GL11.glEnable(GL11.GL_TEXTURE_2D)
-        GL11.glDisable(GL11.GL_BLEND)
-        GL11.glDisable(GL11.GL_LINE_SMOOTH)
-        GL11.glPopMatrix()
+        glBegin(GL_QUADS)
+        glVertex2d(x2.toDouble(), y.toDouble())
+        glVertex2d(x.toDouble(), y.toDouble())
+        glVertex2d(x.toDouble(), y2.toDouble())
+        glVertex2d(x2.toDouble(), y2.toDouble())
+        glEnd()
+        glEnable(GL_TEXTURE_2D)
+        glDisable(GL_BLEND)
+        glDisable(GL_LINE_SMOOTH)
+        glPopMatrix()
     }
 
     fun drawRect(left: Double, top: Double, right: Double, bottom: Double, color: Int) {
@@ -1294,8 +1300,16 @@ object RenderUtils : MinecraftInstance() {
         worldrenderer.pos(right, top, 0.0).endVertex()
         worldrenderer.pos(left, top, 0.0).endVertex()
         tessellator.draw()
-        GlStateManager.enableTexture2D()
-        GlStateManager.disableBlend()
+        enableTexture2D()
+        disableBlend()
+    }
+
+    fun drawRect(rect: net.minusmc.minusbounce.utils.geom.Rectangle, color: Int) {
+        drawRect(rect.x, rect.y, rect.x + rect.width, rect.y + rect.height, color)
+    }
+
+    fun drawRect(rect: net.minusmc.minusbounce.utils.geom.Rectangle, color: Color) {
+        drawRect(rect.x, rect.y, rect.x + rect.width, rect.y + rect.height, color.rgb)
     }
 
     /**

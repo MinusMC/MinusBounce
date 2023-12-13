@@ -7,7 +7,6 @@ package net.minusmc.minusbounce.file
 
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
-import net.ccbluex.liquidbounce.file.configs.FriendsConfig
 import net.minecraft.client.renderer.texture.DynamicTexture
 import net.minecraft.util.ResourceLocation
 import net.minusmc.minusbounce.MinusBounce

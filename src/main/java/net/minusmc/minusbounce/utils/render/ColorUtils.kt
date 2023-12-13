@@ -38,6 +38,28 @@ object ColorUtils {
         return COLOR_PATTERN.matcher(input ?: return null).replaceAll("")
     }
 
+    fun interpolate(oldValue: Double, newValue: Double, interpolationValue: Double): Double {
+        return oldValue + (newValue - oldValue) * interpolationValue
+    }
+
+    @JvmStatic
+    fun interpolateInt(oldValue: Int, newValue: Int, interpolationValue: Double): Int {
+        return interpolate(oldValue.toDouble(), newValue.toDouble(), interpolationValue.toFloat().toDouble()).toInt()
+    }
+
+    @JvmStatic
+    fun interpolateColorC(color1: Color, color2: Color, amount: Float): Color {
+        var amount = amount
+        amount = Math.min(1f, Math.max(0f, amount))
+        return Color(
+                interpolateInt(color1.red, color2.red, amount.toDouble()),
+                interpolateInt(color1.green, color2.green, amount.toDouble()),
+                interpolateInt(color1.blue, color2.blue, amount.toDouble()),
+                interpolateInt(color1.alpha, color2.alpha, amount.toDouble()
+                )
+        )
+    }
+
     @JvmStatic
     fun translateAlternateColorCodes(textToTranslate: String): String {
         val chars = textToTranslate.toCharArray()

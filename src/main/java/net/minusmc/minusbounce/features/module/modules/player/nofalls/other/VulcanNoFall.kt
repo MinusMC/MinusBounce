@@ -14,7 +14,7 @@ class VulcanNoFall: NoFallMode("Vulcan") {
 
     override fun onEnable() {
         nextSpoof = false
-        doSpoof = false
+        doSpoof = false // ok the tim cach lam di nhe
     }
 
     override fun onWorld(event: WorldEvent) {

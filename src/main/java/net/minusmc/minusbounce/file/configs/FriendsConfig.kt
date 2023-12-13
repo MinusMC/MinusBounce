@@ -3,7 +3,7 @@
  * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
  * https://github.com/WYSI-Foundation/LiquidBouncePlus/
  */
-package net.ccbluex.liquidbounce.file.configs
+package net.minusmc.minusbounce.file.configs
 
 import com.google.gson.*
 import net.minusmc.minusbounce.file.FileConfig
@@ -17,16 +17,16 @@ class FriendsConfig
  *
  * @param file of config
  */
-(file: File?) : FileConfig(file!!) {
-    private val friends: MutableList<Friend> = ArrayList()
+    (file: File?) : FileConfig(file!!) {
+    val friends = ArrayList<Friend>()
 
     /**
      * Load config from file
      *
-     * @throws IOException
+     * @throws IOException beo
      */
     @Throws(IOException::class)
-    override fun loadConfig() {
+    public override fun loadConfig() {
         clearFriends()
         try {
             val jsonElement = JsonParser().parse(BufferedReader(FileReader(file)))
@@ -44,7 +44,8 @@ class FriendsConfig
                 if (!line.contains("{") && !line.contains("}")) {
                     line = line.replace(" ", "").replace("\"", "").replace(",", "")
                     if (line.contains(":")) {
-                        val data = line.split(":".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+                        val data = line.split(":".toRegex()).dropLastWhile { it.isEmpty() }
+                            .toTypedArray()
                         addFriend(data[0], data[1])
                     } else addFriend(line)
                 }
@@ -63,7 +64,8 @@ class FriendsConfig
                 if (!line.contains("{") && !line.contains("}")) {
                     line = line.replace(" ", "").replace("\"", "").replace(",", "")
                     if (line.contains(":")) {
-                        val data = line.split(":".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+                        val data = line.split(":".toRegex()).dropLastWhile { it.isEmpty() }
+                            .toTypedArray()
                         addFriend(data[0], data[1])
                     } else addFriend(line)
                 }
@@ -81,7 +83,7 @@ class FriendsConfig
      * @throws IOException
      */
     @Throws(IOException::class)
-    override fun saveConfig() {
+    public override fun saveConfig() {
         val jsonArray = JsonArray()
         for (friend in getFriends()) {
             val friendObject = JsonObject()
@@ -107,7 +109,7 @@ class FriendsConfig
      * @return of successfully added friend
      */
     @JvmOverloads
-    fun addFriend(playerName: String, alias: String = playerName): Boolean {
+    fun addFriend(playerName: String, alias: String? = playerName): Boolean {
         if (isFriend(playerName)) return false
         friends.add(Friend(playerName, alias))
         return true
@@ -152,14 +154,15 @@ class FriendsConfig
     }
 
     inner class Friend internal constructor(
-            /**
-             * @return name of friend
-             */
-            val playerName: String,
-            /**
-             * @return alias of friend
-             */
-            var alias: String) {
+        /**
+         * @return name of friend
+         */
+        val playerName: String,
+        /**
+         * @return alias of friend
+         */
+        var alias: String?
+    ) {
 
         /**
          * @param playerName of friend

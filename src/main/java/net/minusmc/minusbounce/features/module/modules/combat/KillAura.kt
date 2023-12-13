@@ -89,7 +89,7 @@ class KillAura : Module() {
             "None",
             "Fake",
             "AfterTick",
-            "Vanilla", // remove it ab lai
+            "Vanilla",
             "Packet",
             "Polar",
             "OldIntave",
@@ -195,6 +195,17 @@ class KillAura : Module() {
     // Container Delay
     private var containerOpen = -1L
 
+    //Hypixel Block
+    private var hypixelc02 = 0
+    private var hypixeldelay = 0
+    private var hypixelcancelTicks = 0
+    private var hypixelunblockdelay = 0
+    private var hypixelkaing = false
+    private var hypixelblinking = false
+    private var hypixelblock = false
+    private var hypixelblocked = false
+    private var hypixelcancelc02 = false
+
     // Fake block status
     var blockingStatus = false
     private var verusBlocking = false
@@ -237,6 +248,10 @@ class KillAura : Module() {
                     )
                 )
         }
+        hypixelkaing = false
+        hypixelblocked = false
+        hypixelc02 = 0
+        hypixeldelay = 0
     }
 
     @EventTarget
@@ -272,6 +287,59 @@ class KillAura : Module() {
                         currentTarget!!,
                         interactAutoBlockValue.get() && mc.thePlayer.getDistanceToEntityBox(currentTarget!!) < maxRange
                     )
+                }
+            }
+
+            if (autoBlockModeValue.equals("Watchdog") && event.eventState == EventState.PRE) {
+                if (mc.thePlayer.heldItem.item is ItemSword && currentTarget != null) {
+                    hypixelkaing = true
+                    hypixelcancelc02 = false
+                    hypixelcancelTicks = 0
+                    hypixelunblockdelay = 0
+                    if (!hypixelblinking) {
+                        BlinkUtils.setBlinkState(all = true)
+                        hypixelblinking = true
+                        hypixelblocked = false
+                    }
+                    if (hypixelblinking && !hypixelblock) {
+                        hypixeldelay++
+                        if (hypixeldelay >= 2) {
+                            mc.netHandler.addToSendQueue(C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem % 8 + 1))
+                            mc.netHandler.addToSendQueue(C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem))
+                            hypixelblocked = false
+                            hypixelblock = true
+                            hypixeldelay = 0
+                        }
+                    }
+                    if (hypixelblinking && hypixelblock) {
+                        if (hypixelc02 > 1) {
+                            BlinkUtils.setBlinkState(off = true, release = true)
+                            mc.netHandler.addToSendQueue(C08PacketPlayerBlockPlacement())
+                            hypixelblinking = false
+                            hypixelblock = false
+                            hypixelblocked = true
+                            hypixelc02 = 0
+                        }
+                    }
+                }
+                if (hypixelkaing && currentTarget == null) {
+                    hypixelkaing = false
+                    hypixelblocked = false
+                    hypixelc02 = 0
+                    hypixeldelay = 0
+                    BlinkUtils.setBlinkState(off = true, release = true)
+                    hypixelcancelc02 = true
+                    hypixelcancelTicks = 0
+                    if (mc.thePlayer.heldItem.item is ItemSword) {
+                        mc.netHandler.addToSendQueue(C07PacketPlayerDigging())
+                    }
+                }
+                if (hypixelcancelc02) {
+                    hypixelcancelTicks++
+                    if (hypixelcancelTicks >= 3) {
+                        hypixelcancelc02 = false
+                        hypixelcancelTicks = 0
+                    }
                 }
             }
         }
@@ -420,6 +488,22 @@ class KillAura : Module() {
 
         if (packet is C09PacketHeldItemChange)
             verusBlocking = false
+
+        if (autoBlockModeValue.equals("Watchdog")) return
+        if (mc.thePlayer.heldItem?.item is ItemSword && currentTarget != null && hypixelkaing) {
+            if (packet is C08PacketPlayerBlockPlacement || packet is C07PacketPlayerDigging) {
+                event.cancelEvent()
+            }
+        }
+        if (mc.thePlayer.heldItem?.item is ItemSword && currentTarget != null && hypixelblocked || hypixelcancelc02) {
+            if (packet is C02PacketUseEntity) {
+                event.cancelEvent()
+                hypixelblocked = false
+            }
+        }
+        if (packet is C02PacketUseEntity && hypixelblinking) {
+            hypixelc02++
+        }
     }
 
     fun update() {
@@ -841,7 +925,7 @@ class KillAura : Module() {
             hitable = if (turnSpeed.get().getMax() > 0F) currentTarget == raycastedEntity else true
         } else
             hitable = RotationUtils.isFaced(currentTarget!!, reach)
-    }
+    } // t vua skid hpx autoblock ???
 
     private fun preBlocking() {
         if (!mc.thePlayer.isBlocking && !blockingStatus) return
@@ -855,7 +939,6 @@ class KillAura : Module() {
                 PacketUtils.sendPacketNoEvent(C08PacketPlayerBlockPlacement(mc.thePlayer.inventory.getCurrentItem()))
                 blockTimer.reset()
             }
-            "watchdog" -> KeyBinding.setKeyBindState(mc.gameSettings.keyBindUseItem.keyCode, mc.thePlayer.hurtTime > 6)
             "oldintave" -> {
                 mc.netHandler.addToSendQueue(C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem % 8 + 1))
                 mc.netHandler.addToSendQueue(C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem))

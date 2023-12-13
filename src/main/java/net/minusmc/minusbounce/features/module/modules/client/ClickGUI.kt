@@ -20,17 +20,17 @@ import net.minusmc.minusbounce.value.IntegerValue
 import net.minusmc.minusbounce.value.ListValue
 import org.lwjgl.input.Keyboard
 import java.awt.Color
-// m lam di doi t di uong nuoc
 @ModuleInfo(name = "ClickGUI", description = "Opens the ClickGUI.", category = ModuleCategory.CLIENT, keyBind = Keyboard.KEY_RSHIFT, forceNoSound = true, onlyEnable = true)
 object ClickGUI: Module() {
     val styleClazzes = ClassUtils.resolvePackage("net.minusmc.minusbounce.ui.client.clickgui.styles", StyleMode::class.java)
-
+    // t hoi may cai nay de lam j
     var styles = styleClazzes.map {it.newInstance() as StyleMode}.sortedBy { it.styleName }
 
     val style: StyleMode
         get() = styles.find {styleValue.get().equals(it.styleName, true)} ?: throw NullPointerException()
 
     private val styleValue = ListValue("Style", styles.map {it.styleName}.toTypedArray(), "LiquidBounce")
+    val scroll = FloatValue("Scroll", 20f, 0f, 200f) { styleValue.get().equals("Astolfo", true) }
 
     val fastRenderValue = BoolValue("FastRender", true)
 
