@@ -61,7 +61,7 @@ class KillAura : Module() {
     private val rotations = ListValue("RotationMode", arrayOf("Vanilla", "BackTrack", "NCP", "Grim", "Intave", "Smooth", "None"), "BackTrack")
     private val intaveRandomAmount = FloatValue("RandomAmount", 4f, 0.25f, 10f) { rotations.get().equals("Intave", true) }
 
-    private val turnSpeed = FloatRangeValue("TurnSpeed", 180f, 180f, 0f, 180f, "°")
+    private val turnSpeed = FloatRangeValue("TurnSpeed", 180f, 180f, 0f, 180f, "°", {!rotations.get().equals("None", true)})
 
     private val noHitCheck = BoolValue("NoHitCheck", false) { !rotations.get().equals("none", true) }
     private val blinkCheck = BoolValue("BlinkCheck", true)
@@ -975,7 +975,7 @@ class KillAura : Module() {
         get() = mc.thePlayer.heldItem != null && mc.thePlayer.heldItem.item is ItemSword
 
     private val range: Float
-        get() = if (mc.thePlayer.canEntityBeSeen(entity)) rangeValue else throughWallsRangeValue
+        get() = if (mc.thePlayer.canEntityBeSeen(target!!)) rangeValue.get() else throughWallsRangeValue.get()
 
     private fun getRange(entity: Entity) =
         if (mc.thePlayer.getDistanceToEntityBox(entity) >= throughWallsRangeValue.get()) rangeValue.get() else throughWallsRangeValue.get()
