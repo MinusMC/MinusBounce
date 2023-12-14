@@ -5,7 +5,7 @@ import net.minusmc.minusbounce.features.module.modules.movement.speeds.SpeedMode
 import net.minusmc.minusbounce.utils.MovementUtils
 import net.minusmc.minusbounce.value.BoolValue
 
-class LegitSpeed: SpeedMode("Legit", SpeedType.LEGIT) {
+class LegitSpeed: SpeedMode("Legit", SpeedType.NORMAL) {
 
     private val cpuSPEED = BoolValue("CPU SpeedUp Exploit", true)
     private val jumpSpeed = BoolValue("No Jump Delay", true)

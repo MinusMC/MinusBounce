@@ -18,13 +18,14 @@ import org.lwjgl.input.Mouse
 
 @ModuleInfo(name = "MidClick", spacedName = "Mid Click", description = "Allows you to add a player as a friend by middle clicking them.", category = ModuleCategory.CLIENT)
 class MidClick : Module() {
-    private var wasDown = false // ok thieu nhe
+    private var wasDown = false
 
     @EventTarget
     fun onRender2D(event: Render2DEvent) {
         if (mc.currentScreen != null) return
 
         if (wasDown && Mouse.isButtonDown(2)) {
+            println("Clicked middle mouse button.")
             val entity = mc.objectMouseOver.entityHit
             if (entity != null && entity is EntityPlayer) {
                 val playerName = ColorUtils.stripColor(entity.name) ?: return

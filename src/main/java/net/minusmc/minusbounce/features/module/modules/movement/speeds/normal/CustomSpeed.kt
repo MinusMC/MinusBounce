@@ -15,8 +15,22 @@ import net.minusmc.minusbounce.features.module.modules.movement.speeds.SpeedType
 import net.minusmc.minusbounce.utils.MovementUtils
 import java.util.*
 
-class CustomSpeed: SpeedMode("Custom", SpeedType.CUSTOM) {
+class CustomSpeed: SpeedMode("Custom", SpeedType.NORMAL) {
+    private val speedValue = FloatValue("Speed", 1.6f, 0.2f, 2f)
+    private val launchSpeedValue = FloatValue("LaunchSpeed", 1.6f, 0.2f, 2f)
+    private val addYMotionValue = FloatValue("AddYMotion", 0f, 0f, 2f)
+    private val yValue = FloatValue("MotionY", 0f, 0f, 4f)
+    private val upTimerValue = FloatValue("UpTimer", 1f, 0.1f, 2f)
+    private val downTimerValue = FloatValue("DownTimer", 1f, 0.1f, 2f)
+    private val strafeValue = ListValue("Strafe", arrayOf("Strafe", "Boost", "Plus", "PlusOnlyUp", "Non-Strafe"), "Boost")
+    private val groundStay = IntegerValue("GroundStay", 0, 0, 10)
+    private val groundResetXZValue = BoolValue("GroundResetXZ", false)
+    private val resetXZValue = BoolValue("ResetXZ", false)
+    private val resetYValue = BoolValue("ResetY", false)
+    private val doLaunchSpeedValue = BoolValue("DoLaunchSpeed", true)
+
     private var groundTick = 0
+
     override fun onMotion(eventMotion: MotionEvent) {
         val speed = MinusBounce.moduleManager.getModule(Speed::class.java)
         if (speed == null || eventMotion.eventState !== EventState.PRE) return
@@ -56,7 +70,7 @@ class CustomSpeed: SpeedMode("Custom", SpeedType.CUSTOM) {
     }
 
     override fun onEnable() {
-        val speed = MinusBounce.moduleManager.getModule(Speed::class.java) ?: return
+        val speed = MinusBounce.moduleManager[Speed::class.java]!!
         if (speed.resetXZValue.get()) {
             mc.thePlayer.motionZ = 0.0
             mc.thePlayer.motionX = mc.thePlayer.motionZ

@@ -13,20 +13,6 @@ import net.minusmc.minusbounce.value.*
 
 @ModuleInfo(name = "Speed", description = "Run faster.", category = ModuleCategory.MOVEMENT)
 class Speed: Module() {
-
-	val speedValue = FloatValue("CustomSpeed", 1.6f, 0.2f, 2f) { typeValue.get().equals("custom", ignoreCase = true) }
-	val launchSpeedValue = FloatValue("CustomLaunchSpeed", 1.6f, 0.2f, 2f) { typeValue.get().equals("custom", ignoreCase = true) }
-	val addYMotionValue = FloatValue("CustomAddYMotion", 0f, 0f, 2f) { typeValue.get().equals("custom", ignoreCase = true) }
-	val yValue = FloatValue("CustomY", 0f, 0f, 4f) { typeValue.get().equals("custom", ignoreCase = true) }
-	val upTimerValue = FloatValue("CustomUpTimer", 1f, 0.1f, 2f) { typeValue.get().equals("custom", ignoreCase = true) }
-	val downTimerValue = FloatValue("CustomDownTimer", 1f, 0.1f, 2f) { typeValue.get().equals("custom", ignoreCase = true) }
-	val strafeValue = ListValue("CustomStrafe", arrayOf("Strafe", "Boost", "Plus", "PlusOnlyUp", "Non-Strafe"), "Boost") { typeValue.get().equals("custom", ignoreCase = true) }
-	val groundStay = IntegerValue("CustomGroundStay", 0, 0, 10) { typeValue.get().equals("custom", ignoreCase = true) }
-	val groundResetXZValue = BoolValue("CustomGroundResetXZ", false) { typeValue.get().equals("custom", ignoreCase = true) }
-	val resetXZValue = BoolValue("CustomResetXZ", false) { typeValue.get().equals("custom", ignoreCase = true) }
-	val resetYValue = BoolValue("CustomResetY", false) { typeValue.get().equals("custom", ignoreCase = true) }
-	val doLaunchSpeedValue = BoolValue("CustomDoLaunchSpeed", true) { typeValue.get().equals("custom", ignoreCase = true) }
-
 	private val modes = ClassUtils.resolvePackage("${this.javaClass.`package`.name}.speeds", SpeedMode::class.java)
 		.map{it.newInstance() as SpeedMode}
 		.sortedBy{it.modeName}
