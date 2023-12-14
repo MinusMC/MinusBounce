@@ -8,6 +8,8 @@ import net.minusmc.minusbounce.utils.timer.MSTimer
 import net.minusmc.minusbounce.value.BoolValue
 
 class AACVelocity : VelocityMode("AAC") {
+	private val horizontalValue = FloatValue("Horizontal", 0f, 0f, 100f, "%")
+    private val verticalValue = FloatValue("Vertical", 0f, 0f, 100f, "%")
 	private val aacStrafeValue = BoolValue("StrafeValue", false)
 	private var velocityInput = false
 	private val velocityTimer = MSTimer()

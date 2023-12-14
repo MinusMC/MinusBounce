@@ -13,7 +13,7 @@ enum class ModuleCategory(var displayName: String) {
     PLAYER("Player"),
     MOVEMENT("Movement"),
     RENDER("Render"),
-    CLIENT("Client", C),
+    CLIENT("Client"),
     WORLD("World"),
     EXPLOIT("Exploit"),
     MISC("Misc"),
