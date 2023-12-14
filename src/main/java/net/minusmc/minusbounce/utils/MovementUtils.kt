@@ -366,13 +366,8 @@ object MovementUtils : MinecraftInstance() {
     val movingYaw: Float
         get() = (direction * 180f / Math.PI).toFloat()
 
-    fun setMotion2(d: Double, f: Float) {
-        mc.thePlayer.motionX = -Math.sin(Math.toRadians(f.toDouble())) * d
-        mc.thePlayer.motionZ = Math.cos(Math.toRadians(f.toDouble())) * d
+    fun setMotion2(multiplier: Double, forward: Float) {
+        mc.thePlayer.motionX = -Math.sin(Math.toRadians(forward.toDouble())) * multiplier
+        mc.thePlayer.motionZ = Math.cos(Math.toRadians(forward.toDouble())) * multiplier
     }
-
-    fun speed(): Double {
-        return Math.hypot(mc.thePlayer.motionX, mc.thePlayer.motionZ)
-    }
-
 }
