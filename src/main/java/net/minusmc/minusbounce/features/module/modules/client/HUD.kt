@@ -16,7 +16,7 @@ import net.minusmc.minusbounce.features.module.ModuleCategory
 import net.minusmc.minusbounce.features.module.ModuleInfo
 import net.minusmc.minusbounce.ui.client.hud.designer.GuiHudDesigner
 import net.minusmc.minusbounce.ui.font.Fonts
-import net.minusmc.minusbounce.utils.AnimationUtils
+import net.minusmc.minusbounce.utils.render.AnimationUtils
 import net.minusmc.minusbounce.utils.render.RenderUtils
 import net.minusmc.minusbounce.value.BoolValue
 import net.minusmc.minusbounce.value.FloatValue

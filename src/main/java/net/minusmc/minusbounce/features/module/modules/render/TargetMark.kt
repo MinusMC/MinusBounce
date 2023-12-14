@@ -17,7 +17,7 @@ import net.minusmc.minusbounce.features.module.ModuleCategory
 import net.minusmc.minusbounce.features.module.ModuleInfo
 import net.minusmc.minusbounce.features.module.modules.combat.KillAura
 import net.minusmc.minusbounce.ui.font.GameFontRenderer.Companion.getColorIndex
-import net.minusmc.minusbounce.utils.AnimationUtils
+import net.minusmc.minusbounce.utils.render.AnimationUtils
 import net.minusmc.minusbounce.utils.render.BlendUtils
 import net.minusmc.minusbounce.utils.render.ColorUtils
 import net.minusmc.minusbounce.utils.render.ColorUtils.LiquidSlowly

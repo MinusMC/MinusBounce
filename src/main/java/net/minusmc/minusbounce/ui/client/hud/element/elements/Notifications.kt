@@ -25,6 +25,8 @@ import net.minusmc.minusbounce.value.IntegerValue
 import net.minusmc.minusbounce.value.ListValue
 import org.lwjgl.opengl.GL11
 import java.awt.Color
+import java.math.BigDecimal
+import kotlin.math.pow
 
 @ElementInfo(name = "Notifications", single = true)
 class Notifications(x: Double = 0.0, y: Double = 30.0, scale: Float = 1F,
@@ -67,18 +69,19 @@ class Notifications(x: Double = 0.0, y: Double = 30.0, scale: Float = 1F,
                 i.drawNotification(animationY, this)
                 if (indexz < notifications.size - 1) indexz++
                 animationY += (when (styleValue.get().lowercase()) {
-                                    "compact" -> 20F
-                                    "full" -> 30F
-                                    "full2" -> 30F
-                                    "test" -> 30F
-                                    else -> (if (side.vertical == Side.Vertical.DOWN) i.notifHeight else notifications[indexz].notifHeight) + 5F + (if (barValue.get()) 2F else 0F)
-                                }) * (if (side.vertical == Side.Vertical.DOWN) 1F else -1F)
+                    "compact" -> 20F
+                    "full" -> 30F
+                    "full2" -> 30F
+                    "test" -> 30F
+                    else -> (if (side.vertical == Side.Vertical.DOWN) i.notifHeight else notifications[indexz].notifHeight) + 5F + (if (barValue.get()) 2F else 0F)
+                }) * (if (side.vertical == Side.Vertical.DOWN) 1F else -1F)
             }
         } else {
             exampleNotification.drawNotification(animationY - if (styleValue.get().equals("material", true) && side.vertical != Side.Vertical.DOWN) (exampleNotification.notifHeight - 5F - (if (barValue.get()) 2F else 0F)) else 0F, this)
         }
 
         if (mc.currentScreen is GuiHudDesigner) {
+
             exampleNotification.fadeState = Notification.FadeState.STAY
             exampleNotification.x = if (styleValue.get().equals("material", true)) 160F else exampleNotification.textLength + 8F
 
@@ -99,7 +102,11 @@ class Notifications(x: Double = 0.0, y: Double = 30.0, scale: Float = 1F,
         else -> if (side.vertical == Side.Vertical.DOWN) Border(-160F, -50F, 0F, -30F) else Border(-160F, -20F, 0F, 0F)
     }
 }
-class Notification(message : String, type : Type, displayLength: Long) {
+class Notification(val message: String, val type: Type, val displayTime: Long) {
+    constructor(message: String) : this(message, Type.INFO, 500L)
+    constructor(message: String, type: Type) : this(message, type, 2000L)
+    constructor(message: String, displayTime: Long) : this(message, Type.INFO, displayTime)
+
     private val notifyDir = "minusbounce/notification/"
 
     private val imgSuccess = ResourceLocation("${notifyDir}checkmark.png")
@@ -113,34 +120,27 @@ class Notification(message : String, type : Type, displayLength: Long) {
     private val newInfo = ResourceLocation("${notifyDir}new/info.png")
 
     var x = 0F
+    val height = 30
+    var nowY = -height
     var textLength = 0
     var fadeState = FadeState.IN
-    var displayTime = 0L
     var stayTimer = MSTimer()
     var notifHeight = 0F
-    private var message = ""
-    private var messageList : List<String>
+    var animeXTime = System.currentTimeMillis()
+    var animeYTime = System.currentTimeMillis()
+    var width = 0f
+    private var messageList: List<String>
     private var stay = 0F
     private var fadeStep = 0F
     private var firstY = 0f
-    private var type: Type
 
     init {
-        this.message = message
         this.messageList = Fonts.font40.listFormattedStringToWidth(message, 105)
         this.notifHeight = messageList.size.toFloat() * (Fonts.font40.FONT_HEIGHT.toFloat() + 2F) + 8F
-        this.type = type
-        this.displayTime = displayLength
         this.firstY = 19190F
         this.stayTimer.reset()
         this.textLength = Fonts.font40.getStringWidth(message)
     }
-
-    constructor(message: String, type: Type) : this(message, type, 2000L)
-
-    constructor(message: String) : this(message, Type.INFO, 500L)
-
-    constructor(message: String, displayLength: Long) : this(message, Type.INFO, displayLength)
 
     enum class Type {
         SUCCESS, INFO, WARNING, ERROR
@@ -165,26 +165,30 @@ class Notification(message : String, type : Type, displayLength: Long) {
 
         val originalX = parent.renderX.toFloat()
         val originalY = parent.renderY.toFloat()
-        val width = if (style.equals("material", true)) 160F else textLength.toFloat() + 8.0f
+        width = when (style.lowercase()) {
+            "material" -> 160F
+            else -> textLength.toFloat() + 8.0f
+        }
 
         val backgroundColor = Color(0, 0, 0, parent.bgAlphaValue.get())
         val enumColor = when (type) {
-                            Type.SUCCESS -> Color(80, 255, 80).rgb
-                            Type.ERROR -> Color(255, 80, 80).rgb
-                            Type.INFO -> Color(255, 255, 255).rgb
-                            Type.WARNING -> Color(255, 255, 0).rgb
-                        }
+            Type.SUCCESS -> Color(80, 255, 80).rgb
+            Type.ERROR -> Color(255, 80, 80).rgb
+            Type.INFO -> Color(255, 255, 255).rgb
+            Type.WARNING -> Color(255, 255, 0).rgb
+        }
 
         firstY = if (vAnimMode.equals("smooth", true)) {
             if (firstY == 19190.0F)
                 animationY
             else
-                net.minusmc.minusbounce.utils.AnimationUtils.animate(animationY, firstY, 0.02F * delta)
+                AnimationUtils.animate(animationY, firstY, 0.02F * delta)
         } else {
             animationY
         }
 
         val y = firstY
+
 
         when (style.lowercase()) {
             "compact" -> {
@@ -349,13 +353,13 @@ class Notification(message : String, type : Type, displayLength: Long) {
                         Type.WARNING -> Color(245, 212, 25, 70).rgb
                         Type.INFO -> Color(255, 255, 255, 70).rgb
                     })
-        		RenderUtils.originalRoundedRect(-1F, 1F, 161F, notifHeight + (if (barMaterial) 2F else 0F) - 1F, 1F, when (type) {
+                RenderUtils.originalRoundedRect(-1F, 1F, 161F, notifHeight + (if (barMaterial) 2F else 0F) - 1F, 1F, when (type) {
                         Type.SUCCESS -> Color(72, 210, 48, 70).rgb
                         Type.ERROR -> Color(227, 28, 28, 70).rgb
                         Type.WARNING -> Color(245, 212, 25, 70).rgb
                         Type.INFO -> Color(255, 255, 255, 70).rgb
                     })
-        		RenderUtils.originalRoundedRect(-0.5F, -0.5F, 160.5F, notifHeight + (if (barMaterial) 2F else 0F) + 0.5F, 1F, when (type) {
+                RenderUtils.originalRoundedRect(-0.5F, -0.5F, 160.5F, notifHeight + (if (barMaterial) 2F else 0F) + 0.5F, 1F, when (type) {
                         Type.SUCCESS -> Color(72, 210, 48, 80).rgb
                         Type.ERROR -> Color(227, 28, 28, 80).rgb
                         Type.WARNING -> Color(245, 212, 25, 80).rgb
@@ -415,7 +419,7 @@ class Notification(message : String, type : Type, displayLength: Long) {
             FadeState.IN -> {
                 if (x < width) {
                     x = if (hAnimMode.equals("smooth", true))
-                        net.minusmc.minusbounce.utils.AnimationUtils.animate(width, x, animSpeed * 0.025F * delta)
+                        AnimationUtils.animate(width, x, animSpeed * 0.025F * delta)
                     else
                         AnimationUtils.easeOut(fadeStep, width) * width
                     fadeStep += delta / 4F
@@ -441,7 +445,7 @@ class Notification(message : String, type : Type, displayLength: Long) {
 
             FadeState.OUT -> if (x > 0) {
                 x = if (hAnimMode.equals("smooth", true))
-                    net.minusmc.minusbounce.utils.AnimationUtils.animate(-width / 2F, x, animSpeed * 0.025F * delta)
+                    AnimationUtils.animate(-width / 2F, x, animSpeed * 0.025F * delta)
                 else
                     AnimationUtils.easeOut(fadeStep, width) * width
 

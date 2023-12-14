@@ -6,7 +6,7 @@
 package net.minusmc.minusbounce.ui.client.hud.element.elements.targets.utils
 
 import net.minusmc.minusbounce.ui.font.Fonts
-import net.minusmc.minusbounce.utils.AnimationUtils
+import net.minusmc.minusbounce.utils.render.AnimationUtils
 import net.minusmc.minusbounce.utils.MinecraftInstance
 import net.minusmc.minusbounce.utils.render.RenderUtils
 import net.minecraft.client.gui.ScaledResolution

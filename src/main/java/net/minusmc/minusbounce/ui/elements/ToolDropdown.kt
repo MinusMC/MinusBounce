@@ -9,7 +9,7 @@ import net.minusmc.minusbounce.MinusBounce
 import net.minusmc.minusbounce.features.special.AntiForge
 import net.minusmc.minusbounce.features.special.BungeeCordSpoof
 import net.minusmc.minusbounce.ui.font.Fonts
-import net.minusmc.minusbounce.utils.AnimationUtils
+import net.minusmc.minusbounce.utils.render.AnimationUtils
 import net.minusmc.minusbounce.utils.render.*
 import net.minecraft.client.gui.GuiButton
 import net.minecraft.client.renderer.GlStateManager.resetColor
