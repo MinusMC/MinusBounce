@@ -651,7 +651,7 @@ class KillAura : Module() {
                 for (entity in mc.theWorld.loadedEntityList) {
                     val distance = mc.thePlayer.getDistanceToEntityBox(entity)
 
-                    if (entity is EntityLivingBase && isEnemy(entity) && distance <= getRange(entity)) {
+                    if (entity is EntityLivingBase && isEnemy(entity) && distance <= range) {
                         attackEntity(entity)
 
                         targets += 1
@@ -1063,9 +1063,6 @@ class KillAura : Module() {
 
     private val range: Float
         get() = if (mc.thePlayer.canEntityBeSeen(target!!)) rangeValue.get() else throughWallsRangeValue.get()
-
-    private fun getRange(entity: Entity) =
-        if (mc.thePlayer.getDistanceToEntityBox(entity) >= throughWallsRangeValue.get()) rangeValue.get() else throughWallsRangeValue.get()
 
     override val tag: String
         get() = targetModeValue.get()
