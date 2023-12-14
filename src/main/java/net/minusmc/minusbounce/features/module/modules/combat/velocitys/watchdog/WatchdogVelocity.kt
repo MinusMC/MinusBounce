@@ -6,7 +6,7 @@ import net.minecraft.network.play.server.S12PacketEntityVelocity
 import net.minusmc.minusbounce.value.FloatValue
 
 class WatchdogVelocity : VelocityMode("Watchdog") {
-    private val verticalValue = FloatValue("Vertical", 60f, 0f, 100f)
+    private val verticalValue = FloatValue("Vertical", 60f, 0f, 100f, "%")
     override fun onPacket(event: PacketEvent) {
         val packet = event.packet
         if (packet is S12PacketEntityVelocity) {

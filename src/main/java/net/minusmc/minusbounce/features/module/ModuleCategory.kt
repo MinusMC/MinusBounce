@@ -8,17 +8,14 @@ package net.minusmc.minusbounce.features.module
 import net.minecraft.util.ResourceLocation
 import java.awt.Color
 
-enum class ModuleCategory(var displayName: String, val color: Int) {
-
-    COMBAT("Combat", Color(0xe84c3c).rgb),
-    PLAYER("Player", Color(0x8c43ac).rgb),
-    MOVEMENT("Movement", Color(0x28ba66).rgb),
-    RENDER("Render", Color(0x3700ce).rgb),
-    CLIENT("Client", Color(160, 55, 63).rgb),
-    WORLD("World", Color(0xcadf6f).rgb),
-    EXPLOIT("Exploit", Color(51, 152, 217).rgb),
-    MISC("Misc", Color(0x105748).rgb),
-    SCRIPT("Script", Color(196, 224, 249).rgb);
-
-    var icon: ResourceLocation = ResourceLocation("minusbounce/categories/${displayName.lowercase()}.png")
+enum class ModuleCategory(var displayName: String) {
+    COMBAT("Combat"),
+    PLAYER("Player"),
+    MOVEMENT("Movement"),
+    RENDER("Render"),
+    CLIENT("Client", C),
+    WORLD("World"),
+    EXPLOIT("Exploit"),
+    MISC("Misc"),
+    SCRIPT("Script");
 }

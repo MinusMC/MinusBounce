@@ -38,20 +38,8 @@ class Velocity : Module() {
         }
     }
 
-    /**
-     * OPTIONS
-     */
-    val h = FloatValue("Horizontal", 0F, 0F, 100F).displayable { modeValue.equals("Standard") }
-    val v = FloatValue("Vertical", 0F, 0F, 100F).displayable { modeValue.equals("Standard") }
-    val c = IntegerValue("Chance", 100, 0, 100).displayable { modeValue.equals("Standard") }
-
-    private val og = BoolValue("OnlyGround", false)
-    private val oc = BoolValue("OnlyCombat", false)
-    private val om = BoolValue("OnlyMove", false)
-
-    // Affect chance
     private val reduceChance = FloatValue("Reduce-Chance", 100F, 0F, 100F, "%")
-    private var shouldAffect : Boolean = true
+    private var shouldAffect: Boolean = true
 
     override fun onInitialize() {
         modes.map { mode -> mode.values.forEach { value -> value.name = "${mode.modeName}-${value.name}" } }
@@ -80,15 +68,16 @@ class Velocity : Module() {
     fun onMotion(event: MotionEvent) {
         mode.onMotion(event)
     }
+    
     override val tag: String
         get() = modeValue.get()
 
     override val values = super.values.toMutableList().also {
         modes.map {
-                mode -> mode.values.forEach { value ->
-            val displayableFunction = value.displayableFunction
-            it.add(value.displayable { displayableFunction.invoke() && modeValue.get() == mode.modeName })
-        }
+            mode -> mode.values.forEach { value ->
+                val displayableFunction = value.displayableFunction
+                it.add(value.displayable { displayableFunction.invoke() && modeValue.get() == mode.modeName })
+            }
         }
     }
 }

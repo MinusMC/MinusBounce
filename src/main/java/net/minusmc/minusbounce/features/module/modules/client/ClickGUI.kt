@@ -20,10 +20,10 @@ import net.minusmc.minusbounce.value.IntegerValue
 import net.minusmc.minusbounce.value.ListValue
 import org.lwjgl.input.Keyboard
 import java.awt.Color
+
 @ModuleInfo(name = "ClickGUI", description = "Opens the ClickGUI.", category = ModuleCategory.CLIENT, keyBind = Keyboard.KEY_RSHIFT, forceNoSound = true, onlyEnable = true)
 object ClickGUI: Module() {
     val styleClazzes = ClassUtils.resolvePackage("net.minusmc.minusbounce.ui.client.clickgui.styles", StyleMode::class.java)
-    // t hoi may cai nay de lam j
     var styles = styleClazzes.map {it.newInstance() as StyleMode}.sortedBy { it.styleName }
 
     val style: StyleMode
