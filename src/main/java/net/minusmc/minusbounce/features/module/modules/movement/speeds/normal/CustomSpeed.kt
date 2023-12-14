@@ -12,6 +12,10 @@ import net.minusmc.minusbounce.event.MoveEvent
 import net.minusmc.minusbounce.features.module.modules.movement.Speed
 import net.minusmc.minusbounce.features.module.modules.movement.speeds.SpeedMode
 import net.minusmc.minusbounce.features.module.modules.movement.speeds.SpeedType
+import net.minusmc.minusbounce.value.FloatValue
+import net.minusmc.minusbounce.value.ListValue
+import net.minusmc.minusbounce.value.IntegerValue
+import net.minusmc.minusbounce.value.BoolValue
 import net.minusmc.minusbounce.utils.MovementUtils
 import java.util.*
 
@@ -35,35 +39,35 @@ class CustomSpeed: SpeedMode("Custom", SpeedType.NORMAL) {
         val speed = MinusBounce.moduleManager.getModule(Speed::class.java)
         if (speed == null || eventMotion.eventState !== EventState.PRE) return
         if (MovementUtils.isMoving) {
-            mc.timer.timerSpeed = if (mc.thePlayer.motionY > 0) speed.upTimerValue.get() else speed.downTimerValue.get()
+            mc.timer.timerSpeed = if (mc.thePlayer.motionY > 0) upTimerValue.get() else downTimerValue.get()
             if (mc.thePlayer.onGround) {
-                if (groundTick >= speed.groundStay.get()) {
-                    if (speed.doLaunchSpeedValue.get()) {
-                        MovementUtils.strafe(speed.launchSpeedValue.get())
+                if (groundTick >= groundStay.get()) {
+                    if (doLaunchSpeedValue.get()) {
+                        MovementUtils.strafe(launchSpeedValue.get())
                     }
-                    if (speed.yValue.get() != 0f) {
-                        mc.thePlayer.motionY = speed.yValue.get().toDouble()
+                    if (yValue.get() != 0f) {
+                        mc.thePlayer.motionY = yValue.get().toDouble()
                     }
-                } else if (speed.groundResetXZValue.get()) {
+                } else if (groundResetXZValue.get()) {
                     mc.thePlayer.motionX = 0.0
                     mc.thePlayer.motionZ = 0.0
                 }
                 groundTick++
             } else {
                 groundTick = 0
-                when (speed.strafeValue.get().lowercase(Locale.getDefault())) {
-                    "strafe" -> MovementUtils.strafe(speed.speedValue.get())
+                when (strafeValue.get().lowercase(Locale.getDefault())) {
+                    "strafe" -> MovementUtils.strafe(speedValue.get())
                     "boost" -> MovementUtils.strafe()
-                    "plus" -> MovementUtils.accelerate(speed.speedValue.get() * 0.1f)
+                    "plus" -> MovementUtils.accelerate(speedValue.get() * 0.1f)
                     "plusonlyup" -> if (mc.thePlayer.motionY > 0) {
-                        MovementUtils.accelerate(speed.speedValue.get() * 0.1f)
+                        MovementUtils.accelerate(speedValue.get() * 0.1f)
                     } else {
                         MovementUtils.strafe()
                     }
                 }
-                mc.thePlayer.motionY += speed.addYMotionValue.get() * 0.03
+                mc.thePlayer.motionY += addYMotionValue.get() * 0.03
             }
-        } else if (speed.resetXZValue.get()) {
+        } else if (resetXZValue.get()) {
             mc.thePlayer.motionX = 0.0
             mc.thePlayer.motionZ = 0.0
         }
@@ -71,11 +75,11 @@ class CustomSpeed: SpeedMode("Custom", SpeedType.NORMAL) {
 
     override fun onEnable() {
         val speed = MinusBounce.moduleManager[Speed::class.java]!!
-        if (speed.resetXZValue.get()) {
+        if (resetXZValue.get()) {
             mc.thePlayer.motionZ = 0.0
             mc.thePlayer.motionX = mc.thePlayer.motionZ
         }
-        if (speed.resetYValue.get()) mc.thePlayer.motionY = 0.0
+        if (resetYValue.get()) mc.thePlayer.motionY = 0.0
         super.onEnable()
     }
 

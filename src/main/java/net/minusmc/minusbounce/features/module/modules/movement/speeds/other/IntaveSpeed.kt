@@ -5,7 +5,7 @@ import net.minusmc.minusbounce.features.module.modules.movement.speeds.SpeedMode
 import net.minusmc.minusbounce.utils.MovementUtils
 import net.minecraft.client.settings.GameSettings
 
-class IntaveSpeed: SpeedMode("Intave", SpeedType.INTAVE) {
+class IntaveSpeed: SpeedMode("Intave", SpeedType.OTHER) {
     override fun onUpdate() {
         mc.gameSettings.keyBindJump.pressed = GameSettings.isKeyDown(mc.gameSettings.keyBindJump)
         if (MovementUtils.isMoving) {

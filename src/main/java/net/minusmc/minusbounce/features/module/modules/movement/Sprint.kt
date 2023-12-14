@@ -48,7 +48,7 @@ class Sprint : Module() {
         val killAura = MinusBounce.moduleManager[KillAura::class.java]!!
         val noSlow = MinusBounce.moduleManager[NoSlow::class.java]!!
 
-        if (noSlow.state && noSlow.noSprintValue() && noSlow.isSlowing) {
+        if (noSlow.state && noSlow.noSprintValue.get() && noSlow.isSlowing) {
             mc.thePlayer.isSprinting = false
             return
         }
