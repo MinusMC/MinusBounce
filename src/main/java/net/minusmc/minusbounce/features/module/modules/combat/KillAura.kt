@@ -862,7 +862,7 @@ class KillAura : Module() {
                         predictValue.get(),
                         throughWallsRangeValue.get() > 0f
                 ) ?: return null
-                RotationUtils.limitAngleChange(RotationUtils.serverRotation!!, rotation, turnSpeed)
+                RotationUtils.limitAngleChange(RotationUtils.serverRotation!!, rotation, rotationSpeed)
             }
             "smoothcenter" -> {
                 if (turnSpeed.get().getMax() <= 0F) RotationUtils.serverRotation
@@ -875,8 +875,8 @@ class KillAura : Module() {
                         predictValue.get(),
                         throughWallsRangeValue.get() > 0f
                 ) ?: return null
-                val diffAngle = RotationUtils.getRotationDifference(RotationUtils.serverRotation, rotation)
-                RotationUtils.limitAngleChange(RotationUtils.serverRotation!!, rotation, diffAngle / rotationSmoothValue.get())
+                val diffAngle = RotationUtils.getRotationDifference(RotationUtils.serverRotation!!, rotation)
+                RotationUtils.limitAngleChange(RotationUtils.serverRotation!!, rotation, diffAngle.toFloat() / rotationSmoothValue.get())
             }
             "backtrack" -> {
                 val rotation = RotationUtils.otherRotation(boundingBox, RotationUtils.getCenter(entity.entityBoundingBox), predictValue.get(), mc.thePlayer!!.getDistanceToEntityBox(entity) < throughWallsRangeValue.get(), maxRange)
