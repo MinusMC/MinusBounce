@@ -93,6 +93,12 @@ public abstract class MixinGuiChat extends MixinGuiScreen {
         }
     }
 
+    @Inject(method = "autocompletePlayerNames", at = @At("HEAD"))
+    private void prioritizeClientFriends(final CallbackInfo callbackInfo) {
+        foundPlayerNames.sort(
+                Comparator.comparing(s -> !MinusBounce.fileManager.getFriendsConfig().isFriend(s)));
+    }
+
     /**
      * Add this callback, to check if the User complete a Playername or a Liquidbounce command.
      * To fix this bug: https://github.com/CCBlueX/LiquidBounce1.8-Issues/issues/3795

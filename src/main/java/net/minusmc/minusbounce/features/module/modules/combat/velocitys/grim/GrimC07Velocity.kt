@@ -20,7 +20,7 @@ class GrimC07Velocity : VelocityMode("GrimC07") {
     private val onlyAirValue = BoolValue("OnlyBreakAir", true)
     private val worldValue = BoolValue("BreakOnWorld", false)
     private val sendC03Value = BoolValue("SendC03", false)
-    private val c06Value = BoolValue("Send1.17C06", false) { sendC03Value.get() }
+    private val c06Value = BoolValue("Send1.17C06", false)
     private val flagPauseValue = IntegerValue("FlagPause-Time", 50, 0, 5000)
 
     private var gotVelo = false

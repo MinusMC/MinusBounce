@@ -12,6 +12,10 @@ import net.minusmc.minusbounce.features.module.ModuleInfo
 import net.minusmc.minusbounce.utils.ClassUtils
 import net.minusmc.minusbounce.value.ListValue
 
+
+/*
+TASK: online cape add cape from online
+ */
 @ModuleInfo(name = "Cape", description = "MinusBounce capes.", category = ModuleCategory.CLIENT)
 class Cape : Module() {
     private val styleValue = ListValue("Style", arrayOf("MinusBounce"), "MinusBounce")

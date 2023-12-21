@@ -1,7 +1,7 @@
 /*
- * MinusBounce Hacked Client
+ * LiquidBounce+ Hacked Client
  * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/MinusMC/MinusBounce
+ * https://github.com/WYSI-Foundation/LiquidBouncePlus/
  */
 package net.minusmc.minusbounce.ui.client.hud.element.elements
 
@@ -75,7 +75,7 @@ class Image : Element() {
      * Draw element
      */
     override fun drawElement(): Border { //fix image
-        GlStateManager.disableAlpha() 
+        GlStateManager.disableAlpha()
         RenderUtils.drawImage(resourceLocation, 0, 0, width / 2, height / 2)
         GlStateManager.enableAlpha()
 
@@ -117,7 +117,7 @@ class Image : Element() {
         return this
     }
 
-    private fun setImage(image: File): Image {
+    fun setImage(image: File): Image {
         try {
             setImage(Base64.getEncoder().encodeToString(Files.readAllBytes(image.toPath())))
         } catch (e: Exception) {

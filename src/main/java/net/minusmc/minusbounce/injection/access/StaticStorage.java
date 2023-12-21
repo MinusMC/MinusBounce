@@ -5,6 +5,7 @@
  */
 package net.minusmc.minusbounce.injection.access;
 
+import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumParticleTypes;
@@ -32,6 +33,8 @@ public class StaticStorage {
     public static EnumFacing[] facings() {
         return facings;
     }
+
+    public static ScaledResolution scaledResolution;
 
     public static EnumChatFormatting[] chatFormatting() {
         return chatFormatting;

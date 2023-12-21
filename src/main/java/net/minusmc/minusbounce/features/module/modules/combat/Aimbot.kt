@@ -20,6 +20,10 @@ import net.minusmc.minusbounce.value.BoolValue
 import net.minusmc.minusbounce.value.FloatValue
 import kotlin.random.Random
 
+/*
+TASK: Better aimbot (aimassist) cai nay thuc ra la y tuong wow
+ */
+
 @ModuleInfo(name = "Aimbot", description = "Automatically faces selected entities around you.", category = ModuleCategory.COMBAT)
 class Aimbot : Module() {
 

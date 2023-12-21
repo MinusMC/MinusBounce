@@ -30,7 +30,7 @@ import net.minusmc.minusbounce.utils.MathUtils.round
 import kotlin.math.max
 import kotlin.math.min
 
-class LiquidBounceStyle : DropDownClickGui("LiquidBounce") {
+class LiquidBounceStyle : DropDownClickGui("LiquidBounce") { // co đụng vô dau
     override fun drawPanel(mouseX: Int, mouseY: Int, panel: Panel?) {
         RenderUtils.drawBorderedRect(panel!!.x.toFloat() - if (panel.scrollbar) 4 else 0, panel.y.toFloat(), panel.x.toFloat() + panel.width, panel.y.toFloat() + 19 + panel.getFade(), 1f, Color(255, 255, 255, 90).rgb, Int.MIN_VALUE)
         val textWidth = Fonts.font35.getStringWidth("§f" + StringUtils.stripControlCodes(panel.name)).toFloat()

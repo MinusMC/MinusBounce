@@ -7,6 +7,7 @@ package net.minusmc.minusbounce.event
 
 import net.minecraft.block.Block
 import net.minecraft.client.gui.GuiScreen
+import net.minecraft.client.gui.ScaledResolution
 import net.minecraft.client.model.ModelPlayer
 import net.minecraft.client.multiplayer.WorldClient
 import net.minecraft.entity.Entity

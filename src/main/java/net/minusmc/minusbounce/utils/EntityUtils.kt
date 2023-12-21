@@ -22,9 +22,10 @@ import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.scoreboard.ScorePlayerTeam
 import net.minusmc.minusbounce.MinusBounce
 import net.minusmc.minusbounce.features.module.modules.client.Target
+import net.minusmc.minusbounce.features.module.modules.combat.AntiBot.isBot
 import net.minusmc.minusbounce.features.module.modules.combat.KillAura
-import net.minusmc.minusbounce.features.module.modules.misc.AntiBot.isBot
 import net.minusmc.minusbounce.features.module.modules.misc.Teams
+import net.minusmc.minusbounce.utils.render.ColorUtils
 
 object EntityUtils : MinecraftInstance() {
     fun isSelected(entity: Entity, canAttackCheck: Boolean): Boolean {
@@ -53,6 +54,9 @@ object EntityUtils : MinecraftInstance() {
                 return false
 
             if (entity.ticksExisted < 1)
+                return false
+
+            if (isFriend(entity))
                 return false
 
             if (!(!teams.state || !teams.isInYourTeam(entity)))
@@ -139,5 +143,11 @@ object EntityUtils : MinecraftInstance() {
 
     fun isRendered(entityToCheck: Entity?): Boolean {
         return mc.theWorld != null && mc.theWorld.getLoadedEntityList().contains(entityToCheck)
+    }
+
+    fun isFriend(entity: EntityLivingBase?): Boolean {
+        if (entity !is EntityPlayer) return false
+        val name = ColorUtils.stripColor(entity.name ?: return false) ?: return false
+        return MinusBounce.fileManager.friendsConfig.isFriend(name)
     }
 }

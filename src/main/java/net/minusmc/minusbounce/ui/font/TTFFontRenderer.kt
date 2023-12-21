@@ -205,6 +205,7 @@ class TTFFontRenderer @JvmOverloads constructor(
         GlStateManager.bindTexture(0)
     }
 
+
     /**
      * Renders the given string.
      *

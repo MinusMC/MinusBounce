@@ -32,7 +32,7 @@ import kotlin.math.pow
 class Notifications(x: Double = 0.0, y: Double = 30.0, scale: Float = 1F,
                     side: Side = Side(Side.Horizontal.RIGHT, Side.Vertical.DOWN)) : Element(x, y, scale, side) {
 
-    val styleValue = ListValue("Style", arrayOf("Full", "Full2", "Compact", "Material", "Test"), "Material")
+    val styleValue = ListValue("Style", arrayOf("Full", "Full2", "Novoline", "Compact", "Material", "Test"), "Material")
     val barValue = BoolValue("Bar", true) { styleValue.get().equals("material", true) }
     val bgAlphaValue = IntegerValue("Background-Alpha", 120, 0, 255) { !styleValue.get().equals("material", true) }
 

@@ -27,6 +27,7 @@ import kotlin.math.abs
 /**
  * @author inf (original java code)
  * @author pie (refactored)
+ * t
  */
 class LiquidBouncePlusStyle: StyleMode("LiquidBounce+") {
     private val categoryElements: MutableList<CategoryElement> = ArrayList()
@@ -139,7 +140,7 @@ class LiquidBouncePlusStyle: StyleMode("LiquidBounce+") {
 //        xAnimDelta = AnimationHelper.animation(xAnimDelta, lastMouseX, 0.01f)
 //        yAnimDelta = AnimationHelper.animation(yAnimDelta, lastMouseY, 0.01f)
     }
-    
+
 //    private fun handlingPreRotationAnimation(): Boolean {
 //        if (!isDoneRotatingAnimation()) {
 //            GlStateManager.pushMatrix()
@@ -295,19 +296,19 @@ class LiquidBouncePlusStyle: StyleMode("LiquidBounce+") {
                 lastFastYEnd = startY + elementHeight - 6f
                 startYAnim = if (ClickGUI.fastRenderValue.get())
                     startY + 6f
-                             else
-                                 AnimationUtils.animate(startY + 6f,
-                                    startYAnim,
-                                    (if (startYAnim - (startY + 5f) > 0) 0.65f else 0.55f) * RenderUtils.deltaTime * 0.025f
-                                )
+                else
+                    AnimationUtils.animate(startY + 6f,
+                        startYAnim,
+                        (if (startYAnim - (startY + 5f) > 0) 0.65f else 0.55f) * RenderUtils.deltaTime * 0.025f
+                    )
                 endYAnim =  if (ClickGUI.fastRenderValue.get())
-                                startY + elementHeight - 6f
-                            else
-                                AnimationUtils.animate(
-                                    startY + elementHeight - 6f,
-                                    endYAnim,
-                                    (if (endYAnim - (startY + elementHeight - 5f) < 0) 0.65f else 0.55f) * RenderUtils.deltaTime * 0.025f
-                                )
+                    startY + elementHeight - 6f
+                else
+                    AnimationUtils.animate(
+                        startY + elementHeight - 6f,
+                        endYAnim,
+                        (if (endYAnim - (startY + elementHeight - 5f) < 0) 0.65f else 0.55f) * RenderUtils.deltaTime * 0.025f
+                    )
                 ce.drawPanel(mouseX, mouseY, (windowXStart + xOffset) + categoryXOffset, (windowYStart + yOffset) + categoriesTopMargin, windowWidth - categoryXOffset, windowHeight - categoriesBottommargin, Mouse.getDWheel(), accentColor)
                 Fonts.font40.drawString(ce.name, (windowXStart + xOffset) + 7, (windowYStart + yOffset) + 7, -1)
             }

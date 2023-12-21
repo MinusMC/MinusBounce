@@ -8,6 +8,7 @@ package net.minusmc.minusbounce.utils
 import net.minecraft.init.Blocks
 import net.minecraft.item.Item
 import net.minecraft.item.ItemBlock
+import net.minecraft.block.Block
 import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement
 import net.minusmc.minusbounce.event.ClickWindowEvent
 import net.minusmc.minusbounce.event.EventTarget
@@ -99,6 +100,10 @@ class InventoryUtils : MinecraftInstance(), Listenable {
                 val itemStack = mc.thePlayer.inventoryContainer.getSlot(i).stack ?: return true
             }
             return false
+        }
+
+        fun canPlaceBlock(block: Block): Boolean {
+            return block.isFullCube && !BLOCK_BLACKLIST.contains(block)
         }
 
         fun findAutoBlockBlock(): Int {

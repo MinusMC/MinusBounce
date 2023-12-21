@@ -6,18 +6,21 @@ import net.minusmc.minusbounce.features.module.modules.combat.velocitys.Velocity
 import net.minusmc.minusbounce.utils.MovementUtils
 import net.minusmc.minusbounce.utils.timer.MSTimer
 import net.minusmc.minusbounce.value.BoolValue
+import net.minusmc.minusbounce.value.FloatValue
 
 class AACVelocity : VelocityMode("AAC") {
+	private val horizontalValue = FloatValue("Horizontal", 0f, 0f, 100f, "%")
+    private val verticalValue = FloatValue("Vertical", 0f, 0f, 100f, "%")
 	private val aacStrafeValue = BoolValue("StrafeValue", false)
 	private var velocityInput = false
 	private val velocityTimer = MSTimer()
 
 	override fun onUpdate() {
 		if (velocityInput && velocityTimer.hasTimePassed(50)) {
-			mc.thePlayer.motionX *= velocity.horizontalValue.get()
-			mc.thePlayer.motionZ *= velocity.horizontalValue.get()
-			mc.thePlayer.motionY *= velocity.verticalValue.get()
-			if(aacStrafeValue.get()) MovementUtils.strafe()
+			mc.thePlayer.motionX *= horizontalValue.get() / 100f
+			mc.thePlayer.motionZ *= horizontalValue.get() / 100f
+			mc.thePlayer.motionY *= verticalValue.get() / 100f
+			if (aacStrafeValue.get()) MovementUtils.strafe()
 			velocityInput = false
 		}
 	}

@@ -85,6 +85,7 @@ public abstract class MixinGuiScreen {
         }
     }
 
+
     /**
      * @author CCBlueX & TheMosKau
      */

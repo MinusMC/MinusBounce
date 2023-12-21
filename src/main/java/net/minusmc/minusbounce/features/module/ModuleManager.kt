@@ -114,5 +114,7 @@ class ModuleManager : Listenable {
     @EventTarget
     private fun onKey(event: KeyEvent) = modules.filter { it.keyBind == event.key }.forEach { it.toggle() }
 
+    fun getModuleOnCategory(category: ModuleCategory) = modules.filter { it.category == category }
+
     override fun handleEvents() = true
 }

@@ -36,7 +36,7 @@ object MinusBounce {
     const val CLIENT_CREATOR = "CCBlueX, MinusMC Team"
     val API_VERSION = PluginAPIVersion.VER_01
     const val CLIENT_CLOUD = "https://cloud.minusbounce.lol"
-
+    
     var isStarting = false
 
     // Managers
@@ -106,7 +106,7 @@ object MinusBounce {
         pluginManager.registerCommands()
         // plugin load command
 
-        fileManager.loadConfigs(fileManager.modulesConfig, fileManager.valuesConfig, fileManager.accountsConfig)
+        fileManager.loadConfigs(fileManager.modulesConfig, fileManager.valuesConfig, fileManager.accountsConfig, fileManager.friendsConfig)
 
         val clickGuiModule = moduleManager[ClickGUI::class.java]!!
         clickGuiModule.styles = clickGuiModule.styleClazzes.map {it.newInstance() as StyleMode}.sortedBy { it.styleName }

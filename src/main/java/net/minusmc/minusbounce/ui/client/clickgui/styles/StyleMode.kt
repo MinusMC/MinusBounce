@@ -1,9 +1,11 @@
 package net.minusmc.minusbounce.ui.client.clickgui.styles
 
 import net.minecraft.client.gui.GuiScreen
+import com.google.gson.JsonObject
+import com.google.gson.JsonElement
 
 
-abstract class StyleMode(val styleName: String): GuiScreen() {
+abstract class StyleMode(val styleName: String): GuiScreen() { // wtf wtf
 	override fun initGui() {}
 
 	override fun drawScreen(mouseX: Int, mouseY: Int, partialTicks: Float) {
@@ -18,6 +20,7 @@ abstract class StyleMode(val styleName: String): GuiScreen() {
 	override fun mouseReleased(mouseX: Int, mouseY: Int, state: Int) {
 		super.mouseReleased(mouseX, mouseY, state)
 	}
+
 	override fun updateScreen() {
 		super.updateScreen()
 	}

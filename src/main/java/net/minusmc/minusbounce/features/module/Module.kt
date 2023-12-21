@@ -39,7 +39,7 @@ open class Module : MinecraftInstance(), Listenable {
                 MinusBounce.fileManager.saveConfig(MinusBounce.fileManager.modulesConfig)
         }
     private val canEnable: Boolean
-    private val onlyEnable: Boolean
+    val onlyEnable: Boolean
     private val forceNoSound: Boolean
 
     var slideStep = 0F

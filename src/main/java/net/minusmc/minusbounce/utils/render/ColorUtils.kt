@@ -38,6 +38,28 @@ object ColorUtils {
         return COLOR_PATTERN.matcher(input ?: return null).replaceAll("")
     }
 
+    fun interpolate(oldValue: Double, newValue: Double, interpolationValue: Double): Double {
+        return oldValue + (newValue - oldValue) * interpolationValue
+    }
+
+    @JvmStatic
+    fun interpolateInt(oldValue: Int, newValue: Int, interpolationValue: Double): Int {
+        return interpolate(oldValue.toDouble(), newValue.toDouble(), interpolationValue.toFloat().toDouble()).toInt()
+    }
+
+    @JvmStatic
+    fun interpolateColorC(color1: Color, color2: Color, amount: Float): Color {
+        var amount = amount
+        amount = Math.min(1f, Math.max(0f, amount))
+        return Color(
+                interpolateInt(color1.red, color2.red, amount.toDouble()),
+                interpolateInt(color1.green, color2.green, amount.toDouble()),
+                interpolateInt(color1.blue, color2.blue, amount.toDouble()),
+                interpolateInt(color1.alpha, color2.alpha, amount.toDouble()
+                )
+        )
+    }
+
     @JvmStatic
     fun translateAlternateColorCodes(textToTranslate: String): String {
         val chars = textToTranslate.toCharArray()
@@ -119,6 +141,12 @@ object ColorUtils {
         return Color(Color.HSBtoRGB(hsb[0], hsb[1], hsb[2]))
     }
 
+    fun getColor(hueoffset: Float, saturation: Float, brightness: Float): Int {
+        val speed = 4500f
+        val hue = System.currentTimeMillis() % speed.toInt() / speed
+        return Color.HSBtoRGB(hue - hueoffset / 54, saturation, brightness)
+    }
+
     @JvmStatic
     fun setColour(colour: Int) {
         val a = (colour shr 24 and 0xFF) / 255.0f
@@ -127,7 +155,25 @@ object ColorUtils {
         val b = (colour and 0xFF) / 255.0f
         glColor4f(r, g, b, a)
     }
-    
+    @JvmStatic
+    fun getColor(n: Int): String? {
+        if (n != 1) {
+            if (n == 2) {
+                return "\u00a7a"
+            }
+            if (n == 3) {
+                return "\u00a73"
+            }
+            if (n == 4) {
+                return "\u00a74"
+            }
+            if (n >= 5) {
+                return "\u00a7e"
+            }
+        }
+        return "\u00a7f"
+    }
+
     @JvmStatic
     fun hoverColor(color: Color?, hover: Int): Color {
         val r = color!!.red - (hover * 2)
@@ -148,7 +194,25 @@ object ColorUtils {
     @JvmStatic
     fun modifyAlpha(col: Color?, alpha: Int) = Color(col!!.red, col.green, col.blue, alpha)
 
-    @JvmStatic
+    fun colorCode(code: String, alpha: Int = 255): Color = when (code.lowercase()) {
+        "0" -> Color(0, 0, 0, alpha)
+        "1" -> Color(0, 0, 170, alpha)
+        "2" -> Color(0, 170, 0, alpha)
+        "3" -> Color(0, 170, 170, alpha)
+        "4" -> Color(170, 0, 0, alpha)
+        "5" -> Color(170, 0, 170, alpha)
+        "6" -> Color(255, 170, 0, alpha)
+        "7" -> Color(170, 170, 170, alpha)
+        "8" -> Color(85, 85, 85, alpha)
+        "9" -> Color(85, 85, 255, alpha)
+        "a" -> Color(85, 255, 85, alpha)
+        "b" -> Color(85, 255, 255, alpha)
+        "c" -> Color(255, 85, 85, alpha)
+        "d" -> Color(255, 85, 255, alpha)
+        "e" -> Color(255, 255, 85, alpha)
+        else -> Color(255, 255, 255, alpha)
+    }
+
     fun getGradientOffset(one: Color, two: Color, offset: Double, alpha: Int): Color {
         val offset = if (offset > 1) {
             val off = offset.toInt()

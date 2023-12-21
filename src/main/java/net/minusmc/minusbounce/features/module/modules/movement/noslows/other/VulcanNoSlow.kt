@@ -28,7 +28,7 @@ class VulcanNoSlow : NoSlowMode("Vulcan") {
     override fun onPacket(event: PacketEvent) {
         val packet = event.packet
         if (nextTemp) {
-            if ((packet is C07PacketPlayerDigging || packet is C08PacketPlayerBlockPlacement) && noslow.isBlocking) 
+            if ((packet is C07PacketPlayerDigging || packet is C08PacketPlayerBlockPlacement) && noslow.isBlocking)
                 event.cancelEvent()
             else if (packet is C03PacketPlayer || packet is C0APacketAnimation || packet is C0BPacketEntityAction || packet is C02PacketUseEntity || packet is C07PacketPlayerDigging || packet is C08PacketPlayerBlockPlacement) {
                 if (waitC03 && packet is C03PacketPlayer) {

@@ -1,4 +1,4 @@
-package net.minusmc.minusbounce.features.module.modules.movement.noslows.other
+package net.minusmc.minusbounce.features.module.modules.movement.noslows.matrix
 
 import net.minecraft.network.Packet
 import net.minecraft.network.play.INetHandlerPlayServer
@@ -24,7 +24,7 @@ class MatrixNoSlow : NoSlowMode("Matrix") {
     override fun onPacket(event: PacketEvent) {
         val packet = event.packet
         if (nextTemp) {
-            if ((packet is C07PacketPlayerDigging || packet is C08PacketPlayerBlockPlacement) && noslow.isBlocking) 
+            if ((packet is C07PacketPlayerDigging || packet is C08PacketPlayerBlockPlacement) && noslow.isBlocking)
                 event.cancelEvent()
             else if (packet is C03PacketPlayer || packet is C0APacketAnimation || packet is C0BPacketEntityAction || packet is C02PacketUseEntity || packet is C07PacketPlayerDigging || packet is C08PacketPlayerBlockPlacement) {
                 packetBuf.add(packet as Packet<INetHandlerPlayServer>)

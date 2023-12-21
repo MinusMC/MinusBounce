@@ -87,6 +87,7 @@ class KillAura : Module() {
             "RightHold",
             "KeyBlock",
             "OldHypixel",
+            "OldWatchdog"
         ),
         "None"
     )
@@ -321,6 +322,7 @@ class KillAura : Module() {
             target ?: return
             currentTarget ?: return
 
+            updateHitable()
             if (autoBlockModeValue.get().equals("AfterTick", true) && canBlock)
                 startBlocking(currentTarget!!, hitable)
 
@@ -976,8 +978,8 @@ class KillAura : Module() {
                 }
                 "test" -> {
                     if (mc.thePlayer.swingProgressInt == 0) stopBlocking()
-                    when (mc.thePlayer.ticksExisted % 20) {
-                        in 0..12 -> {
+                    when (mc.thePlayer.ticksExisted % 10) {
+                        in 0..6 -> {
                             mc.netHandler.addToSendQueue(C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem % 8 + 1))
                             mc.netHandler.addToSendQueue(C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem))
                         }

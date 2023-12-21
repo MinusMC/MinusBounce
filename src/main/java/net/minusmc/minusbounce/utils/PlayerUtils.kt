@@ -1,11 +1,11 @@
 package net.minusmc.minusbounce.utils
 
-import net.minusmc.minusbounce.utils.MinecraftInstance.Companion.mc
-import net.minecraft.item.ItemBlock
 import net.minecraft.block.BlockSlime
+import net.minecraft.item.ItemBlock
 import net.minecraft.item.ItemEnderPearl
 import net.minecraft.item.ItemPotion
 import net.minecraft.item.ItemStack
+import net.minusmc.minusbounce.utils.MinecraftInstance.Companion.mc
 
 object PlayerUtils {
 	fun getSlimeSlot(): Int {
@@ -44,5 +44,9 @@ object PlayerUtils {
             if(stack != null && stack.item is ItemPotion && isHealPotion(stack)) return i - 36
         }
         return -1
+    }
+
+    fun isOnEdge(): Boolean {
+        return mc.thePlayer.onGround && !mc.thePlayer.isSneaking && !mc.gameSettings.keyBindSneak.isKeyDown && !mc.gameSettings.keyBindJump.isKeyDown && mc.theWorld.getCollidingBoundingBoxes(mc.thePlayer, mc.thePlayer.entityBoundingBox.offset(0.0, -0.5, 0.0).expand(-0.001, 0.0, -0.001)).isEmpty()
     }
 }
