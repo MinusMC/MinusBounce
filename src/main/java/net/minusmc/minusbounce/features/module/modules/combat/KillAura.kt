@@ -116,7 +116,7 @@ class KillAura : Module() {
     private val rotations = ListValue("RotationMode", arrayOf("Vanilla", "SmoothCenter", "BackTrack", "Grim", "Intave", "Smooth", "None"), "BackTrack")
     private val intaveRandomAmount = FloatValue("RandomAmount", 4f, 0.25f, 10f) { rotations.get().equals("Intave", true) }
 
-    private val rotationSmoothValue = FloatValue("RotationSmooth", 1f, 0f, 5f) {rotations.get().equals("Vanilla", true) || rotations.get().equals("SmoothCenter", true)}
+    private val rotationSmoothValue = FloatValue("RotationSmooth", 1f, 0f, 5f) {rotations.get().equals("SmoothCenter", true)}
 
     private val turnSpeed = FloatRangeValue("TurnSpeed", 180f, 180f, 0f, 180f, "°", {!rotations.get().equals("None", true)})
     private val randomCenterValue = BoolValue("RandomCenter", false) { !rotations.get().equals("none", true) }
@@ -860,10 +860,9 @@ class KillAura : Module() {
                         RandomUtils.nextFloat(minRand.get(), maxRand.get()).toDouble(),
                         boundingBox,
                         predictValue.get(),
-                        throughWallsRangeValue.get()
+                        throughWallsRangeValue.get() > 0f
                 ) ?: return null
-                val diffAngle = RotationUtils.getRotationDifference(RotationUtils.serverRotation, rotation)
-                RotationUtils.limitAngleChange(RotationUtils.serverRotation!!, rotation, diffAngle / rotationSmoothValue.get())
+                RotationUtils.limitAngleChange(RotationUtils.serverRotation!!, rotation, turnSpeed)
             }
             "smoothcenter" -> {
                 if (turnSpeed.get().getMax() <= 0F) RotationUtils.serverRotation
@@ -874,9 +873,9 @@ class KillAura : Module() {
                         RandomUtils.nextFloat(minRand.get(), maxRand.get()).toDouble(),
                         boundingBox,
                         predictValue.get(),
-                        throughWallsRangeValue.get()
+                        throughWallsRangeValue.get() > 0f
                 ) ?: return null
-                val diffAngle = RotationUtils.getRotationDifference(RotationUtils.serverRotation, outborder)
+                val diffAngle = RotationUtils.getRotationDifference(RotationUtils.serverRotation, rotation)
                 RotationUtils.limitAngleChange(RotationUtils.serverRotation!!, rotation, diffAngle / rotationSmoothValue.get())
             }
             "backtrack" -> {
