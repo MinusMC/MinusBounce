@@ -61,7 +61,6 @@ class Aimbot : Module() {
         } else {
             RotationUtils.searchCenter(
                 boundingBox,
-                outborder = false,
                 random = false,
                 predict = true,
                 throughWalls = false,

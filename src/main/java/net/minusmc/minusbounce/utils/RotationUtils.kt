@@ -541,7 +541,6 @@ object RotationUtils : MinecraftInstance(), Listenable {
         )
     }
 
-    // LB+R
     fun getDirectionToBlock(x: Double, y: Double, z: Double, enumfacing: EnumFacing): Rotation {
         val var4 = EntityEgg(mc.theWorld)
         var4.posX = x + 0.5
@@ -599,8 +598,6 @@ object RotationUtils : MinecraftInstance(), Listenable {
         return vec3
     }
 
-    // Love LongAthelstan for below code
-    // Code is using for guest location of player
     fun predictPlayerMovement(player: EntityPlayer, interval: Float): Vec3 {
         val currentVelocity = Vec3(player.motionX, player.motionY, player.motionZ)
         val velocityChange = calculateVelocityChange(player, interval)

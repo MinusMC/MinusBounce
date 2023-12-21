@@ -57,12 +57,6 @@ class KillAura : Module() {
     val rangeValue = FloatValue("Range", 3.7f, 1f, 8f, "m")
     private val throughWallsRangeValue = FloatValue("ThroughWallsRange", 3f, 0f, 8f, "m")
 
-    // Modes
-    private val rotations = ListValue("RotationMode", arrayOf("Vanilla", "SmoothCenter", "BackTrack", "Grim", "Intave", "Smooth", "None"), "BackTrack")
-    private val intaveRandomAmount = FloatValue("RandomAmount", 4f, 0.25f, 10f) { rotations.get().equals("Intave", true) }
-
-    private val turnSpeed = FloatRangeValue("TurnSpeed", 180f, 180f, 0f, 180f, "°", {!rotations.get().equals("None", true)})
-
     private val noHitCheck = BoolValue("NoHitCheck", false) { !rotations.get().equals("none", true) }
     private val blinkCheck = BoolValue("BlinkCheck", true)
 
@@ -119,6 +113,26 @@ class KillAura : Module() {
     private val livingRaycastValue = BoolValue("LivingRayCast", true)
     val aacValue = BoolValue("AAC", false)
 
+    private val rotations = ListValue("RotationMode", arrayOf("Vanilla", "SmoothCenter", "BackTrack", "Grim", "Intave", "Smooth", "None"), "BackTrack")
+    private val intaveRandomAmount = FloatValue("RandomAmount", 4f, 0.25f, 10f) { rotations.get().equals("Intave", true) }
+
+    private val rotationSmoothValue = FloatValue("RotationSmooth", 1f, 0f, 5f) {rotations.get().equals("Vanilla", true) || rotations.get().equals("SmoothCenter", true)}
+
+    private val turnSpeed = FloatRangeValue("TurnSpeed", 180f, 180f, 0f, 180f, "°", {!rotations.get().equals("None", true)})
+    private val randomCenterValue = BoolValue("RandomCenter", false) { !rotations.get().equals("none", true) }
+    private val minRand: FloatValue = object : FloatValue("MinMultiply", 0.8f, 0f, 2f, "x", { !rotations.get().equals("none", true) && randomCenterValue.get() }) {
+        override fun onChanged(oldValue: Float, newValue: Float) {
+            val v = maxRand.get()
+            if (v < newValue) set(v)
+        }
+    }
+    private val maxRand: FloatValue = object : FloatValue("MaxMultiply", 0.8f, 0f, 2f, "x", { !rotations.get().equals("none", true) && randomCenterValue.get() }) {
+        override fun onChanged(oldValue: Float, newValue: Float) {
+            val v = minRand.get()
+            if (v > newValue) set(v)
+        }
+    }
+
     private val silentRotationValue = BoolValue("SilentRotation", true) { !rotations.get().equals("none", true) }
     val rotationStrafeValue = ListValue("Strafe", arrayOf("Off", "Strict", "Silent", "Vestige", "FDP"), "Off")
     private val fdpSlientStrafe = BoolValue("Strafe-FDPSlient", true) { rotationStrafeValue.get().equals("FDP", true) }
@@ -138,20 +152,6 @@ class KillAura : Module() {
         override fun onChanged(oldValue: Float, newValue: Float) {
             val v = maxPredictSize.get()
             if (v < newValue) set(v)
-        }
-    }
-
-    private val randomCenterValue = BoolValue("RandomCenter", false) { !rotations.get().equals("none", true) }
-    private val minRand: FloatValue = object : FloatValue("MinMultiply", 0.8f, 0f, 2f, "x", { !rotations.get().equals("none", true) && randomCenterValue.get() }) {
-        override fun onChanged(oldValue: Float, newValue: Float) {
-            val v = maxRand.get()
-            if (v < newValue) set(v)
-        }
-    }
-    private val maxRand: FloatValue = object : FloatValue("MaxMultiply", 0.8f, 0f, 2f, "x", { !rotations.get().equals("none", true) && randomCenterValue.get() }) {
-        override fun onChanged(oldValue: Float, newValue: Float) {
-            val v = minRand.get()
-            if (v > newValue) set(v)
         }
     }
 
@@ -760,7 +760,7 @@ class KillAura : Module() {
 
         preBlocking()
 
-        attackAndSwing()
+        attackAndSwing(entity)
 
         if (keepSprintValue.get()) {
             if (mc.thePlayer.fallDistance > 0F && !mc.thePlayer.onGround && !mc.thePlayer.isOnLadder && !mc.thePlayer.isInWater && !mc.thePlayer.isPotionActive(Potion.blindness) && !mc.thePlayer.isRiding)
@@ -789,7 +789,7 @@ class KillAura : Module() {
         postBlocking(entity)
     }
 
-    private fun attackAndSwing() {
+    private fun attackAndSwing(entity: EntityLivingBase) {
         runSwing()
         mc.netHandler.addToSendQueue(C02PacketUseEntity(entity, C02PacketUseEntity.Action.ATTACK))
     }
@@ -857,13 +857,12 @@ class KillAura : Module() {
                 val (_, rotation) = RotationUtils.calculateCenter(
                         false,
                         randomCenterValue.get(),
-                        RandomUtils.nextFloat(minRand.get(), maxRand.get()),
+                        RandomUtils.nextFloat(minRand.get(), maxRand.get()).toDouble(),
                         boundingBox,
                         predictValue.get(),
-                        throughWallsValue.get()
+                        throughWallsRangeValue.get()
                 ) ?: return null
-                val diffAngle = RotationUtils.getRotationDifference(RotationUtils.serverRotation, directRotation)
-
+                val diffAngle = RotationUtils.getRotationDifference(RotationUtils.serverRotation, rotation)
                 RotationUtils.limitAngleChange(RotationUtils.serverRotation!!, rotation, diffAngle / rotationSmoothValue.get())
             }
             "smoothcenter" -> {
@@ -872,13 +871,12 @@ class KillAura : Module() {
                 val (_, rotation) = RotationUtils.calculateCenter(
                         true,
                         randomCenterValue.get(),
-                        RandomUtils.nextFloat(minRand.get(), maxRand.get()),
+                        RandomUtils.nextFloat(minRand.get(), maxRand.get()).toDouble(),
                         boundingBox,
                         predictValue.get(),
-                        throughWallsValue.get()
+                        throughWallsRangeValue.get()
                 ) ?: return null
-                val diffAngle = RotationUtils.getRotationDifference(RotationUtils.serverRotation, directRotation)
-
+                val diffAngle = RotationUtils.getRotationDifference(RotationUtils.serverRotation, outborder)
                 RotationUtils.limitAngleChange(RotationUtils.serverRotation!!, rotation, diffAngle / rotationSmoothValue.get())
             }
             "backtrack" -> {
