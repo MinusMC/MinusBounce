@@ -214,15 +214,14 @@ class SlowlyStyle : DropDownClickGui("Slowly") {
     }
 
     override fun drawIntRangeValue(value: IntRangeValue, moduleElement: ModuleElement, mouseX: Int, mouseY: Int) {
-        val text = value.name + "§f: §c${value.get().getMin()} - ${value.get().getMax()}"
+        val text = value.name + "§f: ${value.get().getMin()} - ${value.get().getMax()}"
         val textWidth = Fonts.font35.getStringWidth(text).toFloat()
         if (moduleElement.settingsWidth < textWidth + 8) moduleElement.settingsWidth = textWidth + 8
-        RenderUtils.drawRect((moduleElement.x + moduleElement.width + 4).toFloat(), (yPos + 2).toFloat(), moduleElement.x + moduleElement.width + moduleElement.settingsWidth, (yPos + 24).toFloat(), Int.MIN_VALUE)
-        RenderUtils.drawRect((moduleElement.x + moduleElement.width + 8).toFloat(), (yPos + 18).toFloat(), moduleElement.x + moduleElement.width + moduleElement.settingsWidth - 4, (yPos + 19).toFloat(), Int.MAX_VALUE)
-        val sliderMinValue = moduleElement.x + moduleElement.width + (moduleElement.settingsWidth - 12) * (value.get().getMin() - value.minimum) / (value.maximum - value.minimum)
-        RenderUtils.drawRect(8 + sliderMinValue, (yPos + 15).toFloat(), sliderMinValue + 10, (yPos + 21).toFloat(), guiColor)
-        val sliderMaxValue = moduleElement.x + moduleElement.width + (moduleElement.settingsWidth - 12) * (value.get().getMax() - value.minimum) / (value.maximum - value.minimum)
-        RenderUtils.drawRect(8 + sliderMaxValue, (yPos + 15).toFloat(), sliderMaxValue + 11, (yPos + 21).toFloat(), guiColor)
+        RenderUtils.drawRect((moduleElement.x + moduleElement.width + 8).toFloat(), (yPos + 14).toFloat(), moduleElement.x + moduleElement.width + moduleElement.settingsWidth - 4, (yPos + 16).toFloat(), Color(120, 120, 120).rgb)
+        val sliderMinValue = moduleElement.x + moduleElement.width + 8 + (moduleElement.settingsWidth - 12) * (value.get().getMin() - value.minimum) / (value.maximum - value.minimum)
+        RenderUtils.drawFilledCircle(sliderMinValue.toInt(), yPos + 15, 3f, Color(120, 120, 120))
+        val sliderMaxValue = moduleElement.x + moduleElement.width + 8 + (moduleElement.settingsWidth - 12) * (value.get().getMax() - value.minimum) / (value.maximum - value.minimum)
+        RenderUtils.drawFilledCircle(sliderMaxValue.toInt(), yPos + 15, 3f, Color(120, 120, 120))
         val distBetMaxAndMin = (moduleElement.settingsWidth - 12) * (value.get().getMax() - value.get().getMin()) / (value.maximum - value.minimum)
         if (mouseX >= moduleElement.x + moduleElement.width + 4 && mouseX <= moduleElement.x + moduleElement.width + moduleElement.settingsWidth && mouseY >= yPos + 15 && mouseY <= yPos + 21) {
             val dWheel = Mouse.getDWheel()
@@ -253,15 +252,14 @@ class SlowlyStyle : DropDownClickGui("Slowly") {
     }
 
     override fun drawFloatRangeValue(value: FloatRangeValue, moduleElement: ModuleElement, mouseX: Int, mouseY: Int) {
-        val text = value.name + "§f: §c${round(value.get().getMin())}${value.suffix} - ${round(value.get().getMax())}${value.suffix}"
+        val text = value.name + "§f: ${round(value.get().getMin())}${value.suffix} - ${round(value.get().getMax())}${value.suffix}"
         val textWidth = Fonts.font35.getStringWidth(text).toFloat()
         if (moduleElement.settingsWidth < textWidth + 8) moduleElement.settingsWidth = textWidth + 8
-        RenderUtils.drawRect((moduleElement.x + moduleElement.width + 4).toFloat(), (yPos + 2).toFloat(), moduleElement.x + moduleElement.width + moduleElement.settingsWidth, (yPos + 24).toFloat(), Int.MIN_VALUE)
-        RenderUtils.drawRect((moduleElement.x + moduleElement.width + 8).toFloat(), (yPos + 18).toFloat(), moduleElement.x + moduleElement.width + moduleElement.settingsWidth - 4, (yPos + 19).toFloat(), Int.MAX_VALUE)
-        val sliderMinValue = moduleElement.x + moduleElement.width + (moduleElement.settingsWidth - 12) * (value.get().getMin() - value.minimum) / (value.maximum - value.minimum)
-        RenderUtils.drawRect(8 + sliderMinValue, (yPos + 15).toFloat(), sliderMinValue + 10, (yPos + 21).toFloat(), guiColor)
-        val sliderMaxValue = moduleElement.x + moduleElement.width + (moduleElement.settingsWidth - 12) * (value.get().getMax() - value.minimum) / (value.maximum - value.minimum)
-        RenderUtils.drawRect(8 + sliderMaxValue, (yPos + 15).toFloat(), sliderMaxValue + 11, (yPos + 21).toFloat(), guiColor)
+        RenderUtils.drawRect((moduleElement.x + moduleElement.width + 8).toFloat(), (yPos + 14).toFloat(), moduleElement.x + moduleElement.width + moduleElement.settingsWidth - 4, (yPos + 16).toFloat(), Color(120, 120, 120).rgb)
+        val sliderMinValue = moduleElement.x + moduleElement.width + 8 + (moduleElement.settingsWidth - 12) * (value.get().getMin() - value.minimum) / (value.maximum - value.minimum)
+        RenderUtils.drawFilledCircle(sliderMinValue.toInt(), yPos + 15, 3f, Color(120, 120, 120))
+        val sliderMaxValue = moduleElement.x + moduleElement.width + 8 + (moduleElement.settingsWidth - 12) * (value.get().getMax() - value.minimum) / (value.maximum - value.minimum)
+        RenderUtils.drawFilledCircle(sliderMaxValue.toInt(), yPos + 15, 3f, Color(120, 120, 120))
         val distBetMaxAndMin = (moduleElement.settingsWidth - 12) * (value.get().getMax() - value.get().getMin()) / (value.maximum - value.minimum)
         if (mouseX >= moduleElement.x + moduleElement.width + 4 && mouseX <= moduleElement.x + moduleElement.width + moduleElement.settingsWidth && mouseY >= yPos + 15 && mouseY <= yPos + 21) {
             val dWheel = Mouse.getDWheel()
