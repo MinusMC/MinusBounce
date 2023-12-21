@@ -4,7 +4,7 @@ import net.minusmc.minusbounce.features.module.modules.combat.velocitys.Velocity
 import net.minusmc.minusbounce.event.PacketEvent
 import net.minecraft.network.play.server.S12PacketEntityVelocity
 
-class LuckyVNVelocity : VelocityMode("LuckyVN") {
+class OldLuckyVNVelocity : VelocityMode("OldLuckyVN") {
 
 	override fun onPacket(event: PacketEvent) {
         val packet = event.packet

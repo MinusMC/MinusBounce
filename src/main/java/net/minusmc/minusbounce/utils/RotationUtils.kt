@@ -285,7 +285,6 @@ object RotationUtils : MinecraftInstance(), Listenable {
     @JvmOverloads
     fun searchCenter(
         bb: AxisAlignedBB,
-        outborder: Boolean,
         random: Boolean,
         predict: Boolean,
         throughWalls: Boolean,
@@ -293,14 +292,6 @@ object RotationUtils : MinecraftInstance(), Listenable {
         randomMultiply: Float = 0f,
         newRandom: Boolean = false
     ): VecRotation? {
-        if (outborder) {
-            val vec3 = Vec3(
-                bb.minX + (bb.maxX - bb.minX) * (x * 0.3 + 1.0),
-                bb.minY + (bb.maxY - bb.minY) * (y * 0.3 + 1.0),
-                bb.minZ + (bb.maxZ - bb.minZ) * (z * 0.3 + 1.0)
-            )
-            return VecRotation(vec3, toRotation(vec3, predict))
-        }
         val randomVec = Vec3(
             bb.minX + (bb.maxX - bb.minX) * x * randomMultiply * if (newRandom) Math.random() else 1.0,
             bb.minY + (bb.maxY - bb.minY) * y * randomMultiply * if (newRandom) Math.random() else 1.0,
@@ -622,94 +613,28 @@ object RotationUtils : MinecraftInstance(), Listenable {
         )
     }
 
-    fun calculateCenter(calMode: String?, randMode: Boolean?, randomRange: Double, bb: AxisAlignedBB, predict: Boolean, throughWalls: Boolean): VecRotation? {
-
-        /*if(outborder) {
-            final Vec3 vec3 = new Vec3(bb.minX + (bb.maxX - bb.minX) * (x * 0.3 + 1.0), bb.minY + (bb.maxY - bb.minY) * (y * 0.3 + 1.0), bb.minZ + (bb.maxZ - bb.minZ) * (z * 0.3 + 1.0));
-            return new VecRotation(vec3, toRotation(vec3, predict));
-        }*/
-
-        //final Rotation randomRotation = toRotation(randomVec, predict);
+    fun calculateCenter(smooth: Boolean, randMode: Boolean, randomRange: Double, bb: AxisAlignedBB, predict: Boolean, throughWalls: Boolean): VecRotation? {
         var vecRotation: VecRotation? = null
-        var xMin = 0.0
-        var yMin = 0.0
-        var zMin = 0.0
-        var xMax = 0.0
-        var yMax = 0.0
-        var zMax = 0.0
-        var xDist = 0.0
-        var yDist = 0.0
-        var zDist = 0.0
-        xMin = 0.15
-        xMax = 0.85
-        xDist = 0.1
-        yMin = 0.15
-        yMax = 1.00
-        yDist = 0.1
-        zMin = 0.15
-        zMax = 0.85
-        zDist = 0.1
+        var xMin = 0.15
+        var xMax = 0.85
+        var xDist = 0.1
+        var yMin = 0.15
+        var yMax = 1.00
+        var yDist = 0.1
+        var zMin = 0.15
+        var zMax = 0.85
+        var zDist = 0.1
         var curVec3: Vec3? = null
-        when (calMode) {
-            "HalfUp" -> {
-                xMin = 0.10
-                xMax = 0.90
-                xDist = 0.1
-                yMin = 0.50
-                yMax = 0.90
-                yDist = 0.1
-                zMin = 0.10
-                zMax = 0.90
-                zDist = 0.1
-            }
-
-            "CenterSimple" -> {
-                xMin = 0.45
-                xMax = 0.55
-                xDist = 0.0125
-                yMin = 0.65
-                yMax = 0.75
-                yDist = 0.0125
-                zMin = 0.45
-                zMax = 0.55
-                zDist = 0.0125
-            }
-
-            "CenterLine" -> {
-                xMin = 0.45
-                xMax = 0.55
-                xDist = 0.0125
-                yMin = 0.10
-                yMax = 0.90
-                yDist = 0.1
-                zMin = 0.45
-                zMax = 0.55
-                zDist = 0.0125
-            }
-
-            "CenterHead" -> {
-                xMin = 0.45
-                xMax = 0.55
-                xDist = 0.0125
-                yMin = 0.85
-                yMax = 0.95
-                yDist = 0.1
-                zMin = 0.45
-                zMax = 0.55
-                zDist = 0.0125
-            }
-
-            "CenterBody" -> {
-                xMin = 0.45
-                xMax = 0.55
-                xDist = 0.0125
-                yMin = 0.70
-                yMax = 0.95
-                yDist = 0.1
-                zMin = 0.45
-                zMax = 0.55
-                zDist = 0.0125
-            }
+        if (smooth) {
+            xMin = 0.10
+            xMax = 0.90
+            xDist = 0.1
+            yMin = 0.50
+            yMax = 0.90
+            yDist = 0.1
+            zMin = 0.10
+            zMax = 0.90
+            zDist = 0.1
         }
         var xSearch = xMin
         while (xSearch < xMax) {
@@ -739,7 +664,7 @@ object RotationUtils : MinecraftInstance(), Listenable {
             }
             xSearch += xDist
         }
-        if (vecRotation == null || !randMode!!) return vecRotation
+        if (vecRotation == null || !randMode) return vecRotation
         var rand1 = random.nextDouble()
         var rand2 = random.nextDouble()
         var rand3 = random.nextDouble()
@@ -787,7 +712,7 @@ object RotationUtils : MinecraftInstance(), Listenable {
 
         return MathHelper.wrapAngleTo180_float(currentAngle + clampedDifference)
     }
-    final fun randomizeRotation(rotation: Rotation): Rotation {
+    fun randomizeRotation(rotation: Rotation): Rotation {
         val randomYaw = rotation.yaw + nextFloat(-10F, 10F)
         val randomPitch = rotation.pitch + nextFloat(-5F, 5F)
 

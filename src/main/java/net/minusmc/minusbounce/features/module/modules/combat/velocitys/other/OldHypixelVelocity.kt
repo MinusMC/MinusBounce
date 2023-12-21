@@ -4,7 +4,7 @@ import net.minecraft.network.play.server.S12PacketEntityVelocity
 import net.minusmc.minusbounce.event.PacketEvent
 import net.minusmc.minusbounce.features.module.modules.combat.velocitys.VelocityMode
 
-class HypixelVelocity : VelocityMode("Hypixel") {
+class OldHypixelVelocity : VelocityMode("OldHypixel") {
     override fun onPacket(event: PacketEvent) {
         val packet = event.packet
         if (packet is S12PacketEntityVelocity) {
