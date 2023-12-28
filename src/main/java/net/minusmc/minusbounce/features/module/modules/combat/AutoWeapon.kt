@@ -17,7 +17,7 @@ import net.minusmc.minusbounce.event.UpdateEvent
 import net.minusmc.minusbounce.features.module.Module
 import net.minusmc.minusbounce.features.module.ModuleCategory
 import net.minusmc.minusbounce.features.module.ModuleInfo
-import net.minusmc.minusbounce.utils.timer.TickTimer
+import net.minusmc.minusbounce.utils.timer.MSTimer
 import net.minusmc.minusbounce.utils.item.ItemUtils
 import net.minusmc.minusbounce.value.BoolValue
 import net.minusmc.minusbounce.value.IntegerValue
@@ -32,7 +32,7 @@ class AutoWeapon : Module() {
     private var spoofedSlot = 0
 
     private var resetSlot = true
-    private val tickTimer = TickTimer()
+    private val msTimer = MSTimer()
 
     @EventTarget
     fun onAttack(event: AttackEvent) {
@@ -81,11 +81,12 @@ class AutoWeapon : Module() {
             spoofedSlot--
         }
 
-        if (resetSlot && tickTimer.hasTimePassed(5)) {
+        if (resetSlot && msTimer.hasTimePassed(250)) {
+            println("Switch slot.")
             mc.thePlayer.inventory.currentItem = (mc.thePlayer.inventory.currentItem + 1) % 9
             mc.playerController.updateController()
             resetSlot = false
-            tickTimer.reset()
+            msTimer.reset()
         }
     }
 }

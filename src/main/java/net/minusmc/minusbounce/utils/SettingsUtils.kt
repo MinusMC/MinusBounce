@@ -97,14 +97,17 @@ object SettingsUtils {
                             is BoolValue -> moduleValue.changeValue(value.toBoolean())
                             is FloatValue -> moduleValue.changeValue(value.toFloat())
                             is IntegerValue -> moduleValue.changeValue(value.toInt())
-                            is TextValue -> moduleValue.changeValue(value)
+                            is TextValue -> {
+                                val newValue = args.filterIndexed {index, i -> index > 1}.joinToString(" ")
+                                moduleValue.changeValue(newValue)
+                            }
                             is ListValue -> {
                                 LateinitValue.applyValue(valueName, value, moduleName)
                                 moduleValue.changeValue(value)
                             }
                             is FontValue -> moduleValue.changeValue(args[2], args[3].toInt())
-                            is IntRangeValue -> moduleValue.changeValue(args[2].toInt(), args[3].toInt())
-                            is FloatRangeValue -> moduleValue.changeValue(args[2].toFloat(), args[3].toFloat())
+                            is IntRangeValue -> moduleValue.setForceValue(args[2].toInt(), args[3].toInt())
+                            is FloatRangeValue -> moduleValue.setForceValue(args[2].toFloat(), args[3].toFloat())
                         }
 
                         ClientUtils.displayChatMessage("§7[§3§lAutoSettings§7] §a§l${module.name}§7 value §8§l${moduleValue.name}§7 set to §c§l$value§7.")

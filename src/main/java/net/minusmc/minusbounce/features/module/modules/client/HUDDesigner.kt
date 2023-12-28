@@ -15,5 +15,4 @@ class HUDDesigner : Module() {
     override fun onEnable() {
         mc.displayGuiScreen(GuiHudDesigner())
     }
-
 }

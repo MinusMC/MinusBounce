@@ -369,7 +369,7 @@ class Scaffold: Module() {
                         mc.thePlayer.jump()
                 }
                 "motiony" -> {
-                    canSameY = true
+                    canSameY = false
                     if (mc.thePlayer.onGround && MovementUtils.isMoving)
                         mc.thePlayer.motionY = 0.42
                 }

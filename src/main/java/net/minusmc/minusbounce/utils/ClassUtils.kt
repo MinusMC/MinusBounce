@@ -18,8 +18,8 @@ object ClassUtils {
 
     fun initCacheClass() {
         val files = Loader.instance().discoverer.getNonModLibs()
-        files.forEach {
-            println(it)
+        val jarFiles = files.filter { it.extension.equals("jar", true) }
+        jarFiles.forEach {
             val jarFile = JarFile(it)
             classCache[it.name] = mutableListOf()
             for (entry in jarFile.entries()) {

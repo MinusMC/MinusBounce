@@ -58,6 +58,13 @@ class ModuleCommand(val module: Module, val values: List<Value<*>> = module.valu
                     chatSyntax("$moduleName ${args[1].lowercase()} <value>")
                 else if (value is ListValue)
                     chatSyntax("$moduleName ${args[1].lowercase()} <${value.values.joinToString(separator = "/").lowercase()}>")
+                else if (value is IntRangeValue || value is FloatRangeValue)
+                    chatSyntax("$moduleName ${args[1].lowercase()} <min_value> <max_value>")
+                return
+            } 
+            if (args.size < 4) {
+                if (value is IntRangeValue || value is FloatRangeValue)
+                    chatSyntax("$moduleName ${args[1].lowercase()} <min_value> <max_value>")
                 return
             }
 
@@ -93,9 +100,17 @@ class ModuleCommand(val module: Module, val values: List<Value<*>> = module.valu
                         value.set(args[2])
                     }
                     is TextValue -> value.set(StringUtils.toCompleteString(args, 2))
+                    is IntRangeValue -> value.setForceValue(args[2].toInt(), args[3].toInt())
+                    is FloatRangeValue -> value.setForceValue(args[2].toFloat(), args[3].toFloat())
                 }
 
-                chat("§7${module.name} §8${args[1]}§7 was set to §8${value.get()}§7.")
+                if (value is IntRangeValue) {
+                    chat("§7${module.name} §8${args[1]}§7 was set to §8${value.getMinValue()} - ${value.getMaxValue()}§7.")
+                } else if (value is FloatRangeValue) { // smart cast issue
+                    chat("§7${module.name} §8${args[1]}§7 was set to §8${value.getMinValue()} - ${value.getMaxValue()}§7.")
+                } else {
+                    chat("§7${module.name} §8${args[1]}§7 was set to §8${value.get()}§7.")
+                }
                 playEdit()
             } catch (e: NumberFormatException) {
                 chat("§8${args[2]}§7 cannot be converted to number!")

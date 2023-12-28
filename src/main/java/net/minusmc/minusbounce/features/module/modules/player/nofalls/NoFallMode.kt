@@ -9,8 +9,6 @@ import net.minusmc.minusbounce.value.Value
 
 
 abstract class NoFallMode(val modeName: String): MinecraftInstance() {
-	open val prefix = "${modeName}-"
-
 	protected val nofall: NoFall
 		get() = MinusBounce.moduleManager[NoFall::class.java]!!
 
@@ -28,6 +26,4 @@ abstract class NoFallMode(val modeName: String): MinecraftInstance() {
     open fun onWorld(event: WorldEvent) {}
     open fun onJump() {}
 	open fun onRender2D() {}
-	open fun onEventEarlyTick(event: EventEarlyTick) {}
-	open fun onEventClick(event: UpdateEvent) {}
 }

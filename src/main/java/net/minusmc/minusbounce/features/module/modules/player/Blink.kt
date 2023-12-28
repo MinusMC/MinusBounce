@@ -32,15 +32,20 @@ import java.util.concurrent.LinkedBlockingQueue
 
 @ModuleInfo(name = "Blink", description = "Suspends all movement packets.", category = ModuleCategory.PLAYER)
 class Blink : Module() {
+    
+    
+    val c0FValue = BoolValue("C0FCancel", false)
+    val pulseValue = BoolValue("Pulse", false)
+    private val pulseDelayValue = IntegerValue("PulseDelay", 1000, 500, 5000, "ms")
+    val fake = BoolValue("FakePlayer", false)
+
+
     private val packets = LinkedBlockingQueue<Packet<*>>()
     private var fakePlayer: EntityOtherPlayerMP? = null
     private var disableLogger = false
     private val positions = LinkedList<DoubleArray>()
-    val pulseValue = BoolValue("Pulse", false)
-    val c0FValue = BoolValue("C0FCancel", false)
-    private val pulseDelayValue = IntegerValue("PulseDelay", 1000, 500, 5000, "ms")
-    val fake = BoolValue("FakePlayer", false)
     private val pulseTimer = MSTimer()
+    
     override fun onEnable() {
         if (mc.thePlayer == null) return
         if (!pulseValue.get()) {

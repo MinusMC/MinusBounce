@@ -402,9 +402,9 @@ class Manager : Module() {
         when (type.lowercase()) {
             "sword", "pickaxe", "axe" -> {
                 val currentType: Class<out Item> = when {
-                    type.equals("Sword", ignoreCase = true) -> ItemSword::class.java
-                    type.equals("Pickaxe", ignoreCase = true) -> ItemPickaxe::class.java
-                    type.equals("Axe", ignoreCase = true) -> ItemAxe::class.java
+                    type.equals("Sword", true) -> ItemSword::class.java
+                    type.equals("Pickaxe", true) -> ItemPickaxe::class.java
+                    type.equals("Axe", true) -> ItemAxe::class.java
                     else -> return null
                 }
 
@@ -415,7 +415,7 @@ class Manager : Module() {
                 }
 
                 mc.thePlayer.inventory.mainInventory.forEachIndexed { index, itemStack ->
-                    if (itemStack != null && itemStack.item.javaClass == currentType && !type(index).equals(type, ignoreCase = true)) {
+                    if (itemStack != null && itemStack.item.javaClass == currentType && !type(index).equals(type, true)) {
                         if (bestWeapon == -1) {
                             bestWeapon = index
                         } else {
@@ -443,7 +443,7 @@ class Manager : Module() {
                 }
 
                 mc.thePlayer.inventory.mainInventory.forEachIndexed { index, itemStack ->
-                    if (itemStack?.item is ItemBow && !type(index).equals(type, ignoreCase = true)) {
+                    if (itemStack?.item is ItemBow && !type(index).equals(type, true)) {
                         if (bestBow == -1) {
                             bestBow = index
                         } else {
@@ -464,7 +464,7 @@ class Manager : Module() {
                 mc.thePlayer.inventory.mainInventory.forEachIndexed { index, stack ->
                     val item = stack?.item
 
-                    if (item is ItemFood && item !is ItemAppleGold && !type(index).equals("Food", ignoreCase = true)) {
+                    if (item is ItemFood && item !is ItemAppleGold && !type(index).equals("Food", true)) {
                         val replaceCurr = slotStack == null || slotStack.item !is ItemFood
 
                         return if (replaceCurr) index else null
@@ -477,7 +477,7 @@ class Manager : Module() {
                     val item = stack?.item
 
                     if (item is ItemBlock && !InventoryHelper.isBlockListBlock(item) &&
-                        !type(index).equals("Block", ignoreCase = true)) {
+                        !type(index).equals("Block", true)) {
                         val replaceCurr = slotStack == null || slotStack.item !is ItemBlock
 
                         return if (replaceCurr) index else null
@@ -489,7 +489,7 @@ class Manager : Module() {
                 mc.thePlayer.inventory.mainInventory.forEachIndexed { index, stack ->
                     val item = stack?.item
 
-                    if (item is ItemBucket && item.isFull == Blocks.flowing_water && !type(index).equals("Water", ignoreCase = true)) {
+                    if (item is ItemBucket && item.isFull == Blocks.flowing_water && !type(index).equals("Water", true)) {
                         val replaceCurr = slotStack == null || slotStack.item !is ItemBucket || (slotStack.item as ItemBucket).isFull != Blocks.flowing_water
 
                         return if (replaceCurr) index else null
@@ -501,7 +501,7 @@ class Manager : Module() {
                 mc.thePlayer.inventory.mainInventory.forEachIndexed { index, stack ->
                     val item = stack?.item
 
-                    if (item is ItemAppleGold && !type(index).equals("Gapple", ignoreCase = true)) {
+                    if (item is ItemAppleGold && !type(index).equals("Gapple", true)) {
                         val replaceCurr = slotStack == null || slotStack.item !is ItemAppleGold
 
                         return if (replaceCurr) index else null
@@ -513,7 +513,7 @@ class Manager : Module() {
                 mc.thePlayer.inventory.mainInventory.forEachIndexed { index, stack ->
                     val item = stack?.item
 
-                    if (item is ItemEnderPearl && !type(index).equals("Pearl", ignoreCase = true)) {
+                    if (item is ItemEnderPearl && !type(index).equals("Pearl", true)) {
                         val replaceCurr = slotStack == null || slotStack.item !is ItemEnderPearl
 
                         return if (replaceCurr) index else null
@@ -526,7 +526,7 @@ class Manager : Module() {
                     val item = stack?.item
 
                     if ((item is ItemPotion && ItemPotion.isSplash(stack.itemDamage)) &&
-                        !type(index).equals("Potion", ignoreCase = true)) {
+                        !type(index).equals("Potion", true)) {
                         val replaceCurr = slotStack == null || slotStack.item !is ItemPotion || !ItemPotion.isSplash(slotStack.itemDamage)
 
                         return if (replaceCurr) index else null
@@ -548,7 +548,7 @@ class Manager : Module() {
             val itemStack = mc.thePlayer.inventoryContainer.getSlot(i).stack ?: continue
             itemStack.item ?: continue
 
-            if (i in 36..44 && type(i).equals("Ignore", ignoreCase = true))
+            if (i in 36..44 && type(i).equals("Ignore", true))
                 continue
 
             if (System.currentTimeMillis() - (itemStack as IItemStack).itemDelay >= itemDelayValue.get())

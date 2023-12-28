@@ -26,7 +26,7 @@ class Cape : Module() {
             val name = it.split("/").last().replace(".png", "")
             capeCache[name.lowercase()] = ResourceLocation(it)
         }
-        if (capeCache.isEmpty()) return // out of index when running in idea
+        if (capeCache.isEmpty()) return
         styleValue.changeListValues(capeCache.keys.toTypedArray())
     }
 
