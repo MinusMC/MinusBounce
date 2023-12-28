@@ -298,6 +298,34 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
         boolean flag2 = this.movementInput.moveForward >= f;
         this.movementInput.updatePlayerMoveState();
 
+        final Rotation currentRotation = RotationUtils.targetRotation;
+
+        // A separate movement input for currentRotation
+        MovementInput modifiedInput = new MovementInput();
+
+        // Recreate inputs
+        modifiedInput.moveForward = movementInput.moveForward;
+        modifiedInput.moveStrafe = movementInput.moveStrafe;
+
+        // Reverse the effects of sneak and apply them after the input variable calculates the input
+        if (movementInput.sneak) {
+            modifiedInput.moveStrafe /= 0.3f;
+            modifiedInput.moveForward /= 0.3f;
+        }
+
+        // Calculate and apply the movement input based on rotation
+        float moveForward = currentRotation != null ? Math.round(modifiedInput.moveForward * MathHelper.cos(MathExtensionsKt.toRadians(rotationYaw - currentRotation.getYaw())) + modifiedInput.moveStrafe * MathHelper.sin(MathExtensionsKt.toRadians(rotationYaw - currentRotation.getYaw()))) : movementInput.moveForward;
+        float moveStrafe = currentRotation != null ? Math.round(modifiedInput.moveStrafe * MathHelper.cos(MathExtensionsKt.toRadians(rotationYaw - currentRotation.getYaw())) - modifiedInput.moveForward * MathHelper.sin(MathExtensionsKt.toRadians(rotationYaw - currentRotation.getYaw()))) : movementInput.moveStrafe;
+
+        modifiedInput.moveForward = moveForward;
+        modifiedInput.moveStrafe = moveStrafe;
+
+        if (movementInput.sneak) {
+            // Add the sneak effect back
+            modifiedInput.moveForward *= 0.3f;
+            modifiedInput.moveStrafe *= 0.3f;
+        }
+        
         final NoSlow noSlow = MinusBounce.moduleManager.getModule(NoSlow.class);
         final KillAura killAura = MinusBounce.moduleManager.getModule(KillAura.class);
         final Sprint sprint = MinusBounce.moduleManager.getModule(Sprint.class);
@@ -317,7 +345,7 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
 
         boolean flag3 = !sprint.getFoodValue().get() || (float) this.getFoodStats().getFoodLevel() > 6.0F || this.capabilities.allowFlying;
 
-        if (this.onGround && !flag1 && !flag2 && this.movementInput.moveForward >= f && !this.isSprinting() && flag3 && !this.isUsingItem() && !this.isPotionActive(Potion.blindness)) {
+        if (this.onGround && !flag1 && !flag2 && modifiedInput.moveForward >= f && !this.isSprinting() && flag3 && !this.isUsingItem() && !this.isPotionActive(Potion.blindness)) {
             if (this.sprintToggleTimer <= 0 && !this.mc.gameSettings.keyBindSprint.isKeyDown()) {
                 this.sprintToggleTimer = 7;
             } else {
@@ -325,7 +353,7 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
             }
         }
 
-        if (!this.isSprinting() && this.movementInput.moveForward >= f && flag3 && (noSlow.getState() || !this.isUsingItem()) && !this.isPotionActive(Potion.blindness) && this.mc.gameSettings.keyBindSprint.isKeyDown()) {
+        if (!this.isSprinting() && modifiedInput.moveForward >= f && flag3 && (noSlow.getState() || !this.isUsingItem()) && !this.isPotionActive(Potion.blindness) && this.mc.gameSettings.keyBindSprint.isKeyDown()) {
             this.setSprinting(true);
         }
 
@@ -334,7 +362,7 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
         if ((scaffold.getState() && !scaffold.getCanSprint()) || (sprint.getState() && sprint.getCheckServerSide().get() && (onGround || !sprint.getCheckServerSideGround().get()) && !sprint.getAllDirectionsValue().get() && RotationUtils.targetRotation != null && RotationUtils.INSTANCE.getRotationDifference(new Rotation(mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch)) > 30))
             this.setSprinting(false);
 
-        if (this.isSprinting() && ((!(sprint.getState() && sprint.getAllDirectionsValue().get()) && this.movementInput.moveForward < f) || this.isCollidedHorizontally || !flag3)) {
+        if (this.isSprinting() && ((!(sprint.getState() && sprint.getAllDirectionsValue().get()) && modifiedInput.moveForward < f) || this.isCollidedHorizontally || !flag3)) {
             this.setSprinting(false);
         }
         if (this.isSprinting() && noSlow.getState() && noSlow.getNoSprintValue().get() && noSlow.isSlowing()) {
