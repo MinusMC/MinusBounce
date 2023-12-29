@@ -11,7 +11,6 @@ import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.util.MathHelper
 import net.minecraft.util.Vec3
 import net.minusmc.minusbounce.MinusBounce
-import net.minusmc.minusbounce.features.module.modules.client.Rotations
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.pow
@@ -40,34 +39,21 @@ data class Rotation(var yaw: Float, var pitch: Float) {
      * @see net.minecraft.client.renderer.EntityRenderer.updateCameraAndRender
      */
     fun fixedSensitivity(sensitivity: Float) {
-        val sensValue = MinusBounce.moduleManager[Rotations::class.java]!!.rotationSensitivity
+        val f = sensitivity * 0.6F + 0.2F
+        val gcd = f * f * f * 1.2F
 
-        when (sensValue.get().lowercase()) {
-            "old" -> {
-                val f = sensitivity * 0.6F + 0.2F
-                val gcd = f * f * f * 1.2F
+        // get previous rotation
+        val rotation = RotationUtils.serverRotation!!
 
-                yaw -= yaw % gcd
-                pitch -= pitch % gcd
-            }
-            "new" -> {
-                val f = sensitivity * 0.6F + 0.2F
-                val gcd = f * f * f * 1.2F
+        // fix yaw
+        var deltaYaw = yaw - rotation.yaw
+        deltaYaw -= deltaYaw % gcd
+        yaw = rotation.yaw + deltaYaw
 
-                // get previous rotation
-                val rotation = RotationUtils.serverRotation!!
-
-                // fix yaw
-                var deltaYaw = yaw - rotation.yaw
-                deltaYaw -= deltaYaw % gcd
-                yaw = rotation.yaw + deltaYaw
-
-                // fix pitch
-                var deltaPitch = pitch - rotation.pitch
-                deltaPitch -= deltaPitch % gcd
-                pitch = rotation.pitch + deltaPitch
-            }
-        }
+        // fix pitch
+        var deltaPitch = pitch - rotation.pitch
+        deltaPitch -= deltaPitch % gcd
+        pitch = rotation.pitch + deltaPitch
     }
 
     /**
@@ -75,7 +61,7 @@ data class Rotation(var yaw: Float, var pitch: Float) {
      *
      * @author bestnub
      */
-     
+
     fun toDirection(): Vec3 {
         val f: Float = MathHelper.cos(-yaw * 0.017453292f - Math.PI.toFloat())
         val f1: Float = MathHelper.sin(-yaw * 0.017453292f - Math.PI.toFloat())
@@ -163,6 +149,7 @@ data class Rotation(var yaw: Float, var pitch: Float) {
             player.motionX += calcStrafe * yawCos - calcForward * yawSin.toDouble()
             player.motionZ += calcForward * yawCos + calcStrafe * yawSin.toDouble()
         }
+        event.cancelEvent()
     }
 }
 

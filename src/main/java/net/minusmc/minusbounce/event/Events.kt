@@ -74,7 +74,9 @@ class Render3DEvent(val partialTicks: Float) : Event()
  *
  * @param motion jump motion (y motion)
  */
-class JumpEvent(var motion: Float) : CancellableEvent()
+class JumpEvent(var motion: Float, var yaw: Float) : CancellableEvent()
+
+class MoveInputEvent(var forward: Float, var strafe: Float, var jump: Boolean, var sneak: Boolean, var sneakMultiplier: Double) : Event()
 
 /**
  * Called when user press a key once

@@ -79,6 +79,7 @@ object MinusBounce {
         eventManager = EventManager()
         combatManager = CombatManager()
         eventManager.registerListener(RotationUtils)
+        eventManager.registerListener(MoveCorrection())
         eventManager.registerListener(AntiForge())
         eventManager.registerListener(BungeeCordSpoof())
         eventManager.registerListener(InventoryUtils())

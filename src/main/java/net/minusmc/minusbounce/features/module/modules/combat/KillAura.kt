@@ -132,8 +132,6 @@ class KillAura : Module() {
     val aacValue = BoolValue("AAC", false)
 
     private val silentRotationValue = BoolValue("SilentRotation", true) { !rotations.get().equals("none", true) }
-    val rotationStrafeValue = ListValue("Strafe", arrayOf("Off", "Strict", "Silent", "Vestige", "FDP"), "Off")
-    private val fdpSlientStrafe = BoolValue("Strafe-FDPSlient", true) { rotationStrafeValue.get().equals("FDP", true) }
     private val fovValue = FloatValue("FOV", 180f, 0f, 180f)
 
     // Predict
@@ -350,15 +348,13 @@ class KillAura : Module() {
             }
         }
 
-        if (rotationStrafeValue.get().equals("Off", true))
-            update()
+        update()
     }
 
     @EventTarget
     fun onStrafe(event: StrafeEvent) {
         val targetStrafe = MinusBounce.moduleManager.getModule(TargetStrafe::class.java)!!
-        if (rotationStrafeValue.get().equals("Off", true) && !targetStrafe.state)
-            return
+        if (!targetStrafe.state) return
 
         update()
 
@@ -367,105 +363,6 @@ class KillAura : Module() {
                 val strafingData = targetStrafe.getData()
                 MovementUtils.strafeCustom(MovementUtils.speed, strafingData[0], strafingData[1], strafingData[2])
                 event.cancelEvent()
-            } else when (rotationStrafeValue.get().lowercase()) {
-                "strict" -> {
-                    val (yaw) = RotationUtils.targetRotation ?: return
-                    var strafe = event.strafe
-                    var forward = event.forward
-                    val friction = event.friction
-
-                    var f = strafe * strafe + forward * forward
-
-                    if (f >= 1.0E-4F) {
-                        f = MathHelper.sqrt_float(f)
-
-                        if (f < 1.0F)
-                            f = 1.0F
-
-                        f = friction / f
-                        strafe *= f
-                        forward *= f
-
-                        val yawSin = MathHelper.sin((yaw * Math.PI / 180F).toFloat())
-                        val yawCos = MathHelper.cos((yaw * Math.PI / 180F).toFloat())
-
-                        mc.thePlayer.motionX += strafe * yawCos - forward * yawSin
-                        mc.thePlayer.motionZ += forward * yawCos + strafe * yawSin
-                    }
-                    event.cancelEvent()
-                }
-                "silent" -> {
-                    update()
-
-                    RotationUtils.targetRotation!!.applyStrafeToPlayer(event)
-                    event.cancelEvent()
-                }
-                "vestige" -> {
-                    event.yaw = fixedRotation!!.yaw
-                    val diff = MathHelper.wrapAngleTo180_float(
-                        MathHelper.wrapAngleTo180_float(fixedRotation!!.yaw) - MathHelper.wrapAngleTo180_float(MovementUtils.getPlayerDirection())
-                    ) + 22.5F
-
-                    val adjustedDiff = if (diff < 0) 360 + diff else diff
-                    val a = (adjustedDiff / 45.0).toInt()
-
-                    val value = if (event.forward != 0f) abs(event.forward) else abs(event.strafe)
-                    var forward = value
-                    var strafe = 0f
-
-                    for (i in 0 until 8 - a) {
-                        val dirs = MovementUtils.incrementMoveDirection(forward, strafe)
-                        forward = dirs[0]
-                        strafe = dirs[1]
-                    }
-
-                    event.forward = forward
-                    event.strafe = strafe
-                }
-                "fdp" -> {
-                    val (yaw) = RotationUtils.targetRotation ?: return
-                    var strafe = event.strafe
-                    var forward = event.forward
-                    var friction = event.friction
-                    var factor = strafe * strafe + forward * forward
-                    
-                    val angleDiff = ((MathHelper.wrapAngleTo180_float(mc.thePlayer.rotationYaw - yaw - 22.5f - 135.0f) + 180.0) / (45.0).toDouble()).toInt()
-                    val calcYaw = if (fdpSlientStrafe.get()) { yaw + 45.0f * angleDiff.toFloat() } else yaw
-                    
-                    var calcMoveDir = abs(strafe).coerceAtLeast(abs(forward))
-                    calcMoveDir *= calcMoveDir
-                    val calcMultiplier = MathHelper.sqrt_float(calcMoveDir / 1.0f.coerceAtMost(calcMoveDir * 2.0f))
-                    
-                    if (fdpSlientStrafe.get()) {
-                        when (angleDiff) {
-                            1, 3, 5, 7, 9 -> {
-                                if ((abs(forward) > 0.005 || abs(strafe) > 0.005) && !(abs(forward) > 0.005 && abs(strafe) > 0.005)) {
-                                    friction /= calcMultiplier
-                                } else if (abs(forward) > 0.005 && abs(strafe) > 0.005) {
-                                    friction *= calcMultiplier
-                                }
-                            }
-                        }
-                    }
-                    if (factor >= 1.0E-4F) {
-                        factor = MathHelper.sqrt_float(factor)
-
-                        if (factor < 1.0F) {
-                            factor = 1.0F
-                        }
-
-                        factor = friction / factor
-                        strafe *= factor
-                        forward *= factor
-
-                        val yawSin = MathHelper.sin((calcYaw * Math.PI / 180F).toFloat())
-                        val yawCos = MathHelper.cos((calcYaw * Math.PI / 180F).toFloat())
-
-                        mc.thePlayer.motionX += strafe * yawCos - forward * yawSin
-                        mc.thePlayer.motionZ += forward * yawCos + strafe * yawSin
-                    }
-                    event.cancelEvent()
-                }
             }
         }
     }
@@ -820,27 +717,6 @@ class KillAura : Module() {
             RotationUtils.setTargetRot(defRotation, if (aacValue.get() && !rotations.get().equals("Spin", ignoreCase = true)) 15 else 0)
         } else {
             defRotation.toPlayer(mc.thePlayer!!)
-        }
-
-        if (!rotations.get().equals("None", true) && rotationStrafeValue.get().equals("Vestige", true)) {
-            val diff = MathHelper.wrapAngleTo180_float(
-                MathHelper.wrapAngleTo180_float(fixedRotation!!.yaw) - MathHelper.wrapAngleTo180_float(MovementUtils.getPlayerDirection())
-            ) + 22.5F
-
-            val adjustedDiff = if (diff < 0) 360 + diff else diff
-            val a = (adjustedDiff / 45.0).toInt()
-
-            val value = if (mc.thePlayer.moveForward != 0f) abs(mc.thePlayer.moveForward) else abs(mc.thePlayer.moveStrafing)
-            var forward = value
-            var strafe = 0f
-
-            for (i in 0 until 8 - a) {
-                val dirs = MovementUtils.incrementMoveDirection(forward, strafe)
-                forward = dirs[0]
-                strafe = dirs[1]
-            }
-
-            if (forward <= 0.8f) mc.gameSettings.keyBindSprint.pressed = false
         }
 
         return true

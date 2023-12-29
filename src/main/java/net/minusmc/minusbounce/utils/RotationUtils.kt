@@ -11,10 +11,7 @@ import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.entity.projectile.EntityEgg
 import net.minecraft.network.play.client.C03PacketPlayer
 import net.minecraft.util.*
-import net.minusmc.minusbounce.event.EventTarget
-import net.minusmc.minusbounce.event.Listenable
-import net.minusmc.minusbounce.event.PacketEvent
-import net.minusmc.minusbounce.event.TickEvent
+import net.minusmc.minusbounce.event.*
 import net.minusmc.minusbounce.utils.RaycastUtils.IEntityFilter
 import net.minusmc.minusbounce.utils.RaycastUtils.raycastEntity
 import java.util.*
@@ -25,11 +22,13 @@ import kotlin.math.*
 object RotationUtils : MinecraftInstance(), Listenable {
     private val random = Random()
     private var keepLength = 0
+
     @JvmField
     var targetRotation: Rotation? = null
+
     @JvmField
     var serverRotation: Rotation? = Rotation(0f, 0f)
-    var keepCurrentRotation = false
+
     private var x = random.nextDouble()
     private var y = random.nextDouble()
     private var z = random.nextDouble()
@@ -40,7 +39,7 @@ object RotationUtils : MinecraftInstance(), Listenable {
      * @param event Tick event
      */
     @EventTarget
-    fun onTick(event: TickEvent?) {
+    fun onTick(event: TickEvent) {
         if (targetRotation != null) {
             keepLength--
             if (keepLength <= 0) reset()
@@ -48,6 +47,30 @@ object RotationUtils : MinecraftInstance(), Listenable {
         if (random.nextGaussian() > 0.8) x = Math.random()
         if (random.nextGaussian() > 0.8) y = Math.random()
         if (random.nextGaussian() > 0.8) z = Math.random()
+    }
+
+    @EventTarget
+    fun onJump(event: JumpEvent){
+        val (yaw) = RotationUtils.targetRotation ?: return
+        event.yaw = yaw
+    }
+
+    @EventTarget 
+    fun onStrafe(event: StrafeEvent){
+        val (yaw) = RotationUtils.targetRotation ?: return
+        event.yaw = yaw
+    }
+
+    /**
+     * Set your target rotation
+     *
+     * @param rotation your target rotation
+     */
+    fun setTargetRot(rotation: Rotation, keepLength: Int) {
+        if (java.lang.Double.isNaN(rotation.yaw.toDouble()) || java.lang.Double.isNaN(rotation.pitch.toDouble()) || rotation.pitch > 90 || rotation.pitch < -90) return
+        rotation.fixedSensitivity(mc.gameSettings.mouseSensitivity)
+        targetRotation = rotation
+        this.keepLength = keepLength
     }
 
     /**
@@ -59,13 +82,7 @@ object RotationUtils : MinecraftInstance(), Listenable {
     fun onPacket(event: PacketEvent) {
         val packet = event.packet
         if (packet is C03PacketPlayer) {
-            val packetPlayer = packet
-            if (targetRotation != null && !keepCurrentRotation && (targetRotation!!.yaw != serverRotation!!.yaw || targetRotation!!.pitch != serverRotation!!.pitch)) {
-                packetPlayer.yaw = targetRotation!!.yaw
-                packetPlayer.pitch = targetRotation!!.pitch
-                packetPlayer.rotating = true
-            }
-            if (packetPlayer.rotating) serverRotation = Rotation(packetPlayer.yaw, packetPlayer.pitch)
+            if (packet.rotating) serverRotation = Rotation(packet.yaw, packet.pitch)
         }
     }
 
@@ -466,18 +483,6 @@ object RotationUtils : MinecraftInstance(), Listenable {
      */
     fun setTargetRot(rotation: Rotation) {
         setTargetRot(rotation, 0)
-    }
-
-    /**
-     * Set your target rotation
-     *
-     * @param rotation your target rotation
-     */
-    fun setTargetRot(rotation: Rotation, keepLength: Int) {
-        if (java.lang.Double.isNaN(rotation.yaw.toDouble()) || java.lang.Double.isNaN(rotation.pitch.toDouble()) || rotation.pitch > 90 || rotation.pitch < -90) return
-        rotation.fixedSensitivity(mc.gameSettings.mouseSensitivity)
-        targetRotation = rotation
-        this.keepLength = keepLength
     }
 
     /**

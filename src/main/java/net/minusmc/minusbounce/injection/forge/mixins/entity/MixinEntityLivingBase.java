@@ -94,14 +94,23 @@ public abstract class MixinEntityLivingBase extends MixinEntity {
     }
 
     /**
-     * @author CCBlueX
+     * @author fmcpe
      */
     @Overwrite
     protected void jump() {
-        final JumpEvent jumpEvent = new JumpEvent(this.getJumpUpwardsMotion());
+
+        final JumpEvent jumpEvent = new JumpEvent(this.getJumpUpwardsMotion(), this.rotationYaw);
+
         MinusBounce.eventManager.callEvent(jumpEvent);
         if (jumpEvent.isCancelled())
             return;
+
+        float yaw = jumpEvent.getYaw();
+
+        final TargetStrafe tsMod = MinusBounce.moduleManager.getModule(TargetStrafe.class);
+        
+        if (tsMod.getCanStrafe()) 
+            yaw = tsMod.getMovingYaw();
 
         this.motionY = jumpEvent.getMotion();
 
@@ -109,18 +118,7 @@ public abstract class MixinEntityLivingBase extends MixinEntity {
             this.motionY += (double) ((float) (this.getActivePotionEffect(Potion.jump).getAmplifier() + 1) * 0.1F);
 
         if (this.isSprinting()) {
-            final KillAura auraMod = MinusBounce.moduleManager.getModule(KillAura.class);
-            final Sprint sprintMod = MinusBounce.moduleManager.getModule(Sprint.class);
-            final TargetStrafe tsMod = MinusBounce.moduleManager.getModule(TargetStrafe.class);
-            float yaw = this.rotationYaw;
-            if (tsMod.getCanStrafe()) 
-                yaw = tsMod.getMovingYaw();
-            else if (Patcher.INSTANCE.getJumpPatch().get())
-                if (auraMod.getState() && auraMod.getRotationStrafeValue().get().equalsIgnoreCase("strict") && auraMod.getTarget() != null)
-                    yaw = RotationUtils.targetRotation != null ? RotationUtils.targetRotation.getYaw() : (RotationUtils.serverRotation != null ? RotationUtils.serverRotation.getYaw() : yaw);
-                else if (sprintMod.getState() && sprintMod.getAllDirectionsValue().get() && sprintMod.getMoveDirPatchValue().get())
-                    yaw = MovementUtils.INSTANCE.getRawDirection();
-            float f = yaw * 0.017453292F;
+            final float f = yaw * 0.017453292F;
             this.motionX -= (double) (MathHelper.sin(f) * 0.2F);
             this.motionZ += (double) (MathHelper.cos(f) * 0.2F);
         }

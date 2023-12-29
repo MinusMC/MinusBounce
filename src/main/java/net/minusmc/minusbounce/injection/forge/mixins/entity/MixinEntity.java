@@ -15,10 +15,7 @@ import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
 import net.minecraft.crash.CrashReportCategory;
 import net.minecraft.entity.Entity;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.Vec3;
+import net.minecraft.util.*;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityDispatcher;
@@ -201,16 +198,44 @@ public abstract class MixinEntity {
             callbackInfoReturnable.setReturnValue(0.1F + hitBox.getSizeValue().get());
     }
 
-    @Inject(method = "moveFlying", at = @At("HEAD"), cancellable = true)
-    private void handleRotations(float strafe, float forward, float friction, final CallbackInfo callbackInfo) {
-        if ((Entity) (Object) this != Minecraft.getMinecraft().thePlayer)
+    /**
+     * @author fmcpe
+     */
+    @Overwrite
+    public void moveFlying(float strafe, float forward, float friction){
+        if ((Entity) (Object) this != Minecraft.getMinecraft().thePlayer) 
             return;
         
-        final StrafeEvent strafeEvent = new StrafeEvent(strafe, forward, friction, this.rotationYaw);
-        MinusBounce.eventManager.callEvent(strafeEvent);
+        final StrafeEvent event = new StrafeEvent(strafe, forward, friction, this.rotationYaw);
+        MinusBounce.eventManager.callEvent(event);
 
-        if (strafeEvent.isCancelled())
-            callbackInfo.cancel();
+        if (event.isCancelled())
+            return;
+
+        strafe = event.getStrafe();
+        forward = event.getForward();
+        friction = event.getFriction();
+        final float yaw = event.getYaw();
+
+        float f = strafe * strafe + forward * forward;
+
+        if (f >= 1.0E-4F)
+        {
+            f = MathHelper.sqrt_float(f);
+
+            if (f < 1.0F)
+            {
+                f = 1.0F;
+            }
+
+            f = friction / f;
+            strafe = strafe * f;
+            forward = forward * f;
+            float f1 = MathHelper.sin(yaw * (float)Math.PI / 180.0F);
+            float f2 = MathHelper.cos(yaw * (float)Math.PI / 180.0F);
+            this.motionX += (double)(strafe * f2 - forward * f1);
+            this.motionZ += (double)(forward * f2 + strafe * f1);
+        }
     }
 
     @Redirect(method = "getBrightnessForRender", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;isBlockLoaded(Lnet/minecraft/util/BlockPos;)Z"))

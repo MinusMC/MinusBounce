@@ -34,8 +34,7 @@ import net.minusmc.minusbounce.features.module.modules.movement.InvMove;
 import net.minusmc.minusbounce.features.module.modules.movement.NoSlow;
 import net.minusmc.minusbounce.features.module.modules.movement.Sprint;
 import net.minusmc.minusbounce.features.module.modules.world.Scaffold;
-import net.minusmc.minusbounce.utils.Rotation;
-import net.minusmc.minusbounce.utils.RotationUtils;
+import net.minusmc.minusbounce.utils.*;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -244,6 +243,8 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
     public void onLivingUpdate() {
         MinusBounce.eventManager.callEvent(new UpdateEvent());
 
+        final Scaffold scaffold = MinusBounce.moduleManager.getModule(Scaffold.class);
+
         if (this.sprintingTicksLeft > 0) {
             --this.sprintingTicksLeft;
 
@@ -298,34 +299,6 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
         float f = 0.8F;
         boolean flag2 = this.movementInput.moveForward >= f;
         this.movementInput.updatePlayerMoveState();
-
-        final Rotation currentRotation = RotationUtils.targetRotation;
-
-        // A separate movement input for currentRotation
-        MovementInput modifiedInput = new MovementInput();
-
-        // Recreate inputs
-        modifiedInput.moveForward = movementInput.moveForward;
-        modifiedInput.moveStrafe = movementInput.moveStrafe;
-
-        // Reverse the effects of sneak and apply them after the input variable calculates the input
-        if (movementInput.sneak) {
-            modifiedInput.moveStrafe /= 0.3f;
-            modifiedInput.moveForward /= 0.3f;
-        }
-
-        // Calculate and apply the movement input based on rotation
-        float moveForward = currentRotation != null ? Math.round(modifiedInput.moveForward * MathHelper.cos(MathExtensionsKt.toRadians(rotationYaw - currentRotation.getYaw())) + modifiedInput.moveStrafe * MathHelper.sin(MathExtensionsKt.toRadians(rotationYaw - currentRotation.getYaw()))) : movementInput.moveForward;
-        float moveStrafe = currentRotation != null ? Math.round(modifiedInput.moveStrafe * MathHelper.cos(MathExtensionsKt.toRadians(rotationYaw - currentRotation.getYaw())) - modifiedInput.moveForward * MathHelper.sin(MathExtensionsKt.toRadians(rotationYaw - currentRotation.getYaw()))) : movementInput.moveStrafe;
-
-        modifiedInput.moveForward = moveForward;
-        modifiedInput.moveStrafe = moveStrafe;
-
-        if (movementInput.sneak) {
-            // Add the sneak effect back
-            modifiedInput.moveForward *= 0.3f;
-            modifiedInput.moveStrafe *= 0.3f;
-        }
         
         final NoSlow noSlow = MinusBounce.moduleManager.getModule(NoSlow.class);
         final KillAura killAura = MinusBounce.moduleManager.getModule(KillAura.class);
@@ -344,32 +317,30 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
         this.pushOutOfBlocks(this.posX + (double) this.width * 0.35D, this.getEntityBoundingBox().minY + 0.5D, this.posZ - (double) this.width * 0.35D);
         this.pushOutOfBlocks(this.posX + (double) this.width * 0.35D, this.getEntityBoundingBox().minY + 0.5D, this.posZ + (double) this.width * 0.35D);
 
-        boolean flag3 = !sprint.getFoodValue().get() || (float) this.getFoodStats().getFoodLevel() > 6.0F || this.capabilities.allowFlying;
+        boolean flag3 = (float) this.getFoodStats().getFoodLevel() > 6.0F || this.capabilities.allowFlying;
 
-        if (this.onGround && !flag1 && !flag2 && modifiedInput.moveForward >= f && !this.isSprinting() && flag3 && !this.isUsingItem() && !this.isPotionActive(Potion.blindness)) {
-            if (this.sprintToggleTimer <= 0 && !this.mc.gameSettings.keyBindSprint.isKeyDown()) {
+        if (this.onGround && !flag1 && !flag2 && this.movementInput.moveForward >= f && !this.isSprinting() && flag3 && !this.isUsingItem() && !this.isPotionActive(Potion.blindness)) {
+            if (this.sprintToggleTimer <= 0 && (!this.mc.gameSettings.keyBindSprint.isKeyDown() || !sprint.getState())) {
                 this.sprintToggleTimer = 7;
             } else {
                 this.setSprinting(true);
             }
         }
 
-        if (!this.isSprinting() && modifiedInput.moveForward >= f && flag3 && (noSlow.getState() || !this.isUsingItem()) && !this.isPotionActive(Potion.blindness) && this.mc.gameSettings.keyBindSprint.isKeyDown()) {
+        if (!this.isSprinting() && this.movementInput.moveForward >= f && flag3 && (noSlow.getState() || !this.isUsingItem()) && !this.isPotionActive(Potion.blindness) && (this.mc.gameSettings.keyBindSprint.isKeyDown() || sprint.getState())) {
             this.setSprinting(true);
         }
 
-        final Scaffold scaffold = MinusBounce.moduleManager.getModule(Scaffold.class);
-
-        if ((scaffold.getState() && !scaffold.getCanSprint()) || (sprint.getState() && sprint.getCheckServerSide().get() && (onGround || !sprint.getCheckServerSideGround().get()) && !sprint.getAllDirectionsValue().get() && RotationUtils.targetRotation != null && RotationUtils.INSTANCE.getRotationDifference(new Rotation(mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch)) > 30))
-            this.setSprinting(false);
-
-        if (this.isSprinting() && ((!(sprint.getState() && sprint.getAllDirectionsValue().get()) && modifiedInput.moveForward < f) || this.isCollidedHorizontally || !flag3)) {
+        if (this.isSprinting() && this.movementInput.moveForward < f || this.isCollidedHorizontally || !flag3) {
             this.setSprinting(false);
         }
+
+        if (scaffold.getState() && !scaffold.getCanSprint()) this.setSprinting(false);
+        
         if (this.isSprinting() && noSlow.getState() && noSlow.getNoSprintValue().get() && noSlow.isSlowing()) {
             this.setSprinting(false);
         }
-        
+
         if (this.capabilities.allowFlying) {
             if (this.mc.playerController.isSpectatorMode()) {
                 if (!this.capabilities.isFlying) {
