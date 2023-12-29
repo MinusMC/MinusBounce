@@ -55,18 +55,6 @@ class KillAura : Module() {
 
     // Range
     val rangeValue = FloatValue("Range", 3.7f, 1f, 8f, "m")
-    private val swingRangeValue: FloatValue = object: FloatValue("SwingRange", 3f, 0f, 8f, "m") {
-        override fun onChanged(oldValue: Float, newValue: Float) {
-            val v = rangeValue.get()
-            if (v > newValue) set(v)
-        }
-    }
-    private val rotationRangeValue: FloatValue = object: FloatValue("RotationRange", 3f, 0f, 8f, "m") {
-        override fun onChanged(oldValue: Float, newValue: Float) {
-            val v = rangeValue.get()
-            if (v > newValue) set(v)
-        }
-    }
 
     // Modes
     private val rotations = ListValue("RotationMode", arrayOf("Vanilla", "BackTrack", "Grim", "Intave", "Smooth", "None"), "BackTrack")
@@ -201,8 +189,6 @@ class KillAura : Module() {
     var hitable = false
     private val prevTargetEntities = mutableListOf<Int>()
 
-    private var fixedRotation: FixedRotation? = null 
-
     // Attack delay
     private val attackTimer = MSTimer()
     private var attackDelay = 0L
@@ -238,18 +224,12 @@ class KillAura : Module() {
 
         rotSpeed = 15.0
 
-        fixedRotation = FixedRotation(mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch)
-
         updateTarget()
         verusBlocking = false
         legitBlocking = 0
     }
 
     override fun onDisable() {
-        if (target != null && rotations.get().equals("Smooth", true)) {
-            mc.thePlayer.rotationYaw = fixedRotation!!.yaw
-        }
-
         target = null
         currentTarget = null
         hitable = false
@@ -614,7 +594,7 @@ class KillAura : Module() {
             val distance = mc.thePlayer.getDistanceToEntityBox(entity)
             val entityFov = RotationUtils.getRotationDifference(entity)
 
-            if (distance <= rotationRangeValue.get() && (fov == 180F || entityFov <= fov) && entity.hurtTime <= hurtTime)
+            if (distance <= rangeValue.get() && (fov == 180F || entityFov <= fov) && entity.hurtTime <= hurtTime)
                 targets.add(entity)
         }
 
@@ -711,7 +691,6 @@ class KillAura : Module() {
         if (watchdogDisabler.canModifyRotation) return true
 
         val defRotation = getTargetRotation(entity) ?: return false
-        fixedRotation!!.updateRotations(defRotation.yaw, defRotation.pitch)
 
         if (silentRotationValue.get()) {
             RotationUtils.setTargetRot(defRotation, if (aacValue.get() && !rotations.get().equals("Spin", ignoreCase = true)) 15 else 0)
@@ -744,7 +723,7 @@ class KillAura : Module() {
                         randomCenterValue.get(),
                         predictValue.get(),
                         throughWallsValue.get(),
-                        rotationRangeValue.get(),
+                        rangeValue.get(),
                         RandomUtils.nextFloat(minRand.get(), maxRand.get()),
                         randomCenterNewValue.get()
                 ) ?: return null
@@ -754,7 +733,7 @@ class KillAura : Module() {
                 limitedRotation
             }
             "backtrack" -> {
-                val rotation = RotationUtils.otherRotation(boundingBox, RotationUtils.getCenter(entity.entityBoundingBox), predictValue.get(), throughWallsValue.get(), rotationRangeValue.get())
+                val rotation = RotationUtils.otherRotation(boundingBox, RotationUtils.getCenter(entity.entityBoundingBox), predictValue.get(), throughWallsValue.get(), rangeValue.get())
                 val limitedRotation = RotationUtils.limitAngleChange(RotationUtils.serverRotation!!, rotation, rotationSpeed)
 
                 limitedRotation
@@ -768,41 +747,6 @@ class KillAura : Module() {
                 val yaw = rotation!!.yaw + Math.random() * amount - amount / 2
                 val pitch = rotation.pitch + Math.random() * amount - amount / 2
                 Rotation(yaw.toFloat(), pitch.toFloat())
-            }
-            "smooth" -> {
-                var yaw = fixedRotation!!.yaw
-                val rots = RotationUtils.getRotationsToEntity(entity as EntityLivingBase, false)
-                val currentYaw = MathHelper.wrapAngleTo180_float(yaw)
-                val diff = abs(currentYaw - rots!!.yaw)
-
-                if (diff >= 8) {
-                    if (diff > 35) {
-                        rotSpeed += 4 - Math.random()
-                        rotSpeed = rotSpeed.coerceAtLeast(31.0 - Math.random())
-                    } else {
-                        rotSpeed -= 6.5 - Math.random()
-                        rotSpeed = rotSpeed.coerceAtLeast(14.0 - Math.random())
-                    }
-                    if (diff <= 180) {
-                        if (currentYaw > rots.yaw) yaw -= rotSpeed.toFloat()
-                        else yaw += rotSpeed.toFloat()
-                    } else {
-                        if (currentYaw > rots.yaw) yaw += rotSpeed.toFloat()
-                        else yaw -= rotSpeed.toFloat()
-                    }
-                } else {
-                    if (currentYaw > rots.yaw) {
-                        yaw -= diff * 0.8f
-                    } else {
-                        yaw += diff * 0.8f
-                    }
-                }
-
-                yaw += (Math.random() * 0.7 - 0.35).toFloat()
-                var pitch = (mc.thePlayer.rotationPitch + (rots.pitch - mc.thePlayer.rotationPitch) * 0.6).toFloat()
-                pitch += (Math.random() * 0.5 - 0.25).toFloat()
-
-                Rotation(yaw, pitch)
             }
             else -> RotationUtils.serverRotation
         }
@@ -821,7 +765,7 @@ class KillAura : Module() {
             return
         }
 
-        val reach = min(rotationRangeValue.get().toDouble(), mc.thePlayer.getDistanceToEntityBox(target!!)) + 1
+        val reach = min(rangeValue.get().toDouble(), mc.thePlayer.getDistanceToEntityBox(target!!)) + 1
 
         if (raycastValue.get()) {
             val raycastedEntity = RaycastUtils.raycastEntity(reach, object: RaycastUtils.IEntityFilter {
@@ -885,7 +829,7 @@ class KillAura : Module() {
             val yawSin = sin(-yaw * 0.017453292F - Math.PI.toFloat())
             val pitchCos = -cos(-pitch * 0.017453292F)
             val pitchSin = sin(-pitch * 0.017453292F)
-            val range = min(rotationRangeValue.get().toDouble(), mc.thePlayer!!.getDistanceToEntityBox(interactEntity)) + 1
+            val range = min(rangeValue.get().toDouble(), mc.thePlayer!!.getDistanceToEntityBox(interactEntity)) + 1
             val lookAt = positionEye!!.addVector(yawSin * pitchCos * range, pitchSin * range, yawCos * pitchCos * range)
 
             val movingObject = boundingBox.calculateIntercept(positionEye, lookAt) ?: return
