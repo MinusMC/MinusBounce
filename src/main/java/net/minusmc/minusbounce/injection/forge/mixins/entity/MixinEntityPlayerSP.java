@@ -25,7 +25,6 @@ import net.minecraft.potion.Potion;
 import net.minecraft.util.*;
 import net.minusmc.minusbounce.MinusBounce;
 import net.minusmc.minusbounce.event.*;
-import net.minusmc.minusbounce.utils.extensions.MathExtensionsKt;
 import net.minusmc.minusbounce.features.module.modules.combat.Criticals;
 import net.minusmc.minusbounce.features.module.modules.combat.KillAura;
 import net.minusmc.minusbounce.features.module.modules.misc.AntiDesync;

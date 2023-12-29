@@ -76,6 +76,10 @@ class Render3DEvent(val partialTicks: Float) : Event()
  */
 class JumpEvent(var motion: Float, var yaw: Float) : CancellableEvent()
 
+/**
+ * Called when movement input
+ */
+
 class MoveInputEvent(var forward: Float, var strafe: Float, var jump: Boolean, var sneak: Boolean, var sneakMultiplier: Double) : Event()
 
 /**
@@ -219,7 +223,3 @@ class ReloadClientEvent : Event()
  */
 class EntityKilledEvent(val targetEntity: EntityLivingBase): Event()
 
-/**
- * Called when check packet 
- */
-class EventEarlyTick : Event()
