@@ -309,8 +309,6 @@ class KillAura : Module() {
                 }
             }
         }
-
-        update()
     }
 
     @EventTarget
@@ -332,16 +330,12 @@ class KillAura : Module() {
                 2 -> startBlocking(currentTarget!!, interactAutoBlockValue.get() && mc.thePlayer.getDistanceToEntityBox(currentTarget!!) < rangeValue.get())
             }
         }
-
-        update()
     }
 
     @EventTarget
     fun onStrafe(event: StrafeEvent) {
         val targetStrafe = MinusBounce.moduleManager[TargetStrafe::class.java]!!
         if (!targetStrafe.state) return
-
-        update()
 
         if (currentTarget != null && RotationUtils.targetRotation != null) {
             if (targetStrafe.canStrafe) {
@@ -379,7 +373,8 @@ class KillAura : Module() {
         }
     }
 
-    fun update() {
+    @EventTarget
+    fun update(event: PreUpdateEvent){
         if (cancelRun || (noInventoryAttackValue.get() && (mc.currentScreen is GuiContainer || System.currentTimeMillis() - containerOpen < noInventoryDelayValue.get())))
             return
 

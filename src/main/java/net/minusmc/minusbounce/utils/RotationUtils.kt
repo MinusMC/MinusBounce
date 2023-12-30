@@ -33,32 +33,38 @@ object RotationUtils : MinecraftInstance(), Listenable {
     private var y = random.nextDouble()
     private var z = random.nextDouble()
 
-    /**
-     * Handle minecraft tick
-     *
-     * @param event Tick event
-     */
-    @EventTarget
-    fun onTick(event: TickEvent) {
-        if (targetRotation != null) {
-            keepLength--
-            if (keepLength <= 0) reset()
+    @EventTarget 
+    fun onPre(event: PreMotionEvent){
+        targetRotation?.let {
+            event.yaw = it.yaw
+            event.pitch = it.pitch
         }
+    }
+
+    @EventTarget
+    fun onUpdate(event: PreUpdateEvent){
+        if (targetRotation != null){
+            keepLength--
+
+            if(keepLength <= 0){
+                targetRotation = null
+                keepLength = 0
+            }
+        }
+
         if (random.nextGaussian() > 0.8) x = Math.random()
         if (random.nextGaussian() > 0.8) y = Math.random()
         if (random.nextGaussian() > 0.8) z = Math.random()
     }
 
-    @EventTarget
+    @EventTarget 
     fun onJump(event: JumpEvent){
-        val (yaw) = RotationUtils.targetRotation ?: return
-        event.yaw = yaw
+        targetRotation?.let {event.yaw = it.yaw}
     }
 
     @EventTarget 
     fun onStrafe(event: StrafeEvent){
-        val (yaw) = RotationUtils.targetRotation ?: return
-        event.yaw = yaw
+        targetRotation?.let {event.yaw = it.yaw}
     }
 
     /**
@@ -485,13 +491,6 @@ object RotationUtils : MinecraftInstance(), Listenable {
         setTargetRot(rotation, 0)
     }
 
-    /**
-     * Reset your target rotation
-     */
-    fun reset() {
-        keepLength = 0
-        targetRotation = null
-    }
 
     fun getRotationsEntity(entity: EntityLivingBase): Rotation {
         return getRotations(entity.posX, entity.posY + entity.eyeHeight - 0.4, entity.posZ)
