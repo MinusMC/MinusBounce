@@ -110,8 +110,6 @@ class Scaffold: Module() {
         !rotationsValue.get().equals("None", true)
     }
     private val placeConditionValue = ListValue("PlaceCondition", arrayOf("Always", "Air", "FallDown"), "Always")
-    private val rotationStrafeValue = ListValue("RotationStrafe", arrayOf("LiquidBounce", "FDP", "Off"), "LiquidBounce")
-
     private val zitterModeValue = ListValue("ZitterMode", arrayOf("Teleport", "Smooth", "Off"), "Off")
     private val zitterSpeed = FloatValue("ZitterSpeed", 0.13F, 0.1F, 0.3F) {
         zitterModeValue.get().equals("teleport", true)
@@ -513,9 +511,7 @@ class Scaffold: Module() {
     }
 
     @EventTarget
-    fun onPreMotion(event: PreMotionEvent) {
-        if (towerStatus) tower(event)
-
+    fun onPreUpdate(event: PreUpdateEvent) {
         if (!rotationsValue.get().equals("None", true) && keepLengthValue.get() > 0 && lockRotation != null) {
             if (rotationsValue.get().equals("Spin", true)) {
                 spinYaw += speenSpeedValue.get()
@@ -526,6 +522,11 @@ class Scaffold: Module() {
                 RotationUtils.setTargetRot(RotationUtils.limitAngleChange(RotationUtils.serverRotation!!, lockRotation!!, rotationSpeed), keepLengthValue.get())
             }
         }
+    }
+
+    @EventTarget
+    fun onPreMotion(event: PreMotionEvent) {
+        if (towerStatus) tower(event)
 
         if (!placeCondition || if (!autoBlockMode.get().equals("off", true)) InventoryUtils.findAutoBlockBlock() == -1 else mc.thePlayer.heldItem == null || !(mc.thePlayer.heldItem.item is ItemBlock && isBlockToScaffold(mc.thePlayer.heldItem.item as ItemBlock))) {
             return

@@ -623,18 +623,8 @@ class KillAura : Module() {
             found = true
             break
         }
-        val tickBase = MinusBounce.moduleManager[TickBase::class.java]!!
-        if (found) {
-            if (targets.size > 1 && targets[0] == target) {
-                tickBase.targetTickBase = targets[1]
-            } else {
-                tickBase.targetTickBase = targets[0]
-            }
-            return
-        }
 
         target = null
-        tickBase.targetTickBase = null
 
         // Cleanup last targets when no target found and try again
         if (prevTargetEntities.isNotEmpty()) {

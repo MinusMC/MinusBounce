@@ -8,7 +8,6 @@ package net.minusmc.minusbounce.injection.forge.mixins.entity;
 import net.minusmc.minusbounce.MinusBounce;
 import net.minusmc.minusbounce.event.JumpEvent;
 import net.minusmc.minusbounce.features.module.modules.combat.KillAura;
-import net.minusmc.minusbounce.features.module.modules.combat.TickBase;
 import net.minusmc.minusbounce.features.module.modules.misc.Patcher;
 import net.minusmc.minusbounce.features.module.modules.movement.NoJumpDelay;
 import net.minusmc.minusbounce.features.module.modules.movement.Sprint;
@@ -149,11 +148,6 @@ public abstract class MixinEntityLivingBase extends MixinEntity {
     //visionfx sucks
     @Overwrite
     private int getArmSwingAnimationEnd() {
-        TickBase tickbase = MinusBounce.moduleManager.getModule(TickBase.class);
-
-        if(tickbase.getFreezing() && tickbase.getModeValue().get().equalsIgnoreCase("Vestige")) {
-            return 0;
-        }
         int speed = MinusBounce.moduleManager.getModule(Animations.class).getState() ? 2 + (20 - Animations.INSTANCE.getSpeedSwing().get()) : 6;
         return this.isPotionActive(Potion.digSpeed) ? speed - (1 + this.getActivePotionEffect(Potion.digSpeed).getAmplifier()) * 1 : (this.isPotionActive(Potion.digSlowdown) ? speed + (1 + this.getActivePotionEffect(Potion.digSlowdown).getAmplifier()) * 2 : speed);
     }
