@@ -81,8 +81,8 @@ class Velocity : Module() {
     }
 
     @EventTarget
-    fun onMotion(event: MotionEvent) {
-        mode.onMotion(event)
+    fun onPreMotion(event: PreMotionEvent) {
+        mode.onPreMotion(event)
     }
 
     @EventTarget

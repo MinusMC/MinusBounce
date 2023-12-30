@@ -160,11 +160,19 @@ class NoSlow : Module() {
     }
 
     @EventTarget
-    fun onMotion(event: MotionEvent) {
+    fun onPreMotion(event: PreMotionEvent) {
         mc.thePlayer ?: return
         mc.theWorld ?: return
         if (!MovementUtils.isMoving && !modeValue.get().equals("blink", true)) return
-        if (isBlocking || isEating || isBowing) mode.onMotion(event)
+        if (isBlocking || isEating || isBowing) mode.onPreMotion(event)
+    }
+
+    @EventTarget
+    fun onPostMotion(event: PostMotionEvent) {
+        mc.thePlayer ?: return
+        mc.theWorld ?: return
+        if (!MovementUtils.isMoving && !modeValue.get().equals("blink", true)) return
+        if (isBlocking || isEating || isBowing) mode.onPostMotion(event)
     }
 
     @EventTarget

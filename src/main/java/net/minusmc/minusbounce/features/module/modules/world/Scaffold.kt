@@ -42,7 +42,6 @@ import kotlin.math.*
 
 @ModuleInfo(name = "Scaffold", description = "Automatically places blocks beneath your feet.", category = ModuleCategory.WORLD, keyBind = Keyboard.KEY_I)
 class Scaffold: Module() {
-    // add scaffold modes? ex: telly, ninja, fruit, moonwalk?
     private val placeableDelay = ListValue("PlaceableDelay", arrayOf("Normal", "Smart", "Off"), "Normal")
     private val maxDelayValue: IntegerValue = object: IntegerValue("MaxDelay", 0, 0, 1000, "ms", {!placeableDelay.get().equals("off", true)}) {
         override fun onChanged(oldValue: Int, newValue: Int) {
@@ -221,7 +220,7 @@ class Scaffold: Module() {
         lastMS = System.currentTimeMillis()
     }
 
-    private fun tower(event: MotionEvent) {
+    private fun tower(event: PreMotionEvent) {
         when (towerModeValue.get().lowercase()) {
             "ncp" -> if (mc.thePlayer.posY % 1 <= 0.00153598) {
                 mc.thePlayer.setPosition(mc.thePlayer.posX, floor(mc.thePlayer.posY), mc.thePlayer.posZ)
@@ -269,8 +268,7 @@ class Scaffold: Module() {
             }
 
             "verus" -> {
-                if (mc.theWorld.getCollidingBoundingBoxes(mc.thePlayer, mc.thePlayer.entityBoundingBox.offset(0.0, -0.01, 0.0))
-                        .isNotEmpty() && mc.thePlayer.onGround && mc.thePlayer.isCollidedVertically) {
+                if (mc.theWorld.getCollidingBoundingBoxes(mc.thePlayer, mc.thePlayer.entityBoundingBox.offset(0.0, -0.01, 0.0)).isNotEmpty() && mc.thePlayer.onGround && mc.thePlayer.isCollidedVertically) {
                     verusState = 0
                     verusJumped = true
                 }
@@ -333,7 +331,6 @@ class Scaffold: Module() {
 
     @EventTarget
     fun onUpdate(event: UpdateEvent) {
-        // Watchdog tower
         if (towerModeValue.get().equals("watchdog")) {
             if (watchdogTick != 0) {
                 watchdogTowerTick = 0
@@ -517,8 +514,36 @@ class Scaffold: Module() {
 
 
     @EventTarget
-    fun onMotion(event: MotionEvent) {
-        val eventState = event.eventState
+    fun onPreMotion(event: PreMotionEvent) {
+        if (towerStatus) tower(event)
+
+        if (!rotationsValue.get().equals("None", true) && keepLengthValue.get() > 0 && lockRotation != null) {
+            if (rotationsValue.get().equals("Spin", true)) {
+                spinYaw += speenSpeedValue.get()
+                spinYaw = MathHelper.wrapAngleTo180_float(spinYaw)
+                speenRotation = Rotation(spinYaw, speenPitchValue.get())
+                RotationUtils.setTargetRot(speenRotation!!)
+            } else {
+                RotationUtils.setTargetRot(RotationUtils.limitAngleChange(RotationUtils.serverRotation!!, lockRotation!!, rotationSpeed), keepLengthValue.get())
+            }
+        }
+
+        if (!placeCondition || if (!autoBlockMode.get().equals("off", true)) InventoryUtils.findAutoBlockBlock() == -1 else mc.thePlayer.heldItem == null || !(mc.thePlayer.heldItem.item is ItemBlock && isBlockToScaffold(mc.thePlayer.heldItem.item as ItemBlock))) {
+            return
+        }
+
+        findBlock(expandLengthValue.get() > 1 && !towerStatus)
+
+        if (placeModeValue.get().equals("pre", true)) place()
+
+        if (targetPlace == null && !placeableDelay.get().equals("Off", true) && !towerStatus) {
+            delayTimer.reset()
+        }
+    }
+
+
+    @EventTarget
+    fun onPostMotion(event: PostMotionEvent) {
         towerStatus = false
 
         if (towerModeValue.get().equals("watchdog", true))
@@ -544,35 +569,11 @@ class Scaffold: Module() {
             verusState = 0
         }
 
-        if (towerStatus) tower(event)
+        if (placeModeValue.get().equals("post", true)) place()
 
-
-        if (!rotationsValue.get().equals("None", true) && keepLengthValue.get() > 0 && lockRotation != null) {
-            if (rotationsValue.get().equals("Spin", true)) {
-                spinYaw += speenSpeedValue.get()
-                spinYaw = MathHelper.wrapAngleTo180_float(spinYaw)
-                speenRotation = Rotation(spinYaw, speenPitchValue.get())
-                RotationUtils.setTargetRot(speenRotation!!)
-            } else {
-                RotationUtils.setTargetRot(RotationUtils.limitAngleChange(RotationUtils.serverRotation!!, lockRotation!!, rotationSpeed), keepLengthValue.get())
-            }
-        }
-
-        if (eventState == EventState.PRE) {
-            if (!placeCondition || if (!autoBlockMode.get().equals("off", true)) InventoryUtils.findAutoBlockBlock() == -1 else mc.thePlayer.heldItem == null || !(mc.thePlayer.heldItem.item is ItemBlock && isBlockToScaffold(mc.thePlayer.heldItem.item as ItemBlock))) {
-                return
-            }
-
-            findBlock(expandLengthValue.get() > 1 && !towerStatus)
-        }
-
-        if (placeModeValue.get().equals(eventState.stateName, true)) place()
-
-        // Placeable delay
         if (targetPlace == null && !placeableDelay.get().equals("Off", true) && !towerStatus) {
             delayTimer.reset()
-        }
-        
+        }  
     }
 
     @EventTarget

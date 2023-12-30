@@ -57,7 +57,7 @@ class KillAura : Module() {
     val rangeValue = FloatValue("Range", 3.7f, 1f, 8f, "m")
 
     // Modes
-    private val rotations = ListValue("RotationMode", arrayOf("Vanilla", "BackTrack", "Grim", "Intave", "Smooth", "None"), "BackTrack")
+    private val rotations = ListValue("RotationMode", arrayOf("Vanilla", "BackTrack", "Grim", "Intave", "None"), "BackTrack")
     private val intaveRandomAmount = FloatValue("RandomAmount", 4f, 0.25f, 10f) { rotations.get().equals("Intave", true) }
 
     private val turnSpeed = FloatRangeValue("TurnSpeed", 180f, 180f, 0f, 180f, "°", {!rotations.get().equals("None", true)})
@@ -120,6 +120,7 @@ class KillAura : Module() {
     val aacValue = BoolValue("AAC", false)
 
     private val silentRotationValue = BoolValue("SilentRotation", true) { !rotations.get().equals("none", true) }
+    val movementCorrection = BoolValue("MovementCorrection", true)
     private val fovValue = FloatValue("FOV", 180f, 0f, 180f)
 
     // Predict
@@ -252,78 +253,59 @@ class KillAura : Module() {
     }
 
     @EventTarget
-    fun onMotion(event: MotionEvent) {
-        if ((attackModeValue.get() == "Pre" && event.eventState == EventState.PRE) || (attackModeValue.get() == "Post" && event.eventState == EventState.POST) || attackModeValue.get() == "All")
+    fun onPreMotion(event: PreMotionEvent) {
+        if (!attackModeValue.get().equals("Post", true))
             updateKA()
 
-        if (event.eventState == EventState.PRE) {
-            if (autoBlockModeValue.get().equals("Watchdog", true)) {
-                if (mc.thePlayer.heldItem.item is ItemSword && currentTarget != null) {
-                    watchdogkaing = true
-                    watchdogcancelc02 = false
-                    watchdogcancelTicks = 0
-                    watchdogunblockdelay = 0
-                    if (!watchdogblinking) {
-                        BlinkUtils.setBlinkState(all = true)
-                        watchdogblinking = true
-                        watchdogblocked = false
-                    }
-                    if (watchdogblinking && !watchdogblock) {
-                        watchdogdelay++
-                        if (watchdogdelay >= 2) {
-                            mc.netHandler.addToSendQueue(C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem % 8 + 1))
-                            mc.netHandler.addToSendQueue(C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem))
-                            watchdogblocked = false
-                            watchdogblock = true
-                            watchdogdelay = 0
-                        }
-                    }
-                    if (watchdogblinking && watchdogblock) {
-                        if (watchdogc02 > 1) {
-                            BlinkUtils.setBlinkState(off = true, release = true)
-                            mc.netHandler.addToSendQueue(C08PacketPlayerBlockPlacement())
-                            watchdogblinking = false
-                            watchdogblock = false
-                            watchdogblocked = true
-                            watchdogc02 = 0
-                        }
-                    }
-                }
-                if (watchdogkaing && currentTarget == null) {
-                    watchdogkaing = false
+        if (autoBlockModeValue.get().equals("Watchdog", true)) {
+            if (mc.thePlayer.heldItem.item is ItemSword && currentTarget != null) {
+                watchdogkaing = true
+                watchdogcancelc02 = false
+                watchdogcancelTicks = 0
+                watchdogunblockdelay = 0
+                if (!watchdogblinking) {
+                    BlinkUtils.setBlinkState(all = true)
+                    watchdogblinking = true
                     watchdogblocked = false
-                    watchdogc02 = 0
-                    watchdogdelay = 0
-                    BlinkUtils.setBlinkState(off = true, release = true)
-                    watchdogcancelc02 = true
-                    watchdogcancelTicks = 0
-                    if (mc.thePlayer.heldItem.item is ItemSword) {
-                        mc.netHandler.addToSendQueue(C07PacketPlayerDigging())
+                }
+                if (watchdogblinking && !watchdogblock) {
+                    watchdogdelay++
+                    if (watchdogdelay >= 2) {
+                        mc.netHandler.addToSendQueue(C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem % 8 + 1))
+                        mc.netHandler.addToSendQueue(C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem))
+                        watchdogblocked = false
+                        watchdogblock = true
+                        watchdogdelay = 0
                     }
                 }
-                if (watchdogcancelc02) {
-                    watchdogcancelTicks++
-                    if (watchdogcancelTicks >= 3) {
-                        watchdogcancelc02 = false
-                        watchdogcancelTicks = 0
+                if (watchdogblinking && watchdogblock) {
+                    if (watchdogc02 > 1) {
+                        BlinkUtils.setBlinkState(off = true, release = true)
+                        mc.netHandler.addToSendQueue(C08PacketPlayerBlockPlacement())
+                        watchdogblinking = false
+                        watchdogblock = false
+                        watchdogblocked = true
+                        watchdogc02 = 0
                     }
                 }
             }
-        }
-
-        if (event.eventState == EventState.POST) {
-            target ?: return
-            currentTarget ?: return
-
-            updateHitable()
-
-            //AutoBlock
-            if (autoBlockModeValue.get().equals("AfterTick", true) && canBlock)
-                startBlocking(currentTarget!!, hitable)
-            if (autoBlockModeValue.get().equals("OldHypixel", true)) {
-                when (mc.thePlayer.swingProgressInt) {
-                    1 -> stopBlocking()
-                    2 -> startBlocking(currentTarget!!, interactAutoBlockValue.get() && mc.thePlayer.getDistanceToEntityBox(currentTarget!!) < rangeValue.get())
+            if (watchdogkaing && currentTarget == null) {
+                watchdogkaing = false
+                watchdogblocked = false
+                watchdogc02 = 0
+                watchdogdelay = 0
+                BlinkUtils.setBlinkState(off = true, release = true)
+                watchdogcancelc02 = true
+                watchdogcancelTicks = 0
+                if (mc.thePlayer.heldItem.item is ItemSword) {
+                    mc.netHandler.addToSendQueue(C07PacketPlayerDigging())
+                }
+            }
+            if (watchdogcancelc02) {
+                watchdogcancelTicks++
+                if (watchdogcancelTicks >= 3) {
+                    watchdogcancelc02 = false
+                    watchdogcancelTicks = 0
                 }
             }
         }
@@ -332,8 +314,31 @@ class KillAura : Module() {
     }
 
     @EventTarget
+    fun onPostMotion(event: PostMotionEvent) {
+        if (!attackModeValue.get().equals("Pre", true))
+            updateKA()
+
+        target ?: return
+        currentTarget ?: return
+
+        updateHitable()
+
+        if (autoBlockModeValue.get().equals("AfterTick", true) && canBlock)
+            startBlocking(currentTarget!!, hitable)
+
+        if (autoBlockModeValue.get().equals("OldHypixel", true)) {
+            when (mc.thePlayer.swingProgressInt) {
+                1 -> stopBlocking()
+                2 -> startBlocking(currentTarget!!, interactAutoBlockValue.get() && mc.thePlayer.getDistanceToEntityBox(currentTarget!!) < rangeValue.get())
+            }
+        }
+
+        update()
+    }
+
+    @EventTarget
     fun onStrafe(event: StrafeEvent) {
-        val targetStrafe = MinusBounce.moduleManager.getModule(TargetStrafe::class.java)!!
+        val targetStrafe = MinusBounce.moduleManager[TargetStrafe::class.java]!!
         if (!targetStrafe.state) return
 
         update()

@@ -68,8 +68,8 @@ class TargetStrafe : Module() {
     }
 
     @EventTarget
-    fun onMotion(event: MotionEvent) {
-        if (thirdPerson.get()) { // smart change back lol
+    fun onPreMotion(event: PreMotionEvent) {
+        if (thirdPerson.get()) {
             if (canStrafe) {
                 if (hasChangedThirdPerson) lastView = mc.gameSettings.thirdPersonView
                 mc.gameSettings.thirdPersonView = 1
@@ -80,16 +80,14 @@ class TargetStrafe : Module() {
             }
         }
 
-        if (event.eventState == EventState.PRE) {
-            if (mc.thePlayer.isCollidedHorizontally)
-                this.direction = -this.direction
+        if (mc.thePlayer.isCollidedHorizontally)
+            direction = -direction
 
-            if (mc.gameSettings.keyBindLeft.pressed)
-                this.direction = 1
+        if (mc.gameSettings.keyBindLeft.pressed)
+            direction = 1
 
-            if (mc.gameSettings.keyBindRight.pressed)
-                this.direction = -1
-        }
+        if (mc.gameSettings.keyBindRight.pressed)
+            direction = -1
     }
 
     @EventTarget(priority = 2)

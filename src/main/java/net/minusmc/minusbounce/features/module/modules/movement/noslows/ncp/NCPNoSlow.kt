@@ -1,10 +1,11 @@
 package net.minusmc.minusbounce.features.module.modules.movement.noslows.ncp
 
 import net.minusmc.minusbounce.features.module.modules.movement.noslows.NoSlowMode
-import net.minusmc.minusbounce.event.MotionEvent
+import net.minusmc.minusbounce.event.PreMotionEvent
 
 class NCPNoSlow : NoSlowMode("NCP") {
-    override fun onMotion(event: MotionEvent) {
-        sendPacket(event, sendC07 = true, sendC08 = true, delay = false, delayValue = 0, onGround = false)
+    override fun onPreMotion(event: PreMotionEvent) {
+        sendC07(false, 0, false)
+        sendC08(false, 0, false)
     }
 }

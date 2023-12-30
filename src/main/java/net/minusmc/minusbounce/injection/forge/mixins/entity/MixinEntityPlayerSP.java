@@ -37,6 +37,7 @@ import net.minusmc.minusbounce.utils.*;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.List;
@@ -132,9 +133,9 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
      * @author CCBlueX
      */
     @Overwrite
-    public void onUpdateWalkingPlayer() { // entityactionevent = motionevent
+    public void onUpdateWalkingPlayer() {
         try {
-            MotionEvent event = new MotionEvent(this.posX, this.getEntityBoundingBox().minY, this.posZ, this.rotationYaw, this.rotationPitch, this.onGround);
+            PreMotionEvent event = new PreMotionEvent(this.posX, this.getEntityBoundingBox().minY, this.posZ, this.rotationYaw, this.rotationPitch, this.onGround);
             MinusBounce.eventManager.callEvent(event);
 
             final InvMove inventoryMove = MinusBounce.moduleManager.getModule(InvMove.class);
@@ -218,8 +219,7 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
             if (this.isCurrentViewEntity())
                 lastOnGround = event.getOnGround();
 
-            event.setEventState(EventState.POST);
-            MinusBounce.eventManager.callEvent(event);
+            MinusBounce.eventManager.callEvent(new PostMotionEvent());
         } catch (final Exception e) {
             e.printStackTrace();
         }
@@ -695,6 +695,17 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
             }
 
             this.worldObj.theProfiler.endSection();
+        }
+    }
+
+    @Inject(method = "onUpdate()V", at = @At("HEAD"), cancellable = true)
+    public void onUpdateCallback(CallbackInfo callbackInfo) {
+        final PreUpdateEvent event = new PreUpdateEvent();
+        MinusBounce.eventManager.callEvent(event);
+
+        if (event.isCancelled())
+        {
+            callbackInfo.cancel();
         }
     }
 }

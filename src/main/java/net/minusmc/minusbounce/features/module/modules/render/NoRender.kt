@@ -10,7 +10,7 @@ import net.minecraft.entity.item.EntityArmorStand
 import net.minecraft.entity.item.EntityItem
 import net.minecraft.entity.player.EntityPlayer
 import net.minusmc.minusbounce.event.EventTarget
-import net.minusmc.minusbounce.event.MotionEvent
+import net.minusmc.minusbounce.event.PostMotionEvent
 import net.minusmc.minusbounce.features.module.Module
 import net.minusmc.minusbounce.features.module.ModuleCategory
 import net.minusmc.minusbounce.features.module.ModuleInfo
@@ -33,7 +33,7 @@ class NoRender : Module() {
     private val maxRenderRange = FloatValue("MaxRenderRange", 4F, 0F, 16F, "m")
 
     @EventTarget
-    fun onMotion(event: MotionEvent) {
+    fun onPostMotion(event: PostMotionEvent) {
     	for (en in mc.theWorld.loadedEntityList) {
             val entity = en!!
     		if (shouldStopRender(entity))

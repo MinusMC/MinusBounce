@@ -2,13 +2,12 @@ package net.minusmc.minusbounce.features.module.modules.movement.speeds.other
 
 import net.minusmc.minusbounce.features.module.modules.movement.speeds.SpeedMode
 import net.minusmc.minusbounce.features.module.modules.movement.speeds.SpeedType
-import net.minusmc.minusbounce.event.MotionEvent
+import net.minusmc.minusbounce.event.PostMotionEvent
 import net.minusmc.minusbounce.event.EventState
 import net.minusmc.minusbounce.utils.MovementUtils
 
 class GroundStrafeHopSpeed: SpeedMode("GroundStrafeHop", SpeedType.OTHER) {
-    override fun onMotion(event: MotionEvent) {
-        if (event.eventState != EventState.PRE) return
+    override fun onPostMotion(event: PostMotionEvent) {
         if (MovementUtils.isMoving) {
             if (mc.thePlayer.onGround) {
                 mc.thePlayer.jump()

@@ -86,12 +86,17 @@ class Fly: Module() {
 	}
 
 	@EventTarget
-	fun onMotion(event: MotionEvent) {
+	fun onPreMotion(event: PreMotionEvent) {
 		if (bobbingValue.get()) {
             mc.thePlayer.cameraYaw = bobbingAmountValue.get()
             mc.thePlayer.prevCameraYaw = bobbingAmountValue.get()
         }
-		mode.onMotion(event)
+		mode.onPreMotion(event)
+	}
+
+	@EventTarget
+	fun onPostMotion(event: PostMotionEvent) {
+		mode.onPostMotion(event)
 	}
 
 	@EventTarget

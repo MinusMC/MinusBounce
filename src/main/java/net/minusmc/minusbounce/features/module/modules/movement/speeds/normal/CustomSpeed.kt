@@ -7,7 +7,7 @@ package net.minusmc.minusbounce.features.module.modules.movement.speeds.custom
 
 import net.minusmc.minusbounce.MinusBounce
 import net.minusmc.minusbounce.event.EventState
-import net.minusmc.minusbounce.event.MotionEvent
+import net.minusmc.minusbounce.event.PostMotionEvent
 import net.minusmc.minusbounce.event.MoveEvent
 import net.minusmc.minusbounce.features.module.modules.movement.Speed
 import net.minusmc.minusbounce.features.module.modules.movement.speeds.SpeedMode
@@ -35,9 +35,8 @@ class CustomSpeed: SpeedMode("Custom", SpeedType.NORMAL) {
 
     private var groundTick = 0
 
-    override fun onMotion(eventMotion: MotionEvent) {
-        val speed = MinusBounce.moduleManager.getModule(Speed::class.java)
-        if (speed == null || eventMotion.eventState !== EventState.PRE) return
+    override fun onPostMotion(event: PostMotionEvent) {
+        val speed = MinusBounce.moduleManager[Speed::class.java]!!
         if (MovementUtils.isMoving) {
             mc.timer.timerSpeed = if (mc.thePlayer.motionY > 0) upTimerValue.get() else downTimerValue.get()
             if (mc.thePlayer.onGround) {

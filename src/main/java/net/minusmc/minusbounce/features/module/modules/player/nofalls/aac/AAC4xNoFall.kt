@@ -3,7 +3,7 @@ package net.minusmc.minusbounce.features.module.modules.player.nofalls.aac
 import net.minusmc.minusbounce.features.module.modules.player.nofalls.NoFallMode
 import net.minusmc.minusbounce.event.EventState
 import net.minusmc.minusbounce.event.PacketEvent
-import net.minusmc.minusbounce.event.MotionEvent
+import net.minusmc.minusbounce.event.PreMotionEvent
 import net.minecraft.network.play.client.C03PacketPlayer
 import net.minecraft.util.AxisAlignedBB
 
@@ -28,36 +28,34 @@ class AAC4xNoFall: NoFallMode("AAC 4.x") {
         aac4Packets.clear()
     }
 
-    override fun onMotion(event: MotionEvent) {
-        if (event.eventState == EventState.PRE) {
-            if (!inVoid()) {
-                if (aac4Fakelag) {
-                    aac4Fakelag = false
-                    if (aac4Packets.size > 0) {
-                        for (packet in aac4Packets) mc.thePlayer.sendQueue.addToSendQueue(packet)
-                        aac4Packets.clear()
-                    }
-                }
-                return
-            }
-            if (mc.thePlayer.onGround && aac4Fakelag) {
+    override fun onPreMotion(event: PreMotionEvent) {
+        if (!inVoid()) {
+            if (aac4Fakelag) {
                 aac4Fakelag = false
                 if (aac4Packets.size > 0) {
                     for (packet in aac4Packets) mc.thePlayer.sendQueue.addToSendQueue(packet)
                     aac4Packets.clear()
                 }
-                return
             }
-            if (mc.thePlayer.fallDistance > 2.5 && aac4Fakelag) {
-                packetModify = true
-                mc.thePlayer.fallDistance = 0f
+            return
+        }
+        if (mc.thePlayer.onGround && aac4Fakelag) {
+            aac4Fakelag = false
+            if (aac4Packets.size > 0) {
+                for (packet in aac4Packets) mc.thePlayer.sendQueue.addToSendQueue(packet)
+                aac4Packets.clear()
             }
-            if (inAir(4.0, 1.0)) {
-                return
-            }
-            if (!aac4Fakelag) 
-                aac4Fakelag = true
-        } 
+            return
+        }
+        if (mc.thePlayer.fallDistance > 2.5 && aac4Fakelag) {
+            packetModify = true
+            mc.thePlayer.fallDistance = 0f
+        }
+        if (inAir(4.0, 1.0)) {
+            return
+        }
+        if (!aac4Fakelag) 
+            aac4Fakelag = true
     }
 
     override fun onPacket(event: PacketEvent) {

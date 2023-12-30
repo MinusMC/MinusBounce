@@ -4,7 +4,7 @@ import net.minecraft.entity.EntityLivingBase
 import net.minusmc.minusbounce.MinusBounce
 import net.minusmc.minusbounce.event.EventState
 import net.minusmc.minusbounce.event.EventTarget
-import net.minusmc.minusbounce.event.MotionEvent
+import net.minusmc.minusbounce.event.PostMotionEvent
 import net.minusmc.minusbounce.event.UpdateEvent
 import net.minusmc.minusbounce.event.Render3DEvent
 import net.minusmc.minusbounce.value.ListValue
@@ -61,8 +61,8 @@ class TickBase: Module() {
     }
 
 	@EventTarget
-	fun onMotion(event: MotionEvent) {
-		if (event.eventState == EventState.POST && freezing && modeValue.get().equals("Vestige", true)) {
+	fun onPostMotion(event: PostMotionEvent) {
+		if (freezing && modeValue.get().equals("Vestige", true)) {
 			mc.thePlayer.posX = mc.thePlayer.lastTickPosX
             mc.thePlayer.posY = mc.thePlayer.lastTickPosY
             mc.thePlayer.posZ = mc.thePlayer.lastTickPosZ

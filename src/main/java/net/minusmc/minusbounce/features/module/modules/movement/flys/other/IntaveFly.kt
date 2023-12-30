@@ -2,7 +2,7 @@ package net.minusmc.minusbounce.features.module.modules.movement.flys.other
 
 import net.minusmc.minusbounce.event.EventState
 import net.minusmc.minusbounce.event.PacketEvent
-import net.minusmc.minusbounce.event.MotionEvent
+import net.minusmc.minusbounce.event.PreMotionEvent
 import net.minusmc.minusbounce.features.module.modules.movement.flys.FlyType
 import net.minusmc.minusbounce.features.module.modules.movement.flys.FlyMode
 import net.minecraft.network.play.client.C03PacketPlayer
@@ -27,8 +27,7 @@ class IntaveFly: FlyMode("Intave", FlyType.OTHER) {
         mc.timer.timerSpeed = 1f
     }
 
-    override fun onMotion(event: MotionEvent) {
-        if (event.eventState == EventState.POST) return
+    override fun onPreMotion(event: PreMotionEvent) {
         val thePlayer = mc.thePlayer ?: return
         if (!teleported) {
             val yaw = thePlayer.rotationYaw * 3.1415927f / 180f
@@ -46,7 +45,7 @@ class IntaveFly: FlyMode("Intave", FlyType.OTHER) {
     }
 
     override fun onPacket(event: PacketEvent) {
-        val packet= event.packet
+        val packet = event.packet
 
         if (packet is S08PacketPlayerPosLook && !teleported) {
             event.cancelEvent()

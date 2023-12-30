@@ -2,7 +2,7 @@ package net.minusmc.minusbounce.features.module.modules.movement.noslows.watchdo
 
 import net.minusmc.minusbounce.features.module.modules.movement.noslows.NoSlowMode
 import net.minusmc.minusbounce.utils.PacketUtils
-import net.minusmc.minusbounce.event.MotionEvent
+import net.minusmc.minusbounce.event.PostMotionEvent
 import net.minusmc.minusbounce.event.PacketEvent
 import net.minusmc.minusbounce.event.EventState
 import net.minusmc.minusbounce.utils.extensions.rayTraceCustom
@@ -13,10 +13,8 @@ import net.minecraft.util.MovingObjectPosition
 import net.minusmc.minusbounce.utils.Rotation
 
 class WatchdogNoSlow: NoSlowMode("Watchdog") {
-    override fun onMotion(event: MotionEvent) {
-        if (event.eventState == EventState.POST){
-            mc.netHandler.addToSendQueue(C08PacketPlayerBlockPlacement(mc.thePlayer.inventoryContainer.getSlot(mc.thePlayer.inventory.currentItem + 36).stack))
-        }
+    override fun onPostMotion(event: PostMotionEvent) {
+        mc.netHandler.addToSendQueue(C08PacketPlayerBlockPlacement(mc.thePlayer.inventoryContainer.getSlot(mc.thePlayer.inventory.currentItem + 36).stack))
     }
     override fun onPacket(event: PacketEvent) {
         val packet = event.packet

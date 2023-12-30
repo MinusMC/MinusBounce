@@ -3,13 +3,14 @@ package net.minusmc.minusbounce.features.module.modules.movement.speeds.other
 import net.minusmc.minusbounce.features.module.modules.movement.speeds.SpeedMode
 import net.minusmc.minusbounce.features.module.modules.movement.speeds.SpeedType
 import net.minusmc.minusbounce.utils.MovementUtils
+import net.minusmc.minusbounce.event.PreMotionEvent
 import net.minusmc.minusbounce.value.BoolValue
 
 class MMCSpeed: SpeedMode("MMC", SpeedType.OTHER) {
 
     private val veloAbuseValue = BoolValue("Abuse", false)
 
-    override fun onPreMotion() {
+    override fun onPreMotion(event: PreMotionEvent) {
         if (MovementUtils.isMoving) {
             if (mc.thePlayer.hurtTime < 6 || veloAbuseValue.get()) {
                 MovementUtils.strafe()

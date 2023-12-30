@@ -2,7 +2,7 @@ package net.minusmc.minusbounce.features.module.modules.movement.speeds.ncp
 
 import net.minusmc.minusbounce.features.module.modules.movement.speeds.SpeedType
 import net.minusmc.minusbounce.features.module.modules.movement.speeds.SpeedMode
-import net.minusmc.minusbounce.event.MotionEvent
+import net.minusmc.minusbounce.event.PostMotionEvent
 import net.minusmc.minusbounce.utils.MovementUtils
 import net.minecraft.potion.Potion
 import java.math.BigDecimal
@@ -33,7 +33,7 @@ class NCPBHopSpeed: SpeedMode("NCPBHop", SpeedType.NCP) {
         level = 0
     }
 
-    override fun onMotion(event: MotionEvent) {
+    override fun onPostMotion(event: PostMotionEvent) {
         val xDist = mc.thePlayer.posX - mc.thePlayer.prevPosX
         val zDist = mc.thePlayer.posZ - mc.thePlayer.prevPosZ
         lastDist = sqrt(xDist * xDist + zDist * zDist)

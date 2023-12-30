@@ -4,12 +4,12 @@ import net.minusmc.minusbounce.features.module.modules.movement.speeds.SpeedType
 import net.minusmc.minusbounce.features.module.modules.movement.speeds.SpeedMode
 import net.minusmc.minusbounce.utils.MovementUtils
 import net.minecraft.util.MathHelper
-import net.minusmc.minusbounce.event.MotionEvent
+import net.minusmc.minusbounce.event.PostMotionEvent
 
 class NCPYPortSpeed: SpeedMode("NCPYPort", SpeedType.NCP) {
 	private var jumps = 0
 
-    override fun onMotion(event: MotionEvent) {
+    override fun onPostMotion(event: PostMotionEvent) {
         if (mc.thePlayer.isOnLadder || mc.thePlayer.isInWater || mc.thePlayer.isInLava || mc.thePlayer.isInWeb || !MovementUtils.isMoving) return
 
         if (jumps >= 4 && mc.thePlayer.onGround) jumps = 0

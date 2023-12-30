@@ -3,7 +3,7 @@ package net.minusmc.minusbounce.features.module.modules.movement.speeds.matrix
 import net.minusmc.minusbounce.features.module.modules.movement.speeds.SpeedType
 import net.minusmc.minusbounce.features.module.modules.movement.speeds.SpeedMode
 import net.minusmc.minusbounce.utils.MovementUtils
-import net.minusmc.minusbounce.event.MotionEvent
+import net.minusmc.minusbounce.event.PostMotionEvent
 import net.minecraft.client.settings.GameSettings
 
 class Matrix692Speed: SpeedMode("Matrix 6.9.2", SpeedType.MATRIX) {
@@ -13,7 +13,7 @@ class Matrix692Speed: SpeedMode("Matrix 6.9.2", SpeedType.MATRIX) {
 		wasTimer = false
         mc.timer.timerSpeed = 1f
 	}
-	override fun onMotion(event: MotionEvent) {
+	override fun onPostMotion(event: PostMotionEvent) {
 		if (wasTimer) {
             wasTimer = false
             mc.timer.timerSpeed = 1f
