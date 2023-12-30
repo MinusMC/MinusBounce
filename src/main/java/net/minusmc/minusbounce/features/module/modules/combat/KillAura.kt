@@ -322,7 +322,10 @@ class KillAura : Module() {
         updateHitable()
 
         if (autoBlockModeValue.get().equals("AfterTick", true) && canBlock)
-            startBlocking(currentTarget!!, hitable)
+            if (currentTarget != null)
+                startBlocking(currentTarget!!, hitable)
+            else stopBlocking()
+            
 
         if (autoBlockModeValue.get().equals("OldHypixel", true)) {
             when (mc.thePlayer.swingProgressInt) {
@@ -634,7 +637,7 @@ class KillAura : Module() {
     }
 
     private fun attackEntity(entity: EntityLivingBase) {
-        if (mc.thePlayer.isBlocking || blockingStatus)
+        if ((mc.thePlayer.isBlocking || blockingStatus) && !autoBlockModeValue.get().equals("AfterTick", true))
             stopBlocking()
 
         MinusBounce.eventManager.callEvent(AttackEvent(entity))

@@ -5,6 +5,8 @@
  */
 package net.minusmc.minusbounce.features.special;
 
+import net.minusmc.minusbounce.MinusBounce;
+import net.minusmc.minusbounce.features.module.modules.world.Scaffold;
 import net.minusmc.minusbounce.event.*;
 import net.minusmc.minusbounce.utils.MinecraftInstance;
 import net.minecraft.util.MathHelper;
@@ -15,6 +17,8 @@ public final class MovementCorrection extends MinecraftInstance implements Liste
 
     @EventTarget
     public void onInput(final MoveInputEvent event) {
+        final Scaffold scaffold = MinusBounce.moduleManager.getModule(Scaffold.class);
+
         if (targetRotation == null) return;
         final float forward = event.getForward();
         final float strafe = event.getStrafe();
