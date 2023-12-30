@@ -212,6 +212,12 @@ public abstract class MixinMinecraft {
         }
     }
 
+    private long lastFrame = getTime();
+
+    public long getTime() {
+        return (Sys.getTime() * 1000) / Sys.getTimerResolution();
+    }
+
     @SuppressWarnings("UnstableApiUsage")
     @Inject(
         method = "loadWorld(Lnet/minecraft/client/multiplayer/WorldClient;Ljava/lang/String;)V",
