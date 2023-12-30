@@ -220,7 +220,7 @@ public abstract class MixinMinecraft {
         final int deltaTime = (int) (currentTime - lastFrame);
         lastFrame = currentTime;
 
-        RenderUtils.deltaTime = deltaTime;
+        RenderUtils.INSTANCE.setDeltaTime(deltaTime);
     }
 
     public long getTime() {
