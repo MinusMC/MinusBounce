@@ -8,7 +8,6 @@ package net.minusmc.minusbounce.injection.forge.mixins.entity;
 import net.minusmc.minusbounce.MinusBounce;
 import net.minusmc.minusbounce.event.JumpEvent;
 import net.minusmc.minusbounce.features.module.modules.combat.KillAura;
-import net.minusmc.minusbounce.features.module.modules.combat.TickBase;
 import net.minusmc.minusbounce.features.module.modules.misc.Patcher;
 import net.minusmc.minusbounce.features.module.modules.movement.NoJumpDelay;
 import net.minusmc.minusbounce.features.module.modules.movement.Sprint;

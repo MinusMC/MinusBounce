@@ -30,7 +30,6 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minusmc.minusbounce.MinusBounce;
 import net.minusmc.minusbounce.event.*;
 import net.minusmc.minusbounce.features.module.modules.combat.AutoClicker;
-import net.minusmc.minusbounce.features.module.modules.combat.TickBase;
 import net.minusmc.minusbounce.features.module.modules.exploit.MultiActions;
 import net.minusmc.minusbounce.features.module.modules.misc.Patcher;
 import net.minusmc.minusbounce.features.module.modules.world.FastPlace;
