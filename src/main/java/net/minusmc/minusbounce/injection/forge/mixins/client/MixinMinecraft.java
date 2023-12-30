@@ -214,6 +214,15 @@ public abstract class MixinMinecraft {
 
     private long lastFrame = getTime();
 
+    @Inject(method = "runGameLoop", at = @At("HEAD"))
+    private void runGameLoop(final CallbackInfo callbackInfo) {
+        final long currentTime = getTime();
+        final int deltaTime = (int) (currentTime - lastFrame);
+        lastFrame = currentTime;
+
+        RenderUtils.deltaTime = deltaTime;
+    }
+
     public long getTime() {
         return (Sys.getTime() * 1000) / Sys.getTimerResolution();
     }
