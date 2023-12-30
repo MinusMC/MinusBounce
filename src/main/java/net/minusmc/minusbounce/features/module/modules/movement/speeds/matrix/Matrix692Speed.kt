@@ -13,8 +13,9 @@ class Matrix692Speed: SpeedMode("Matrix 6.9.2", SpeedType.MATRIX) {
 		wasTimer = false
         mc.timer.timerSpeed = 1f
 	}
-	override fun onPostMotion(event: PostMotionEvent) {
-		if (wasTimer) {
+
+    fun onMotion() {
+        if (wasTimer) {
             wasTimer = false
             mc.timer.timerSpeed = 1f
         }
@@ -30,5 +31,13 @@ class Matrix692Speed: SpeedMode("Matrix 6.9.2", SpeedType.MATRIX) {
         } else if (MovementUtils.speed < 0.215) {
             MovementUtils.strafe(0.215f)
         }
-	}
+    }
+
+	override fun onPreMotion(event: PreMotionEvent) {
+        onMotion()
+    }
+
+    override fun onPostMotion(event: PostMotionEvent) {
+        onMotion()
+    }
 }

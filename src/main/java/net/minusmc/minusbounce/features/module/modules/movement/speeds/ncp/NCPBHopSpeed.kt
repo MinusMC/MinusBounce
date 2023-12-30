@@ -33,10 +33,18 @@ class NCPBHopSpeed: SpeedMode("NCPBHop", SpeedType.NCP) {
         level = 0
     }
 
-    override fun onPostMotion(event: PostMotionEvent) {
+    fun onMotion() {
         val xDist = mc.thePlayer.posX - mc.thePlayer.prevPosX
         val zDist = mc.thePlayer.posZ - mc.thePlayer.prevPosZ
         lastDist = sqrt(xDist * xDist + zDist * zDist)
+    }
+
+    override fun onPreMotion(event: PreMotionEvent) {
+        onMotion()
+    }
+
+    override fun onPostMotion(event: PostMotionEvent) {
+        onMotion()
     }
 
     override fun onMove(event: MoveEvent) {

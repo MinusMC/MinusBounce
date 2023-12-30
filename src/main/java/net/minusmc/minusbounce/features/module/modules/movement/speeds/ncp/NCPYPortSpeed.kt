@@ -9,7 +9,7 @@ import net.minusmc.minusbounce.event.PostMotionEvent
 class NCPYPortSpeed: SpeedMode("NCPYPort", SpeedType.NCP) {
 	private var jumps = 0
 
-    override fun onPostMotion(event: PostMotionEvent) {
+    fun onMotion() {
         if (mc.thePlayer.isOnLadder || mc.thePlayer.isInWater || mc.thePlayer.isInLava || mc.thePlayer.isInWeb || !MovementUtils.isMoving) return
 
         if (jumps >= 4 && mc.thePlayer.onGround) jumps = 0
@@ -23,5 +23,13 @@ class NCPYPortSpeed: SpeedMode("NCPYPort", SpeedType.NCP) {
         } else if (jumps <= 1) mc.thePlayer.motionY = -5.0
 
         MovementUtils.strafe()
+    }
+
+    override fun onPreMotion(event: PreMotionEvent) {
+        onMotion()
+    }
+
+    override fun onPostMotion(event: PostMotionEvent) {
+        onMotion()
     }
 }

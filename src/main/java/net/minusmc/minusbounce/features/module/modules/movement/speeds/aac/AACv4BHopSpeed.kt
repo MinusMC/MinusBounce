@@ -5,7 +5,8 @@ import net.minusmc.minusbounce.features.module.modules.movement.speeds.SpeedType
 import net.minusmc.minusbounce.event.PostMotionEvent
 
 class AACv4BHopSpeed: SpeedMode("AACv4BHop", SpeedType.AAC) {
-	override fun onPostMotion(event: PostMotionEvent) {
+
+    fun onMotion() {
         if (mc.thePlayer.isInWater) return
 
         if (mc.thePlayer.moveForward > 0) {
@@ -17,6 +18,14 @@ class AACv4BHopSpeed: SpeedMode("AACv4BHop", SpeedType.AAC) {
             } else if (mc.thePlayer.fallDistance > 0) {
                 mc.timer.timerSpeed = 0.6f
             }               
-        }    
+        }  
+    }
+
+    override fun onPreMotion(event: PreMotionEvent) {
+        onMotion()
+    }
+
+	override fun onPostMotion(event: PostMotionEvent) {
+        onMotion()
 	}
 }

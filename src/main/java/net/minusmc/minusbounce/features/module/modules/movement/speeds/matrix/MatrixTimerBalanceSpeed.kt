@@ -15,7 +15,7 @@ class MatrixTimerBalanceSpeed: SpeedMode("MatrixTimerBalance", SpeedType.MATRIX)
 		mc.thePlayer.jumpMovementFactor = 0.02f
         mc.timer.timerSpeed = 1.0f
 	}
-	override fun onPostMotion(event: PostMotionEvent) {
+	fun onMotion() {
 		if (!MovementUtils.isMoving) {
             mc.timer.timerSpeed = 1.0f
             return
@@ -34,4 +34,12 @@ class MatrixTimerBalanceSpeed: SpeedMode("MatrixTimerBalance", SpeedType.MATRIX)
         }
         mc.timer.timerSpeed = 1.0f
 	}
+
+    override fun onPreMotion(event: PreMotionEvent) {
+        onMotion()
+    }
+
+    override fun onPostMotion(event: PostMotionEvent) {
+        onMotion()
+    }
 }

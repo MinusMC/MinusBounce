@@ -26,6 +26,13 @@ class FunCraftFly: FlyMode("FunCraft", FlyType.OTHER) {
 
     override fun onPreMotion(event: PreMotionEvent) {
         event.onGround = true
+
+        if (!MovementUtils.isMoving)
+            moveSpeed = 0.25
+        if (moveSpeed > 0.25) {
+            moveSpeed -= moveSpeed / 159.0
+        }
+        
         mc.thePlayer.capabilities.isFlying = false
         mc.thePlayer.motionY = 0.0
         mc.thePlayer.motionX = 0.0

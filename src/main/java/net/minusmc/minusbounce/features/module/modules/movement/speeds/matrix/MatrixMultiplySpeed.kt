@@ -15,7 +15,7 @@ class MatrixMultiplySpeed: SpeedMode("MatrixMultiply", SpeedType.MATRIX) {
 		mc.thePlayer.jumpMovementFactor = 0.02f
         mc.timer.timerSpeed = 1.0f
 	}
-	override fun onPostMotion(event: PostMotionEvent) {
+	fun onMotion() {
 		if (!MovementUtils.isMoving) {
             return
         }
@@ -29,4 +29,12 @@ class MatrixMultiplySpeed: SpeedMode("MatrixMultiply", SpeedType.MATRIX) {
             mc.timer.timerSpeed = 1.05f
         }
 	}
+
+	override fun onPreMotion(event: PreMotionEvent) {
+        onMotion()
+    }
+
+    override fun onPostMotion(event: PostMotionEvent) {
+        onMotion()
+    }
 }

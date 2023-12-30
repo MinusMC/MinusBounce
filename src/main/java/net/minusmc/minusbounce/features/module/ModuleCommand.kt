@@ -63,9 +63,10 @@ class ModuleCommand(val module: Module, val values: List<Value<*>> = module.valu
                 return
             } 
             if (args.size < 4) {
-                if (value is IntRangeValue || value is FloatRangeValue)
+                if (value is IntRangeValue || value is FloatRangeValue) {
                     chatSyntax("$moduleName ${args[1].lowercase()} <min_value> <max_value>")
-                return
+                    return
+                }
             }
 
             try {
@@ -106,7 +107,7 @@ class ModuleCommand(val module: Module, val values: List<Value<*>> = module.valu
 
                 if (value is IntRangeValue) {
                     chat("§7${module.name} §8${args[1]}§7 was set to §8${value.getMinValue()} - ${value.getMaxValue()}§7.")
-                } else if (value is FloatRangeValue) { // smart cast issue
+                } else if (value is FloatRangeValue) {
                     chat("§7${module.name} §8${args[1]}§7 was set to §8${value.getMinValue()} - ${value.getMaxValue()}§7.")
                 } else {
                     chat("§7${module.name} §8${args[1]}§7 was set to §8${value.get()}§7.")

@@ -15,8 +15,9 @@ class Matrix661Speed: SpeedMode("Matrix 6.6.1", SpeedType.MATRIX) {
 		mc.thePlayer.jumpMovementFactor = 0.02f
         mc.timer.timerSpeed = 1.0f
 	}
-	override fun onPostMotion(event: PostMotionEvent) {
-		if (!MovementUtils.isMoving) {
+
+    fun onMotion() {
+        if (!MovementUtils.isMoving) {
             mc.timer.timerSpeed = 1.0f
             return
         }
@@ -33,5 +34,13 @@ class Matrix661Speed: SpeedMode("Matrix 6.6.1", SpeedType.MATRIX) {
             return
         }
         mc.timer.timerSpeed = 1.0f
-	}
+    }
+
+	override fun onPreMotion(event: PreMotionEvent) {
+        onMotion()
+    }
+
+    override fun onPostMotion(event: PostMotionEvent) {
+        onMotion()
+    }
 }

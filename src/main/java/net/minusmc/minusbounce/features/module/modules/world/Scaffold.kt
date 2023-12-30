@@ -512,7 +512,6 @@ class Scaffold: Module() {
         }
     }
 
-
     @EventTarget
     fun onPreMotion(event: PreMotionEvent) {
         if (towerStatus) tower(event)
