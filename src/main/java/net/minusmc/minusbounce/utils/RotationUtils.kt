@@ -27,7 +27,7 @@ object RotationUtils : MinecraftInstance(), Listenable {
     var targetRotation: Rotation? = null
 
     @JvmField
-    var serverRotation: Rotation? = Rotation(0f, 0f)
+    public var serverRotation: Rotation? = Rotation(0f, 0f)
 
     private var x = random.nextDouble()
     private var y = random.nextDouble()
@@ -80,24 +80,9 @@ object RotationUtils : MinecraftInstance(), Listenable {
     }
 
     /**
-     * Handle packet
-     *
-     * @param event Packet Event
-     */
-    @EventTarget
-    fun onPacket(event: PacketEvent) {
-        val packet = event.packet
-        if (packet is C03PacketPlayer) {
-            if (packet.rotating) serverRotation = Rotation(packet.yaw, packet.pitch)
-        }
-    }
-
-    /**
      * @return YESSSS!!!
      */
-    override fun handleEvents(): Boolean {
-        return true
-    }
+    override fun handleEvents() = true
 
     /**
      * @author aquavit

@@ -164,17 +164,12 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
                 this.serverSneakState = sneaking;
             }
 
-            if (this.isCurrentViewEntity()) {
-                float yaw = event.getYaw();
-                float pitch = event.getPitch();
-                float lastReportedYaw = RotationUtils.serverRotation.getYaw();
-                float lastReportedPitch = RotationUtils.serverRotation.getPitch();
-                
+            if (this.isCurrentViewEntity()) {                
                 double xDiff = event.getX() - this.lastReportedPosX;
                 double yDiff = event.getY() - this.lastReportedPosY;
                 double zDiff = event.getZ() - this.lastReportedPosZ;
-                double yawDiff = yaw - lastReportedYaw;
-                double pitchDiff = pitch - lastReportedPitch;
+                double yawDiff = event.getYaw() - this.lastReportedYaw;
+                double pitchDiff = event.getPitch() - this.lastReportedPitch;
 
                 final Criticals criticals = MinusBounce.moduleManager.getModule(Criticals.class);
 
@@ -183,16 +178,16 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
 
                 if (this.ridingEntity == null) {
                     if (moved && rotated) {
-                        this.sendQueue.addToSendQueue(new C03PacketPlayer.C06PacketPlayerPosLook(event.getX(), event.getY(), event.getZ(), yaw, pitch, event.getOnGround()));
+                        this.sendQueue.addToSendQueue(new C03PacketPlayer.C06PacketPlayerPosLook(event.getX(), event.getY(), event.getZ(), event.getYaw(), event.getPitch(), event.getOnGround()));
                     } else if (moved) {
                         this.sendQueue.addToSendQueue(new C03PacketPlayer.C04PacketPlayerPosition(event.getX(), event.getY(), event.getZ(), event.getOnGround()));
                     } else if (rotated) {
-                        this.sendQueue.addToSendQueue(new C03PacketPlayer.C05PacketPlayerLook(yaw, pitch, event.getOnGround()));
+                        this.sendQueue.addToSendQueue(new C03PacketPlayer.C05PacketPlayerLook(event.getYaw(), event.getPitch(), event.getOnGround()));
                     } else {
                         this.sendQueue.addToSendQueue(new C03PacketPlayer(event.getOnGround()));
                     }
                 } else {
-                    this.sendQueue.addToSendQueue(new C03PacketPlayer.C06PacketPlayerPosLook(this.motionX, -999.0D, this.motionZ, yaw, pitch, event.getOnGround()));
+                    this.sendQueue.addToSendQueue(new C03PacketPlayer.C06PacketPlayerPosLook(this.motionX, -999.0D, this.motionZ, event.getYaw(), event.getPitch(), event.getOnGround()));
                     moved = false;
                 }
 
@@ -206,8 +201,9 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
                 }
 
                 if (rotated) {
-                    this.lastReportedYaw = yaw;
-                    this.lastReportedPitch = pitch;
+                    this.lastReportedYaw = event.getYaw();
+                    this.lastReportedPitch = event.getPitch();
+                    RotationUtils.serverRotation = new Rotation(this.lastReportedYaw, this.lastReportedPitch);
                 }
             }
 
