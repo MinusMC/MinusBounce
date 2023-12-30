@@ -3,6 +3,7 @@ package net.minusmc.minusbounce.features.module.modules.movement.speeds.aac
 import net.minusmc.minusbounce.features.module.modules.movement.speeds.SpeedMode
 import net.minusmc.minusbounce.features.module.modules.movement.speeds.SpeedType
 import net.minusmc.minusbounce.event.PostMotionEvent
+import net.minusmc.minusbounce.event.PreMotionEvent
 
 class AACv4BHopSpeed: SpeedMode("AACv4BHop", SpeedType.AAC) {
 

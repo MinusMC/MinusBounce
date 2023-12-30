@@ -18,4 +18,4 @@ class NCP2NoSlow : NoSlowMode("NCP2") {
 	override fun onPostMotion(event: PostMotionEvent) {
 		PacketUtils.sendPacketNoEvent(C08PacketPlayerBlockPlacement(mc.thePlayer.inventory.getCurrentItem()))
 	}
-}w
+}

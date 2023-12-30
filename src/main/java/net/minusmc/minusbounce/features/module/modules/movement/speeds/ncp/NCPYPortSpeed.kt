@@ -5,6 +5,7 @@ import net.minusmc.minusbounce.features.module.modules.movement.speeds.SpeedMode
 import net.minusmc.minusbounce.utils.MovementUtils
 import net.minecraft.util.MathHelper
 import net.minusmc.minusbounce.event.PostMotionEvent
+import net.minusmc.minusbounce.event.PreMotionEvent
 
 class NCPYPortSpeed: SpeedMode("NCPYPort", SpeedType.NCP) {
 	private var jumps = 0
