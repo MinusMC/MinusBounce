@@ -511,20 +511,6 @@ class Scaffold: Module() {
     }
 
     @EventTarget
-    fun onPreUpdate(event: PreUpdateEvent) {
-        if (!rotationsValue.get().equals("None", true) && keepLengthValue.get() > 0 && lockRotation != null) {
-            if (rotationsValue.get().equals("Spin", true)) {
-                spinYaw += speenSpeedValue.get()
-                spinYaw = MathHelper.wrapAngleTo180_float(spinYaw)
-                speenRotation = Rotation(spinYaw, speenPitchValue.get())
-                RotationUtils.setTargetRot(speenRotation!!)
-            } else {
-                RotationUtils.setTargetRot(RotationUtils.limitAngleChange(RotationUtils.serverRotation!!, lockRotation!!, rotationSpeed), keepLengthValue.get())
-            }
-        }
-    }
-
-    @EventTarget
     fun onPreMotion(event: PreMotionEvent) {
         if (towerStatus) tower(event)
 
@@ -567,6 +553,17 @@ class Scaffold: Module() {
 
         if (!towerStatus) {
             verusState = 0
+        }
+
+        if (!rotationsValue.get().equals("None", true) && keepLengthValue.get() > 0 && lockRotation != null) {
+            if (rotationsValue.get().equals("Spin", true)) {
+                spinYaw += speenSpeedValue.get()
+                spinYaw = MathHelper.wrapAngleTo180_float(spinYaw)
+                speenRotation = Rotation(spinYaw, speenPitchValue.get())
+                RotationUtils.setTargetRot(speenRotation!!)
+            } else {
+                RotationUtils.setTargetRot(RotationUtils.limitAngleChange(RotationUtils.serverRotation!!, lockRotation!!, rotationSpeed), keepLengthValue.get())
+            }
         }
 
         if (placeModeValue.get().equals("post", true)) place()
