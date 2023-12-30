@@ -35,7 +35,7 @@ object MinusBounce {
     const val CLIENT_VERSION = 20231120
     const val CLIENT_CREATOR = "CCBlueX, MinusMC Team"
     val API_VERSION = PluginAPIVersion.VER_01
-    const val CLIENT_CLOUD = "https://cloud.minusbounce.lol"
+    const val CLIENT_CLOUD = "https://minusmc.github.io/MinusCloud/LiquidBounce"
     
     var isStarting = false
 
@@ -71,6 +71,7 @@ object MinusBounce {
         isStarting = true
 
         ClientUtils.logger.info("Starting $CLIENT_NAME")
+        ClassUtils.initCacheClass()
         lastTick = System.currentTimeMillis()
         playTimeStart = System.currentTimeMillis()
 

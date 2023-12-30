@@ -107,9 +107,8 @@ class Scaffold: Module() {
         }
     }
 
-    private val keepRotationValue = BoolValue("KeepRotation", false) { !rotationsValue.get().equals("None", true) }
     private val keepLengthValue = IntegerValue("KeepRotationLength", 0, 0, 20) {
-        !rotationsValue.get().equals("None", true) && !keepRotationValue.get()
+        !rotationsValue.get().equals("None", true)
     }
     private val placeConditionValue = ListValue("PlaceCondition", arrayOf("Always", "Air", "FallDown"), "Always")
     private val rotationStrafeValue = ListValue("RotationStrafe", arrayOf("LiquidBounce", "FDP", "Off"), "LiquidBounce")
@@ -139,7 +138,7 @@ class Scaffold: Module() {
     private val stopWhenBlockAbove = BoolValue("StopWhenBlockAbove", false) { !onTowerValue.get().equals("None", true) }
     private val towerTimerValue = FloatValue("TowerTimer", 1F, 0.1F, 10F) { !onTowerValue.get().equals("None", true) }
 
-    private val sameYValue = ListValue("SameY", arrayOf("Same", "AutoJump", "Off"), "Off")
+    private val sameYValue = ListValue("SameY", arrayOf("Same", "AutoJump", "MotionY", "DelayedTower", "Off"), "Off")
     private val safeWalkValue = ListValue("SafeWalk", arrayOf("Ground", "Air", "Off"), "Off")
     private val hitableCheckValue = BoolValue("HitableCheck", true)
     // Blocks
@@ -204,12 +203,15 @@ class Scaffold: Module() {
 
     private var blocksStart = 0
 
+    private var delayedTowerTicks = 0
+
     override fun onEnable() {
         mc.thePlayer ?: return
 
         blocksStart = blocksAmount
 
         watchdogTick = 5
+        delayedTowerTicks = 0
 
         progress = 0f
         spinYaw = 0f
@@ -366,6 +368,19 @@ class Scaffold: Module() {
                     if (mc.thePlayer.onGround && MovementUtils.isMoving)
                         mc.thePlayer.jump()
                 }
+                "motiony" -> {
+                    canSameY = false
+                    if (mc.thePlayer.onGround && MovementUtils.isMoving)
+                        mc.thePlayer.motionY = 0.42
+                }
+                "delayedtower" -> {
+                    canSameY = delayedTowerTicks % 2 == 0
+                    if (mc.thePlayer.onGround && MovementUtils.isMoving) {
+                        mc.thePlayer.jump()
+                        delayedTowerTicks++
+                    }
+                }
+                else -> canSameY = false
             }
 
             if (blocksPerJump.get() != 0 && blocksStart - blocksAmount >= blocksPerJump.get()) {
@@ -417,18 +432,13 @@ class Scaffold: Module() {
 
         if (mc.thePlayer.onGround) {
             // Smooth Zitter
-            if (zitterModeValue.get().equals("smooth", true)) {
-                if (!GameSettings.isKeyDown(mc.gameSettings.keyBindRight))
-                    mc.gameSettings.keyBindRight.pressed = false
-
-                if (!GameSettings.isKeyDown(mc.gameSettings.keyBindLeft))
-                    mc.gameSettings.keyBindLeft.pressed = false
-
-                if (zitterTimer.hasTimePassed(zitterDelay.get().toLong())) {
+            if (zitterModeValue.equals("smooth")) {
+                if (!GameSettings.isKeyDown(mc.gameSettings.keyBindRight)) mc.gameSettings.keyBindRight.pressed = false
+                if (!GameSettings.isKeyDown(mc.gameSettings.keyBindLeft)) mc.gameSettings.keyBindLeft.pressed = false
+                if (zitterTimer.hasTimePassed(100)) {
                     zitterDirection = !zitterDirection
                     zitterTimer.reset()
                 }
-
                 if (zitterDirection) {
                     mc.gameSettings.keyBindRight.pressed = true
                     mc.gameSettings.keyBindLeft.pressed = false
@@ -534,16 +544,17 @@ class Scaffold: Module() {
             verusState = 0
         }
 
-        if (towerStatus && event.eventState == EventState.POST) tower(event)
+        if (towerStatus) tower(event)
 
-        if (!rotationsValue.get().equals("None", true) && keepRotationValue.get() && lockRotation != null) {
+
+        if (!rotationsValue.get().equals("None", true) && keepLengthValue.get() > 0 && lockRotation != null) {
             if (rotationsValue.get().equals("Spin", true)) {
                 spinYaw += speenSpeedValue.get()
                 spinYaw = MathHelper.wrapAngleTo180_float(spinYaw)
                 speenRotation = Rotation(spinYaw, speenPitchValue.get())
                 RotationUtils.setTargetRot(speenRotation!!)
             } else {
-                RotationUtils.setTargetRot(RotationUtils.limitAngleChange(RotationUtils.serverRotation!!, lockRotation!!, rotationSpeed))
+                RotationUtils.setTargetRot(RotationUtils.limitAngleChange(RotationUtils.serverRotation!!, lockRotation!!, rotationSpeed), keepLengthValue.get())
             }
         }
 
@@ -564,7 +575,7 @@ class Scaffold: Module() {
         
     }
 
-    @EventTarget // From LBplus reborn
+    @EventTarget
     fun onStrafe(event: StrafeEvent) {
         lockRotation ?: return
         when (rotationStrafeValue.get().lowercase()) {
@@ -725,10 +736,8 @@ class Scaffold: Module() {
 
     private fun place() {
         if (targetPlace == null) {
-            if (!placeableDelay.get().equals("Off", true)) {
-                if ((placeableDelay.get().equals("Smart", true) && mc.rightClickDelayTimer > 0) || placeableDelay.get() == "Normal")
-                    delayTimer.reset()
-            }
+            if ((placeableDelay.get().equals("Smart", true) && mc.rightClickDelayTimer > 0) || placeableDelay.get() == "Normal")
+                delayTimer.reset()
             return
         }
 
@@ -1095,12 +1104,13 @@ class Scaffold: Module() {
     }
 
     val canSprint: Boolean
-        get() = !(
-            sprintModeValue.get().equals("off", true) || 
-            (sprintModeValue.get().equals("onground", true) && !mc.thePlayer.onGround) || 
-            (sprintModeValue.get().equals("offground", true) && mc.thePlayer.onGround) || 
-            (sprintModeValue.get().equals("legit") && mc.gameSettings.keyBindSprint.isPressed)
-        )
+        get() = MovementUtils.isMoving && when (sprintModeValue.get().lowercase()) {
+            "off" -> false
+            "legit" -> mc.thePlayer.ticksExisted % 20 <= 8
+            "onground" -> mc.thePlayer.onGround
+            "offground" -> !mc.thePlayer.onGround
+            else -> true
+        }
 
     private val placeCondition: Boolean
         get() = when (placeConditionValue.get().lowercase()) {

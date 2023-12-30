@@ -13,6 +13,7 @@ import net.minusmc.minusbounce.utils.MovementUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.PlayerCapabilities;
+import net.minusmc.minusbounce.features.module.modules.movement.KeepSprint;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.FoodStats;
 import org.spongepowered.asm.mixin.Mixin;
@@ -60,4 +61,13 @@ public abstract class MixinEntityPlayer extends MixinEntityLivingBase {
     @Shadow
     public abstract boolean isPlayerSleeping();
 
+    @Inject(method = "attackTargetEntityWithCurrentItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/EntityPlayer;setSprinting(Z)V", shift = At.Shift.AFTER))
+    public void onAttackTargetEntityWithCurrentItem(CallbackInfo callbackInfo) {
+        final KeepSprint keep = MinusBounce.moduleManager.getModule(KeepSprint.class);
+        if (keep.getState()) {
+            this.motionX /= 0.6;
+            this.motionZ /= 0.6;
+            this.setSprinting(true);
+        }
+    }
 }

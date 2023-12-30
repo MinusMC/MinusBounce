@@ -17,6 +17,7 @@ import net.minusmc.minusbounce.event.UpdateEvent
 import net.minusmc.minusbounce.features.module.Module
 import net.minusmc.minusbounce.features.module.ModuleCategory
 import net.minusmc.minusbounce.features.module.ModuleInfo
+import net.minusmc.minusbounce.utils.timer.MSTimer
 import net.minusmc.minusbounce.utils.item.ItemUtils
 import net.minusmc.minusbounce.value.BoolValue
 import net.minusmc.minusbounce.value.IntegerValue
@@ -29,6 +30,9 @@ class AutoWeapon : Module() {
     private var attackEnemy = false
 
     private var spoofedSlot = 0
+
+    private var resetSlot = true
+    private val msTimer = MSTimer()
 
     @EventTarget
     fun onAttack(event: AttackEvent) {
@@ -50,10 +54,9 @@ class AutoWeapon : Module() {
                                 ?: 0.0) + 1.25 * ItemUtils.getEnchantment(it.second, Enchantment.sharpness)
                     } ?: return
 
-            if (slot == mc.thePlayer.inventory.currentItem) // If in hand no need to swap
+            if (slot == mc.thePlayer.inventory.currentItem)
                 return
 
-            // Switch to best weapon
             if (silentValue.get()) {
                 mc.netHandler.addToSendQueue(C09PacketHeldItemChange(slot))
                 spoofedSlot = ticksValue.get()
@@ -62,7 +65,8 @@ class AutoWeapon : Module() {
                 mc.playerController.updateController()
             }
 
-            // Resend attack packet
+            resetSlot = true
+
             mc.netHandler.addToSendQueue(event.packet)
             event.cancelEvent()
         }
@@ -75,6 +79,14 @@ class AutoWeapon : Module() {
             if (spoofedSlot == 1)
                 mc.netHandler.addToSendQueue(C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem))
             spoofedSlot--
+        }
+
+        if (resetSlot && msTimer.hasTimePassed(250)) {
+            println("Switch slot.")
+            mc.thePlayer.inventory.currentItem = (mc.thePlayer.inventory.currentItem + 1) % 9
+            mc.playerController.updateController()
+            resetSlot = false
+            msTimer.reset()
         }
     }
 }

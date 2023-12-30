@@ -22,7 +22,7 @@ class ToggleCommand : Command("toggle", arrayOf("t")) {
             }
 
             if (args.size > 2) {
-                val newState = args[2].lowercase();
+                val newState = args[2].lowercase()
 
                 if (newState == "on" || newState == "off") {
                     module.state = newState == "on"
@@ -31,7 +31,8 @@ class ToggleCommand : Command("toggle", arrayOf("t")) {
                     return
                 }
             } else {
-                module.toggle()
+                if (module.onlyEnable) module.onEnable()
+                else module.toggle()
             }
 
             chat("${if (module.state) "Enabled" else "Disabled"} module §8${module.name}§3.")

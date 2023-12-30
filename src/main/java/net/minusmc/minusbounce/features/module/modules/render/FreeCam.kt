@@ -13,6 +13,7 @@ import net.minecraft.network.play.server.S08PacketPlayerPosLook
 import net.minusmc.minusbounce.event.EventTarget
 import net.minusmc.minusbounce.event.PacketEvent
 import net.minusmc.minusbounce.event.UpdateEvent
+import net.minusmc.minusbounce.event.WorldEvent
 import net.minusmc.minusbounce.features.module.Module
 import net.minusmc.minusbounce.features.module.ModuleCategory
 import net.minusmc.minusbounce.features.module.ModuleInfo
@@ -127,6 +128,11 @@ class FreeCam : Module() {
             event.cancelEvent()
             posLook.set(packet)
         }
+    }
+
+    @EventTarget
+    fun onWorld(event: WorldEvent) {
+        state = false
     }
 
 }

@@ -21,7 +21,6 @@ class AutoTool : Module() {
     private val swapValue = BoolValue("SwapBack", false)
     private var previtem = 0
     private var mining = false
-    private var bestSlot = 0
     private var tickDelay = 0
     @EventTarget
     fun onClick(event: ClickBlockEvent) {
@@ -45,7 +44,8 @@ class AutoTool : Module() {
 
     fun switchSlot(blockPos: BlockPos) {
         var bestSpeed = 1
-
+        var bestSlot = 0
+        
         val block = mc.theWorld.getBlockState(blockPos).block
 
         for (i in 0..8) {

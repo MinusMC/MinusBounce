@@ -30,7 +30,7 @@ object AntiBot : Module() {
     private val czechHekValue = BoolValue("CzechMatrix", false)
     private val czechHekPingCheckValue = BoolValue("PingCheck", true) { czechHekValue.get() }
     private val czechHekGMCheckValue = BoolValue("GamemodeCheck", true) { czechHekValue.get() }
-    private val sameArmorOnBedwars = BoolValue("SameArmorOnBedwars", false) // method by pie
+    private val sameArmorOnBedwars = BoolValue("SameArmorOnBedwars", false)
     private val tabValue = BoolValue("Tab", true)
     private val tabModeValue = ListValue("TabMode", arrayOf("Equals", "Contains"), "Contains")
     private val entityIDValue = BoolValue("EntityID", true)
@@ -148,7 +148,7 @@ object AntiBot : Module() {
             }
         } else if (packet is S0CPacketSpawnPlayer) {
             val killAura = MinusBounce.moduleManager[KillAura::class.java]!!
-            if(killAura.target != null && !hasRemovedEntities.contains(packet.entityID)) {
+            if (killAura.target != null && !hasRemovedEntities.contains(packet.entityID)) {
                 spawnInCombat.add(packet.entityID)
             }
         } else if (packet is S13PacketDestroyEntities) {
@@ -253,16 +253,26 @@ object AntiBot : Module() {
             return true
         }
 
+        /* 
+        Check armor material in bedwars
+        Author: pie, toidicakhia
+        */
+
         if (sameArmorOnBedwars.get()) {
             val helmet = entity.inventory.armorInventory[3]
             val chestplate = entity.inventory.armorInventory[2]
+            val leggings = entity.inventory.armorInventory[1]
+            val boots = entity.inventory.armorInventory[0]
 
             if (helmet == null || chestplate == null || helmet.item == null || chestplate.item == null)
                 return true
 
-            val helmetColor = (helmet.item as ItemArmor).getColor(helmet)
-            val chestplateColor = (chestplate.item as ItemArmor).getColor(chestplate)
-            return !(chestplateColor > 0 && helmetColor > 0 && chestplateColor == helmetColor)
+            val helmetMaterial = (helmet.item as ItemArmor).armorMaterial
+            val chestplateMaterial = (chestplate.item as ItemArmor).armorMaterial
+            val leggingsMaterial = (leggings.item as ItemArmor).armorMaterial
+            val bootsMaterial = (boots.item as ItemArmor).armorMaterial
+            if (!(helmetMaterial == ItemArmor.ArmorMaterial.LEATHER && chestplateMaterial == ItemArmor.ArmorMaterial.LEATHER && leggingsMaterial == bootsMaterial))
+                return true
         }
 
         return entity.getName().isEmpty() || entity.getName().equals(mc.thePlayer.name)

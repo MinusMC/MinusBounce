@@ -1,5 +1,6 @@
 package net.minusmc.minusbounce.utils
 
+import net.minecraftforge.fml.common.Loader
 import net.minusmc.minusbounce.plugin.Plugin
 import net.minusmc.minusbounce.value.Value
 import org.apache.logging.log4j.core.config.plugins.ResolverUtil
@@ -16,7 +17,7 @@ object ClassUtils {
     val capeFiles = mutableListOf<String>()
 
     fun initCacheClass() {
-        val files = File("mods").listFiles() ?: return
+        val files = Loader.instance().discoverer.getNonModLibs()
         val jarFiles = files.filter { it.extension.equals("jar", true) }
         jarFiles.forEach {
             val jarFile = JarFile(it)
@@ -94,8 +95,9 @@ object ClassUtils {
 
 
     private fun isClassSkip1(clazzName: String): Boolean {
-        return (clazzName.equals("net.minusmc.minusbounce.MinusBounce", true) || clazzName.contains("net.minusmc.minusbounce.injection") // hack client
-             || clazzName.contains("optifine")) // optifine
+        return (clazzName.equals("net.minusmc.minusbounce.MinusBounce", true) || 
+                clazzName.contains("net.minusmc.minusbounce.injection")|| 
+                clazzName.contains("optifine")) // optifine
     }
 
     private fun isClassSkip2(clazzName: String): Boolean {
@@ -121,6 +123,5 @@ object ClassUtils {
         }
         return pluginClass
     }
-
     fun hasForge() = hasClass("net.minecraftforge.common.MinecraftForge")
 }

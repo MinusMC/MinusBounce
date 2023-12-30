@@ -164,8 +164,6 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
                 this.serverSneakState = sneaking;
             }
 
-            // neu ko dc thi nhin phase thu phat
-
             if (this.isCurrentViewEntity()) {
                 float yaw = event.getYaw();
                 float pitch = event.getPitch();
@@ -185,7 +183,7 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
 
                 final Criticals criticals = MinusBounce.moduleManager.getModule(Criticals.class);
 
-                boolean moved = xDiff * xDiff + yDiff * yDiff + zDiff * zDiff > (MinusBounce.moduleManager.getModule(AntiDesync.class).getState() ? 0D : 9.0E-4D) || this.positionUpdateTicks >= 20 || (criticals.getState() && criticals.getAntiDesync());
+                boolean moved = xDiff * xDiff + yDiff * yDiff + zDiff * zDiff > (MinusBounce.moduleManager.getModule(AntiDesync.class).getState() ? 0D : 9.0E-4D) || this.positionUpdateTicks >= 20;
                 boolean rotated = yawDiff != 0.0D || pitchDiff != 0.0D;
 
                 if (this.ridingEntity == null) {
@@ -302,6 +300,7 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
 
         final NoSlow noSlow = MinusBounce.moduleManager.getModule(NoSlow.class);
         final KillAura killAura = MinusBounce.moduleManager.getModule(KillAura.class);
+        final Sprint sprint = MinusBounce.moduleManager.getModule(Sprint.class);
 
         if (getHeldItem() != null && (this.isUsingItem() || (getHeldItem().getItem() instanceof ItemSword && killAura.getBlockingStatus())) && !this.isRiding()) {
             final SlowDownEvent slowDownEvent = new SlowDownEvent(0.2F, 0.2F);
@@ -315,8 +314,6 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
         this.pushOutOfBlocks(this.posX - (double) this.width * 0.35D, this.getEntityBoundingBox().minY + 0.5D, this.posZ - (double) this.width * 0.35D);
         this.pushOutOfBlocks(this.posX + (double) this.width * 0.35D, this.getEntityBoundingBox().minY + 0.5D, this.posZ - (double) this.width * 0.35D);
         this.pushOutOfBlocks(this.posX + (double) this.width * 0.35D, this.getEntityBoundingBox().minY + 0.5D, this.posZ + (double) this.width * 0.35D);
-
-        final Sprint sprint = MinusBounce.moduleManager.getModule(Sprint.class);
 
         boolean flag3 = !sprint.getFoodValue().get() || (float) this.getFoodStats().getFoodLevel() > 6.0F || this.capabilities.allowFlying;
 
@@ -337,14 +334,13 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
         if ((scaffold.getState() && !scaffold.getCanSprint()) || (sprint.getState() && sprint.getCheckServerSide().get() && (onGround || !sprint.getCheckServerSideGround().get()) && !sprint.getAllDirectionsValue().get() && RotationUtils.targetRotation != null && RotationUtils.INSTANCE.getRotationDifference(new Rotation(mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch)) > 30))
             this.setSprinting(false);
 
-        if (this.isSprinting() && noSlow.getState() && noSlow.getNoSprintValue().get() && noSlow.isSlowing()) {
-            this.setSprinting(false);
-        }
-
         if (this.isSprinting() && ((!(sprint.getState() && sprint.getAllDirectionsValue().get()) && this.movementInput.moveForward < f) || this.isCollidedHorizontally || !flag3)) {
             this.setSprinting(false);
         }
-
+        if (this.isSprinting() && noSlow.getState() && noSlow.getNoSprintValue().get() && noSlow.isSlowing()) {
+            this.setSprinting(false);
+        }
+        
         if (this.capabilities.allowFlying) {
             if (this.mc.playerController.isSpectatorMode()) {
                 if (!this.capabilities.isFlying) {

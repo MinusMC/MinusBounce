@@ -44,5 +44,4 @@ class MidClick : Module() {
                 ClientUtils.displayChatMessage("§c§lError: §aYou need to select a player.")
         }
     }
-    // hmm ko co van de j ca ma sao ko load nhi
 }
