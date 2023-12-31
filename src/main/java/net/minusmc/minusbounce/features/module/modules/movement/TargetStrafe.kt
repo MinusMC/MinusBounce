@@ -46,21 +46,12 @@ class TargetStrafe : Module() {
     private val thicknessValue = FloatValue("Thickness", 1F, 0.1F, 5F)
     private val outLine = BoolValue("Outline", true)
     private val expMode = BoolValue("ExperimentalSpeed", false)
-    private lateinit var killAura: KillAura
-    private lateinit var speed: Speed
-    private lateinit var fly: Fly
 
     var direction = 1
     private var lastView = 0
     private var hasChangedThirdPerson = true
 
     private var hasModifiedMovement = false
-
-    override fun onInitialize() {
-        speed = MinusBounce.moduleManager.getModule(Speed::class.java) as Speed
-        fly = MinusBounce.moduleManager.getModule(Fly::class.java) as Fly
-        killAura = MinusBounce.moduleManager.getModule(KillAura::class.java) as KillAura
-    }
 
     override fun onEnable() {
         hasChangedThirdPerson = true
@@ -102,6 +93,7 @@ class TargetStrafe : Module() {
     }
 
     fun strafe(event: MoveEvent, moveSpeed: Double) {
+        val killAura = MinusBounce.moduleManager[KillAura::class.java]!!
         if (killAura.target == null) return
 
         val target = killAura.target!!
@@ -116,6 +108,7 @@ class TargetStrafe : Module() {
     }
 
     fun getData(): Array<Float> {
+        val killAura = MinusBounce.moduleManager[KillAura::class.java]!!
         if (killAura.target == null) return arrayOf(0F, 0F, 0F)
 
         val target = killAura.target!!
@@ -150,7 +143,12 @@ class TargetStrafe : Module() {
         }
 
     val canStrafe: Boolean
-        get() = (state && (speed.state || fly.state) && killAura.state && killAura.target != null && !mc.thePlayer.isSneaking && keyMode)
+        get() {
+            val killAura = MinusBounce.moduleManager[KillAura::class.java]!!
+            val speed = MinusBounce.moduleManager[Speed::class.java]!!
+            val fly = MinusBounce.moduleManager[Fly::class.java]!!
+            return state && (speed.state || fly.state) && killAura.state && killAura.target != null && !mc.thePlayer.isSneaking && keyMode
+        }
 
     private fun checkVoid(): Boolean {
         for (x in -1..0) {
