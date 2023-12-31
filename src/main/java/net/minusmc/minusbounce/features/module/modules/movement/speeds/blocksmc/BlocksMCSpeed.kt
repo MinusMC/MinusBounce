@@ -26,7 +26,7 @@ class BlocksMCSpeed: SpeedMode("BlocksMC", SpeedType.BLOCKSMC) {
             }
         }
 
-        if (damageBoostValue.get() && mc.thePlayer.hurtTime > 0 && MinusBounce.moduleManager[KillAura::class.java]!!.target != null) {
+        if (damageBoostValue.get() && mc.thePlayer.hurtTime > 0 && MinusBounce.moduleManager[KillAura::class.java]!!.currentTarget != null) {
             MovementUtils.strafe(0.45995554f)
         }
 
