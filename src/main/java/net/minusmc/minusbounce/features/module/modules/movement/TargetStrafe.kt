@@ -181,9 +181,9 @@ class TargetStrafe : Module() {
     @EventTarget
     fun onRender3D(event: Render3DEvent) {
         val killAura = MinusBounce.moduleManager[KillAura::class.java]!!
-        val target = killAura.currentTarget
+        val target = killAura.currentTarget!!
         if ((canStrafe || alwaysRender.get()) && render.get()) {
-            currentTarget?: return
+            target ?: return
             GL11.glPushMatrix()
             GL11.glTranslated(
                 target.lastTickPosX + (target.posX - target.lastTickPosX) * mc.timer.renderPartialTicks - mc.renderManager.renderPosX,
