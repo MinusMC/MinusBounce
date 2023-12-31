@@ -110,8 +110,6 @@ class Scaffold: Module() {
         !rotationsValue.get().equals("None", true)
     }
 
-    val movementCorrection = BoolValue("MovementCorrection", false)
-
     private val placeConditionValue = ListValue("PlaceCondition", arrayOf("Always", "Air", "FallDown"), "Always")
 
     private val timerValue = FloatValue("Timer", 1F, 0.1F, 10F)
@@ -449,21 +447,12 @@ class Scaffold: Module() {
 
     @EventTarget
     fun onPreUpdate(event: PreUpdateEvent) {
-        if (!rotationsValue.get().equals("None", true) && keepLengthValue.get() > 0 && lockRotation != null) {
-            if (rotationsValue.get().equals("Spin", true)) {
-                spinYaw += speenSpeedValue.get()
-                spinYaw = MathHelper.wrapAngleTo180_float(spinYaw)
-                targetYaw = spinYaw
-                targetPitch = speenPitchValue.get()
-            } else {
-                targetYaw = lockRotation!!.yaw
-                targetPitch = lockRotation!!.pitch
-            }
-        }
+        findBlock(expandLengthValue.get() > 1 && !towerStatus)
     }
 
     @EventTarget
     fun onPreMotion(event: PreMotionEvent) {
+        setTargetRot()
         if (towerStatus && towerModeValue.get().equals("verus", true)) {
             if (mc.theWorld.getCollidingBoundingBoxes(mc.thePlayer, mc.thePlayer.entityBoundingBox.offset(0.0, -0.01, 0.0)).isNotEmpty() && mc.thePlayer.onGround && mc.thePlayer.isCollidedVertically) {
                 verusState = 0
@@ -493,18 +482,9 @@ class Scaffold: Module() {
             verusJumped = true
         }
 
-        if (movementCorrection.get()) {
-            RotationUtils.setTargetRot(RotationUtils.limitAngleChange(RotationUtils.serverRotation!!, Rotation(targetYaw, targetPitch), rotationSpeed), keepLengthValue.get())
-        } else {
-            event.yaw = targetYaw
-            event.pitch = targetPitch
-        }
-
         if (!placeCondition || if (!autoBlockMode.get().equals("off", true)) InventoryUtils.findAutoBlockBlock() == -1 else mc.thePlayer.heldItem == null || !(mc.thePlayer.heldItem.item is ItemBlock && isBlockToScaffold(mc.thePlayer.heldItem.item as ItemBlock))) {
             return
         }
-
-        findBlock(expandLengthValue.get() > 1 && !towerStatus)
 
         if (placeModeValue.get().equals("pre", true)) place()
 
@@ -513,9 +493,21 @@ class Scaffold: Module() {
         }
     }
 
+    fun setTargetRot(){
+        if (!rotationsValue.get().equals("None", true) && keepLengthValue.get() > 0 && lockRotation != null) {
+            if (rotationsValue.get().equals("Spin", true)) {
+                spinYaw += speenSpeedValue.get()
+                spinYaw = MathHelper.wrapAngleTo180_float(spinYaw)
+                RotationUtils.setTargetRot(RotationUtils.limitAngleChange(RotationUtils.serverRotation!!, Rotation(spinYaw, speenPitchValue.get()), rotationSpeed), keepLengthValue.get())
+            } else if (lockRotation != null){
+                RotationUtils.setTargetRot(RotationUtils.limitAngleChange(RotationUtils.serverRotation!!, lockRotation!!, rotationSpeed), keepLengthValue.get())
+            }
+        }
+    }
 
     @EventTarget
     fun onPostMotion(event: PostMotionEvent) {
+        setTargetRot()
         towerStatus = false
 
         if (towerModeValue.get().equals("watchdog", true))
