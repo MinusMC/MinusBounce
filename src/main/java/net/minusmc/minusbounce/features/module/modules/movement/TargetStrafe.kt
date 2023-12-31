@@ -180,6 +180,7 @@ class TargetStrafe : Module() {
 
     @EventTarget
     fun onRender3D(event: Render3DEvent) {
+        val killAura = MinusBounce.moduleManager[KillAura::class.java]!!
         val target = killAura.target
         if ((canStrafe || alwaysRender.get()) && render.get()) {
             target?:return

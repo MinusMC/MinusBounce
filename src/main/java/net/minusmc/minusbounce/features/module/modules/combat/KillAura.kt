@@ -496,7 +496,7 @@ class KillAura : Module() {
                 }
             }
 
-            prevTargetEntities.add(currentTarget!!.entityId)
+            prevTargetEntities.add(target!!.entityId)
 
             if (target == currentTarget)
                 target = null
@@ -504,7 +504,7 @@ class KillAura : Module() {
 
         if (targetModeValue.get().equals("Switch", ignoreCase = true) && attackTimer.hasTimePassed((switchDelayValue.get()).toLong())) {
             if (switchDelayValue.get() != 0) {
-                prevTargetEntities.add(currentTarget!!.entityId)
+                prevTargetEntities.add(target!!.entityId)
                 attackTimer.reset()
             }
         }
