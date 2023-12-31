@@ -150,7 +150,6 @@ class KillAura : Module() {
 
     // Fake block status
     var blockingStatus = false
-    var fakeBlock = false
     private var verusBlocking = false
 
     //Hypixel Autoblock
@@ -260,10 +259,8 @@ class KillAura : Module() {
 
         updateHitable()
 
-        if (autoBlockModeValue.get().equals("AfterTick", true) && canBlock)
-            startBlocking(currentTarget!!, hitable)
+        if (canBlock) startBlocking(currentTarget!!, hitable)
             
-
         if (autoBlockModeValue.get().equals("OldHypixel", true)) {
             when (mc.thePlayer.swingProgressInt) {
                 1 -> stopBlocking()
@@ -330,7 +327,6 @@ class KillAura : Module() {
             runAttack()
             clicks--
         }
-        
     }
 
     @EventTarget
@@ -512,8 +508,9 @@ class KillAura : Module() {
     }
 
     private fun attackEntity(entity: EntityLivingBase) {
-        if ((mc.thePlayer.isBlocking || blockingStatus) && !autoBlockModeValue.get().equals("AfterTick", true))
-            stopBlocking()
+        val criticals = MinusBounce.moduleManager[Criticals::class.java] as Criticals
+
+        stopBlocking()
 
         MinusBounce.eventManager.callEvent(AttackEvent(entity))
 
@@ -523,7 +520,7 @@ class KillAura : Module() {
         mc.netHandler.addToSendQueue(C02PacketUseEntity(entity, C02PacketUseEntity.Action.ATTACK))
 
         if (keepSprintValue.get()) {
-            if (mc.thePlayer.fallDistance > 0F && !mc.thePlayer.onGround && !mc.thePlayer.isOnLadder && !mc.thePlayer.isInWater && !mc.thePlayer.isPotionActive(Potion.blindness) && !mc.thePlayer.isRiding)
+            if (mc.thePlayer.fallDistance > 0F && !mc.thePlayer.onGround && !mc.thePlayer.isOnLadder && !mc.thePlayer.isInWater && !mc.thePlayer.isPotionActive(Potion.blindness) && mc.thePlayer.ridingEntity == null || criticals.state && criticals.msTimer.hasTimePassed(criticals.delayValue.get().toLong()) && !mc.thePlayer.isInWater && !mc.thePlayer.isInLava && !mc.thePlayer.isInWeb)
                 mc.thePlayer.onCriticalHit(entity)
 
             // Enchant Effect
@@ -534,20 +531,6 @@ class KillAura : Module() {
                 mc.thePlayer.attackTargetEntityWithCurrentItem(entity)
         }
 
-        val criticals = MinusBounce.moduleManager[Criticals::class.java] as Criticals
-
-        for (i in 0..2) {
-            // Critical Effect
-            if (mc.thePlayer.fallDistance > 0F && !mc.thePlayer.onGround && !mc.thePlayer.isOnLadder && !mc.thePlayer.isInWater && !mc.thePlayer.isPotionActive(Potion.blindness) && mc.thePlayer.ridingEntity == null || criticals.state && criticals.msTimer.hasTimePassed(criticals.delayValue.get().toLong()) && !mc.thePlayer.isInWater && !mc.thePlayer.isInLava && !mc.thePlayer.isInWeb)
-                mc.thePlayer.onCriticalHit(entity)
-
-            // Enchant Effect
-            if (EnchantmentHelper.getModifierForCreature(mc.thePlayer.heldItem, entity!!.creatureAttribute) > 0.0f)
-                mc.thePlayer.onEnchantmentCritical(entity)
-        }
-
-        if (!autoBlockModeValue.get().equals("AfterTick", true) && (mc.thePlayer.isBlocking || canBlock))
-            startBlocking(entity, interactAutoBlockValue.get())
     }
 
     private fun updateRotations(entity: Entity): Boolean {
@@ -651,7 +634,7 @@ class KillAura : Module() {
     }
 
     private fun startBlocking(interactEntity: Entity, interact: Boolean) {
-        if (autoBlockModeValue.get().equals("none", true) || autoBlockModeValue.get().equals("fake", true) || mc.thePlayer.getDistanceToEntityBox(interactEntity) > autoBlockRangeValue.get())
+        if (autoBlockModeValue.get().equals("none", true) || mc.thePlayer.getDistanceToEntityBox(interactEntity) > autoBlockRangeValue.get())
             return
 
         when (autoBlockModeValue.get().lowercase()) {
@@ -704,7 +687,7 @@ class KillAura : Module() {
     }
 
     private fun stopBlocking() {
-        fakeBlock = false
+        if (!mc.thePlayer.isBlocking || !blockingStatus) return
 
         if (blockingStatus) {
             when (autoBlockModeValue.get().lowercase()) {
