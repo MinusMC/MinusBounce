@@ -512,7 +512,7 @@ class KillAura : Module() {
     }
 
     private fun attackEntity(entity: EntityLivingBase) {
-        if ((mc.thePlayer.isBlocking || blockingStatus) && !autoBlockModeValue.get().equals("AfterTick", true))
+        if ((mc.thePlayer.isBlocking || blockingStatus))
             stopBlocking()
 
         MinusBounce.eventManager.callEvent(AttackEvent(entity))
