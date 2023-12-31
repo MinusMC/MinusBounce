@@ -508,14 +508,9 @@ class KillAura : Module() {
     }
 
     private fun attackEntity(entity: EntityLivingBase) {
-<<<<<<< HEAD
         val criticals = MinusBounce.moduleManager[Criticals::class.java] as Criticals
 
         stopBlocking()
-=======
-        if ((mc.thePlayer.isBlocking || blockingStatus))
-            stopBlocking()
->>>>>>> 53f7c86a4fe224019c9897bd08cd737cc693e12f
 
         MinusBounce.eventManager.callEvent(AttackEvent(entity))
 
