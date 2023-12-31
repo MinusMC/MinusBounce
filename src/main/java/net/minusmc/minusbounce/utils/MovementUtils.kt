@@ -12,6 +12,7 @@ import net.minecraft.util.BlockPos
 import net.minusmc.minusbounce.MinusBounce
 import net.minusmc.minusbounce.event.MoveEvent
 import net.minusmc.minusbounce.features.module.modules.movement.TargetStrafe
+import net.minecraft.util.*
 import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.sin
@@ -63,6 +64,36 @@ object MovementUtils : MinecraftInstance() {
 
     fun hasMotion(): Boolean {
         return mc.thePlayer.motionX != 0.0 && mc.thePlayer.motionZ != 0.0 && mc.thePlayer.motionY != 0.0
+    }
+
+    @JvmStatic
+    fun fixMove(currentInput: MovementInput): MovementInput {
+        if(RotationUtils.targetRotation == null) return currentInput
+
+        val currentRotation = RotationUtils.targetRotation
+        val yawDiff = Math.toRadians(mc.thePlayer.rotationYaw.toDouble() - currentRotation!!.yaw.toDouble())
+        val moveInput = MovementInput()
+
+        // Recreate inputs
+        moveInput.moveForward = currentInput.moveForward;
+        moveInput.moveStrafe = currentInput.moveStrafe;
+
+        if (currentInput.sneak) {
+            moveInput.moveStrafe /= 0.3f;
+            moveInput.moveForward /= 0.3f;
+        }
+
+        // Calculate and apply the movement input based on rotation
+        moveInput.moveForward = Math.round(moveInput.moveForward * cos(yawDiff) + moveInput.moveStrafe * sin(yawDiff)).toFloat()
+        moveInput.moveStrafe = Math.round(moveInput.moveStrafe * cos(yawDiff) - moveInput.moveForward * sin(yawDiff)).toFloat()
+
+        if (currentInput.sneak) {
+            // Add the sneak effect back
+            moveInput.moveForward *= 0.3f;
+            moveInput.moveStrafe *= 0.3f;
+        }
+
+        return moveInput
     }
 
     @JvmOverloads

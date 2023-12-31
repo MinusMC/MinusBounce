@@ -7,7 +7,8 @@ import net.minusmc.minusbounce.utils.RotationUtils
 import net.minusmc.minusbounce.utils.PacketUtils
 import net.minusmc.minusbounce.utils.PlayerUtils
 import net.minusmc.minusbounce.event.EventState
-import net.minusmc.minusbounce.event.MotionEvent
+import net.minusmc.minusbounce.event.PreMotionEvent
+import net.minusmc.minusbounce.event.PostMotionEvent
 import net.minusmc.minusbounce.event.PacketEvent
 import net.minusmc.minusbounce.event.JumpEvent
 import net.minusmc.minusbounce.event.StepEvent
@@ -44,36 +45,38 @@ class WatchdogFly: FlyMode("Watchdog", FlyType.OTHER) {
         return
 	}
 
-	override fun onMotion(event: MotionEvent) {
+	override fun onPreMotion(event: PreMotionEvent) {
         val current = mc.thePlayer.inventory.currentItem
-        if (event.eventState == EventState.PRE) {
-            if (wdState == 1 && mc.theWorld.getCollidingBoundingBoxes(mc.thePlayer, mc.thePlayer.entityBoundingBox.offset(0.0, -1.0, 0.0).expand(0.0, 0.0, 0.0)).isEmpty()) {
-                PacketUtils.sendPacketNoEvent(C09PacketHeldItemChange(expectItemStack))
-                wdState = 2
-            }
+        if (wdState == 1 && mc.theWorld.getCollidingBoundingBoxes(mc.thePlayer, mc.thePlayer.entityBoundingBox.offset(0.0, -1.0, 0.0).expand(0.0, 0.0, 0.0)).isEmpty()) {
+            PacketUtils.sendPacketNoEvent(C09PacketHeldItemChange(expectItemStack))
+            wdState = 2
+        }
 
-            mc.timer.timerSpeed = 1f
+        mc.timer.timerSpeed = 1f
 
-            if (wdState == 3 && expectItemStack != -1) {
-                PacketUtils.sendPacketNoEvent(C09PacketHeldItemChange(current))
-                expectItemStack = -1
-            }
+        if (wdState == 3 && expectItemStack != -1) {
+            PacketUtils.sendPacketNoEvent(C09PacketHeldItemChange(current))
+            expectItemStack = -1
+        }
 
-            if (wdState == 4) {
-                if (MovementUtils.isMoving)
-                    MovementUtils.strafe(MovementUtils.baseMoveSpeed.toFloat() * 0.938f)
-                else
-                    MovementUtils.strafe(0f)
+        if (wdState == 4) {
+            if (MovementUtils.isMoving)
+                MovementUtils.strafe(MovementUtils.baseMoveSpeed.toFloat() * 0.938f)
+            else
+                MovementUtils.strafe(0f)
 
-                mc.thePlayer.motionY = -0.0015
-            } else if (wdState < 3) {
-                val rot = RotationUtils.getRotationFromPosition(mc.thePlayer.posX, mc.thePlayer.posZ, mc.thePlayer.posY - 1)
-                RotationUtils.setTargetRot(rot)
-                event.yaw = rot.yaw
-                event.pitch = rot.pitch
-            } else
-                event.y -= 0.08
-        } else if (wdState == 2) {
+            mc.thePlayer.motionY = -0.0015
+        } else if (wdState < 3) {
+            val rot = RotationUtils.getRotationFromPosition(mc.thePlayer.posX, mc.thePlayer.posZ, mc.thePlayer.posY - 1)
+            RotationUtils.setTargetRot(rot)
+            event.yaw = rot.yaw
+            event.pitch = rot.pitch
+        } else
+            event.y -= 0.08
+	}
+
+    override fun onPostMotion(event: PostMotionEvent) {
+        if (wdState == 2) {
             if (mc.playerController.onPlayerRightClick(
                 mc.thePlayer, mc.theWorld, 
                 mc.thePlayer.inventoryContainer.getSlot(expectItemStack).stack, 
@@ -83,7 +86,7 @@ class WatchdogFly: FlyMode("Watchdog", FlyType.OTHER) {
                 mc.netHandler.addToSendQueue(C0APacketAnimation())
             wdState = 3
         }
-	}
+    }
 
 	override fun onPacket(event: PacketEvent) {
 		val packet = event.packet

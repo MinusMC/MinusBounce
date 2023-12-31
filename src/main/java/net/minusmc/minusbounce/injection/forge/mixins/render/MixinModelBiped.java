@@ -7,7 +7,6 @@ package net.minusmc.minusbounce.injection.forge.mixins.render;
 
 import net.minusmc.minusbounce.MinusBounce;
 import net.minusmc.minusbounce.features.module.modules.misc.SpinBot;
-import net.minusmc.minusbounce.features.module.modules.client.Rotations;
 import net.minusmc.minusbounce.utils.RotationUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ModelBiped;
@@ -37,13 +36,13 @@ public class MixinModelBiped {
         if(heldItemRight == 3)
             this.bipedRightArm.rotateAngleY = 0F;
 
-        final Rotations rotationModule = MinusBounce.moduleManager.getModule(Rotations.class);
         if (p_setRotationAngles_7_ instanceof EntityPlayer && p_setRotationAngles_7_.equals(Minecraft.getMinecraft().thePlayer)) {
             final SpinBot spinBot = MinusBounce.moduleManager.getModule(SpinBot.class);
+
             if (spinBot.getState() && !spinBot.getPitchMode().get().equalsIgnoreCase("none"))
                 this.bipedHead.rotateAngleX = spinBot.getPitch() / (180F / (float) Math.PI);
-            else if (rotationModule.getState() && RotationUtils.serverRotation != null)
-                this.bipedHead.rotateAngleX = RotationUtils.serverRotation.getPitch() / (180F / (float) Math.PI);
+            else if (RotationUtils.targetRotation != null)
+                this.bipedHead.rotateAngleX = RotationUtils.targetRotation.getPitch() / (180F / (float) Math.PI);
         }
     }
 }

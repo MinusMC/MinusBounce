@@ -16,7 +16,8 @@ import net.minecraft.util.BlockPos
 import net.minecraft.util.EnumFacing
 import net.minusmc.minusbounce.MinusBounce
 import net.minusmc.minusbounce.event.EventTarget
-import net.minusmc.minusbounce.event.MotionEvent
+import net.minusmc.minusbounce.event.PreMotionEvent
+import net.minusmc.minusbounce.event.PostMotionEvent
 import net.minusmc.minusbounce.event.UpdateEvent
 import net.minusmc.minusbounce.event.WorldEvent
 import net.minusmc.minusbounce.features.module.Module
@@ -143,8 +144,14 @@ class Manager : Module() {
     }
 
     @EventTarget
-    fun onMotion(event: MotionEvent) {
-        if (eventModeValue.get().equals("motion${event.eventState.stateName}", true))
+    fun onPreMotion(event: PreMotionEvent) {
+        if (eventModeValue.get().equals("motionpre", true))
+            performManager()
+    }
+
+    @EventTarget
+    fun onPostMotion(event: PostMotionEvent) {
+        if (eventModeValue.get().equals("motionpost", true))
             performManager()
     }
 

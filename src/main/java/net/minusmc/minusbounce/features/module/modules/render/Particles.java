@@ -7,7 +7,7 @@ package net.minusmc.minusbounce.features.module.modules.render;
 
 import net.minusmc.minusbounce.event.AttackEvent;
 import net.minusmc.minusbounce.event.EventTarget;
-import net.minusmc.minusbounce.event.MotionEvent;
+import net.minusmc.minusbounce.event.PostMotionEvent;
 import net.minusmc.minusbounce.event.Render3DEvent;
 import net.minusmc.minusbounce.features.module.Module;
 import net.minusmc.minusbounce.features.module.ModuleCategory;
@@ -41,7 +41,7 @@ public final class Particles extends Module { // recode nốt
     }
 
     @EventTarget
-    public void onMotion(final MotionEvent event) {
+    public void onPostMotion(final PostMotionEvent event) {
         if (target != null && target.hurtTime >= 9 && mc.thePlayer.getDistance(target.posX, target.posY, target.posZ) < 10) {
             for (int i = 0; i < amount.get(); i++)
                 particles.add(new Particle(new Vec3(target.posX + (Math.random() - 0.5) * 0.5, target.posY + Math.random() * 1 + 0.5, target.posZ + (Math.random() - 0.5) * 0.5)));

@@ -1,7 +1,7 @@
 package net.minusmc.minusbounce.features.module.modules.movement.flys.vulcan
 
 import net.minusmc.minusbounce.event.EventState
-import net.minusmc.minusbounce.event.MotionEvent
+import net.minusmc.minusbounce.event.PreMotionEvent
 import net.minusmc.minusbounce.event.PacketEvent
 import net.minusmc.minusbounce.features.module.modules.movement.flys.FlyMode
 import net.minusmc.minusbounce.features.module.modules.movement.flys.FlyType
@@ -32,15 +32,15 @@ class VulcanClipFly: FlyMode("VulcanClip", FlyType.VULCAN) {
         }
     }
 
-    override fun onMotion(event: MotionEvent) {
-        if (event.eventState == EventState.PRE && canGlide) {
+    override fun onPreMotion(event: PreMotionEvent) {
+        if (canGlide) {
             mc.timer.timerSpeed = 1f
-            mc.thePlayer.motionY = -if(ticks % 2 == 0) {
+            mc.thePlayer.motionY = -if (ticks % 2 == 0) {
                 0.17
             } else {
                 0.10
             }
-            if(ticks == 0) {
+            if (ticks == 0) {
                 mc.thePlayer.motionY = -0.07
             }
             ticks++

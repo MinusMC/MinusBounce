@@ -384,15 +384,15 @@ public abstract class MixinItemRenderer {
         if (this.itemToRender != null) {
             final KillAura killAura = MinusBounce.moduleManager.getModule(KillAura.class);
             final Animations animMod = MinusBounce.moduleManager.getModule(Animations.class);
-            boolean canBlockEverything = animMod.getState() && Animations.INSTANCE.getBlockEverything().get() && killAura.getTarget() != null
+            boolean canBlockEverything = animMod.getState() && Animations.INSTANCE.getBlockEverything().get() && killAura.getCurrentTarget() != null
                             && (itemToRender.getItem() instanceof ItemBucketMilk || itemToRender.getItem() instanceof ItemFood 
                                 || itemToRender.getItem() instanceof ItemPotion || itemToRender.getItem() instanceof ItemAxe || itemToRender.getItem().equals(Items.stick));
 
             if (this.itemToRender.getItem() instanceof ItemMap) {
                 this.renderItemMap(abstractclientplayer, f2, f, f1);
             } else if (abstractclientplayer.getItemInUseCount() > 0 
-                        || (itemToRender.getItem() instanceof ItemSword && (killAura.getBlockingStatus() || killAura.getFakeBlock()))
-                        || (itemToRender.getItem() instanceof ItemSword && animMod.getState() && animMod.INSTANCE.getFakeBlock().get() && killAura.getTarget() != null)
+                        || (itemToRender.getItem() instanceof ItemSword && killAura.getBlockingStatus())
+                        || (itemToRender.getItem() instanceof ItemSword && animMod.getState() && animMod.INSTANCE.getFakeBlock().get() && killAura.getCurrentTarget() != null)
                         || canBlockEverything) {
 
                 EnumAction enumaction = (killAura.getBlockingStatus() || canBlockEverything) ? EnumAction.BLOCK : this.itemToRender.getItemUseAction();

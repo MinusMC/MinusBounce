@@ -96,7 +96,7 @@ object Breaker : Module() {
         if (noHitValue.get()) {
             val killAura = MinusBounce.moduleManager.getModule(KillAura::class.java) as KillAura
 
-            if (killAura.state && killAura.target != null)
+            if (killAura.state && killAura.currentTarget != null)
                 return
         }
 

@@ -86,7 +86,7 @@ class TargetMark : Module() {
                 .equals("multi", ignoreCase = true)
         ) al = AnimationUtils.changer(
             al,
-            if (aura!!.target != null) jelloFadeSpeedValue.get() else -jelloFadeSpeedValue.get(),
+            if (aura!!.currentTarget != null) jelloFadeSpeedValue.get() else -jelloFadeSpeedValue.get(),
             0f,
             colorAlphaValue.get() / 255.0f
         )
@@ -111,8 +111,8 @@ class TargetMark : Module() {
             } else { // keep the progress
                 lastMS = System.currentTimeMillis() - lastDeltaMS
             }
-            if (aura!!.target != null) {
-                entity = aura!!.target
+            if (aura!!.currentTarget != null) {
+                entity = aura!!.currentTarget
                 bb = entity!!.entityBoundingBox
             }
             if (bb == null || entity == null) return
@@ -150,11 +150,11 @@ class TargetMark : Module() {
             post3D()
         } else if (modeValue.get().equals("default", ignoreCase = true)) {
             if (!aura!!.targetModeValue.get()
-                    .equals("multi", ignoreCase = true) && aura!!.target != null
-            ) aura!!.target?.let {
+                    .equals("multi", ignoreCase = true) && aura!!.currentTarget != null
+            ) aura!!.currentTarget?.let {
                 RenderUtils.drawPlatform(
                     it,
-                    if (aura!!.hitable) reAlpha(getColor(aura!!.target)!!, colorAlphaValue.get()) else Color(
+                    if (aura!!.hitable) reAlpha(getColor(aura!!.currentTarget)!!, colorAlphaValue.get()) else Color(
                         255,
                         0,
                         0,
@@ -164,11 +164,11 @@ class TargetMark : Module() {
             }
         } else { // = cai multi nay la box à
             if (!aura!!.targetModeValue.get()
-                    .equals("multi", ignoreCase = true) && aura!!.target != null
-            ) aura!!.target?.let {
+                    .equals("multi", ignoreCase = true) && aura!!.currentTarget != null
+            ) aura!!.currentTarget?.let {
                 RenderUtils.drawEntityBox(
                     it,
-                    if (aura!!.hitable) reAlpha(getColor(aura!!.target)!!, colorAlphaValue.get()) else Color(
+                    if (aura!!.hitable) reAlpha(getColor(aura!!.currentTarget)!!, colorAlphaValue.get()) else Color(
                         255,
                         0,
                         0,

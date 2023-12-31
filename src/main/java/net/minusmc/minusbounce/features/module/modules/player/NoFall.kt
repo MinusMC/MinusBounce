@@ -70,10 +70,15 @@ class NoFall : Module() {
     }
 
     @EventTarget
-    fun onMotion(event: MotionEvent) {
+    fun onPreMotion(event: PreMotionEvent) {
         if (!MinusBounce.moduleManager[Fly::class.java]!!.state && voidCheckValue.get() && !MovementUtils.isBlockUnder) return
+        mode.onPreMotion(event)
+    }
 
-        mode.onMotion(event)
+    @EventTarget
+    fun onPostMotion(event: PostMotionEvent) {
+        if (!MinusBounce.moduleManager[Fly::class.java]!!.state && voidCheckValue.get() && !MovementUtils.isBlockUnder) return
+        mode.onPostMotion(event)
     }
 
     @EventTarget

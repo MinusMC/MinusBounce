@@ -1,7 +1,7 @@
 package net.minusmc.minusbounce.features.module.modules.movement.noslows.other
 
 import net.minusmc.minusbounce.features.module.modules.movement.noslows.NoSlowMode
-import net.minusmc.minusbounce.event.MotionEvent
+import net.minusmc.minusbounce.event.PreMotionEvent
 import net.minusmc.minusbounce.event.PacketEvent
 import net.minusmc.minusbounce.utils.PacketUtils
 import net.minecraft.network.play.client.C09PacketHeldItemChange
@@ -9,7 +9,7 @@ import net.minecraft.network.play.client.C07PacketPlayerDigging
 import net.minecraft.item.ItemSword
 
 class SpoofItemNoSlow : NoSlowMode("SpoofItem") {
-    override fun onMotion(event: MotionEvent) {
+    override fun onPreMotion(event: PreMotionEvent) {
         val slot = mc.thePlayer.inventory.currentItem
 
         PacketUtils.sendPacketNoEvent(C09PacketHeldItemChange(if (slot < 8) slot + 1 else 0))

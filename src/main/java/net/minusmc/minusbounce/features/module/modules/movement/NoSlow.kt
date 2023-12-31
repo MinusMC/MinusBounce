@@ -11,10 +11,7 @@ import net.minecraft.network.play.client.C09PacketHeldItemChange
 import net.minecraft.network.play.server.S08PacketPlayerPosLook
 import net.minecraft.network.play.server.S09PacketHeldItemChange
 import net.minusmc.minusbounce.MinusBounce
-import net.minusmc.minusbounce.event.EventTarget
-import net.minusmc.minusbounce.event.MotionEvent
-import net.minusmc.minusbounce.event.PacketEvent
-import net.minusmc.minusbounce.event.SlowDownEvent
+import net.minusmc.minusbounce.event.*
 import net.minusmc.minusbounce.features.module.Module
 import net.minusmc.minusbounce.features.module.ModuleCategory
 import net.minusmc.minusbounce.features.module.ModuleInfo
@@ -51,8 +48,7 @@ class NoSlow : Module() {
     val consumeStrafeMultiplier = FloatValue("ConsumeStrafeMultiplier", 1.0F, 0.2F, 1.0F, "x")
     val bowForwardMultiplier = FloatValue("BowForwardMultiplier", 1.0F, 0.2F, 1.0F, "x")
     val bowStrafeMultiplier = FloatValue("BowStrafeMultiplier", 1.0F, 0.2F, 1.0F, "x")
-    val sneakForwardMultiplier = FloatValue("SneakForwardMultiplier", 1.0F, 0.3F, 1.0F, "x")
-    val sneakStrafeMultiplier = FloatValue("SneakStrafeMultiplier", 1.0F, 0.3F, 1.0F, "x")
+    val sneakMultiplier = FloatValue("SneakMultiplier", 1.0F, 0.3F, 1.0F, "x")
 
     val noSprintValue = BoolValue("NoSprint", false)
     // Soulsand
@@ -159,11 +155,24 @@ class NoSlow : Module() {
     }
 
     @EventTarget
-    fun onMotion(event: MotionEvent) {
+    fun onInput(event: MoveInputEvent){
+        event.sneakMultiplier = sneakMultiplier.get().toDouble()
+    }
+
+    @EventTarget
+    fun onPreMotion(event: PreMotionEvent) {
         mc.thePlayer ?: return
         mc.theWorld ?: return
         if (!MovementUtils.isMoving && !modeValue.get().equals("blink", true)) return
-        if (isBlocking || isEating || isBowing) mode.onMotion(event)
+        if (isBlocking || isEating || isBowing) mode.onPreMotion(event)
+    }
+
+    @EventTarget
+    fun onPostMotion(event: PostMotionEvent) {
+        mc.thePlayer ?: return
+        mc.theWorld ?: return
+        if (!MovementUtils.isMoving && !modeValue.get().equals("blink", true)) return
+        if (isBlocking || isEating || isBowing) mode.onPostMotion(event)
     }
 
     @EventTarget

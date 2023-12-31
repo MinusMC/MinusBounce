@@ -74,7 +74,13 @@ class Render3DEvent(val partialTicks: Float) : Event()
  *
  * @param motion jump motion (y motion)
  */
-class JumpEvent(var motion: Float) : CancellableEvent()
+class JumpEvent(var motion: Float, var yaw: Float) : CancellableEvent()
+
+/**
+ * Called when movement input
+ */
+
+class MoveInputEvent(var forward: Float, var strafe: Float, var jump: Boolean, var sneak: Boolean, var sneakMultiplier: Double) : Event()
 
 /**
  * Called when user press a key once
@@ -84,13 +90,14 @@ class JumpEvent(var motion: Float) : CancellableEvent()
 class KeyEvent(val key: Int) : Event()
 
 /**
- * Called in "onUpdateWalkingPlayer"
- *
- * @param eventState PRE or POST
+ * Called before motion
  */
-class MotionEvent(var x: Double, var y: Double, var z: Double, var yaw: Float, var pitch: Float, var onGround: Boolean) : Event() {
-    var eventState: EventState = EventState.PRE
-}
+class PreMotionEvent(var x: Double, var y: Double, var z: Double, var yaw: Float, var pitch: Float, var onGround: Boolean): Event()
+
+/**
+ * Called after motion
+ */
+class PostMotionEvent(): Event()
 
 /**
  * Called when player sprints or sneaks, after pre-motion event
@@ -195,7 +202,12 @@ class TickEvent : Event()
 /**
  * Called when minecraft player will be updated
  */
-class UpdateEvent : Event()
+class UpdateEvent: Event()
+
+/**
+ * Called before update
+ */
+class PreUpdateEvent: CancellableEvent()
 
 /**
  * Called when the world changes
@@ -217,7 +229,3 @@ class ReloadClientEvent : Event()
  */
 class EntityKilledEvent(val targetEntity: EntityLivingBase): Event()
 
-/**
- * Called when check packet 
- */
-class EventEarlyTick : Event()

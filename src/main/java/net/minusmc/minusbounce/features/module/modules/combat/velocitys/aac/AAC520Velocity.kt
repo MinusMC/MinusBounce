@@ -15,7 +15,7 @@ class AAC520Velocity : VelocityMode("AAC 5.2.0") {
 		if (event.packet is S12PacketEntityVelocity) {
 			val killAura = MinusBounce.moduleManager[KillAura::class.java]!!
 			event.cancelEvent()
-            if (!mc.isIntegratedServerRunning && (!aac5KillAuraValue.get() || killAura.target != null)) mc.netHandler.addToSendQueue(
+            if (!mc.isIntegratedServerRunning && (!aac5KillAuraValue.get() || killAura.currentTarget != null)) mc.netHandler.addToSendQueue(
                 C04PacketPlayerPosition(mc.thePlayer.posX, 1.7976931348623157E+308, mc.thePlayer.posZ, true)
             )
 		}

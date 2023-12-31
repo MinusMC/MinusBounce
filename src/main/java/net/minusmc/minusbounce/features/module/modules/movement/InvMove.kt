@@ -10,7 +10,7 @@ import net.minusmc.minusbounce.features.module.modules.movement.Speed
 import net.minusmc.minusbounce.event.ClickWindowEvent
 import net.minusmc.minusbounce.event.EventState
 import net.minusmc.minusbounce.event.EventTarget
-import net.minusmc.minusbounce.event.MotionEvent
+import net.minusmc.minusbounce.event.PreMotionEvent
 import net.minusmc.minusbounce.event.PacketEvent
 import net.minusmc.minusbounce.event.UpdateEvent
 import net.minusmc.minusbounce.features.module.Module
@@ -54,8 +54,8 @@ class InvMove : Module() {
     }
 
     @EventTarget
-    fun onMotion(event: MotionEvent) {
-        if (event.eventState == EventState.PRE && playerPackets.size > 0 && (mc.currentScreen == null || mc.currentScreen is GuiChat || mc.currentScreen is GuiIngameMenu || (noDetectableValue.get() && mc.currentScreen is GuiContainer))) {
+    fun onPreMotion(event: PreMotionEvent) {
+        if (playerPackets.size > 0 && (mc.currentScreen == null || mc.currentScreen is GuiChat || mc.currentScreen is GuiIngameMenu || (noDetectableValue.get() && mc.currentScreen is GuiContainer))) {
             playerPackets.forEach { mc.netHandler.addToSendQueue(it) }
             playerPackets.clear()
         }

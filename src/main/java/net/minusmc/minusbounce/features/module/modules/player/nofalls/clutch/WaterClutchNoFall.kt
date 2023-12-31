@@ -9,7 +9,8 @@ import net.minecraft.util.BlockPos
 import net.minecraft.util.EnumFacing
 import net.minecraft.util.Vec3
 import net.minusmc.minusbounce.event.EventState
-import net.minusmc.minusbounce.event.MotionEvent
+import net.minusmc.minusbounce.event.PreMotionEvent
+import net.minusmc.minusbounce.event.PostMotionEvent
 import net.minusmc.minusbounce.features.module.modules.player.nofalls.NoFallMode
 import net.minusmc.minusbounce.utils.RotationUtils
 import net.minusmc.minusbounce.utils.VecRotation
@@ -27,51 +28,53 @@ class WaterClutchNoFall: NoFallMode("WaterClutch") {
     private var currentMlgItemIndex = 0
     private var currentMlgBlock: BlockPos? = null
 
-	override fun onMotion(event: MotionEvent) {
-		if (event.eventState == EventState.PRE) {
-            currentMlgRotation = null
-            mlgTimer.update()
+	override fun onPreMotion(event: PreMotionEvent) {
+        currentMlgRotation = null
+        mlgTimer.update()
 
-            if (!mlgTimer.hasTimePassed(10)) return
+        if (!mlgTimer.hasTimePassed(10)) return
 
-            if (mc.thePlayer.fallDistance > minFallDistanceValue.get()) {
-                val newFallingPlayer = NewFallingPlayer(mc.thePlayer)
-                val maxDist = mc.playerController.blockReachDistance + 1.5
-                val collision =
-                    newFallingPlayer.findCollision(ceil(1.0 / mc.thePlayer.motionY * -maxDist).toInt()) ?: return
-                var ok = Vec3(mc.thePlayer.posX, mc.thePlayer.posY + mc.thePlayer.eyeHeight, mc.thePlayer.posZ).distanceTo(Vec3(collision).addVector(0.5, 0.5, 0.5)) < mc.playerController.blockReachDistance + sqrt(0.75)
-                if (mc.thePlayer.motionY < collision.y + 1 - mc.thePlayer.posY)
-                    ok = true
+        if (mc.thePlayer.fallDistance > minFallDistanceValue.get()) {
+            val newFallingPlayer = NewFallingPlayer(mc.thePlayer)
+            val maxDist = mc.playerController.blockReachDistance + 1.5
+            val collision =
+                newFallingPlayer.findCollision(ceil(1.0 / mc.thePlayer.motionY * -maxDist).toInt()) ?: return
+            var ok = Vec3(mc.thePlayer.posX, mc.thePlayer.posY + mc.thePlayer.eyeHeight, mc.thePlayer.posZ).distanceTo(Vec3(collision).addVector(0.5, 0.5, 0.5)) < mc.playerController.blockReachDistance + sqrt(0.75)
+            if (mc.thePlayer.motionY < collision.y + 1 - mc.thePlayer.posY)
+                ok = true
 
-                if (!ok) return
+            if (!ok) return
 
-                var index = -1
+            var index = -1
 
-                for (i in 36..44) {
-                    val itemStack = mc.thePlayer.inventoryContainer.getSlot(i).stack
+            for (i in 36..44) {
+                val itemStack = mc.thePlayer.inventoryContainer.getSlot(i).stack
 
-                    if (itemStack != null && (itemStack.item == Items.water_bucket || itemStack.item is ItemBlock && (itemStack.item as ItemBlock).block == Blocks.web)) {
-                        index = i - 36
+                if (itemStack != null && (itemStack.item == Items.water_bucket || itemStack.item is ItemBlock && (itemStack.item as ItemBlock).block == Blocks.web)) {
+                    index = i - 36
 
-                        if (mc.thePlayer.inventory.currentItem == index)
-                            break
-                    }
+                    if (mc.thePlayer.inventory.currentItem == index)
+                        break
                 }
-
-                if (index == -1)
-                    return
-
-                currentMlgItemIndex = index
-                currentMlgBlock = collision
-
-                if (mc.thePlayer.inventory.currentItem != index) {
-                    mc.thePlayer.sendQueue.addToSendQueue(C09PacketHeldItemChange(index))
-                }
-
-                currentMlgRotation = RotationUtils.faceBlock(collision)
-                currentMlgRotation!!.rotation.toPlayer(mc.thePlayer)
             }
-        } else if (currentMlgRotation != null) {
+
+            if (index == -1)
+                return
+
+            currentMlgItemIndex = index
+            currentMlgBlock = collision
+
+            if (mc.thePlayer.inventory.currentItem != index) {
+                mc.thePlayer.sendQueue.addToSendQueue(C09PacketHeldItemChange(index))
+            }
+
+            currentMlgRotation = RotationUtils.faceBlock(collision)
+            currentMlgRotation!!.rotation.toPlayer(mc.thePlayer)
+        }
+	}
+
+    override fun onPostMotion(event: PostMotionEvent) {
+        if (currentMlgRotation != null) {
             val stack = mc.thePlayer.inventory.mainInventory[currentMlgItemIndex]
 
             if (stack.item is ItemBucket)
@@ -82,5 +85,5 @@ class WaterClutchNoFall: NoFallMode("WaterClutch") {
             if (mc.thePlayer.inventory.currentItem != currentMlgItemIndex)
                 mc.thePlayer.sendQueue.addToSendQueue(C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem))
         }
-	}
+    }
 }

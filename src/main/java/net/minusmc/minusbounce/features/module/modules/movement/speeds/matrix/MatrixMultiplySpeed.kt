@@ -3,7 +3,8 @@ package net.minusmc.minusbounce.features.module.modules.movement.speeds.matrix
 import net.minusmc.minusbounce.features.module.modules.movement.speeds.SpeedType
 import net.minusmc.minusbounce.features.module.modules.movement.speeds.SpeedMode
 import net.minusmc.minusbounce.utils.MovementUtils
-import net.minusmc.minusbounce.event.MotionEvent
+import net.minusmc.minusbounce.event.PostMotionEvent
+import net.minusmc.minusbounce.event.PreMotionEvent
 
 
 class MatrixMultiplySpeed: SpeedMode("MatrixMultiply", SpeedType.MATRIX) {
@@ -15,7 +16,7 @@ class MatrixMultiplySpeed: SpeedMode("MatrixMultiply", SpeedType.MATRIX) {
 		mc.thePlayer.jumpMovementFactor = 0.02f
         mc.timer.timerSpeed = 1.0f
 	}
-	override fun onMotion(event: MotionEvent) {
+	fun onMotion() {
 		if (!MovementUtils.isMoving) {
             return
         }
@@ -29,4 +30,12 @@ class MatrixMultiplySpeed: SpeedMode("MatrixMultiply", SpeedType.MATRIX) {
             mc.timer.timerSpeed = 1.05f
         }
 	}
+
+	override fun onPreMotion(event: PreMotionEvent) {
+        onMotion()
+    }
+
+    override fun onPostMotion(event: PostMotionEvent) {
+        onMotion()
+    }
 }

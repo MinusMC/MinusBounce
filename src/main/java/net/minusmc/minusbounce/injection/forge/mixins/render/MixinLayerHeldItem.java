@@ -57,7 +57,7 @@ public class MixinLayerHeldItem {
 
             final KillAura killAura = Objects.requireNonNull(MinusBounce.moduleManager.getModule(KillAura.class));
 
-            if (entityplayer != null && entityplayer.isBlocking() || (killAura.getState() && killAura.getTarget() != null && killAura.getAutoBlockModeValue().get().equalsIgnoreCase("fake"))) {
+            if (entityplayer != null && entityplayer.isBlocking() || (killAura.getState() && killAura.getCurrentTarget() != null && killAura.getAutoBlockModeValue().get().equalsIgnoreCase("fake"))) {
                 if(entitylivingbaseIn.isSneaking()) {
                     ((ModelBiped) this.livingEntityRenderer.getMainModel()).postRenderArm(0.0325F);
                     GlStateManager.translate(-0.58F, 0.3F, -0.2F);

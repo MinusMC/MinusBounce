@@ -6,7 +6,7 @@ import net.minusmc.minusbounce.event.PacketEvent
 import net.minusmc.minusbounce.features.module.modules.combat.velocitys.VelocityMode
 import net.minusmc.minusbounce.value.IntegerValue
 
-class OldHeroMCVelocity : VelocityMode("OldHeroMC") {
+class GrimS32Velocity : VelocityMode("GrimS32") {
     private var cancelPacket = IntegerValue("CancelPacket", 6, 0, 20)
     private var resetPersec = IntegerValue("ResetPerMin", 10, 0, 30)
 

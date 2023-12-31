@@ -10,7 +10,7 @@ import net.minecraft.network.play.client.C03PacketPlayer.*
 import net.minecraft.network.play.client.C07PacketPlayerDigging
 import net.minecraft.network.play.client.C0BPacketEntityAction
 import net.minusmc.minusbounce.event.EventState
-import net.minusmc.minusbounce.event.MotionEvent
+import net.minusmc.minusbounce.event.PreMotionEvent
 import net.minusmc.minusbounce.event.PacketEvent
 import net.minusmc.minusbounce.features.module.modules.movement.noslows.NoSlowMode
 import net.minusmc.minusbounce.utils.ClientUtils
@@ -40,8 +40,8 @@ class BlinkNoSlow : NoSlowMode("Blink") {
         blinkPackets.clear()
     }
 
-    override fun onMotion(event: MotionEvent) {
-        if (event.eventState == EventState.PRE && !mc.thePlayer.isUsingItem && !mc.thePlayer.isBlocking) {
+    override fun onPreMotion(event: PreMotionEvent) {
+        if (!mc.thePlayer.isUsingItem && !mc.thePlayer.isBlocking) {
             lastX = event.x
             lastY = event.y
             lastZ = event.z

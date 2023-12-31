@@ -126,7 +126,7 @@ object EntityUtils : MinecraftInstance() {
                 entity is EntityGhast || entity is EntityDragon
     }
 
-    fun isAlive(entity: EntityLivingBase) = entity.isEntityAlive && entity.health > 0 || MinusBounce.moduleManager[KillAura::class.java]!!.aacValue.get() && entity.hurtTime > 5
+    fun isAlive(entity: EntityLivingBase) = entity.isEntityAlive && entity.health > 0
 
     fun getName(networkPlayerInfoIn: NetworkPlayerInfo): String {
         return if (networkPlayerInfoIn.displayName != null) networkPlayerInfoIn.displayName.formattedText else ScorePlayerTeam.formatPlayerName(

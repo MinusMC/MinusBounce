@@ -16,6 +16,7 @@ import net.minusmc.minusbounce.features.special.AntiForge
 import net.minusmc.minusbounce.features.special.BungeeCordSpoof
 import net.minusmc.minusbounce.features.special.CombatManager
 import net.minusmc.minusbounce.features.special.MacroManager
+import net.minusmc.minusbounce.features.special.MovementCorrection
 import net.minusmc.minusbounce.file.FileManager
 import net.minusmc.minusbounce.plugin.PluginAPIVersion
 import net.minusmc.minusbounce.plugin.PluginManager
@@ -79,6 +80,7 @@ object MinusBounce {
         eventManager = EventManager()
         combatManager = CombatManager()
         eventManager.registerListener(RotationUtils)
+        eventManager.registerListener(MovementCorrection())
         eventManager.registerListener(AntiForge())
         eventManager.registerListener(BungeeCordSpoof())
         eventManager.registerListener(InventoryUtils())

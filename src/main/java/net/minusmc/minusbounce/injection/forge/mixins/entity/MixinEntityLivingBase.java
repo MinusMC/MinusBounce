@@ -8,7 +8,6 @@ package net.minusmc.minusbounce.injection.forge.mixins.entity;
 import net.minusmc.minusbounce.MinusBounce;
 import net.minusmc.minusbounce.event.JumpEvent;
 import net.minusmc.minusbounce.features.module.modules.combat.KillAura;
-import net.minusmc.minusbounce.features.module.modules.combat.TickBase;
 import net.minusmc.minusbounce.features.module.modules.misc.Patcher;
 import net.minusmc.minusbounce.features.module.modules.movement.NoJumpDelay;
 import net.minusmc.minusbounce.features.module.modules.movement.Sprint;
@@ -94,14 +93,23 @@ public abstract class MixinEntityLivingBase extends MixinEntity {
     }
 
     /**
-     * @author CCBlueX
+     * @author fmcpe
      */
     @Overwrite
     protected void jump() {
-        final JumpEvent jumpEvent = new JumpEvent(this.getJumpUpwardsMotion());
+
+        final JumpEvent jumpEvent = new JumpEvent(this.getJumpUpwardsMotion(), this.rotationYaw);
+
         MinusBounce.eventManager.callEvent(jumpEvent);
         if (jumpEvent.isCancelled())
             return;
+
+        float yaw = jumpEvent.getYaw();
+
+        final TargetStrafe tsMod = MinusBounce.moduleManager.getModule(TargetStrafe.class);
+        
+        if (tsMod.getCanStrafe()) 
+            yaw = tsMod.getMovingYaw();
 
         this.motionY = jumpEvent.getMotion();
 
@@ -109,18 +117,7 @@ public abstract class MixinEntityLivingBase extends MixinEntity {
             this.motionY += (double) ((float) (this.getActivePotionEffect(Potion.jump).getAmplifier() + 1) * 0.1F);
 
         if (this.isSprinting()) {
-            final KillAura auraMod = MinusBounce.moduleManager.getModule(KillAura.class);
-            final Sprint sprintMod = MinusBounce.moduleManager.getModule(Sprint.class);
-            final TargetStrafe tsMod = MinusBounce.moduleManager.getModule(TargetStrafe.class);
-            float yaw = this.rotationYaw;
-            if (tsMod.getCanStrafe()) 
-                yaw = tsMod.getMovingYaw();
-            else if (Patcher.INSTANCE.getJumpPatch().get())
-                if (auraMod.getState() && auraMod.getRotationStrafeValue().get().equalsIgnoreCase("strict") && auraMod.getTarget() != null)
-                    yaw = RotationUtils.targetRotation != null ? RotationUtils.targetRotation.getYaw() : (RotationUtils.serverRotation != null ? RotationUtils.serverRotation.getYaw() : yaw);
-                else if (sprintMod.getState() && sprintMod.getAllDirectionsValue().get() && sprintMod.getMoveDirPatchValue().get())
-                    yaw = MovementUtils.INSTANCE.getRawDirection();
-            float f = yaw * 0.017453292F;
+            final float f = yaw * 0.017453292F;
             this.motionX -= (double) (MathHelper.sin(f) * 0.2F);
             this.motionZ += (double) (MathHelper.cos(f) * 0.2F);
         }
@@ -151,11 +148,6 @@ public abstract class MixinEntityLivingBase extends MixinEntity {
     //visionfx sucks
     @Overwrite
     private int getArmSwingAnimationEnd() {
-        TickBase tickbase = MinusBounce.moduleManager.getModule(TickBase.class);
-
-        if(tickbase.getFreezing() && tickbase.getModeValue().get().equalsIgnoreCase("Vestige")) {
-            return 0;
-        }
         int speed = MinusBounce.moduleManager.getModule(Animations.class).getState() ? 2 + (20 - Animations.INSTANCE.getSpeedSwing().get()) : 6;
         return this.isPotionActive(Potion.digSpeed) ? speed - (1 + this.getActivePotionEffect(Potion.digSpeed).getAmplifier()) * 1 : (this.isPotionActive(Potion.digSlowdown) ? speed + (1 + this.getActivePotionEffect(Potion.digSlowdown).getAmplifier()) * 2 : speed);
     }

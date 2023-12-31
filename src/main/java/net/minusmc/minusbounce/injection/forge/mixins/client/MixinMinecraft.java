@@ -25,21 +25,21 @@ import net.minecraft.client.shader.Framebuffer;
 import net.minecraft.profiler.PlayerUsageSnooper;
 import net.minecraft.profiler.Profiler;
 import net.minecraft.server.integrated.IntegratedServer;
-import net.minecraft.util.*;
 import net.minecraftforge.client.MinecraftForgeClient;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minusmc.minusbounce.MinusBounce;
 import net.minusmc.minusbounce.event.*;
 import net.minusmc.minusbounce.features.module.modules.combat.AutoClicker;
-import net.minusmc.minusbounce.features.module.modules.combat.TickBase;
 import net.minusmc.minusbounce.features.module.modules.exploit.MultiActions;
 import net.minusmc.minusbounce.features.module.modules.misc.Patcher;
 import net.minusmc.minusbounce.features.module.modules.world.FastPlace;
 import net.minusmc.minusbounce.injection.forge.mixins.accessors.MinecraftForgeClientAccessor;
 import net.minusmc.minusbounce.ui.client.GuiMainMenu;
-import net.minusmc.minusbounce.utils.CPSCounter;
+import net.minusmc.minusbounce.utils.*;
 import net.minusmc.minusbounce.utils.render.IconUtils;
 import net.minusmc.minusbounce.utils.render.RenderUtils;
+import net.minecraft.util.*;
+import net.minecraft.entity.*;
 import org.apache.commons.lang3.SystemUtils;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.Sys;
@@ -52,6 +52,7 @@ import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.nio.ByteBuffer;
 import java.util.Queue;
@@ -173,6 +174,9 @@ public abstract class MixinMinecraft {
     public GuiAchievement guiAchievement;
 
     @Shadow
+    private Entity renderViewEntity;
+
+    @Shadow
     @Final
     private static Logger logger;
 
@@ -208,6 +212,21 @@ public abstract class MixinMinecraft {
         }
     }
 
+    private long lastFrame = getTime();
+
+    @Inject(method = "runGameLoop", at = @At("HEAD"))
+    private void runGameLoop(final CallbackInfo callbackInfo) {
+        final long currentTime = getTime();
+        final int deltaTime = (int) (currentTime - lastFrame);
+        lastFrame = currentTime;
+
+        RenderUtils.INSTANCE.setDeltaTime(deltaTime);
+    }
+
+    public long getTime() {
+        return (Sys.getTime() * 1000) / Sys.getTimerResolution();
+    }
+
     @SuppressWarnings("UnstableApiUsage")
     @Inject(
         method = "loadWorld(Lnet/minecraft/client/multiplayer/WorldClient;Ljava/lang/String;)V",
@@ -233,183 +252,6 @@ public abstract class MixinMinecraft {
         MinusBounce.eventManager.callEvent(new ScreenEvent(currentScreen));
     }
 
-    private long lastFrame = getTime();
-
-    @Inject(method = "runGameLoop", at = @At("HEAD"), cancellable = true)
-    private void runGameLoop(final CallbackInfo callbackInfo) {
-        final long currentTime = getTime();
-        final int deltaTime = (int) (currentTime - lastFrame);
-        lastFrame = currentTime;
-
-        RenderUtils.INSTANCE.setDeltaTime(deltaTime);
-
-        long i = System.nanoTime();
-        this.mcProfiler.startSection("root");
-
-        if (Display.isCreated() && Display.isCloseRequested())
-        {
-            this.shutdown();
-        }
-
-        if (this.isGamePaused && this.theWorld != null)
-        {
-            float f = this.timer.renderPartialTicks;
-            this.timer.updateTimer();
-            this.timer.renderPartialTicks = f;
-        }
-        else
-        {
-            this.timer.updateTimer();
-        }
-
-        this.mcProfiler.startSection("scheduledExecutables");
-
-        synchronized (this.scheduledTasks)
-        {
-            while (!this.scheduledTasks.isEmpty())
-            {
-                Util.runTask((FutureTask)this.scheduledTasks.poll(), logger);
-            }
-        }
-
-        this.mcProfiler.endSection();
-        long l = System.nanoTime();
-        this.mcProfiler.startSection("tick");
-
-        for (int j = 0; j < this.timer.elapsedTicks; ++j)
-        {
-            if(Minecraft.getMinecraft().thePlayer != null) {
-                boolean skip = false;
-
-                if(j == 0) {
-                    TickBase tickBase = MinusBounce.moduleManager.getModule(TickBase.class);
-
-                    if(tickBase.getState() && tickBase.getModeValue().get().equalsIgnoreCase("Vestige")) {
-                        int extraTicks = tickBase.getExtraTicks();
-
-                        if(extraTicks == -1) {
-                            skip = true;
-                        } else {
-                            if(extraTicks > 0) {
-                                for(int aa = 0; aa < extraTicks; aa++) {
-                                    this.runTick();
-                                }
-
-                                tickBase.setFreezing(true);
-                            }
-                        }
-                    }
-                }
-
-                if(!skip) {
-                    this.runTick();
-                }
-            } else {
-                this.runTick();
-            }
-        }
-
-        this.mcProfiler.endStartSection("preRenderErrors");
-        long i1 = System.nanoTime() - l;
-        this.checkGLError("Pre render");
-        this.mcProfiler.endStartSection("sound");
-        this.mcSoundHandler.setListener(this.thePlayer, this.timer.renderPartialTicks);
-        this.mcProfiler.endSection();
-        this.mcProfiler.startSection("render");
-        GlStateManager.pushMatrix();
-        GlStateManager.clear(16640);
-        this.framebufferMc.bindFramebuffer(true);
-        this.mcProfiler.startSection("display");
-        GlStateManager.enableTexture2D();
-
-        if (this.thePlayer != null && this.thePlayer.isEntityInsideOpaqueBlock())
-        {
-            this.gameSettings.thirdPersonView = 0;
-        }
-
-        this.mcProfiler.endSection();
-
-        if (!this.skipRenderWorld)
-        {
-            this.mcProfiler.endStartSection("gameRenderer");
-            this.entityRenderer.updateCameraAndRender(this.timer.renderPartialTicks, i);
-            this.mcProfiler.endSection();
-            FMLCommonHandler.instance().onRenderTickEnd(this.timer.renderPartialTicks);
-        }
-
-        this.mcProfiler.endSection();
-
-        if (this.gameSettings.showDebugInfo && this.gameSettings.showDebugProfilerChart && !this.gameSettings.hideGUI)
-        {
-            if (!this.mcProfiler.profilingEnabled)
-            {
-                this.mcProfiler.clearProfiling();
-            }
-
-            this.mcProfiler.profilingEnabled = true;
-            this.displayDebugInfo(i1);
-        }
-        else
-        {
-            this.mcProfiler.profilingEnabled = false;
-            this.prevFrameTime = System.nanoTime();
-        }
-
-        this.guiAchievement.updateAchievementWindow();
-        this.framebufferMc.unbindFramebuffer();
-        GlStateManager.popMatrix();
-        GlStateManager.pushMatrix();
-        this.framebufferMc.framebufferRender(this.displayWidth, this.displayHeight);
-        GlStateManager.popMatrix();
-        GlStateManager.pushMatrix();
-        this.entityRenderer.renderStreamIndicator(this.timer.renderPartialTicks);
-        GlStateManager.popMatrix();
-        this.mcProfiler.startSection("root");
-        this.updateDisplay();
-        Thread.yield();
-        this.mcProfiler.startSection("stream");
-        this.mcProfiler.startSection("update");
-        this.mcProfiler.endStartSection("submit");
-        this.mcProfiler.endSection();
-        this.mcProfiler.endSection();
-        this.checkGLError("Post render");
-        ++this.fpsCounter;
-        this.isGamePaused = this.isSingleplayer() && this.currentScreen != null && this.currentScreen.doesGuiPauseGame() && !this.theIntegratedServer.getPublic();
-        long k = System.nanoTime();
-        this.field_181542_y.addFrame(k - this.field_181543_z);
-        this.field_181543_z = k;
-
-        while (Minecraft.getSystemTime() >= this.debugUpdateTime + 1000L)
-        {
-            this.debugFPS = this.fpsCounter;
-            this.debug = String.format("%d fps (%d chunk update%s) T: %s%s%s%s%s", new Object[] {Integer.valueOf(debugFPS), Integer.valueOf(RenderChunk.renderChunksUpdated), RenderChunk.renderChunksUpdated != 1 ? "s" : "", (float)this.gameSettings.limitFramerate == GameSettings.Options.FRAMERATE_LIMIT.getValueMax() ? "inf" : Integer.valueOf(this.gameSettings.limitFramerate), this.gameSettings.enableVsync ? " vsync" : "", this.gameSettings.fancyGraphics ? "" : " fast", this.gameSettings.clouds == 0 ? "" : (this.gameSettings.clouds == 1 ? " fast-clouds" : " fancy-clouds"), OpenGlHelper.useVbo() ? " vbo" : ""});
-            RenderChunk.renderChunksUpdated = 0;
-            this.debugUpdateTime += 1000L;
-            this.fpsCounter = 0;
-            this.usageSnooper.addMemoryStatsToSnooper();
-
-            if (!this.usageSnooper.isSnooperRunning())
-            {
-                this.usageSnooper.startSnooper();
-            }
-        }
-
-        if (this.isFramerateLimitBelowMax())
-        {
-            this.mcProfiler.startSection("fpslimit_wait");
-            Display.sync(this.getLimitFramerate());
-            this.mcProfiler.endSection();
-        }
-
-        this.mcProfiler.endSection();
-
-        callbackInfo.cancel();
-    }
-
-    public long getTime() {
-        return (Sys.getTime() * 1000) / Sys.getTimerResolution();
-    }
-
     @Inject(method = "runTick", at = @At(value = "FIELD", target = "Lnet/minecraft/client/Minecraft;joinPlayerCounter:I", shift = At.Shift.BEFORE))
     private void onTick(final CallbackInfo callbackInfo) {
         MinusBounce.eventManager.callEvent(new TickEvent());
@@ -419,6 +261,17 @@ public abstract class MixinMinecraft {
     private void onKey(CallbackInfo callbackInfo) {
         if(Keyboard.getEventKeyState() && currentScreen == null)
             MinusBounce.eventManager.callEvent(new KeyEvent(Keyboard.getEventKey() == 0 ? Keyboard.getEventCharacter() + 256 : Keyboard.getEventKey()));
+    }
+
+    @Inject(method = "getRenderViewEntity", at = @At("HEAD"))
+    public void getRenderViewEntity(CallbackInfoReturnable<Entity> cir){
+        if(renderViewEntity instanceof EntityLivingBase && RotationUtils.targetRotation != null){
+            final EntityLivingBase entityLivingBase = (EntityLivingBase) renderViewEntity;
+
+            final float yaw = RotationUtils.targetRotation.getYaw();
+
+            entityLivingBase.rotationYawHead = entityLivingBase.prevRotationYawHead = entityLivingBase.renderYawOffset = entityLivingBase.prevRenderYawOffset = yaw;
+        }
     }
 
     @Inject(method = "sendClickBlockToController", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/MovingObjectPosition;getBlockPos()Lnet/minecraft/util/BlockPos;"))

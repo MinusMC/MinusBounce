@@ -2,7 +2,7 @@ package net.minusmc.minusbounce.features.module.modules.combat.velocitys
 
 import net.minusmc.minusbounce.MinusBounce
 import net.minusmc.minusbounce.event.JumpEvent
-import net.minusmc.minusbounce.event.MotionEvent
+import net.minusmc.minusbounce.event.PreMotionEvent
 import net.minusmc.minusbounce.event.PacketEvent
 import net.minusmc.minusbounce.event.TickEvent
 import net.minusmc.minusbounce.features.module.modules.combat.Velocity
@@ -27,6 +27,6 @@ abstract class VelocityMode(val modeName: String): MinecraftInstance() {
     open fun onUpdate() {}
     open fun onPacket(event: PacketEvent) {}
     open fun onJump(event: JumpEvent) {}
-    open fun onMotion(event: MotionEvent) {}
+    open fun onPreMotion(event: PreMotionEvent) {}
 	open fun onTick(event :TickEvent) {}
 }

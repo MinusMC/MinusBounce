@@ -7,7 +7,7 @@ package net.minusmc.minusbounce.features.module.modules.world
 
 import net.minusmc.minusbounce.event.EventState
 import net.minusmc.minusbounce.event.EventTarget
-import net.minusmc.minusbounce.event.MotionEvent
+import net.minusmc.minusbounce.event.PreMotionEvent
 import net.minusmc.minusbounce.event.PacketEvent
 import net.minusmc.minusbounce.features.module.Module
 import net.minusmc.minusbounce.features.module.ModuleCategory
@@ -26,35 +26,34 @@ class SpeedMine : Module() {
     private var pos: BlockPos? = null
     private var boost = false
     private var damage = 0f
+    
     @EventTarget
-    fun onMotion(e: MotionEvent) {
-        if (e.eventState == EventState.PRE) {
-            mc.playerController.blockHitDelay = 0
-            if (pos != null && boost) {
-                val blockState = mc.theWorld.getBlockState(pos) ?: return
-                damage += try {
-                    blockState.block.getPlayerRelativeBlockHardness(mc.thePlayer, mc.theWorld, pos) * speed.get()
+    fun onPreMotion(event: PreMotionEvent) {
+        mc.playerController.blockHitDelay = 0
+        if (pos != null && boost) {
+            val blockState = mc.theWorld.getBlockState(pos) ?: return
+            damage += try {
+                blockState.block.getPlayerRelativeBlockHardness(mc.thePlayer, mc.theWorld, pos) * speed.get()
+            } catch (ex: Exception) {
+                ex.printStackTrace()
+                return
+            }
+            if (damage >= 1) {
+                try {
+                    mc.theWorld.setBlockState(pos, Blocks.air.defaultState, 11)
                 } catch (ex: Exception) {
                     ex.printStackTrace()
                     return
                 }
-                if (damage >= 1) {
-                    try {
-                        mc.theWorld.setBlockState(pos, Blocks.air.defaultState, 11)
-                    } catch (ex: Exception) {
-                        ex.printStackTrace()
-                        return
-                    }
-                    sendPacketNoEvent(
-                        C07PacketPlayerDigging(
-                            C07PacketPlayerDigging.Action.STOP_DESTROY_BLOCK,
-                            pos,
-                            facing
-                        )
+                sendPacketNoEvent(
+                    C07PacketPlayerDigging(
+                        C07PacketPlayerDigging.Action.STOP_DESTROY_BLOCK,
+                        pos,
+                        facing
                     )
-                    damage = 0f
-                    boost = false
-                }
+                )
+                damage = 0f
+                boost = false
             }
         }
     }
