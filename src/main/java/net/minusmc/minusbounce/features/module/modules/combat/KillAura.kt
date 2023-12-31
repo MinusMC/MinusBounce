@@ -78,7 +78,6 @@ class KillAura : Module() {
     private val swingValue = ListValue("Swing", arrayOf("Normal", "Packet", "None"), "Normal")
     val keepSprintValue = BoolValue("KeepSprint", true)
 
-    private val attackModeValue = ListValue("AttackTiming", arrayOf("Pre", "Post", "All"), "Normal")
     val autoBlockModeValue = ListValue(
         "AutoBlock",
         arrayOf(
@@ -204,9 +203,6 @@ class KillAura : Module() {
 
     @EventTarget
     fun onPreMotion(event: PreMotionEvent) {
-        if (!attackModeValue.get().equals("Post", true))
-            updateKA()
-
         if (autoBlockModeValue.get().equals("Watchdog", true)) {
             if (mc.thePlayer.heldItem.item is ItemSword && currentTarget != null) {
                 watchdogkaing = true
@@ -263,11 +259,6 @@ class KillAura : Module() {
 
     @EventTarget
     fun onPostMotion(event: PostMotionEvent) {
-        if (!attackModeValue.get().equals("Pre", true))
-            updateKA()
-
-        target ?: return
-        currentTarget ?: return
 
         updateHitable()
 
@@ -337,6 +328,11 @@ class KillAura : Module() {
             return
         }
 
+        while (clicks > 0) {
+            runAttack()
+            clicks--
+        }
+        
         // Target
         currentTarget = target
 
@@ -346,22 +342,6 @@ class KillAura : Module() {
 
     @EventTarget
     fun onUpdate(event: UpdateEvent) {
-        updateKA()
-
-        if (autoBlockModeValue.get().equals("RightHold", true) && canBlock) {
-            mc.gameSettings.keyBindUseItem.pressed = currentTarget != null && mc.thePlayer.getDistanceToEntityBox(currentTarget!!) < rangeValue.get()
-        }
-
-        if (blockingStatus || mc.thePlayer.isBlocking)
-            verusBlocking = true
-        else if (verusBlocking) {
-            verusBlocking = false
-            if (autoBlockModeValue.get().equals("Verus", true))
-                PacketUtils.sendPacketNoEvent(C07PacketPlayerDigging(C07PacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN))
-        }
-    }
-
-    private fun updateKA() {
         if (cancelRun) {
             target = null
             currentTarget = null
@@ -378,11 +358,16 @@ class KillAura : Module() {
             return
         }
 
-        if (target != null && currentTarget != null) {
-            while (clicks > 0) {
-                runAttack()
-                clicks--
-            }
+        if (autoBlockModeValue.get().equals("RightHold", true) && canBlock) {
+            mc.gameSettings.keyBindUseItem.pressed = currentTarget != null && mc.thePlayer.getDistanceToEntityBox(currentTarget!!) < rangeValue.get()
+        }
+
+        if (blockingStatus || mc.thePlayer.isBlocking)
+            verusBlocking = true
+        else if (verusBlocking) {
+            verusBlocking = false
+            if (autoBlockModeValue.get().equals("Verus", true))
+                PacketUtils.sendPacketNoEvent(C07PacketPlayerDigging(C07PacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN))
         }
     }
 
@@ -419,25 +404,6 @@ class KillAura : Module() {
 
             GL11.glPopMatrix()
         }
-
-        if (cancelRun) {
-            target = null
-            currentTarget = null
-            hitable = false
-            stopBlocking()
-            return
-        }
-
-        if (noInventoryAttackValue.get() && (mc.currentScreen is GuiContainer ||
-                        System.currentTimeMillis() - containerOpen < noInventoryDelayValue.get())) {
-            target = null
-            currentTarget = null
-            hitable = false
-            if (mc.currentScreen is GuiContainer) containerOpen = System.currentTimeMillis()
-            return
-        }
-
-        target ?: return
 
         if (currentTarget != null && attackTimer.hasTimePassed(attackDelay) &&
                 currentTarget!!.hurtTime <= hurtTimeValue.get()) {
@@ -498,8 +464,7 @@ class KillAura : Module() {
 
             prevTargetEntities.add(target!!.entityId)
 
-            if (target == currentTarget)
-                target = null
+            if (target == currentTarget) target = null
         }
 
         if (targetModeValue.get().equals("Switch", ignoreCase = true) && attackTimer.hasTimePassed((switchDelayValue.get()).toLong())) {
@@ -549,8 +514,6 @@ class KillAura : Module() {
             "regenamplifier" -> targets.sortBy { if (it.isPotionActive(Potion.regeneration)) it.getActivePotionEffect(Potion.regeneration).amplifier else -1 }
         }
 
-        var found = false
-
         // Find best target
         for (entity in targets) {
             // Update rotations to current target
@@ -559,11 +522,8 @@ class KillAura : Module() {
 
             // Set target to current entity
             target = entity
-            found = true
             break
         }
-
-        target = null
 
         // Cleanup last targets when no target found and try again
         if (prevTargetEntities.isNotEmpty()) {
