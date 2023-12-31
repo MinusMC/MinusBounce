@@ -148,7 +148,7 @@ object AntiBot : Module() {
             }
         } else if (packet is S0CPacketSpawnPlayer) {
             val killAura = MinusBounce.moduleManager[KillAura::class.java]!!
-            if (killAura.target != null && !hasRemovedEntities.contains(packet.entityID)) {
+            if (killAura.currentTarget != null && !hasRemovedEntities.contains(packet.entityID)) {
                 spawnInCombat.add(packet.entityID)
             }
         } else if (packet is S13PacketDestroyEntities) {

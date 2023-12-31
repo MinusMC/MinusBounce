@@ -134,8 +134,7 @@ class KillAura : Module() {
      */
 
     // Target
-    var target: EntityLivingBase? = null
-    private var currentTarget: EntityLivingBase? = null
+    public var currentTarget: EntityLivingBase? = null
     var hitable = false
     private val prevTargetEntities = mutableListOf<Int>()
 
@@ -180,7 +179,6 @@ class KillAura : Module() {
     }
 
     override fun onDisable() {
-        target = null
         currentTarget = null
         hitable = false
         prevTargetEntities.clear()
@@ -323,7 +321,7 @@ class KillAura : Module() {
         // Update target
         updateTarget()
 
-        if (target == null) {
+        if (currentTarget == null) {
             stopBlocking()
             return
         }
@@ -333,17 +331,11 @@ class KillAura : Module() {
             clicks--
         }
         
-        // Target
-        currentTarget = target
-
-        if (!targetModeValue.get().equals("Switch", ignoreCase = true) && isEnemy(currentTarget))
-            target = currentTarget
     }
 
     @EventTarget
     fun onUpdate(event: UpdateEvent) {
         if (cancelRun) {
-            target = null
             currentTarget = null
             hitable = false
             stopBlocking()
@@ -351,7 +343,6 @@ class KillAura : Module() {
         }
 
         if (noInventoryAttackValue.get() && (mc.currentScreen is GuiContainer || System.currentTimeMillis() - containerOpen < noInventoryDelayValue.get())) {
-            target = null
             currentTarget = null
             hitable = false
             if (mc.currentScreen is GuiContainer) containerOpen = System.currentTimeMillis()
@@ -421,18 +412,7 @@ class KillAura : Module() {
         }
     }
 
-    @EventTarget
-    fun onEntityMove(event: EntityMovementEvent) {
-        val movedEntity = event.movedEntity
-
-        if (target == null || movedEntity != currentTarget)
-            return
-
-        updateHitable()
-    }
-
     private fun runAttack() {
-        target ?: return
         currentTarget ?: return
 
         // Settings
@@ -462,14 +442,13 @@ class KillAura : Module() {
                 }
             }
 
-            prevTargetEntities.add(target!!.entityId)
+            prevTargetEntities.add(currentTarget!!.entityId)
 
-            if (target == currentTarget) target = null
         }
 
         if (targetModeValue.get().equals("Switch", ignoreCase = true) && attackTimer.hasTimePassed((switchDelayValue.get()).toLong())) {
             if (switchDelayValue.get() != 0) {
-                prevTargetEntities.add(target!!.entityId)
+                prevTargetEntities.add(currentTarget!!.entityId)
                 attackTimer.reset()
             }
         }
@@ -521,7 +500,7 @@ class KillAura : Module() {
                 continue
 
             // Set target to current entity
-            target = entity
+            currentTarget = entity
             break
         }
 
@@ -560,11 +539,11 @@ class KillAura : Module() {
         for (i in 0..2) {
             // Critical Effect
             if (mc.thePlayer.fallDistance > 0F && !mc.thePlayer.onGround && !mc.thePlayer.isOnLadder && !mc.thePlayer.isInWater && !mc.thePlayer.isPotionActive(Potion.blindness) && mc.thePlayer.ridingEntity == null || criticals.state && criticals.msTimer.hasTimePassed(criticals.delayValue.get().toLong()) && !mc.thePlayer.isInWater && !mc.thePlayer.isInLava && !mc.thePlayer.isInWeb)
-                mc.thePlayer.onCriticalHit(target)
+                mc.thePlayer.onCriticalHit(entity)
 
             // Enchant Effect
-            if (EnchantmentHelper.getModifierForCreature(mc.thePlayer.heldItem, target!!.creatureAttribute) > 0.0f)
-                mc.thePlayer.onEnchantmentCritical(target)
+            if (EnchantmentHelper.getModifierForCreature(mc.thePlayer.heldItem, entity!!.creatureAttribute) > 0.0f)
+                mc.thePlayer.onEnchantmentCritical(entity)
         }
 
         if (!autoBlockModeValue.get().equals("AfterTick", true) && (mc.thePlayer.isBlocking || canBlock))
@@ -654,7 +633,7 @@ class KillAura : Module() {
             return
         }
 
-        val reach = min(rangeValue.get().toDouble(), mc.thePlayer.getDistanceToEntityBox(target!!)) + 1
+        val reach = min(rangeValue.get().toDouble(), mc.thePlayer.getDistanceToEntityBox(currentTarget!!)) + 1
 
         if (raycastValue.get()) {
             val raycastedEntity = RaycastUtils.raycastEntity(reach, object: RaycastUtils.IEntityFilter {

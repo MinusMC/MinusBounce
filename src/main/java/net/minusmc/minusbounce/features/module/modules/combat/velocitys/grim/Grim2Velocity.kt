@@ -16,8 +16,8 @@ class Grim2Velocity : VelocityMode("Grim2") {
         if (packet is C0FPacketConfirmTransaction) {
             when (onMode.get().lowercase()) {
                 "damage" -> if (mc.thePlayer.hurtTime > 0) event.cancelEvent()
-                "combat" -> if (MinusBounce.moduleManager[KillAura::class.java]!!.target != null) event.cancelEvent()
-                "both" -> if (MinusBounce.moduleManager[KillAura::class.java]!!.target != null && mc.thePlayer.hurtTime > 0) event.cancelEvent()
+                "combat" -> if (MinusBounce.moduleManager[KillAura::class.java]!!.currentTarget != null) event.cancelEvent()
+                "both" -> if (MinusBounce.moduleManager[KillAura::class.java]!!.currentTarget != null && mc.thePlayer.hurtTime > 0) event.cancelEvent()
             }
         }
         if (packet is S12PacketEntityVelocity) event.cancelEvent()
