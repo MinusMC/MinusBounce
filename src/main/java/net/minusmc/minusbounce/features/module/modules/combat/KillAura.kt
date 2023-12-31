@@ -114,8 +114,6 @@ class KillAura : Module() {
     private val predictSize = FloatRangeValue("PredictSize", 1f, 1f, 0.1f, 5f) {predictValue.get()}
 
     // Bypass
-    private val noInventoryAttackValue = BoolValue("NoInvAttack", false)
-    private val noInventoryDelayValue = IntegerValue("NoInvDelay", 200, 0, 500, "ms") { noInventoryAttackValue.get() }
     private val limitedMultiTargetsValue = IntegerValue("LimitedMultiTargets", 0, 0, 50) {
         targetModeValue.get().equals("multi", true)
     }
@@ -143,9 +141,6 @@ class KillAura : Module() {
     private var blockTimer = MSTimer()
     private var clicks = 0
     private var legitBlocking = 0
-
-    // Container Delay
-    private var containerOpen = -1L
 
     // Fake block status
     var blockingStatus = false
@@ -263,6 +258,8 @@ class KillAura : Module() {
                 2 -> startBlocking(currentTarget!!, interactAutoBlockValue.get() && mc.thePlayer.getDistanceToEntityBox(currentTarget!!) < rangeValue.get())
             }
         }
+        
+        startBlocking(currentTarget!!, hitable)
     }
 
     @EventTarget
@@ -308,41 +305,19 @@ class KillAura : Module() {
 
     @EventTarget
     fun onPreUpdate(event: PreUpdateEvent){
-        currentTarget = null
-
-        if (cancelRun || (noInventoryAttackValue.get() && (mc.currentScreen is GuiContainer || System.currentTimeMillis() - containerOpen < noInventoryDelayValue.get())))
-            return
-
         // Update target
         updateTarget()
-
-        if (currentTarget == null) {
-            stopBlocking()
-            return
-        }
 
         while (clicks > 0) {
             runAttack()
             clicks--
         }
-
-        startBlocking(currentTarget!!, hitable)
     }
 
     @EventTarget
     fun onUpdate(event: UpdateEvent) {
-        if (cancelRun) {
-            currentTarget = null
-            hitable = false
+        if(currentTarget == null){
             stopBlocking()
-            return
-        }
-
-        if (noInventoryAttackValue.get() && (mc.currentScreen is GuiContainer || System.currentTimeMillis() - containerOpen < noInventoryDelayValue.get())) {
-            currentTarget = null
-            hitable = false
-            if (mc.currentScreen is GuiContainer) containerOpen = System.currentTimeMillis()
-            return
         }
 
         if (autoBlockModeValue.get().equals("RightHold", true) && canBlock) {
@@ -488,7 +463,8 @@ class KillAura : Module() {
             "healthabsorption" -> targets.sortBy { it.health + it.absorptionAmount } // Sort by full health with absorption effect
             "regenamplifier" -> targets.sortBy { if (it.isPotionActive(Potion.regeneration)) it.getActivePotionEffect(Potion.regeneration).amplifier else -1 }
         }
-
+        
+        var found = false
         // Find best target
         for (entity in targets) {
             // Update rotations to current target
@@ -497,8 +473,11 @@ class KillAura : Module() {
 
             // Set target to current entity
             currentTarget = entity
+            found = true
             break
         }
+
+        if(!found) currentTarget = null
 
         // Cleanup last targets when no target found and try again
         if (prevTargetEntities.isNotEmpty()) {
@@ -679,8 +658,6 @@ class KillAura : Module() {
     }
 
     private fun stopBlocking() {
-        if (!mc.thePlayer.isBlocking || !blockingStatus) return
-
         if (blockingStatus) {
             when (autoBlockModeValue.get().lowercase()) {
                 "newncp" -> {
