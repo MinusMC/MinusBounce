@@ -85,14 +85,13 @@ class KillAura : Module() {
             "AfterTick",
             "Vanilla",
             "Polar",
+            "NewNCP",
             "OldIntave",
             "Watchdog",
-            "Vulcan",
             "Verus",
             "RightHold",
             "KeyBlock",
             "OldHypixel",
-            "OldWatchdog"
         ),
         "None"
     )
@@ -639,18 +638,6 @@ class KillAura : Module() {
             return
 
         when (autoBlockModeValue.get().lowercase()) {
-            "vulcan" -> {
-                if (blockTimer.hasTimePassed(50)) {
-                    PacketUtils.sendPacketNoEvent(C08PacketPlayerBlockPlacement(mc.thePlayer.inventory.getCurrentItem()))
-                    blockTimer.reset()
-                }
-                return
-            }
-            "oldwatchdog" -> {
-                if (mc.thePlayer.hurtTime > 6) 
-                    mc.gameSettings.keyBindUseItem.pressed = true
-                return
-            }
             "polar" -> if (mc.thePlayer.hurtTime < 8 && mc.thePlayer.hurtTime != 1 && mc.thePlayer.fallDistance > 0) return
             "keyblock" -> {
                 blockTimer.reset()
@@ -692,6 +679,10 @@ class KillAura : Module() {
 
         if (blockingStatus) {
             when (autoBlockModeValue.get().lowercase()) {
+                "newncp" -> {
+                    mc.netHandler.addToSendQueue(C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem % 8 + 1))
+                    mc.netHandler.addToSendQueue(C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem))
+                }
                 "oldintave" -> {
                     mc.netHandler.addToSendQueue(C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem % 8 + 1))
                     mc.netHandler.addToSendQueue(C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem))
