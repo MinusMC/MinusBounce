@@ -314,7 +314,7 @@ class KillAura : Module() {
     }
 
     @EventTarget
-    fun update(event: PreUpdateEvent){
+    fun onPreUpdate(event: PreUpdateEvent){
         if (cancelRun || (noInventoryAttackValue.get() && (mc.currentScreen is GuiContainer || System.currentTimeMillis() - containerOpen < noInventoryDelayValue.get())))
             return
 
