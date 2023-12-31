@@ -256,10 +256,7 @@ class KillAura : Module() {
 
     @EventTarget
     fun onPostMotion(event: PostMotionEvent) {
-
         updateHitable()
-
-        if (canBlock) startBlocking(currentTarget!!, hitable)
             
         if (autoBlockModeValue.get().equals("OldHypixel", true)) {
             when (mc.thePlayer.swingProgressInt) {
@@ -312,6 +309,8 @@ class KillAura : Module() {
 
     @EventTarget
     fun onPreUpdate(event: PreUpdateEvent){
+        currentTarget = null
+
         if (cancelRun || (noInventoryAttackValue.get() && (mc.currentScreen is GuiContainer || System.currentTimeMillis() - containerOpen < noInventoryDelayValue.get())))
             return
 
@@ -327,6 +326,8 @@ class KillAura : Module() {
             runAttack()
             clicks--
         }
+
+        startBlocking(currentTarget!!, hitable)
     }
 
     @EventTarget
@@ -634,7 +635,7 @@ class KillAura : Module() {
     }
 
     private fun startBlocking(interactEntity: Entity, interact: Boolean) {
-        if (autoBlockModeValue.get().equals("none", true) || mc.thePlayer.getDistanceToEntityBox(interactEntity) > autoBlockRangeValue.get())
+        if (autoBlockModeValue.get().equals("none", true) || !canBlock ||mc.thePlayer.getDistanceToEntityBox(interactEntity) > autoBlockRangeValue.get())
             return
 
         when (autoBlockModeValue.get().lowercase()) {
