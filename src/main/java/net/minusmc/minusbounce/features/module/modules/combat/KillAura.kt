@@ -638,6 +638,10 @@ class KillAura : Module() {
             return
 
         when (autoBlockModeValue.get().lowercase()) {
+            "newncp" -> {
+                mc.netHandler.addToSendQueue(C08PacketPlayerBlockPlacement(BlockPos(-1, -1, -1), 255, null, 0.0f, 0.0f, 0.0f))
+                return
+            }
             "polar" -> if (mc.thePlayer.hurtTime < 8 && mc.thePlayer.hurtTime != 1 && mc.thePlayer.fallDistance > 0) return
             "keyblock" -> {
                 blockTimer.reset()

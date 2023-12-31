@@ -31,10 +31,7 @@ import net.minusmc.minusbounce.utils.render.BlurUtils
 import net.minusmc.minusbounce.utils.render.RenderUtils
 import net.minusmc.minusbounce.utils.timer.MSTimer
 import net.minusmc.minusbounce.utils.timer.TimeUtils
-import net.minusmc.minusbounce.value.BoolValue
-import net.minusmc.minusbounce.value.FloatValue
-import net.minusmc.minusbounce.value.IntegerValue
-import net.minusmc.minusbounce.value.ListValue
+import net.minusmc.minusbounce.value.*
 import org.lwjgl.input.Keyboard
 import org.lwjgl.opengl.GL11
 import java.awt.Color
@@ -567,7 +564,7 @@ class Scaffold: Module() {
         }
 
         if (mc.playerController.onPlayerRightClick(mc.thePlayer, mc.theWorld, itemStack, targetPlace!!.blockPos, targetPlace!!.enumFacing, targetPlace!!.vec3)) {
-            delay = TimeUtils.randomDelay(minDelayValue.get(), maxDelayValue.get())
+            delay = TimeUtils.randomDelay(delayValue.getMinValue(), delayValue.getMaxValue())
 
             if (mc.thePlayer.onGround) {
                 val modifier = speedModifierValue.get()
@@ -913,7 +910,7 @@ class Scaffold: Module() {
         }
 
     private val rotationSpeed: Float
-        get() = (Math.random() * (maxTurnSpeed.get() - minTurnSpeed.get()) + minTurnSpeed.get()).toFloat()
+        get() = (Math.random() * (turnSpeed.getMaxValue() - turnSpeed.getMinValue()) + turnSpeed.getMinValue()).toFloat()
 
     override val tag: String
         get() = if (towerStatus) "Tower, ${towerModeValue.get()}" else placeModeValue.get()
