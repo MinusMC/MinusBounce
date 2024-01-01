@@ -69,7 +69,7 @@ class KillAura : Module() {
     }
 
     // Modes
-    private val rotations = ListValue("RotationMode", arrayOf("Vanilla", "BackTrack", "Grim", "Intave", "Smooth", "None"), "BackTrack")
+    private val rotations = ListValue("RotationMode", arrayOf("Vanilla", "BackTrack", "Grim", "Intave", "None"), "BackTrack")
     private val intaveRandomAmount = FloatValue("RandomAmount", 4f, 0.25f, 10f) { rotations.get().equals("Intave", true) }
 
     private val turnSpeed = FloatRangeValue("TurnSpeed", 180f, 180f, 0f, 180f, "°", {!rotations.get().equals("None", true)})
@@ -131,8 +131,7 @@ class KillAura : Module() {
     val aacValue = BoolValue("AAC", false)
 
     private val silentRotationValue = BoolValue("SilentRotation", true) { !rotations.get().equals("none", true) }
-    val rotationStrafeValue = ListValue("Strafe", arrayOf("Off", "Strict", "Silent", "Vestige", "FDP"), "Off")
-    private val fdpSlientStrafe = BoolValue("Strafe-FDPSlient", true) { rotationStrafeValue.get().equals("FDP", true) }
+    val movementCorrection = BoolValue("MovementCorrection", true)
     private val fovValue = FloatValue("FOV", 180f, 0f, 180f)
 
     // Predict
@@ -202,8 +201,6 @@ class KillAura : Module() {
     var hitable = false
     private val prevTargetEntities = mutableListOf<Int>()
 
-    private var fixedRotation: FixedRotation? = null 
-
     // Attack delay
     private val attackTimer = MSTimer()
     private var attackDelay = 0L
@@ -238,8 +235,6 @@ class KillAura : Module() {
         mc.theWorld ?: return
 
         rotSpeed = 15.0
-
-        fixedRotation = FixedRotation(mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch)
 
         updateTarget()
         verusBlocking = false
@@ -329,7 +324,7 @@ class KillAura : Module() {
     }
 
     @EventTarget
-    fun onMotion(event: MotionEvent) {
+    fun onPostMotion(event: PostMotionEvent) {
         if (!attackModeValue.get().equals("Pre", true)) updateKA()
 
         target ?: return
@@ -353,15 +348,13 @@ class KillAura : Module() {
     @EventTarget
     fun onStrafe(event: StrafeEvent) {
         val targetStrafe = MinusBounce.moduleManager.getModule(TargetStrafe::class.java)!!
-        if (rotationStrafeValue.get().equals("Off", true) && !targetStrafe.state)
-            return
 
         update()
 
         if (currentTarget != null && RotationUtils.targetRotation != null) {
             if (targetStrafe.canStrafe) {
                 val strafingData = targetStrafe.getData()
-                MovementUtils.strafeCustom(MovementUtils.speed, strafingData[0], strafingData[1], strafingData[2])
+                MovementUtils.strafe(MovementUtils.speed, strafingData[0], strafingData[1], strafingData[2])
                 event.cancelEvent()
             }
         }
@@ -646,18 +639,8 @@ class KillAura : Module() {
             found = true
             break
         }
-        val tickBase = MinusBounce.moduleManager[TickBase::class.java]!!
-        if (found) {
-            if (targets.size > 1 && targets[0] == target) {
-                tickBase.targetTickBase = targets[1]
-            } else {
-                tickBase.targetTickBase = targets[0]
-            }
-            return
-        }
 
         target = null
-        tickBase.targetTickBase = null
 
         // Cleanup last targets when no target found and try again
         if (prevTargetEntities.isNotEmpty()) {
@@ -714,7 +697,6 @@ class KillAura : Module() {
         if (watchdogDisabler.canModifyRotation) return true
 
         val defRotation = getTargetRotation(entity) ?: return false
-        fixedRotation!!.updateRotations(defRotation.yaw, defRotation.pitch)
 
         if (silentRotationValue.get()) {
             RotationUtils.setTargetRot(defRotation, if (aacValue.get() && !rotations.get().equals("Spin", ignoreCase = true)) 15 else 0)
@@ -757,7 +739,7 @@ class KillAura : Module() {
                 limitedRotation
             }
             "backtrack" -> {
-                val rotation = RotationUtils.otherRotation(boundingBox, RotationUtils.getCenter(entity.entityBoundingBox), predictValue.get(), throughWallsValue.get(), rotationRangeValue.get())
+                val rotation = RotationUtils.backTrackRotation(boundingBox, RotationUtils.getCenter(entity.entityBoundingBox), predictValue.get(), throughWallsValue.get(), rotationRangeValue.get())
                 val limitedRotation = RotationUtils.limitAngleChange(RotationUtils.serverRotation!!, rotation, rotationSpeed)
 
                 limitedRotation
