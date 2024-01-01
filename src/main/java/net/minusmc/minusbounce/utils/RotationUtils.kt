@@ -57,16 +57,6 @@ object RotationUtils : MinecraftInstance(), Listenable {
         if (random.nextGaussian() > 0.8) z = Math.random()
     }
 
-    @EventTarget 
-    fun onJump(event: JumpEvent){
-        targetRotation?.let {event.yaw = it.yaw}
-    }
-
-    @EventTarget 
-    fun onStrafe(event: StrafeEvent){
-        targetRotation?.let {event.yaw = it.yaw}
-    }
-
     /**
      * Set your target rotation
      *

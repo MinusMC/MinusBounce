@@ -37,6 +37,24 @@ public final class MovementCorrection extends MinecraftInstance implements Liste
         event.setStrafe(Math.round(strafe * cosValue - forward * sinValue));
     }
 
+    @EventTarget 
+    public void onJump(final JumpEvent event) {
+        final Scaffold scaffold = MinusBounce.moduleManager.getModule(Scaffold.class);
+        if (scaffold.getState() && !scaffold.getMovementCorrection().get()) return;
+
+        if (targetRotation != null) 
+            event.setYaw(targetRotation.getYaw());
+    }
+
+    @EventTarget 
+    public void onStrafe(final StrafeEvent event) {
+        final Scaffold scaffold = MinusBounce.moduleManager.getModule(Scaffold.class);
+        if (scaffold.getState() && !scaffold.getMovementCorrection().get()) return;
+
+        if (targetRotation != null) 
+            event.setYaw(targetRotation.getYaw());
+    }
+
     @Override 
     public boolean handleEvents() {
         return true;
