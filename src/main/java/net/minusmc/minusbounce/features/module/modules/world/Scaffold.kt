@@ -75,7 +75,8 @@ class Scaffold: Module() {
     private val timerValue = FloatValue("Timer", 1F, 0.1F, 10F)
     private val speedModifierValue = FloatValue("SpeedModifier", 1F, 0f, 2F, "x")
     private val xzMultiplier = FloatValue("XZ-Multiplier", 1F, 0F, 4F, "x")
-
+    val movementCorrection = BoolValue("MovementCorrection", true)
+    
     // Tower
     private val onTowerValue = ListValue("OnTower", arrayOf("Always", "PressSpace", "NoMove", "Off"))
     private val towerModeValue = ListValue("TowerMode", arrayOf("Jump", "Motion", "NCP", "MotionTP2", "AAC3.3.9", "AAC3.6.4", "Verus", "Universocraft", "Watchdog"), "Jump") {

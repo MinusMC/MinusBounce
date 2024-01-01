@@ -29,7 +29,8 @@ class Gapple : Module() {
     // Auto Mode
     private val healthValue = FloatValue("Health", 10F, 1F, 20F)
     private val delayValue = IntegerValue("Delay", 150, 0, 1000, "ms")
-    private val noAbsorption = BoolValue("NoAbsorption",true)
+    private val noAbsorption = BoolValue("NoAbsorption", true)
+    private val grim = BoolValue("Grim", true)
     private val timer = MSTimer()
 
     @EventTarget
@@ -74,8 +75,14 @@ class Gapple : Module() {
         if (gappleInHotbar != -1) {
             mc.netHandler.addToSendQueue(C09PacketHeldItemChange(gappleInHotbar - 36))
             mc.netHandler.addToSendQueue(C08PacketPlayerBlockPlacement(mc.thePlayer.heldItem))
-            repeat (35) {
-                mc.netHandler.addToSendQueue(C03PacketPlayer(mc.thePlayer.onGround))
+            if (grim.get()) {
+                repeat (packetsGrimAmount.get()) {
+                    PacketUtils.sendPacketNoEvent(C06PacketPlayerPosLook(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ, mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch, mc.thePlayer.onGround))
+                }
+            } else {
+                repeat (35) {
+                    mc.netHandler.addToSendQueue(C03PacketPlayer(mc.thePlayer.onGround))
+                }
             }
             mc.netHandler.addToSendQueue(C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem))
         }else if (warn)
