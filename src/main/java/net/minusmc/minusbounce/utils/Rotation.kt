@@ -43,7 +43,7 @@ data class Rotation(var yaw: Float, var pitch: Float) {
         val gcd = f * f * f * 1.2F
 
         // get previous rotation
-        val rotation = RotationUtils.serverRotation
+        val rotation = RotationUtils.serverRotation ?: return
 
         // fix yaw
         var deltaYaw = yaw - rotation.yaw
@@ -80,26 +80,3 @@ data class VecRotation(val vec: Vec3, val rotation: Rotation)
  * Rotation with place info
  */
 data class PlaceRotation(val placeInfo: PlaceInfo, val rotation: Rotation)
-
-
-// Vestige
-data class FixedRotation(var yaw: Float, var pitch: Float, var lastYaw: Float, var lastPitch: Float) {
-    constructor(yaw: Float, pitch: Float): this(yaw, pitch, yaw, pitch)
-
-    fun updateRotations(requestedYaw: Float, requestedPitch: Float) {
-        lastYaw = yaw
-        lastPitch = pitch
-
-        val gcd = ((MinecraftInstance.mc.gameSettings.mouseSensitivity * 0.6 + 0.2).pow(3).toFloat() * 1.2).toFloat()
-        val yawDiff = requestedYaw - yaw
-        val pitchDiff = requestedPitch - pitch
-
-        val fixedYawDiff = yawDiff - (yawDiff % gcd)
-        val fixedPitchDiff = pitchDiff - (pitchDiff % gcd)
-
-        yaw += fixedYawDiff
-        pitch += fixedPitchDiff
-
-        pitch = max(-90f, min(90f, pitch))
-    }
-}

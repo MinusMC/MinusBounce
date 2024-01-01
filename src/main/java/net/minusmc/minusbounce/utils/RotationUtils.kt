@@ -89,7 +89,7 @@ object RotationUtils : MinecraftInstance(), Listenable {
      *
      * epic skid moment
      */
-    fun otherRotation(
+    fun backTrackRotation(
         bb: AxisAlignedBB,
         vec: Vec3,
         predict: Boolean,
