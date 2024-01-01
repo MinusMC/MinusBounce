@@ -20,6 +20,8 @@ import kotlin.math.*
 
 
 object RotationUtils : MinecraftInstance(), Listenable {
+    val random = Random()
+
     @JvmField
     var targetRotation: Rotation? = null
 
@@ -36,9 +38,9 @@ object RotationUtils : MinecraftInstance(), Listenable {
     var active = false
     var smoothed = false
 
-    private var x = Random.nextDouble()
-    private var y = Random.nextDouble()
-    private var z = Random.nextDouble()
+    private var x = random.nextDouble()
+    private var y = random.nextDouble()
+    private var z = random.nextDouble()
 
     /**
      * Face block
@@ -100,7 +102,7 @@ object RotationUtils : MinecraftInstance(), Listenable {
         if (silent)
             setTargetRot(rotation)
         else 
-            limitAngleChange(Rotation(player.rotationYaw, player.rotationPitch), rotation, (10 + Random.nextInt(6)).toFloat()).toPlayer(mc.thePlayer)
+            limitAngleChange(Rotation(player.rotationYaw, player.rotationPitch), rotation, (10 + random.nextInt(6)).toFloat()).toPlayer(mc.thePlayer)
     }
 
     /**
@@ -195,7 +197,7 @@ object RotationUtils : MinecraftInstance(), Listenable {
         return Rotation(yaw, pitch)
     }
 
-    fun ncpRotation(vec: Vec3, predict: Boolean) {
+    fun ncpRotation(vec: Vec3, predict: Boolean): Rotation {
         val eyesPos = Vec3(mc.thePlayer.posX, mc.thePlayer.entityBoundingBox.minY + mc.thePlayer.eyeHeight, mc.thePlayer.posZ)
 
         if (predict)
@@ -323,7 +325,19 @@ object RotationUtils : MinecraftInstance(), Listenable {
      * @param rotation your target rotation
      */
     fun setTargetRot(rotation: Rotation) {
-        setTargetRot(rotation, 0)
+        setTargetRot(rotation, 180.0F)
+    }
+
+    /**
+     * Set your target rotation
+     *
+     * @param rotation your target rotation
+     */
+    fun setTargetRot(rotation: Rotation, speed: Float) {
+        rotationSpeed = speed
+        targetRotation = rotation
+        active = true
+        smooth()
     }
 
     fun getCustomVec3(bb: AxisAlignedBB, x: Double, y: Double, z: Double): Vec3 {
@@ -428,10 +442,10 @@ object RotationUtils : MinecraftInstance(), Listenable {
 
     fun applySensitivityPatch(rotation: Rotation, old: Rotation): Rotation {
         val previousRotation = old
-        val mouseSensitivity = mc.gameSettings.mouseSensitivity * (1.0 + Random.nextDouble() / 10000000.0).toFloat() * 0.6F + 0.2F
+        val mouseSensitivity = mc.gameSettings.mouseSensitivity * (1.0 + random.nextDouble() / 10000000.0).toFloat() * 0.6F + 0.2F
         val multiplier = mouseSensitivity * mouseSensitivity * mouseSensitivity * 8.0f * 0.15f
-        val yaw = previousRotation.yaw + round((rotation.yaw - previousRotation.yaw) / multiplier) * multiplier)
-        val pitch = previousRotation.pitch + round((rotation.pitch - previousRotation.pitch) / multiplier) * multiplier)
+        val yaw = previousRotation.yaw + round((rotation.yaw - previousRotation.yaw) / multiplier) * multiplier
+        val pitch = previousRotation.pitch + round((rotation.pitch - previousRotation.pitch) / multiplier) * multiplier
         return Rotation(yaw, MathHelper.clamp_float(pitch, -90f, 90f))
     }
 
@@ -442,7 +456,6 @@ object RotationUtils : MinecraftInstance(), Listenable {
         val pitch = mc.thePlayer.rotationPitch
         return Rotation(yaw, pitch)
     }
-
 
     fun smooth(lastRotation: Rotation, targetRotation: Rotation, speed: Float): Rotation {
         var yaw = targetRotation.yaw
@@ -457,9 +470,9 @@ object RotationUtils : MinecraftInstance(), Listenable {
             val deltaYaw = MathHelper.wrapAngleTo180_float(targetRotation.yaw - lastRotation.yaw)
             val deltaPitch = pitch - lastPitch
 
-            val distance = Math.sqrt(deltaYaw * deltaYaw + deltaPitch * deltaPitch)
-            val distributionYaw = Math.abs(deltaYaw / distance)
-            val distributionPitch = Math.abs(deltaPitch / distance)
+            val distance = sqrt(deltaYaw * deltaYaw + deltaPitch * deltaPitch)
+            val distributionYaw = abs(deltaYaw / distance)
+            val distributionPitch = abs(deltaPitch / distance)
 
             val maxYaw = yawSpeed * distributionYaw
             val maxPitch = pitchSpeed * distributionPitch
@@ -470,25 +483,25 @@ object RotationUtils : MinecraftInstance(), Listenable {
             yaw = lastYaw + moveYaw
             pitch = lastPitch + movePitch
 
-            val rangeEnd = Minecraft.debugFPS / 20f + (Random.nextDouble() * 10).toInt()
+            val rangeEnd = (144 /*Minecraft.debugFps*/ / 20f + (random.nextDouble() * 10)).toInt() //Bro have a nasa pc xD
 
             for (i in 1..rangeEnd) {
-                if (abs(moveYaw) + abs(movePitch) > 1) {
-                    yaw += (Random.nextDouble() - 0.5) / 1000
-                    pitch -= Random.nextDouble() / 200
+                if (abs(moveYaw) + abs(movePitch) > 1e-6) {
+                    yaw += (random.nextDouble().toFloat() - 0.5f) / 1000F
+                    pitch -= random.nextDouble().toFloat() / 200F
                 }
 
                 /*
                 * Fixing GCD
                 */
-                val rotations = new Rotation(yaw, pitch)
+                val rotations = Rotation(yaw, pitch)
                 val fixedRotations = applySensitivityPatch(rotations)
 
                 /*
                 * Setting rotations
                 */
                 yaw = fixedRotations.yaw
-                pitch = max(-90, min(90, fixedRotations.pitch))
+                pitch = max(-90.0F, min(90.0F, fixedRotations.pitch))
             }
         }
 
@@ -506,12 +519,6 @@ object RotationUtils : MinecraftInstance(), Listenable {
 
         if (active)
             smooth()
-    }
-
-    @EventTarget
-    fun onMoveInput(event: MoveInputEvent) {
-        if (active && rotations != null)
-            MovementUtils.lbFixMove(event, rotations.yaw)
     }
 
     // @EventTarget
@@ -565,16 +572,16 @@ object RotationUtils : MinecraftInstance(), Listenable {
         val rotations = Rotation(mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch)
         val fixedRotations = resetRotation(applySensitivityPatch(rotations, lastRotation))
 
-        mc.thePlayer.rotationYaw = fixedRotations.yaw
-        mc.thePlayer.rotationPitch = fixedRotations.pitch
+        mc.thePlayer.rotationYaw = fixedRotations!!.yaw
+        mc.thePlayer.rotationPitch = fixedRotations!!.pitch
     }
 
     fun smooth(){
         if (!smoothed)
-            rotations = smooth(lastRotation, targetRotation, rotationSpeed)
+            rotations = smooth(lastRotation!!, targetRotation!!, rotationSpeed)
         smoothed = true
 
-        mc.entityRenderer.getMouseOver(1)
+        mc.entityRenderer.getMouseOver(1f)
     }
 
     /**
