@@ -397,6 +397,8 @@ class Scaffold: Module() {
 
     @EventTarget
     fun onPacket(event: PacketEvent) {
+        keep()
+        
         mc.thePlayer ?: return
         val packet = event.packet
 
@@ -420,7 +422,7 @@ class Scaffold: Module() {
         findBlock(expandLengthValue.get() > 1 && !towerStatus)
     }
 
-    fun setTargetRot(){
+    fun keep(){
         if (!rotationsValue.get().equals("None", true) && keepLengthValue.get() > 0 && lockRotation != null) {
             RotationUtils.setTargetRot(RotationUtils.limitAngleChange(RotationUtils.serverRotation!!, lockRotation!!, rotationSpeed), keepLengthValue.get())
         }
@@ -457,7 +459,7 @@ class Scaffold: Module() {
             verusJumped = true
         }
 
-        setTargetRot()
+        
 
         if (placeModeValue.get().equals("pre", true)) place()
 
@@ -495,7 +497,7 @@ class Scaffold: Module() {
 
         if (towerStatus) tower()
 
-        setTargetRot()
+        
 
         if (placeModeValue.get().equals("post", true)) place()
 
