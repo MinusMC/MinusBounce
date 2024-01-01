@@ -868,6 +868,8 @@ class Scaffold: Module() {
                 }
                 else -> return false
             }
+            val limitedRotation = RotationUtils.limitAngleChange(RotationUtils.serverRotation!!, lockRotation!!, rotationSpeed)
+            RotationUtils.setTargetRot(limitedRotation, keepLengthValue.get())
         }
 
         targetPlace = placeRotation.placeInfo

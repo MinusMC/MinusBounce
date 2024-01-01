@@ -34,7 +34,15 @@ object RotationUtils : MinecraftInstance(), Listenable {
     private var z = random.nextDouble()
 
     @EventTarget 
-    fun onPre(event: PreMotionEvent){
+    fun onPreMotion(event: PreMotionEvent){
+        targetRotation?.let {
+            event.yaw = it.yaw
+            event.pitch = it.pitch
+        }
+    }
+
+    @EventTarget 
+    fun onPostMotion(event: PreMotionEvent){
         targetRotation?.let {
             event.yaw = it.yaw
             event.pitch = it.pitch
