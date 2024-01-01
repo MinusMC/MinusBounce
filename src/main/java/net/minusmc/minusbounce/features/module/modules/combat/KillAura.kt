@@ -194,6 +194,9 @@ class KillAura : Module() {
 
     @EventTarget
     fun onPreMotion(event: PreMotionEvent) {
+        // Update target
+        updateTarget()
+        
         if (autoBlockModeValue.get().equals("Watchdog", true)) {
             if (mc.thePlayer.heldItem.item is ItemSword && currentTarget != null) {
                 watchdogkaing = true
@@ -270,7 +273,7 @@ class KillAura : Module() {
         if (currentTarget != null && RotationUtils.targetRotation != null) {
             if (targetStrafe.canStrafe) {
                 val strafingData = targetStrafe.getData()
-                MovementUtils.strafeCustom(MovementUtils.speed, strafingData[0], strafingData[1], strafingData[2])
+                MovementUtils.strafe(MovementUtils.speed, strafingData[0], strafingData[1], strafingData[2])
                 event.cancelEvent()
             }
         }
@@ -305,9 +308,6 @@ class KillAura : Module() {
 
     @EventTarget
     fun onPreUpdate(event: PreUpdateEvent){
-        // Update target
-        updateTarget()
-
         while (clicks > 0) {
             runAttack()
             clicks--
@@ -523,7 +523,7 @@ class KillAura : Module() {
         val defRotation = getTargetRotation(entity) ?: return false
 
         if (silentRotationValue.get()) {
-            RotationUtils.setTargetRot(defRotation, 0)
+            RotationUtils.setTargetRot(defRotation)
         } else {
             defRotation.toPlayer(mc.thePlayer!!)
         }
@@ -554,15 +554,11 @@ class KillAura : Module() {
                         rangeValue.get()
                 ) ?: return null
 
-                val limitedRotation = RotationUtils.limitAngleChange(RotationUtils.serverRotation!!, rotation, rotationSpeed)
-
-                limitedRotation
+                rotation
             }
             "backtrack" -> {
                 val rotation = RotationUtils.backTrackRotation(boundingBox, RotationUtils.getCenter(entity.entityBoundingBox), predictValue.get(), throughWallsValue.get(), rangeValue.get())
-                val limitedRotation = RotationUtils.limitAngleChange(RotationUtils.serverRotation!!, rotation, rotationSpeed)
-
-                limitedRotation
+                rotation
             }
             "grim" -> {
                 RotationUtils.calculate(getNearestPointBB(mc.thePlayer.getPositionEyes(1F), boundingBox))

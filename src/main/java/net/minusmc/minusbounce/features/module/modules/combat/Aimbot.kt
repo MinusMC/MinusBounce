@@ -63,14 +63,7 @@ class Aimbot : Module() {
         val destinationRotation = if (centerValue.get()) {
             RotationUtils.toRotation(RotationUtils.getCenter(boundingBox), true)
         } else {
-            RotationUtils.searchCenter(
-                boundingBox,
-                random = false,
-                outborder = false,
-                predict = true,
-                throughWalls = false,
-                distance = range
-            )!!.rotation
+            RotationUtils.searchCenter(boundingBox, true, false, range)!!.rotation
         }
         val rotation = RotationUtils.limitAngleChange(player.rotation, destinationRotation, (turnSpeedValue.get() + Math.random()).toFloat())
 

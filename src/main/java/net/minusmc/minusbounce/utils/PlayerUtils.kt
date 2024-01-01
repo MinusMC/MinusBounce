@@ -1,10 +1,13 @@
 package net.minusmc.minusbounce.utils
 
+import net.minecraft.block.BlockIce
+import net.minecraft.block.BlockPackedIce
 import net.minecraft.block.BlockSlime
 import net.minecraft.item.ItemBlock
 import net.minecraft.item.ItemEnderPearl
 import net.minecraft.item.ItemPotion
 import net.minecraft.item.ItemStack
+import net.minecraft.util.BlockPos
 import net.minusmc.minusbounce.utils.MinecraftInstance.Companion.mc
 
 object PlayerUtils {

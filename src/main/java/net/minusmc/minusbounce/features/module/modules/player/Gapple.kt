@@ -12,8 +12,6 @@ import net.minusmc.minusbounce.event.UpdateEvent
 import net.minusmc.minusbounce.features.module.Module
 import net.minusmc.minusbounce.features.module.ModuleCategory
 import net.minusmc.minusbounce.features.module.ModuleInfo
-import net.minusmc.minusbounce.utils.InventoryUtils
-import net.minusmc.minusbounce.utils.timer.MSTimer
 import net.minusmc.minusbounce.value.BoolValue
 import net.minusmc.minusbounce.value.FloatValue
 import net.minusmc.minusbounce.value.IntegerValue
@@ -22,6 +20,9 @@ import net.minecraft.init.Items
 import net.minecraft.network.play.client.C03PacketPlayer
 import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement
 import net.minecraft.network.play.client.C09PacketHeldItemChange
+import net.minecraft.network.play.client.C03PacketPlayer.C06PacketPlayerPosLook
+import net.minusmc.minusbounce.utils.*
+import net.minusmc.minusbounce.utils.timer.MSTimer
 
 @ModuleInfo(name = "Gapple", description = "Eat Gapples.", category = ModuleCategory.PLAYER)
 class Gapple : Module() {
@@ -29,7 +30,9 @@ class Gapple : Module() {
     // Auto Mode
     private val healthValue = FloatValue("Health", 10F, 1F, 20F)
     private val delayValue = IntegerValue("Delay", 150, 0, 1000, "ms")
-    private val noAbsorption = BoolValue("NoAbsorption",true)
+    private val noAbsorption = BoolValue("NoAbsorption", true)
+    private val grim = BoolValue("Grim", true)
+    private val packetsGrimAmount = IntegerValue("GrimAmount", 35, 1, 50)
     private val timer = MSTimer()
 
     @EventTarget
@@ -74,8 +77,14 @@ class Gapple : Module() {
         if (gappleInHotbar != -1) {
             mc.netHandler.addToSendQueue(C09PacketHeldItemChange(gappleInHotbar - 36))
             mc.netHandler.addToSendQueue(C08PacketPlayerBlockPlacement(mc.thePlayer.heldItem))
-            repeat (35) {
-                mc.netHandler.addToSendQueue(C03PacketPlayer(mc.thePlayer.onGround))
+            if (grim.get()) {
+                repeat (packetsGrimAmount.get()) {
+                    PacketUtils.sendPacketNoEvent(C06PacketPlayerPosLook(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ, mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch, mc.thePlayer.onGround))
+                }
+            } else {
+                repeat (35) {
+                    mc.netHandler.addToSendQueue(C03PacketPlayer(mc.thePlayer.onGround))
+                }
             }
             mc.netHandler.addToSendQueue(C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem))
         }else if (warn)

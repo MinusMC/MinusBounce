@@ -97,7 +97,7 @@ class PreMotionEvent(var x: Double, var y: Double, var z: Double, var yaw: Float
 /**
  * Called after motion
  */
-class PostMotionEvent(): Event()
+class PostMotionEvent: Event()
 
 /**
  * Called when player sprints or sneaks, after pre-motion event
@@ -145,13 +145,7 @@ class MoveEvent(var x: Double, var y: Double, var z: Double) : CancellableEvent(
 /**
  * Called when receive or send a packet
  */
-class PacketEvent(val packet: Packet<*>) : CancellableEvent() {
-    // enum class Type {
-    //     RECEIVE,
-    //     SEND
-    // }
-    // fun isServerSide() = type == Type.RECEIVE
-}
+class PacketEvent(val packet: Packet<*>) : CancellableEvent()
 
 /**
  * Called when a block tries to push you

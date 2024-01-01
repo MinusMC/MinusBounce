@@ -70,16 +70,13 @@ class Scaffold: Module() {
     private val towerRotationsValue = ListValue("TowerRotation", arrayOf("Normal", "AAC", "Backwards", "None"), "Normal")
     private val turnSpeed = FloatRangeValue("TurnSpeed", 180f, 180f, 0f, 180f) {!rotationsValue.get().equals("None", true)}
 
-    private val keepLengthValue = IntegerValue("KeepRotationLength", 0, 0, 20) {
-        !rotationsValue.get().equals("None", true)
-    }
-
     private val placeConditionValue = ListValue("PlaceCondition", arrayOf("Always", "Air", "FallDown"), "Always")
 
     private val timerValue = FloatValue("Timer", 1F, 0.1F, 10F)
     private val speedModifierValue = FloatValue("SpeedModifier", 1F, 0f, 2F, "x")
     private val xzMultiplier = FloatValue("XZ-Multiplier", 1F, 0F, 4F, "x")
-
+    val movementCorrection = BoolValue("MovementCorrection", true)
+    
     // Tower
     private val onTowerValue = ListValue("OnTower", arrayOf("Always", "PressSpace", "NoMove", "Off"))
     private val towerModeValue = ListValue("TowerMode", arrayOf("Jump", "Motion", "NCP", "MotionTP2", "AAC3.3.9", "AAC3.6.4", "Verus", "Universocraft", "Watchdog"), "Jump") {
@@ -397,7 +394,7 @@ class Scaffold: Module() {
     fun onPacket(event: PacketEvent) {
         mc.thePlayer ?: return
         val packet = event.packet
-
+        
         if (packet is C09PacketHeldItemChange) {
             slot = packet.slotId
         }
@@ -458,14 +455,13 @@ class Scaffold: Module() {
     }
 
     fun setTargetRot(){
-        if (!rotationsValue.get().equals("None", true) && keepLengthValue.get() > 0 && lockRotation != null) {
-            RotationUtils.setTargetRot(RotationUtils.limitAngleChange(RotationUtils.serverRotation!!, lockRotation!!, rotationSpeed), keepLengthValue.get())
+        if (!rotationsValue.get().equals("None", true) && lockRotation != null) {
+            RotationUtils.setTargetRot(lockRotation!!, rotationSpeed)
         }
     }
 
     @EventTarget
     fun onPostMotion(event: PostMotionEvent) {
-        setTargetRot()
         towerStatus = false
 
         if (towerModeValue.get().equals("watchdog", true))
@@ -601,9 +597,7 @@ class Scaffold: Module() {
         mc.timer.timerSpeed = 1f
         shouldGoDown = false
 
-        val limitedRotation = RotationUtils.limitAngleChange(RotationUtils.serverRotation!!,
-            Rotation(mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch), 58f)
-        RotationUtils.setTargetRot(limitedRotation, 2)
+        RotationUtils.setTargetRot(RotationUtils.serverRotation, 58f)
         if (slot != mc.thePlayer.inventory.currentItem) mc.netHandler.addToSendQueue(C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem))
     }
 
@@ -830,8 +824,6 @@ class Scaffold: Module() {
                 }
                 else -> return false
             }
-            val limitedRotation = RotationUtils.limitAngleChange(RotationUtils.serverRotation!!, lockRotation!!, rotationSpeed)
-            RotationUtils.setTargetRot(limitedRotation, keepLengthValue.get())
         }
 
         if (!rotationsValue.get().equals("None", true) && !towerStatus) {

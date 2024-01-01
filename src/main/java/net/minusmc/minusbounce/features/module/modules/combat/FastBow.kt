@@ -15,8 +15,10 @@ import net.minusmc.minusbounce.utils.PacketUtils
 import net.minusmc.minusbounce.utils.RotationUtils
 import net.minusmc.minusbounce.utils.timer.MSTimer
 import net.minusmc.minusbounce.value.IntegerValue
+import net.minusmc.minusbounce.value.BoolValue
 import net.minecraft.item.ItemBow
 import net.minecraft.network.play.client.C03PacketPlayer.C05PacketPlayerLook
+import net.minecraft.network.play.client.C03PacketPlayer.C06PacketPlayerPosLook
 import net.minecraft.network.play.client.C07PacketPlayerDigging
 import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement
 import net.minecraft.util.BlockPos
@@ -25,8 +27,9 @@ import net.minecraft.util.EnumFacing
 @ModuleInfo(name = "FastBow", spacedName = "Fast Bow", description = "Turns your bow into a machine gun.", category = ModuleCategory.COMBAT)
 class FastBow : Module() {
 
-    private val packetsValue = IntegerValue("Packets", 20, 3, 20)
+    private val packetsValue = IntegerValue("Packets", 3, 3, 20)
     private val delay = IntegerValue("Delay", 0, 0, 500, "ms")
+    private val grim = BoolValue("Grim", false)
 
 
     val timer = MSTimer()
@@ -55,14 +58,20 @@ class FastBow : Module() {
                 mc.thePlayer.rotationPitch
 
             if (delay.get() == 0) {
-                repeat (packetsValue.get()) {
-                    mc.netHandler.addToSendQueue(C05PacketPlayerLook(yaw, pitch, true))
+                if (grim.get()) {
+                    repeat(packetsValue.get()) {
+                        PacketUtils.sendPacketNoEvent(C06PacketPlayerPosLook(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ, yaw, pitch, true))
+                    }
+                } else {
+                    repeat (packetsValue.get()) {
+                        mc.netHandler.addToSendQueue(C05PacketPlayerLook(yaw, pitch, true))
+                    }
                 }
                 PacketUtils.sendPacketNoEvent(C07PacketPlayerDigging(C07PacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN))
             } else {
                 if (timer.hasTimePassed(delay.get().toLong())) {
                     packetCount++
-                    mc.netHandler.addToSendQueue(C05PacketPlayerLook(yaw, pitch, true))
+                    PacketUtils.sendPacketNoEvent(C06PacketPlayerPosLook(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ, yaw, pitch, true))
                     timer.reset()
                 }
                 if (packetCount == packetsValue.get())
