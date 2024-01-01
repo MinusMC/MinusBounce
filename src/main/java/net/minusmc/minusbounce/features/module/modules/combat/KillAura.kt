@@ -554,15 +554,11 @@ class KillAura : Module() {
                         rangeValue.get()
                 ) ?: return null
 
-                val limitedRotation = RotationUtils.limitAngleChange(RotationUtils.serverRotation, rotation, rotationSpeed)
-
-                limitedRotation
+                rotation
             }
             "backtrack" -> {
                 val rotation = RotationUtils.backTrackRotation(boundingBox, RotationUtils.getCenter(entity.entityBoundingBox), predictValue.get(), throughWallsValue.get(), rangeValue.get())
-                val limitedRotation = RotationUtils.limitAngleChange(RotationUtils.serverRotation, rotation, rotationSpeed)
-
-                limitedRotation
+                rotation
             }
             "grim" -> {
                 RotationUtils.calculate(getNearestPointBB(mc.thePlayer.getPositionEyes(1F), boundingBox))

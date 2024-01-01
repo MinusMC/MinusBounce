@@ -455,7 +455,7 @@ class Scaffold: Module() {
 
     fun setTargetRot(){
         if (!rotationsValue.get().equals("None", true) && lockRotation != null) {
-            RotationUtils.setTargetRot(RotationUtils.limitAngleChange(RotationUtils.serverRotation!!, lockRotation!!, rotationSpeed))
+            RotationUtils.setTargetRot(lockRotation!!, rotationSpeed)
         }
     }
 
@@ -597,9 +597,7 @@ class Scaffold: Module() {
         mc.timer.timerSpeed = 1f
         shouldGoDown = false
 
-        val limitedRotation = RotationUtils.limitAngleChange(RotationUtils.serverRotation!!,
-            Rotation(mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch), 58f)
-        RotationUtils.setTargetRot(limitedRotation)
+        RotationUtils.setTargetRot(RotationUtils.serverRotation, 58f)
         if (slot != mc.thePlayer.inventory.currentItem) mc.netHandler.addToSendQueue(C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem))
     }
 
@@ -826,8 +824,6 @@ class Scaffold: Module() {
                 }
                 else -> return false
             }
-            val limitedRotation = RotationUtils.limitAngleChange(RotationUtils.serverRotation!!, lockRotation!!, rotationSpeed)
-            RotationUtils.setTargetRot(limitedRotation)
         }
 
         if (!rotationsValue.get().equals("None", true) && !towerStatus) {
