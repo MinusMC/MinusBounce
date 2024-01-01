@@ -570,7 +570,7 @@ object RotationUtils : MinecraftInstance(), Listenable {
 
     private fun correctDisabledRotations() {
         val rotations = Rotation(mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch)
-        val fixedRotations = resetRotation(applySensitivityPatch(rotations, lastRotation))
+        val fixedRotations = resetRotation(applySensitivityPatch(rotations, lastRotation)) ?: return
 
         mc.thePlayer.rotationYaw = fixedRotations!!.yaw
         mc.thePlayer.rotationPitch = fixedRotations!!.pitch

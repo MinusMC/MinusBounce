@@ -270,7 +270,7 @@ class KillAura : Module() {
         if (currentTarget != null && RotationUtils.targetRotation != null) {
             if (targetStrafe.canStrafe) {
                 val strafingData = targetStrafe.getData()
-                MovementUtils.strafeCustom(MovementUtils.speed, strafingData[0], strafingData[1], strafingData[2])
+                MovementUtils.strafe(MovementUtils.speed, strafingData[0], strafingData[1], strafingData[2])
                 event.cancelEvent()
             }
         }
@@ -523,7 +523,7 @@ class KillAura : Module() {
         val defRotation = getTargetRotation(entity) ?: return false
 
         if (silentRotationValue.get()) {
-            RotationUtils.setTargetRot(defRotation, 0)
+            RotationUtils.setTargetRot(defRotation)
         } else {
             defRotation.toPlayer(mc.thePlayer!!)
         }
