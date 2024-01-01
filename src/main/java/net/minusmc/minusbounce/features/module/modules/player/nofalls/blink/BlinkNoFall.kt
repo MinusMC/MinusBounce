@@ -36,7 +36,7 @@ class BlinkNoFall: NoFallMode("Blink") {
             disable = false
             return
         }
-        if (PlayerUtils.isOnEdge() && mc.thePlayer.fallDistance < fallDistValue.get()) {
+        if (PlayerUtils.isOnEdge && mc.thePlayer.fallDistance < fallDistValue.get()) {
             start = true
         }
         if (start) {

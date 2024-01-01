@@ -70,10 +70,6 @@ class Scaffold: Module() {
     private val towerRotationsValue = ListValue("TowerRotation", arrayOf("Normal", "AAC", "Backwards", "None"), "Normal")
     private val turnSpeed = FloatRangeValue("TurnSpeed", 180f, 180f, 0f, 180f) {!rotationsValue.get().equals("None", true)}
 
-    private val keepLengthValue = IntegerValue("KeepRotationLength", 0, 0, 20) {
-        !rotationsValue.get().equals("None", true)
-    }
-
     private val placeConditionValue = ListValue("PlaceCondition", arrayOf("Always", "Air", "FallDown"), "Always")
 
     private val timerValue = FloatValue("Timer", 1F, 0.1F, 10F)
@@ -458,8 +454,8 @@ class Scaffold: Module() {
     }
 
     fun setTargetRot(){
-        if (!rotationsValue.get().equals("None", true) && keepLengthValue.get() > 0 && lockRotation != null) {
-            RotationUtils.setTargetRot(RotationUtils.limitAngleChange(RotationUtils.serverRotation!!, lockRotation!!, rotationSpeed), keepLengthValue.get())
+        if (!rotationsValue.get().equals("None", true) && lockRotation != null) {
+            RotationUtils.setTargetRot(RotationUtils.limitAngleChange(RotationUtils.serverRotation!!, lockRotation!!, rotationSpeed))
         }
     }
 
@@ -603,7 +599,7 @@ class Scaffold: Module() {
 
         val limitedRotation = RotationUtils.limitAngleChange(RotationUtils.serverRotation!!,
             Rotation(mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch), 58f)
-        RotationUtils.setTargetRot(limitedRotation, 2)
+        RotationUtils.setTargetRot(limitedRotation)
         if (slot != mc.thePlayer.inventory.currentItem) mc.netHandler.addToSendQueue(C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem))
     }
 
@@ -831,7 +827,7 @@ class Scaffold: Module() {
                 else -> return false
             }
             val limitedRotation = RotationUtils.limitAngleChange(RotationUtils.serverRotation!!, lockRotation!!, rotationSpeed)
-            RotationUtils.setTargetRot(limitedRotation, keepLengthValue.get())
+            RotationUtils.setTargetRot(limitedRotation)
         }
 
         if (!rotationsValue.get().equals("None", true) && !towerStatus) {

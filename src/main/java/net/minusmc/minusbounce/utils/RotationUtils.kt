@@ -242,7 +242,7 @@ object RotationUtils : MinecraftInstance(), Listenable {
      * @return difference between rotation
      */
     fun getRotationDifference(rotation: Rotation): Double {
-        return if (serverRotation == null) 0.0 else getRotationDifference(rotation, serverRotation)
+        return getRotationDifference(rotation, serverRotation)
     }
 
     /**
@@ -450,8 +450,6 @@ object RotationUtils : MinecraftInstance(), Listenable {
     }
 
     fun resetRotation(rotation: Rotation): Rotation? {
-        rotation ?: return null
-
         val yaw = rotation.yaw + MathHelper.wrapAngleTo180_float(mc.thePlayer.rotationYaw - rotation.yaw)
         val pitch = mc.thePlayer.rotationPitch
         return Rotation(yaw, pitch)
@@ -511,7 +509,7 @@ object RotationUtils : MinecraftInstance(), Listenable {
 
     @EventTarget
     fun onPreUpdate(event: PreUpdateEvent) {
-        if(!active || rotations == null || targetRotation == null || lastRotation == null) {
+        if(!active || targetRotation == null ) {
             rotations = Rotation(mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch)
             targetRotation = rotations
             lastRotation = rotations
@@ -523,7 +521,7 @@ object RotationUtils : MinecraftInstance(), Listenable {
 
     // @EventTarget
     // fun onLook(event: LookEvent) {
-    //     if (active && rotations != null) {
+    //     if (active) {
     //         event.oldRotation = lastRotation
     //         event.currentRotation = rotations
     //     }
@@ -531,19 +529,19 @@ object RotationUtils : MinecraftInstance(), Listenable {
 
     @EventTarget
     fun onStrafe(event: StrafeEvent) {
-        if (active && rotations != null)
+        if (active)
             event.yaw = rotations.yaw
     }
 
     @EventTarget
     fun onJump(event: JumpEvent) {
-        if (active && rotations != null)
+        if (active)
             event.yaw = rotations.yaw
     }
 
     @EventTarget
     fun onPreMotion(event: PreMotionEvent) { // pre motion instead of motion
-        if (active && rotations != null) {
+        if (active) {
             event.yaw = rotations.yaw
             event.pitch = rotations.pitch
 
@@ -572,13 +570,13 @@ object RotationUtils : MinecraftInstance(), Listenable {
         val rotations = Rotation(mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch)
         val fixedRotations = resetRotation(applySensitivityPatch(rotations, lastRotation)) ?: return
 
-        mc.thePlayer.rotationYaw = fixedRotations!!.yaw
-        mc.thePlayer.rotationPitch = fixedRotations!!.pitch
+        mc.thePlayer.rotationYaw = fixedRotations.yaw
+        mc.thePlayer.rotationPitch = fixedRotations.pitch
     }
 
     fun smooth(){
         if (!smoothed)
-            rotations = smooth(lastRotation!!, targetRotation!!, rotationSpeed)
+            rotations = smooth(lastRotation, targetRotation!!, rotationSpeed)
         smoothed = true
 
         mc.entityRenderer.getMouseOver(1f)

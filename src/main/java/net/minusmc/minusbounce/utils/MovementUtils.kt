@@ -75,7 +75,7 @@ object MovementUtils : MinecraftInstance() {
 
     fun getDirection(): Double {
         val ts = MinusBounce.moduleManager[TargetStrafe::class.java] ?: return getRawDirection().toDouble()
-        return if (ts != null && ts!!.canStrafe) 
+        return if (ts.canStrafe) 
             ts.getMovingDir()
         else
             getRawDirection().toDouble()
@@ -220,8 +220,8 @@ object MovementUtils : MinecraftInstance() {
     }
 
     fun setSpeed(event: MoveEvent, speed: Double, yaw: Float, forward: Double, strafe: Double) {
-        var forward = strafe
-        var strafe = forward
+        var forward = forward
+        var strafe = strafe
         var yaw = yaw
         if (forward == 0.0 && strafe == 0.0) {
             event.z = 0.0

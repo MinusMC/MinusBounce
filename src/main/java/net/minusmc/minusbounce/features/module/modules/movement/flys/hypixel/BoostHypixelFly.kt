@@ -100,7 +100,7 @@ class BoostHypixelFly: FlyMode("BoostHypixel", FlyType.HYPIXEL) {
 
         moveSpeed = max(moveSpeed, 0.3)
 
-        val yaw = MovementUtils.direction
+        val yaw = MovementUtils.getRawDirection()
         event.x = -sin(yaw) * moveSpeed
         event.z = cos(yaw) * moveSpeed
         mc.thePlayer.motionX = event.x
