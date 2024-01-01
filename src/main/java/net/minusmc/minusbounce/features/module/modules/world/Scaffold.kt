@@ -413,12 +413,21 @@ class Scaffold: Module() {
 
     @EventTarget
     fun onPreUpdate(event: PreUpdateEvent) {
+        if (!placeCondition || if (!autoBlockMode.get().equals("off", true)) InventoryUtils.findAutoBlockBlock() == -1 else mc.thePlayer.heldItem == null || !(mc.thePlayer.heldItem.item is ItemBlock && isBlockToScaffold(mc.thePlayer.heldItem.item as ItemBlock))) {
+            return
+        }
+
         findBlock(expandLengthValue.get() > 1 && !towerStatus)
+    }
+
+    fun setTargetRot(){
+        if (!rotationsValue.get().equals("None", true) && keepLengthValue.get() > 0 && lockRotation != null) {
+            RotationUtils.setTargetRot(RotationUtils.limitAngleChange(RotationUtils.serverRotation!!, lockRotation!!, rotationSpeed), keepLengthValue.get())
+        }
     }
 
     @EventTarget
     fun onPreMotion(event: PreMotionEvent) {
-        setTargetRot()
         if (towerStatus && towerModeValue.get().equals("verus", true)) {
             if (mc.theWorld.getCollidingBoundingBoxes(mc.thePlayer, mc.thePlayer.entityBoundingBox.offset(0.0, -0.01, 0.0)).isNotEmpty() && mc.thePlayer.onGround && mc.thePlayer.isCollidedVertically) {
                 verusState = 0
@@ -448,9 +457,7 @@ class Scaffold: Module() {
             verusJumped = true
         }
 
-        if (!placeCondition || if (!autoBlockMode.get().equals("off", true)) InventoryUtils.findAutoBlockBlock() == -1 else mc.thePlayer.heldItem == null || !(mc.thePlayer.heldItem.item is ItemBlock && isBlockToScaffold(mc.thePlayer.heldItem.item as ItemBlock))) {
-            return
-        }
+        setTargetRot()
 
         if (placeModeValue.get().equals("pre", true)) place()
 
@@ -459,15 +466,8 @@ class Scaffold: Module() {
         }
     }
 
-    fun setTargetRot(){
-        if (!rotationsValue.get().equals("None", true) && keepLengthValue.get() > 0 && lockRotation != null) {
-            RotationUtils.setTargetRot(RotationUtils.limitAngleChange(RotationUtils.serverRotation!!, lockRotation!!, rotationSpeed), keepLengthValue.get())
-        }
-    }
-
     @EventTarget
     fun onPostMotion(event: PostMotionEvent) {
-        setTargetRot()
         towerStatus = false
 
         if (towerModeValue.get().equals("watchdog", true))
@@ -494,6 +494,8 @@ class Scaffold: Module() {
         }
 
         if (towerStatus) tower()
+
+        setTargetRot()
 
         if (placeModeValue.get().equals("post", true)) place()
 
