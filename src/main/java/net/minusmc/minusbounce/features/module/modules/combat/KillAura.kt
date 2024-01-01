@@ -549,13 +549,9 @@ class KillAura : Module() {
 
                 val (_, rotation) = RotationUtils.searchCenter(
                         boundingBox,
-                        false,
-                        false,
                         predictValue.get(),
                         throughWallsValue.get(),
-                        rangeValue.get(),
-                        0f,
-                        false
+                        rangeValue.get()
                 ) ?: return null
 
                 val limitedRotation = RotationUtils.limitAngleChange(RotationUtils.serverRotation!!, rotation, rotationSpeed)
@@ -563,7 +559,7 @@ class KillAura : Module() {
                 limitedRotation
             }
             "backtrack" -> {
-                val rotation = RotationUtils.otherRotation(boundingBox, RotationUtils.getCenter(entity.entityBoundingBox), predictValue.get(), throughWallsValue.get(), rangeValue.get())
+                val rotation = RotationUtils.backTrackRotation(boundingBox, RotationUtils.getCenter(entity.entityBoundingBox), predictValue.get(), throughWallsValue.get(), rangeValue.get())
                 val limitedRotation = RotationUtils.limitAngleChange(RotationUtils.serverRotation!!, rotation, rotationSpeed)
 
                 limitedRotation

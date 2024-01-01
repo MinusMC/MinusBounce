@@ -39,6 +39,7 @@ data class Rotation(var yaw: Float, var pitch: Float) {
      * @see net.minecraft.client.renderer.EntityRenderer.updateCameraAndRender
      */
     fun fixedSensitivity(sensitivity: Float) {
+        val fixedRotation = RotationUtils.applySensitivityPatch(rotation, serverRotation)
         val f = sensitivity * 0.6F + 0.2F
         val gcd = f * f * f * 1.2F
 
@@ -68,88 +69,6 @@ data class Rotation(var yaw: Float, var pitch: Float) {
         val f2: Float = -MathHelper.cos(-pitch * 0.017453292f)
         val f3: Float = MathHelper.sin(-pitch * 0.017453292f)
         return Vec3((f1 * f2).toDouble(), f3.toDouble(), (f * f2).toDouble())
-    }
-    
-    fun applyStrafeToPlayer(event: StrafeEvent) {
-        val player = MinecraftInstance.mc.thePlayer
-        val dif = ((MathHelper.wrapAngleTo180_float(player.rotationYaw - this.yaw
-                - 23.5f - 135)
-                + 180) / 45).toInt()
-
-        val yaw = this.yaw
-
-        val strafe = event.strafe
-        val forward = event.forward
-        val friction = event.friction
-
-        var calcForward = 0f
-        var calcStrafe = 0f
-
-        when (dif) {
-            0 -> {
-                calcForward = forward
-                calcStrafe = strafe
-            }
-            1 -> {
-                calcForward += forward
-                calcStrafe -= forward
-                calcForward += strafe
-                calcStrafe += strafe
-            }
-            2 -> {
-                calcForward = strafe
-                calcStrafe = -forward
-            }
-            3 -> {
-                calcForward -= forward
-                calcStrafe -= forward
-                calcForward += strafe
-                calcStrafe -= strafe
-            }
-            4 -> {
-                calcForward = -forward
-                calcStrafe = -strafe
-            }
-            5 -> {
-                calcForward -= forward
-                calcStrafe += forward
-                calcForward -= strafe
-                calcStrafe -= strafe
-            }
-            6 -> {
-                calcForward = -strafe
-                calcStrafe = forward
-            }
-            7 -> {
-                calcForward += forward
-                calcStrafe += forward
-                calcForward -= strafe
-                calcStrafe += strafe
-            }
-        }
-
-        if (calcForward > 1f || calcForward < 0.9f && calcForward > 0.3f || calcForward < -1f || calcForward > -0.9f && calcForward < -0.3f) {
-            calcForward *= 0.5f
-        }
-
-        if (calcStrafe > 1f || calcStrafe < 0.9f && calcStrafe > 0.3f || calcStrafe < -1f || calcStrafe > -0.9f && calcStrafe < -0.3f) {
-            calcStrafe *= 0.5f
-        }
-
-        var d = calcStrafe * calcStrafe + calcForward * calcForward
-
-        if (d >= 1.0E-4f) {
-            d = MathHelper.sqrt_float(d)
-            if (d < 1.0f) d = 1.0f
-            d = friction / d
-            calcStrafe *= d
-            calcForward *= d
-            val yawSin = MathHelper.sin((yaw * Math.PI / 180f).toFloat())
-            val yawCos = MathHelper.cos((yaw * Math.PI / 180f).toFloat())
-            player.motionX += calcStrafe * yawCos - calcForward * yawSin.toDouble()
-            player.motionZ += calcForward * yawCos + calcStrafe * yawSin.toDouble()
-        }
-        event.cancelEvent()
     }
 }
 

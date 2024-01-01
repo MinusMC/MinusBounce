@@ -166,7 +166,7 @@ class VerusFly: FlyMode("Verus", FlyType.VERUS) {
             MovementUtils.strafe(motion)
         } else if (verusDmged) {
             mc.timer.timerSpeed = 1f
-            MovementUtils.strafe(MovementUtils.baseMoveSpeed.toFloat() * 0.6f)
+            MovementUtils.strafe(MovementUtils.getBaseMoveSpeed().toFloat() * 0.6f)
         } else {
             mc.thePlayer.movementInput.moveForward = 0f
             mc.thePlayer.movementInput.moveStrafe = 0f
