@@ -308,17 +308,24 @@ class KillAura : Module() {
 
     @EventTarget
     fun onPreUpdate(event: PreUpdateEvent){
-        while (clicks > 0) {
-            runAttack()
-            clicks--
+        if (cancelRun) {
+            currentTarget = null
+            hitable = false
+            stopBlocking()
+            return
+        }
+
+        if (currentTarget != null) {
+            while (clicks > 0) {
+                runAttack()
+                clicks--
+            }
         }
     }
 
     @EventTarget
     fun onUpdate(event: UpdateEvent) {
-        if(currentTarget == null){
-            stopBlocking()
-        }
+        updateTarget()
 
         if (autoBlockModeValue.get().equals("RightHold", true) && canBlock) {
             mc.gameSettings.keyBindUseItem.pressed = currentTarget != null && mc.thePlayer.getDistanceToEntityBox(currentTarget!!) < rangeValue.get()
@@ -367,8 +374,7 @@ class KillAura : Module() {
             GL11.glPopMatrix()
         }
 
-        if (currentTarget != null && attackTimer.hasTimePassed(attackDelay) &&
-                currentTarget!!.hurtTime <= hurtTimeValue.get()) {
+        if (currentTarget != null && attackTimer.hasTimePassed(attackDelay) && currentTarget!!.hurtTime <= hurtTimeValue.get()) {
             clicks++
             attackTimer.reset()
             attackDelay = TimeUtils.randomClickDelay(cps.getMinValue(), cps.getMaxValue())
@@ -487,16 +493,16 @@ class KillAura : Module() {
     }
 
     private fun attackEntity(entity: EntityLivingBase) {
-        val criticals = MinusBounce.moduleManager[Criticals::class.java] as Criticals
-
-        stopBlocking()
-
+        if (mc.thePlayer.isBlocking || blockingStatus) 
+            stopBlocking()
+    
         MinusBounce.eventManager.callEvent(AttackEvent(entity))
 
         // Attack target
         runSwing()
-
         mc.netHandler.addToSendQueue(C02PacketUseEntity(entity, C02PacketUseEntity.Action.ATTACK))
+
+        val criticals = MinusBounce.moduleManager[Criticals::class.java] as Criticals
 
         if (keepSprintValue.get()) {
             if (mc.thePlayer.fallDistance > 0F && !mc.thePlayer.onGround && !mc.thePlayer.isOnLadder && !mc.thePlayer.isInWater && !mc.thePlayer.isPotionActive(Potion.blindness) && mc.thePlayer.ridingEntity == null || criticals.state && criticals.msTimer.hasTimePassed(criticals.delayValue.get().toLong()) && !mc.thePlayer.isInWater && !mc.thePlayer.isInLava && !mc.thePlayer.isInWeb)
