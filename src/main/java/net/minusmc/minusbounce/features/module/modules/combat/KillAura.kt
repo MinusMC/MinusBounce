@@ -301,13 +301,13 @@ class KillAura : Module() {
                 watchdogc02++
             }
         }
+
+        // Update target
+        updateTarget()
     }
 
     @EventTarget
     fun onPreUpdate(event: PreUpdateEvent){
-        // Update target
-        updateTarget()
-
         while (clicks > 0) {
             runAttack()
             clicks--
