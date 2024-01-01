@@ -122,7 +122,7 @@ class TargetStrafe : Module() {
 
     fun getMovingYaw(): Float {
         val dt = getData()
-        return MovementUtils.getRawDirectionRotation(dt[0], dt[1], dt[2])
+        return MovementUtils.getRawDirection(dt[0], dt[1], dt[2])
     }
 
     fun getMovingDir(): Double {

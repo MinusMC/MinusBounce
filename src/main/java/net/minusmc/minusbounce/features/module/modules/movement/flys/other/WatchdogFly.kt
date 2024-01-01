@@ -61,7 +61,7 @@ class WatchdogFly: FlyMode("Watchdog", FlyType.OTHER) {
 
         if (wdState == 4) {
             if (MovementUtils.isMoving)
-                MovementUtils.strafe(MovementUtils.baseMoveSpeed.toFloat() * 0.938f)
+                MovementUtils.strafe(MovementUtils.getBaseMoveSpeed().toFloat() * 0.938f)
             else
                 MovementUtils.strafe(0f)
 
