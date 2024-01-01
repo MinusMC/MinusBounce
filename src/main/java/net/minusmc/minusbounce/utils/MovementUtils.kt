@@ -296,19 +296,4 @@ object MovementUtils : MinecraftInstance() {
         mc.thePlayer.motionX = -sin(MathUtils.toRadians(forward)) * multiplier
         mc.thePlayer.motionZ = cos(MathUtils.toRadians(forward)) * multiplier
     }
-
-    fun lbFixMove(event: MoveInputEvent): MoveInputEvent {
-        val targetRotation = RotationUtils.targetRotation ?: return event
-
-        val forward = event.forward
-        val strafe = event.strafe
-
-        val rotationOffset = MathUtils.toRadians(mc.thePlayer.rotationYaw - targetRotation.yaw)
-        val cosValue = cos(rotationOffset)
-        val sinValue = sin(rotationOffset)
-
-        event.forward = round(forward * cosValue + strafe * sinValue)
-        event.strafe = round(strafe * cosValue - forward * sinValue)
-        return event
-    }
 }
