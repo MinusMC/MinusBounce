@@ -25,15 +25,6 @@ public class MixinNetworkManager {
     @Inject(method = "channelRead0", at = @At("HEAD"), cancellable = true)
     private void read(ChannelHandlerContext context, Packet<?> packet, CallbackInfo callback) {
         final PacketEvent event = new PacketEvent(packet);
-        BackTrack backTrack = MinusBounce.moduleManager.getModule(BackTrack.class);
-        assert backTrack != null;
-        if (backTrack.getState()) {
-            try {
-                backTrack.onPacket(event);
-            } catch (Exception e) {
-                //Minecraft.logger.error("Exception caught in BackTrack", e);
-            }
-        }
         MinusBounce.eventManager.callEvent(event);
 
         if(event.isCancelled())
@@ -44,15 +35,6 @@ public class MixinNetworkManager {
     private void send(Packet<?> packet, CallbackInfo callback) {
         if (PacketUtils.Companion.handleSendPacket(packet)) return;
         final PacketEvent event = new PacketEvent(packet);
-        BackTrack backTrack = MinusBounce.moduleManager.getModule(BackTrack.class);
-        assert backTrack != null;
-        if (backTrack.getState()) {
-            try {
-                backTrack.onPacket(event);
-            } catch (Exception e) {
-                //Minecraft.logger.error("Exception caught in BackTrack", e);
-            }
-        }
         MinusBounce.eventManager.callEvent(event);
 
         if(event.isCancelled())
