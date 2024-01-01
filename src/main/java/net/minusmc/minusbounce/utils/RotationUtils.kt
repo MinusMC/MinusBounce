@@ -211,13 +211,6 @@ object RotationUtils : MinecraftInstance(), Listenable {
         )
     }
 
-    fun legitRotation(entity: Entity): Rotation {
-        return calculate(
-            Vec3(mc.thePlayer.posX, mc.thePlayer.posY + mc.thePlayer.eyeHeight, mc.thePlayer.posZ),
-            Vec3(entity.posX, entity.posY + max(0, min(mc.thePlayer.posY - entity.posY + mc.thePlayer.eyeHeight, (entity.entityBoundingBox.maxY - entity.entityBoundingBox.minY) * 0.9)), entity.posZ)
-        )
-    }
-
     /**
      * Calculate difference between the client rotation and your entity
      *
