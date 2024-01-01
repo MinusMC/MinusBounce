@@ -20,6 +20,8 @@ import net.minecraft.item.ItemBucketMilk
 import net.minecraft.item.ItemFood
 import net.minecraft.item.ItemPotion
 import net.minecraft.network.play.client.C03PacketPlayer
+import net.minecraft.network.play.client.C03PacketPlayer.C06PacketPlayerPosLook
+import net.minusmc.minusbounce.utils.*
 
 @ModuleInfo(name = "FastUse", spacedName = "Fast Use", description = "Allows you to use items faster.", category = ModuleCategory.PLAYER)
 class FastUse : Module() {
