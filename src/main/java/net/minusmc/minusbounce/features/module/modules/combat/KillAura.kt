@@ -194,6 +194,9 @@ class KillAura : Module() {
 
     @EventTarget
     fun onPreMotion(event: PreMotionEvent) {
+        // Update target
+        updateTarget()
+        
         if (autoBlockModeValue.get().equals("Watchdog", true)) {
             if (mc.thePlayer.heldItem.item is ItemSword && currentTarget != null) {
                 watchdogkaing = true
@@ -301,9 +304,6 @@ class KillAura : Module() {
                 watchdogc02++
             }
         }
-
-        // Update target
-        updateTarget()
     }
 
     @EventTarget

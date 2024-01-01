@@ -391,7 +391,6 @@ class Scaffold: Module() {
 
     @EventTarget
     fun onPacket(event: PacketEvent) {
-        setTargetRot()
         mc.thePlayer ?: return
         val packet = event.packet
         
@@ -413,6 +412,7 @@ class Scaffold: Module() {
 
     @EventTarget
     fun onPreMotion(event: PreMotionEvent) {
+        setTargetRot()
         if (towerStatus && towerModeValue.get().equals("verus", true)) {
             if (mc.theWorld.getCollidingBoundingBoxes(mc.thePlayer, mc.thePlayer.entityBoundingBox.offset(0.0, -0.01, 0.0)).isNotEmpty() && mc.thePlayer.onGround && mc.thePlayer.isCollidedVertically) {
                 verusState = 0
