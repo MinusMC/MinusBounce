@@ -94,9 +94,9 @@ class TargetStrafe : Module() {
 
     fun strafe(event: MoveEvent, moveSpeed: Double) {
         val killAura = MinusBounce.moduleManager[KillAura::class.java]!!
-        if (killAura.currentTarget == null) return
+        if (killAura.target == null) return
 
-        val currentTarget = killAura.currentTarget!!
+        val currentTarget = killAura.target!!
         val rotYaw = RotationUtils.getRotationsEntity(currentTarget).yaw
 
         val forward = if (mc.thePlayer.getDistanceToEntity(currentTarget) <= radius.get()) 0.0 else 1.0
@@ -109,9 +109,9 @@ class TargetStrafe : Module() {
 
     fun getData(): Array<Float> {
         val killAura = MinusBounce.moduleManager[KillAura::class.java]!!
-        if (killAura.currentTarget == null) return arrayOf(0F, 0F, 0F)
+        if (killAura.target == null) return arrayOf(0F, 0F, 0F)
 
-        val currentTarget = killAura.currentTarget!!
+        val currentTarget = killAura.target!!
         val rotYaw = RotationUtils.getRotationsEntity(currentTarget).yaw
 
         val forward = if (mc.thePlayer.getDistanceToEntity(currentTarget) <= radius.get()) 0F else 1F
@@ -147,7 +147,7 @@ class TargetStrafe : Module() {
             val killAura = MinusBounce.moduleManager[KillAura::class.java]!!
             val speed = MinusBounce.moduleManager[Speed::class.java]!!
             val fly = MinusBounce.moduleManager[Fly::class.java]!!
-            return state && (speed.state || fly.state) && killAura.state && killAura.currentTarget != null && !mc.thePlayer.isSneaking && keyMode
+            return state && (speed.state || fly.state) && killAura.state && killAura.target != null && !mc.thePlayer.isSneaking && keyMode
         }
 
     private fun checkVoid(): Boolean {
@@ -181,7 +181,7 @@ class TargetStrafe : Module() {
     @EventTarget
     fun onRender3D(event: Render3DEvent) {
         val killAura = MinusBounce.moduleManager[KillAura::class.java]!!
-        val target = killAura.currentTarget ?: return
+        val target = killAura.target ?: return
         if ((canStrafe || alwaysRender.get()) && render.get()) {
             GL11.glPushMatrix()
             GL11.glTranslated(

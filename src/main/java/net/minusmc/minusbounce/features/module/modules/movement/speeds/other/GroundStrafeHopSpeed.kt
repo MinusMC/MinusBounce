@@ -8,7 +8,7 @@ import net.minusmc.minusbounce.event.EventState
 import net.minusmc.minusbounce.utils.MovementUtils
 
 class GroundStrafeHopSpeed: SpeedMode("GroundStrafeHop", SpeedType.OTHER) {
-    override fun onPreMotion(event: PreMotionEvent) {
+    fun onMotion() {
         if (MovementUtils.isMoving) {
             if (mc.thePlayer.onGround) {
                 mc.thePlayer.jump()
@@ -18,5 +18,13 @@ class GroundStrafeHopSpeed: SpeedMode("GroundStrafeHop", SpeedType.OTHER) {
             mc.thePlayer.motionX = 0.0
             mc.thePlayer.motionZ = 0.0
         }
+    }
+
+    override fun onPreMotion(event: PreMotionEvent) {
+        onMotion()
+    }
+
+    override fun onPostMotion(event: PostMotionEvent) {
+        onMotion()
     }
 }
