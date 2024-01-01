@@ -22,6 +22,7 @@ import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement
 import net.minecraft.network.play.client.C09PacketHeldItemChange
 import net.minecraft.network.play.client.C03PacketPlayer.C06PacketPlayerPosLook
 import net.minusmc.minusbounce.utils.*
+import net.minusmc.minusbounce.utils.timer.MSTimer
 
 @ModuleInfo(name = "Gapple", description = "Eat Gapples.", category = ModuleCategory.PLAYER)
 class Gapple : Module() {
@@ -31,6 +32,7 @@ class Gapple : Module() {
     private val delayValue = IntegerValue("Delay", 150, 0, 1000, "ms")
     private val noAbsorption = BoolValue("NoAbsorption", true)
     private val grim = BoolValue("Grim", true)
+    private val packetsGrimAmount = IntegerValue("GrimAmount", 35, 1, 50)
     private val timer = MSTimer()
 
     @EventTarget
