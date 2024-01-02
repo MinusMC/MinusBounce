@@ -69,7 +69,9 @@ class Scaffold: Module() {
 
     private val towerRotationsValue = ListValue("TowerRotation", arrayOf("Normal", "AAC", "Backwards", "None"), "Normal")
     private val turnSpeed = FloatRangeValue("TurnSpeed", 180f, 180f, 0f, 180f) {!rotationsValue.get().equals("None", true)}
-
+    private val keepLengthValue = IntegerValue("KeepRotationLength", 0, 0, 20) {
+        !rotationsValue.get().equals("None", true)
+    }
     private val placeConditionValue = ListValue("PlaceCondition", arrayOf("Always", "Air", "FallDown"), "Always")
 
     private val timerValue = FloatValue("Timer", 1F, 0.1F, 10F)
@@ -413,7 +415,6 @@ class Scaffold: Module() {
 
     @EventTarget
     fun onPreMotion(event: PreMotionEvent) {
-        setTargetRot()
         if (towerStatus && towerModeValue.get().equals("verus", true)) {
             if (mc.theWorld.getCollidingBoundingBoxes(mc.thePlayer, mc.thePlayer.entityBoundingBox.offset(0.0, -0.01, 0.0)).isNotEmpty() && mc.thePlayer.onGround && mc.thePlayer.isCollidedVertically) {
                 verusState = 0
@@ -451,12 +452,6 @@ class Scaffold: Module() {
 
         if (targetPlace == null && !placeableDelay.get().equals("Off", true) && !towerStatus) {
             delayTimer.reset()
-        }
-    }
-
-    fun setTargetRot(){
-        if (!rotationsValue.get().equals("None", true) && lockRotation != null) {
-            RotationUtils.setTargetRot(lockRotation!!, rotationSpeed)
         }
     }
 
@@ -597,7 +592,7 @@ class Scaffold: Module() {
         mc.timer.timerSpeed = 1f
         shouldGoDown = false
 
-        RotationUtils.setTargetRot(RotationUtils.serverRotation, 58f)
+        RotationUtils.setTargetRot(RotationUtils.serverRotation!!, 0)
         if (slot != mc.thePlayer.inventory.currentItem) mc.netHandler.addToSendQueue(C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem))
     }
 
@@ -824,6 +819,9 @@ class Scaffold: Module() {
                 }
                 else -> return false
             }
+            if (!rotationsValue.get().equals("None", true) && lockRotation != null) {
+                RotationUtils.setTargetRot(lockRotation!!, keepLengthValue.get())
+            }
         }
 
         if (!rotationsValue.get().equals("None", true) && !towerStatus) {
@@ -853,6 +851,9 @@ class Scaffold: Module() {
                     Rotation(calcyaw.toFloat(), calcpitch)
                 }
                 else -> return false
+            }
+            if (!rotationsValue.get().equals("None", true) && lockRotation != null) {
+                RotationUtils.setTargetRot(lockRotation!!, keepLengthValue.get())
             }
         }
 
