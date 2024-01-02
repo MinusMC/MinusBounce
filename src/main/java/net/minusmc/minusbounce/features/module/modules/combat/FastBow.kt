@@ -58,14 +58,11 @@ class FastBow : Module() {
                 mc.thePlayer.rotationPitch
 
             if (delay.get() == 0) {
-                if (grim.get()) {
-                    repeat(packetsValue.get()) {
+                repeat (packetsValue.get()) {
+                    if (grim.get())
                         PacketUtils.sendPacketNoEvent(C06PacketPlayerPosLook(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ, yaw, pitch, true))
-                    }
-                } else {
-                    repeat (packetsValue.get()) {
+                    else
                         mc.netHandler.addToSendQueue(C05PacketPlayerLook(yaw, pitch, true))
-                    }
                 }
                 PacketUtils.sendPacketNoEvent(C07PacketPlayerDigging(C07PacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN))
             } else {

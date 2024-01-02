@@ -33,11 +33,11 @@ import net.minusmc.minusbounce.features.module.modules.movement.InvMove;
 import net.minusmc.minusbounce.features.module.modules.movement.NoSlow;
 import net.minusmc.minusbounce.features.module.modules.movement.Sprint;
 import net.minusmc.minusbounce.features.module.modules.world.Scaffold;
-import net.minusmc.minusbounce.utils.*;
+import net.minusmc.minusbounce.utils.Rotation;
+import net.minusmc.minusbounce.utils.RotationUtils;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.List;
@@ -133,9 +133,9 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
      * @author CCBlueX
      */
     @Overwrite
-    public void onUpdateWalkingPlayer() {
+    public void onUpdateWalkingPlayer() { // entityactionevent = motionevent
         try {
-            PreMotionEvent event = new PreMotionEvent(this.posX, this.getEntityBoundingBox().minY, this.posZ, this.rotationYaw, this.rotationPitch, this.onGround);
+            MotionEvent event = new MotionEvent(this.posX, this.getEntityBoundingBox().minY, this.posZ, this.rotationYaw, this.rotationPitch, this.onGround);
             MinusBounce.eventManager.callEvent(event);
 
             final InvMove inventoryMove = MinusBounce.moduleManager.getModule(InvMove.class);
@@ -164,12 +164,22 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
                 this.serverSneakState = sneaking;
             }
 
-            if (this.isCurrentViewEntity()) {                
+            if (this.isCurrentViewEntity()) {
+                float yaw = event.getYaw();
+                float pitch = event.getPitch();
+                float lastReportedYaw = RotationUtils.serverRotation.getYaw();
+                float lastReportedPitch = RotationUtils.serverRotation.getPitch();
+
+                if (RotationUtils.targetRotation != null) {
+                    yaw = RotationUtils.targetRotation.getYaw();
+                    pitch = RotationUtils.targetRotation.getPitch();
+                }
+
                 double xDiff = event.getX() - this.lastReportedPosX;
                 double yDiff = event.getY() - this.lastReportedPosY;
                 double zDiff = event.getZ() - this.lastReportedPosZ;
-                double yawDiff = event.getYaw() - this.lastReportedYaw;
-                double pitchDiff = event.getPitch() - this.lastReportedPitch;
+                double yawDiff = yaw - lastReportedYaw;
+                double pitchDiff = pitch - lastReportedPitch;
 
                 final Criticals criticals = MinusBounce.moduleManager.getModule(Criticals.class);
 
@@ -178,16 +188,16 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
 
                 if (this.ridingEntity == null) {
                     if (moved && rotated) {
-                        this.sendQueue.addToSendQueue(new C03PacketPlayer.C06PacketPlayerPosLook(event.getX(), event.getY(), event.getZ(), event.getYaw(), event.getPitch(), event.getOnGround()));
+                        this.sendQueue.addToSendQueue(new C03PacketPlayer.C06PacketPlayerPosLook(event.getX(), event.getY(), event.getZ(), yaw, pitch, event.getOnGround()));
                     } else if (moved) {
                         this.sendQueue.addToSendQueue(new C03PacketPlayer.C04PacketPlayerPosition(event.getX(), event.getY(), event.getZ(), event.getOnGround()));
                     } else if (rotated) {
-                        this.sendQueue.addToSendQueue(new C03PacketPlayer.C05PacketPlayerLook(event.getYaw(), event.getPitch(), event.getOnGround()));
+                        this.sendQueue.addToSendQueue(new C03PacketPlayer.C05PacketPlayerLook(yaw, pitch, event.getOnGround()));
                     } else {
                         this.sendQueue.addToSendQueue(new C03PacketPlayer(event.getOnGround()));
                     }
                 } else {
-                    this.sendQueue.addToSendQueue(new C03PacketPlayer.C06PacketPlayerPosLook(this.motionX, -999.0D, this.motionZ, event.getYaw(), event.getPitch(), event.getOnGround()));
+                    this.sendQueue.addToSendQueue(new C03PacketPlayer.C06PacketPlayerPosLook(this.motionX, -999.0D, this.motionZ, yaw, pitch, event.getOnGround()));
                     moved = false;
                 }
 
@@ -201,16 +211,16 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
                 }
 
                 if (rotated) {
-                    this.lastReportedYaw = event.getYaw();
-                    this.lastReportedPitch = event.getPitch();
-                    RotationUtils.serverRotation = new Rotation(this.lastReportedYaw, this.lastReportedPitch);
+                    this.lastReportedYaw = yaw;
+                    this.lastReportedPitch = pitch;
                 }
             }
 
             if (this.isCurrentViewEntity())
                 lastOnGround = event.getOnGround();
 
-            MinusBounce.eventManager.callEvent(new PostMotionEvent());
+            event.setEventState(EventState.POST);
+            MinusBounce.eventManager.callEvent(event);
         } catch (final Exception e) {
             e.printStackTrace();
         }
@@ -232,8 +242,6 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
     @Overwrite
     public void onLivingUpdate() {
         MinusBounce.eventManager.callEvent(new UpdateEvent());
-
-        final Scaffold scaffold = MinusBounce.moduleManager.getModule(Scaffold.class);
 
         if (this.sprintingTicksLeft > 0) {
             --this.sprintingTicksLeft;
@@ -289,7 +297,7 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
         float f = 0.8F;
         boolean flag2 = this.movementInput.moveForward >= f;
         this.movementInput.updatePlayerMoveState();
-        
+
         final NoSlow noSlow = MinusBounce.moduleManager.getModule(NoSlow.class);
         final KillAura killAura = MinusBounce.moduleManager.getModule(KillAura.class);
         final Sprint sprint = MinusBounce.moduleManager.getModule(Sprint.class);
@@ -307,30 +315,32 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
         this.pushOutOfBlocks(this.posX + (double) this.width * 0.35D, this.getEntityBoundingBox().minY + 0.5D, this.posZ - (double) this.width * 0.35D);
         this.pushOutOfBlocks(this.posX + (double) this.width * 0.35D, this.getEntityBoundingBox().minY + 0.5D, this.posZ + (double) this.width * 0.35D);
 
-        boolean flag3 = (float) this.getFoodStats().getFoodLevel() > 6.0F || this.capabilities.allowFlying;
+        boolean flag3 = !sprint.getFoodValue().get() || (float) this.getFoodStats().getFoodLevel() > 6.0F || this.capabilities.allowFlying;
 
         if (this.onGround && !flag1 && !flag2 && this.movementInput.moveForward >= f && !this.isSprinting() && flag3 && !this.isUsingItem() && !this.isPotionActive(Potion.blindness)) {
-            if (this.sprintToggleTimer <= 0 && (!this.mc.gameSettings.keyBindSprint.isKeyDown() || !sprint.getState())) {
+            if (this.sprintToggleTimer <= 0 && !this.mc.gameSettings.keyBindSprint.isKeyDown()) {
                 this.sprintToggleTimer = 7;
             } else {
                 this.setSprinting(true);
             }
         }
 
-        if (!this.isSprinting() && this.movementInput.moveForward >= f && flag3 && (noSlow.getState() || !this.isUsingItem()) && !this.isPotionActive(Potion.blindness) && (this.mc.gameSettings.keyBindSprint.isKeyDown() || sprint.getState())) {
+        if (!this.isSprinting() && this.movementInput.moveForward >= f && flag3 && (noSlow.getState() || !this.isUsingItem()) && !this.isPotionActive(Potion.blindness) && this.mc.gameSettings.keyBindSprint.isKeyDown()) {
             this.setSprinting(true);
         }
 
-        if (this.isSprinting() && this.movementInput.moveForward < f || this.isCollidedHorizontally || !flag3) {
+        final Scaffold scaffold = MinusBounce.moduleManager.getModule(Scaffold.class);
+
+        if ((scaffold.getState() && !scaffold.getCanSprint()) || (sprint.getState() && sprint.getCheckServerSide().get() && (onGround || !sprint.getCheckServerSideGround().get()) && !sprint.getAllDirectionsValue().get() && RotationUtils.targetRotation != null && RotationUtils.INSTANCE.getRotationDifference(new Rotation(mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch)) > 30))
+            this.setSprinting(false);
+
+        if (this.isSprinting() && ((!(sprint.getState() && sprint.getAllDirectionsValue().get()) && this.movementInput.moveForward < f) || this.isCollidedHorizontally || !flag3)) {
             this.setSprinting(false);
         }
-
-        if (scaffold.getState() && !scaffold.getCanSprint()) this.setSprinting(false);
-        
         if (this.isSprinting() && noSlow.getState() && noSlow.getNoSprintValue().get() && noSlow.isSlowing()) {
             this.setSprinting(false);
         }
-
+        
         if (this.capabilities.allowFlying) {
             if (this.mc.playerController.isSpectatorMode()) {
                 if (!this.capabilities.isFlying) {

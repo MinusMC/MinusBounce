@@ -72,17 +72,10 @@ class Speed: Module() {
 	}
 
 	@EventTarget
-	fun onPreMotion(event: PreMotionEvent) {
-        if (mc.thePlayer.isSneaking) return
+	fun onMotion(event: MotionEvent) {
+        if (mc.thePlayer.isSneaking || event.eventState != EventState.PRE) return
 		if (MovementUtils.isMoving && alwaysSprint.get()) mc.thePlayer.isSprinting = true
-		mode.onPreMotion(event)
-	}
-
-	@EventTarget
-	fun onPostMotion(event: PostMotionEvent) {
-        if (mc.thePlayer.isSneaking) return
-		if (MovementUtils.isMoving && alwaysSprint.get()) mc.thePlayer.isSprinting = true
-		mode.onPostMotion(event)
+		mode.onMotion(event)
 	}
 
 	@EventTarget

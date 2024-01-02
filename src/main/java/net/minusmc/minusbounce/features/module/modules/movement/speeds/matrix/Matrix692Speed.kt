@@ -3,8 +3,7 @@ package net.minusmc.minusbounce.features.module.modules.movement.speeds.matrix
 import net.minusmc.minusbounce.features.module.modules.movement.speeds.SpeedType
 import net.minusmc.minusbounce.features.module.modules.movement.speeds.SpeedMode
 import net.minusmc.minusbounce.utils.MovementUtils
-import net.minusmc.minusbounce.event.PostMotionEvent
-import net.minusmc.minusbounce.event.PreMotionEvent
+import net.minusmc.minusbounce.event.MotionEvent
 import net.minecraft.client.settings.GameSettings
 
 class Matrix692Speed: SpeedMode("Matrix 6.9.2", SpeedType.MATRIX) {
@@ -14,9 +13,8 @@ class Matrix692Speed: SpeedMode("Matrix 6.9.2", SpeedType.MATRIX) {
 		wasTimer = false
         mc.timer.timerSpeed = 1f
 	}
-
-    fun onMotion() {
-        if (wasTimer) {
+	override fun onMotion(event: MotionEvent) {
+		if (wasTimer) {
             wasTimer = false
             mc.timer.timerSpeed = 1f
         }
@@ -32,13 +30,5 @@ class Matrix692Speed: SpeedMode("Matrix 6.9.2", SpeedType.MATRIX) {
         } else if (MovementUtils.speed < 0.215) {
             MovementUtils.strafe(0.215f)
         }
-    }
-
-	override fun onPreMotion(event: PreMotionEvent) {
-        onMotion()
-    }
-
-    override fun onPostMotion(event: PostMotionEvent) {
-        onMotion()
-    }
+	}
 }

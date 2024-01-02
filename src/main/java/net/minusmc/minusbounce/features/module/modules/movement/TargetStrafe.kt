@@ -46,6 +46,9 @@ class TargetStrafe : Module() {
     private val thicknessValue = FloatValue("Thickness", 1F, 0.1F, 5F)
     private val outLine = BoolValue("Outline", true)
     private val expMode = BoolValue("ExperimentalSpeed", false)
+    private lateinit var killAura: KillAura
+    private lateinit var speed: Speed
+    private lateinit var fly: Fly
 
     var direction = 1
     private var lastView = 0
@@ -53,14 +56,20 @@ class TargetStrafe : Module() {
 
     private var hasModifiedMovement = false
 
+    override fun onInitialize() {
+        speed = MinusBounce.moduleManager.getModule(Speed::class.java) as Speed
+        fly = MinusBounce.moduleManager.getModule(Fly::class.java) as Fly
+        killAura = MinusBounce.moduleManager.getModule(KillAura::class.java) as KillAura
+    }
+
     override fun onEnable() {
         hasChangedThirdPerson = true
         lastView = mc.gameSettings.thirdPersonView
     }
 
     @EventTarget
-    fun onPreMotion(event: PreMotionEvent) {
-        if (thirdPerson.get()) {
+    fun onMotion(event: MotionEvent) {
+        if (thirdPerson.get()) { // smart change back lol
             if (canStrafe) {
                 if (hasChangedThirdPerson) lastView = mc.gameSettings.thirdPersonView
                 mc.gameSettings.thirdPersonView = 1
@@ -71,14 +80,16 @@ class TargetStrafe : Module() {
             }
         }
 
-        if (mc.thePlayer.isCollidedHorizontally)
-            direction = -direction
+        if (event.eventState == EventState.PRE) {
+            if (mc.thePlayer.isCollidedHorizontally)
+                this.direction = -this.direction
 
-        if (mc.gameSettings.keyBindLeft.pressed)
-            direction = 1
+            if (mc.gameSettings.keyBindLeft.pressed)
+                this.direction = 1
 
-        if (mc.gameSettings.keyBindRight.pressed)
-            direction = -1
+            if (mc.gameSettings.keyBindRight.pressed)
+                this.direction = -1
+        }
     }
 
     @EventTarget(priority = 2)
@@ -93,28 +104,26 @@ class TargetStrafe : Module() {
     }
 
     fun strafe(event: MoveEvent, moveSpeed: Double) {
-        val killAura = MinusBounce.moduleManager[KillAura::class.java]!!
         if (killAura.target == null) return
 
-        val currentTarget = killAura.target!!
-        val rotYaw = RotationUtils.getRotationsEntity(currentTarget).yaw
+        val target = killAura.target!!
+        val rotYaw = RotationUtils.getRotationsEntity(target).yaw
 
-        val forward = if (mc.thePlayer.getDistanceToEntity(currentTarget) <= radius.get()) 0.0 else 1.0
+        val forward = if (mc.thePlayer.getDistanceToEntity(target) <= radius.get()) 0.0 else 1.0
         val strafe = direction.toDouble()
-        val modifySpeed = if (expMode.get()) maximizeSpeed(currentTarget, moveSpeed, killAura.rangeValue.get()) else moveSpeed
+        val modifySpeed = if (expMode.get()) maximizeSpeed(target, moveSpeed, killAura.rangeValue.get()) else moveSpeed
 
         MovementUtils.setSpeed(event, modifySpeed, rotYaw, strafe, forward)
         hasModifiedMovement = true
     }
 
     fun getData(): Array<Float> {
-        val killAura = MinusBounce.moduleManager[KillAura::class.java]!!
         if (killAura.target == null) return arrayOf(0F, 0F, 0F)
 
-        val currentTarget = killAura.target!!
-        val rotYaw = RotationUtils.getRotationsEntity(currentTarget).yaw
+        val target = killAura.target!!
+        val rotYaw = RotationUtils.getRotationsEntity(target).yaw
 
-        val forward = if (mc.thePlayer.getDistanceToEntity(currentTarget) <= radius.get()) 0F else 1F
+        val forward = if (mc.thePlayer.getDistanceToEntity(target) <= radius.get()) 0F else 1F
         val strafe = direction.toFloat()
 
         return arrayOf(rotYaw, strafe, forward)
@@ -122,7 +131,7 @@ class TargetStrafe : Module() {
 
     fun getMovingYaw(): Float {
         val dt = getData()
-        return MovementUtils.getRawDirection(dt[0], dt[1], dt[2])
+        return MovementUtils.getRawDirectionRotation(dt[0], dt[1], dt[2])
     }
 
     fun getMovingDir(): Double {
@@ -143,12 +152,7 @@ class TargetStrafe : Module() {
         }
 
     val canStrafe: Boolean
-        get() {
-            val killAura = MinusBounce.moduleManager[KillAura::class.java]!!
-            val speed = MinusBounce.moduleManager[Speed::class.java]!!
-            val fly = MinusBounce.moduleManager[Fly::class.java]!!
-            return state && (speed.state || fly.state) && killAura.state && killAura.target != null && !mc.thePlayer.isSneaking && keyMode
-        }
+        get() = (state && (speed.state || fly.state) && killAura.state && killAura.target != null && !mc.thePlayer.isSneaking && keyMode)
 
     private fun checkVoid(): Boolean {
         for (x in -1..0) {
@@ -180,9 +184,9 @@ class TargetStrafe : Module() {
 
     @EventTarget
     fun onRender3D(event: Render3DEvent) {
-        val killAura = MinusBounce.moduleManager[KillAura::class.java]!!
-        val target = killAura.target ?: return
+        val target = killAura.target
         if ((canStrafe || alwaysRender.get()) && render.get()) {
+            target?:return
             GL11.glPushMatrix()
             GL11.glTranslated(
                 target.lastTickPosX + (target.posX - target.lastTickPosX) * mc.timer.renderPartialTicks - mc.renderManager.renderPosX,

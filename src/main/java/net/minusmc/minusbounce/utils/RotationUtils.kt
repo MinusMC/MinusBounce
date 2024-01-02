@@ -11,7 +11,10 @@ import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.entity.projectile.EntityEgg
 import net.minecraft.network.play.client.C03PacketPlayer
 import net.minecraft.util.*
-import net.minusmc.minusbounce.event.*
+import net.minusmc.minusbounce.event.EventTarget
+import net.minusmc.minusbounce.event.Listenable
+import net.minusmc.minusbounce.event.PacketEvent
+import net.minusmc.minusbounce.event.TickEvent
 import net.minusmc.minusbounce.utils.RaycastUtils.IEntityFilter
 import net.minusmc.minusbounce.utils.RaycastUtils.raycastEntity
 import java.util.*
@@ -22,72 +25,63 @@ import kotlin.math.*
 object RotationUtils : MinecraftInstance(), Listenable {
     private val random = Random()
     private var keepLength = 0
-
     @JvmField
     var targetRotation: Rotation? = null
-
     @JvmField
-    public var serverRotation: Rotation? = Rotation(0f, 0f)
-
+    var serverRotation: Rotation? = Rotation(0f, 0f)
+    var keepCurrentRotation = false
     private var x = random.nextDouble()
     private var y = random.nextDouble()
     private var z = random.nextDouble()
 
-    @EventTarget 
-    fun onPreMotion(event: PreMotionEvent){
-        targetRotation?.let {
-            event.yaw = it.yaw
-            event.pitch = it.pitch
-        }
-    }
-
-    @EventTarget 
-    fun onPostMotion(event: PreMotionEvent){
-        targetRotation?.let {
-            event.yaw = it.yaw
-            event.pitch = it.pitch
-        }
-    }
-
+    /**
+     * Handle minecraft tick
+     *
+     * @param event Tick event
+     */
     @EventTarget
-    fun onUpdate(event: PreUpdateEvent){
-        if (targetRotation != null){
+    fun onTick(event: TickEvent) {
+        if (targetRotation != null) {
             keepLength--
-
-            if(keepLength <= 0){
-                targetRotation = null
-                keepLength = 0
-            }
+            if (keepLength <= 0) reset()
         }
-
         if (random.nextGaussian() > 0.8) x = Math.random()
         if (random.nextGaussian() > 0.8) y = Math.random()
         if (random.nextGaussian() > 0.8) z = Math.random()
     }
 
     /**
-     * Set your target rotation
+     * Handle packet
      *
-     * @param rotation your target rotation
+     * @param event Packet Event
      */
-    fun setTargetRot(rotation: Rotation, keepLength: Int) {
-        if (java.lang.Double.isNaN(rotation.yaw.toDouble()) || java.lang.Double.isNaN(rotation.pitch.toDouble()) || rotation.pitch > 90 || rotation.pitch < -90) return
-        rotation.fixedSensitivity(mc.gameSettings.mouseSensitivity)
-        targetRotation = rotation
-        this.keepLength = keepLength
+    @EventTarget
+    fun onPacket(event: PacketEvent) {
+        val packet = event.packet
+        if (packet is C03PacketPlayer) {
+            val packetPlayer = packet
+            if (targetRotation != null && !keepCurrentRotation && (targetRotation!!.yaw != serverRotation!!.yaw || targetRotation!!.pitch != serverRotation!!.pitch)) {
+                packetPlayer.yaw = targetRotation!!.yaw
+                packetPlayer.pitch = targetRotation!!.pitch
+                packetPlayer.rotating = true
+            }
+            if (packetPlayer.rotating) serverRotation = Rotation(packetPlayer.yaw, packetPlayer.pitch)
+        }
     }
 
     /**
      * @return YESSSS!!!
      */
-    override fun handleEvents() = true
+    override fun handleEvents(): Boolean {
+        return true
+    }
 
     /**
      * @author aquavit
      *
      * epic skid moment
      */
-    fun backTrackRotation(
+    fun otherRotation(
         bb: AxisAlignedBB,
         vec: Vec3,
         predict: Boolean,
@@ -474,6 +468,25 @@ object RotationUtils : MinecraftInstance(), Listenable {
         setTargetRot(rotation, 0)
     }
 
+    /**
+     * Set your target rotation
+     *
+     * @param rotation your target rotation
+     */
+    fun setTargetRot(rotation: Rotation, keepLength: Int) {
+        if (java.lang.Double.isNaN(rotation.yaw.toDouble()) || java.lang.Double.isNaN(rotation.pitch.toDouble()) || rotation.pitch > 90 || rotation.pitch < -90) return
+        rotation.fixedSensitivity(mc.gameSettings.mouseSensitivity)
+        targetRotation = rotation
+        this.keepLength = keepLength
+    }
+
+    /**
+     * Reset your target rotation
+     */
+    fun reset() {
+        keepLength = 0
+        targetRotation = null
+    }
 
     fun getRotationsEntity(entity: EntityLivingBase): Rotation {
         return getRotations(entity.posX, entity.posY + entity.eyeHeight - 0.4, entity.posZ)

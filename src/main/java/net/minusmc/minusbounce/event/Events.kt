@@ -77,12 +77,6 @@ class Render3DEvent(val partialTicks: Float) : Event()
 class JumpEvent(var motion: Float, var yaw: Float) : CancellableEvent()
 
 /**
- * Called when movement input
- */
-
-class MoveInputEvent(var forward: Float, var strafe: Float, var jump: Boolean, var sneak: Boolean, var sneakMultiplier: Double) : Event()
-
-/**
  * Called when user press a key once
  *
  * @param key Pressed key
@@ -90,14 +84,13 @@ class MoveInputEvent(var forward: Float, var strafe: Float, var jump: Boolean, v
 class KeyEvent(val key: Int) : Event()
 
 /**
- * Called before motion
+ * Called in "onUpdateWalkingPlayer"
+ *
+ * @param eventState PRE or POST
  */
-class PreMotionEvent(var x: Double, var y: Double, var z: Double, var yaw: Float, var pitch: Float, var onGround: Boolean): Event()
-
-/**
- * Called after motion
- */
-class PostMotionEvent: Event()
+class MotionEvent(var x: Double, var y: Double, var z: Double, var yaw: Float, var pitch: Float, var onGround: Boolean) : Event() {
+    var eventState: EventState = EventState.PRE
+}
 
 /**
  * Called when player sprints or sneaks, after pre-motion event
@@ -145,7 +138,13 @@ class MoveEvent(var x: Double, var y: Double, var z: Double) : CancellableEvent(
 /**
  * Called when receive or send a packet
  */
-class PacketEvent(val packet: Packet<*>) : CancellableEvent()
+class PacketEvent(val packet: Packet<*>) : CancellableEvent() {
+    // enum class Type {
+    //     RECEIVE,
+    //     SEND
+    // }
+    // fun isServerSide() = type == Type.RECEIVE
+}
 
 /**
  * Called when a block tries to push you
@@ -196,12 +195,7 @@ class TickEvent : Event()
 /**
  * Called when minecraft player will be updated
  */
-class UpdateEvent: Event()
-
-/**
- * Called before update
- */
-class PreUpdateEvent: CancellableEvent()
+class UpdateEvent : Event()
 
 /**
  * Called when the world changes
@@ -223,3 +217,12 @@ class ReloadClientEvent : Event()
  */
 class EntityKilledEvent(val targetEntity: EntityLivingBase): Event()
 
+/**
+ * Called before update
+ */
+class PreUpdateEvent: CancellableEvent()
+
+/**
+ * Called when movement input
+ */
+class MoveInputEvent(var forward: Float, var strafe: Float, var jump: Boolean, var sneak: Boolean, var sneakMultiplier: Double) : Event()

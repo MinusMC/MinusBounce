@@ -100,27 +100,30 @@ class BoostHypixelFly: FlyMode("BoostHypixel", FlyType.HYPIXEL) {
 
         moveSpeed = max(moveSpeed, 0.3)
 
-        val yaw = MovementUtils.getRawDirection()
+        val yaw = MovementUtils.direction
         event.x = -sin(yaw) * moveSpeed
         event.z = cos(yaw) * moveSpeed
         mc.thePlayer.motionX = event.x
         mc.thePlayer.motionZ = event.z
 	}
 
-	override fun onPreMotion(event: PreMotionEvent) {
-        hypixelTimer.update()
-        if (hypixelTimer.hasTimePassed(2)) {
-            mc.thePlayer.setPosition(mc.thePlayer.posX, mc.thePlayer.posY + 1.0E-5, mc.thePlayer.posZ)
-            hypixelTimer.reset()
-        }
-        if (!failedStart) mc.thePlayer.motionY = 0.0
+	override fun onMotion(event: MotionEvent) {
+		when (event.eventState) {
+	        EventState.PRE -> {
+	        	hypixelTimer.update()
+	            if (hypixelTimer.hasTimePassed(2)) {
+	                mc.thePlayer.setPosition(mc.thePlayer.posX, mc.thePlayer.posY + 1.0E-5, mc.thePlayer.posZ)
+	                hypixelTimer.reset()
+	            }
+	            if(!failedStart) mc.thePlayer.motionY = 0.0
+	        }
+	        EventState.POST -> {
+	        	val xDist = mc.thePlayer.posX - mc.thePlayer.prevPosX
+	            val zDist = mc.thePlayer.posZ - mc.thePlayer.prevPosZ
+                lastDistance = sqrt(xDist * xDist + zDist * zDist)
+	        }
+	    }
 	}
-
-    override fun onPostMotion(event: PostMotionEvent) {
-        val xDist = mc.thePlayer.posX - mc.thePlayer.prevPosX
-        val zDist = mc.thePlayer.posZ - mc.thePlayer.prevPosZ
-        lastDistance = sqrt(xDist * xDist + zDist * zDist)
-    }
 
 	override fun onPacket(event: PacketEvent) {
         val packet = event.packet

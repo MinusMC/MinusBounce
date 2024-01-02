@@ -1,17 +1,21 @@
 package net.minusmc.minusbounce.features.module.modules.movement.noslows.ncp
 
 import net.minusmc.minusbounce.features.module.modules.movement.noslows.NoSlowMode
-import net.minusmc.minusbounce.event.PreMotionEvent
-import net.minusmc.minusbounce.event.PostMotionEvent
+import net.minusmc.minusbounce.event.MotionEvent
 
 class NewNCPNoSlow : NoSlowMode("NewNCP") {
-    override fun onPreMotion(event: PreMotionEvent) {
+    override fun onMotion(event: MotionEvent) {
         if (mc.thePlayer.ticksExisted % 2 == 0)
-            sendC07(true, 50, true)
-    }
-
-    override fun onPostMotion(event: PostMotionEvent) {
-        if (mc.thePlayer.ticksExisted % 2 != 0)
-            sendC08(false, 0, true, true)
+            sendPacket(event, sendC07 = true, sendC08 = false, delay = false, delayValue = 50, onGround = true)
+        else
+            sendPacket(
+                event,
+                sendC07 = false,
+                sendC08 = true,
+                delay = false,
+                delayValue = 0,
+                onGround = true,
+                watchDog = true
+            )
     }
 }

@@ -157,7 +157,7 @@ class Step : Module() {
                     }
 
                     ncpNextStep == 2 -> {
-                        val yaw = MovementUtils.getRawDirection()
+                        val yaw = MovementUtils.direction
 
                         event.y = 1.001335979112147 - 0.7531999805212
                         event.x = -sin(yaw) * 0.7
@@ -552,7 +552,7 @@ class Step : Module() {
     }
 
     private fun couldStep(): Boolean {
-        val yaw = MovementUtils.getRawDirection()
+        val yaw = MovementUtils.direction
         val x = -sin(yaw) * 0.4
         val z = cos(yaw) * 0.4
 

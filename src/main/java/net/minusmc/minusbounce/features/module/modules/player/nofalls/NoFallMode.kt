@@ -21,8 +21,7 @@ abstract class NoFallMode(val modeName: String): MinecraftInstance() {
 
     open fun onUpdate() {}
     open fun onPacket(event: PacketEvent) {}
-    open fun onPreMotion(event: PreMotionEvent) {}
-    open fun onPostMotion(event: PostMotionEvent) {}
+    open fun onMotion(event: MotionEvent) {}
     open fun onMove(event: MoveEvent) {}
     open fun onWorld(event: WorldEvent) {}
     open fun onJump() {}
