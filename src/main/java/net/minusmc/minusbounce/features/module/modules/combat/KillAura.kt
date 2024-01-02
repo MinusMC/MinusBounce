@@ -55,19 +55,6 @@ class KillAura : Module() {
 
     // Range
     val rangeValue = FloatValue("Range", 3.7f, 1f, 8f, "m")
-    private val swingRangeValue: FloatValue = object: FloatValue("SwingRange", 3f, 0f, 8f, "m") {
-        override fun onChanged(oldValue: Float, newValue: Float) {
-            val v = rangeValue.get()
-            if (v > newValue) set(v)
-        }
-    }
-    private val rotationRangeValue: FloatValue = object: FloatValue("RotationRange", 3f, 0f, 8f, "m") {
-        override fun onChanged(oldValue: Float, newValue: Float) {
-            val v = rangeValue.get()
-            if (v > newValue) set(v)
-        }
-    }
-
     // Modes
     private val rotations = ListValue("RotationMode", arrayOf("Vanilla", "BackTrack", "Grim", "Intave", "None"), "BackTrack")
     private val intaveRandomAmount = FloatValue("RandomAmount", 4f, 0.25f, 10f) { rotations.get().equals("Intave", true) }
@@ -130,7 +117,6 @@ class KillAura : Module() {
     val aacValue = BoolValue("AAC", false)
 
     private val silentRotationValue = BoolValue("SilentRotation", true) { !rotations.get().equals("none", true) }
-    val rotationStrafeValue = ListValue("Strafe", arrayOf("LiquidBounce", "FDP", "Off"), "Off")
     val movementCorrection = ListValue("MovementCorrection", arrayOf("Rise", "LiquidBounce", "Off"), "Off")
     private val fovValue = FloatValue("FOV", 180f, 0f, 180f)
 
@@ -340,16 +326,12 @@ class KillAura : Module() {
             }
         }
 
-        if (rotationStrafeValue.get().equals("Off", true))
-            update()
+        update()
     }
 
     @EventTarget
     fun onStrafe(event: StrafeEvent) {
-        val targetStrafe = MinusBounce.moduleManager.getModule(TargetStrafe::class.java)!!
-        if (rotationStrafeValue.get().equals("Off", true) && !targetStrafe.state)
-            return
-
+        val targetStrafe = MinusBounce.moduleManager[TargetStrafe::class.java]!!
         update()
 
         if (currentTarget != null && RotationUtils.targetRotation != null) {
@@ -357,14 +339,6 @@ class KillAura : Module() {
                 val strafingData = targetStrafe.getData()
                 MovementUtils.strafeCustom(MovementUtils.speed, strafingData[0], strafingData[1], strafingData[2])
                 event.cancelEvent()
-            } else {
-                if (!movementCorrection.get().equals("Off", true)) {
-                    MovementUtils.strafeCorrection(event)
-                    return
-                }
-
-                update()
-                MovementUtils.strafeFix(event, rotationStrafeValue.get(), RotationUtils.targetRotation)
             }
         }
     }
@@ -542,18 +516,6 @@ class KillAura : Module() {
         updateHitable()
     }
 
-    @EventTarget
-    fun onJump(event: JumpEvent) {
-        if (!movementCorrection.get().equals("Off", true)) {
-            MovementUtils.jumpCorrection(event)
-        }
-    }
-
-    @EventTarget
-    fun onMoveInput(event: MoveInputEvent) {
-        MovementUtils.moveFix(event, movementCorrection.get())
-    }
-
     private fun runAttack() {
         target ?: return
         currentTarget ?: return
@@ -634,7 +596,7 @@ class KillAura : Module() {
             val distance = mc.thePlayer.getDistanceToEntityBox(entity)
             val entityFov = RotationUtils.getRotationDifference(entity)
 
-            if (distance <= rotationRangeValue.get() && (fov == 180F || entityFov <= fov) && entity.hurtTime <= hurtTime)
+            if (distance <= rangeValue.get() && (fov == 180F || entityFov <= fov) && entity.hurtTime <= hurtTime)
                 targets.add(entity)
         }
 
@@ -757,7 +719,7 @@ class KillAura : Module() {
                         randomCenterValue.get(),
                         predictValue.get(),
                         throughWallsValue.get(),
-                        rotationRangeValue.get(),
+                        rangeValue.get(),
                         RandomUtils.nextFloat(minRand.get(), maxRand.get()),
                         randomCenterNewValue.get()
                 ) ?: return null
@@ -767,7 +729,7 @@ class KillAura : Module() {
                 limitedRotation
             }
             "backtrack" -> {
-                val rotation = RotationUtils.otherRotation(boundingBox, RotationUtils.getCenter(entity.entityBoundingBox), predictValue.get(), throughWallsValue.get(), rotationRangeValue.get())
+                val rotation = RotationUtils.otherRotation(boundingBox, RotationUtils.getCenter(entity.entityBoundingBox), predictValue.get(), throughWallsValue.get(), rangeValue.get())
                 val limitedRotation = RotationUtils.limitAngleChange(RotationUtils.serverRotation!!, rotation, rotationSpeed)
 
                 limitedRotation
@@ -799,7 +761,7 @@ class KillAura : Module() {
             return
         }
 
-        val reach = min(rotationRangeValue.get().toDouble(), mc.thePlayer.getDistanceToEntityBox(target!!)) + 1
+        val reach = min(rangeValue.get().toDouble(), mc.thePlayer.getDistanceToEntityBox(target!!)) + 1
 
         if (raycastValue.get()) {
             val raycastedEntity = RaycastUtils.raycastEntity(reach, object: RaycastUtils.IEntityFilter {
@@ -858,7 +820,7 @@ class KillAura : Module() {
             val yawSin = sin(-yaw * 0.017453292F - Math.PI.toFloat())
             val pitchCos = -cos(-pitch * 0.017453292F)
             val pitchSin = sin(-pitch * 0.017453292F)
-            val range = min(rotationRangeValue.get().toDouble(), mc.thePlayer!!.getDistanceToEntityBox(interactEntity)) + 1
+            val range = min(rangeValue.get().toDouble(), mc.thePlayer!!.getDistanceToEntityBox(interactEntity)) + 1
             val lookAt = positionEye!!.addVector(yawSin * pitchCos * range, pitchSin * range, yawCos * pitchCos * range)
 
             val movingObject = boundingBox.calculateIntercept(positionEye, lookAt) ?: return

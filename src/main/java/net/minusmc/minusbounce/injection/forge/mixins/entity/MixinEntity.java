@@ -202,8 +202,8 @@ public abstract class MixinEntity {
             callbackInfoReturnable.setReturnValue(0.1F + hitBox.getSizeValue().get());
     }
 
-    @Inject(method = "moveFlying", at = @At("HEAD"), cancellable = true)
-    private void handleRotations(float strafe, float forward, float friction, final CallbackInfo callbackInfo) {
+    @Overwrite
+    public void moveFlying(float strafe, float forward, float friction) {
         if ((Entity) (Object) this != Minecraft.getMinecraft().thePlayer)
             return;
         

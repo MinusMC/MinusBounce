@@ -402,7 +402,7 @@ object MovementUtils : MinecraftInstance() {
                             closestForward = predictedForward
                             closestStrafe = predictedStrafe
                         }
-
+                        predictedStrafe += 1f
                     }
                     predictedForward += 1f
                 }

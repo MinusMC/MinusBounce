@@ -111,7 +111,6 @@ class Scaffold: Module() {
         !rotationsValue.get().equals("None", true)
     }
     private val placeConditionValue = ListValue("PlaceCondition", arrayOf("Always", "Air", "FallDown"), "Always")
-    val rotationStrafeValue = ListValue("Strafe", arrayOf("LiquidBounce", "FDP", "Off"), "Off")
     val movementCorrection = ListValue("MovementCorrection", arrayOf("Rise", "LiquidBounce", "Off"), "Off")
 
     private val zitterModeValue = ListValue("ZitterMode", arrayOf("Teleport", "Smooth", "Off"), "Off")
@@ -576,21 +575,6 @@ class Scaffold: Module() {
         
     }
 
-    @EventTarget
-    fun onStrafe(event: StrafeEvent) {
-        if (!movementCorrection.get().equals("Off", true)) {
-            MovementUtils.strafeCorrection(event)
-            return
-        }
-
-        MovementUtils.strafeFix(event, rotationStrafeValue.get(), lockRotation)
-    }
-
-    @EventTarget
-    fun onMoveInput(event: MoveInputEvent) {
-        MovementUtils.moveFix(event, movementCorrection.get())
-    }
-
     private fun findBlock(expand: Boolean) {
         val blockPosition = if (shouldGoDown) {
             if (mc.thePlayer.posY == mc.thePlayer.posY.toInt() + 0.5)
@@ -706,10 +690,7 @@ class Scaffold: Module() {
 
     @EventTarget
     fun onJump(event: JumpEvent) {
-        if (!movementCorrection.get().equals("Off", true)) {
-            MovementUtils.jumpCorrection(event)
-        }
-        if (towerStatus) event.cancelEvent()
+        if (towerStatus) event.cancelEvent() 
     }
 
     @EventTarget
