@@ -55,12 +55,6 @@ class KillAura : Module() {
 
     // Range
     val rangeValue = FloatValue("Range", 3.7f, 1f, 8f, "m")
-    private val swingRangeValue: FloatValue = object: FloatValue("SwingRange", 3f, 0f, 8f, "m") {
-        override fun onChanged(oldValue: Float, newValue: Float) {
-            val v = rangeValue.get()
-            if (v > newValue) set(v)
-        }
-    }
 
     // Modes
     private val rotations = ListValue("RotationMode", arrayOf("Vanilla", "BackTrack", "Grim", "Intave", "None"), "BackTrack")
@@ -401,12 +395,9 @@ class KillAura : Module() {
     }
 
     @EventTarget
-    fun onPreUpdate(event: PreUpdateEvent) {
-        updateKA()
-    }
-
-    @EventTarget
     fun onUpdate(event: UpdateEvent) {
+        updateKA()
+
         if (autoBlockModeValue.get().equals("RightHold", true) && canBlock) {
             mc.gameSettings.keyBindUseItem.pressed = currentTarget != null && mc.thePlayer.getDistanceToEntityBox(currentTarget!!) < rangeValue.get()
         }
@@ -633,6 +624,9 @@ class KillAura : Module() {
             found = true
             break
         }
+
+        if (found)
+            return
 
         target = null
 
