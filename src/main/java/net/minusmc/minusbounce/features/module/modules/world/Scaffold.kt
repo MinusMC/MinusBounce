@@ -111,7 +111,7 @@ class Scaffold: Module() {
         !rotationsValue.get().equals("None", true)
     }
     private val placeConditionValue = ListValue("PlaceCondition", arrayOf("Always", "Air", "FallDown"), "Always")
-    val movementCorrection = ListValue("MovementCorrection", arrayOf("Rise", "LiquidBounce", "Off"), "Off")
+    val movementCorrection = BoolValue("MovementCorrection", true)
 
     private val zitterModeValue = ListValue("ZitterMode", arrayOf("Teleport", "Smooth", "Off"), "Off")
     private val zitterSpeed = FloatValue("ZitterSpeed", 0.13F, 0.1F, 0.3F) {

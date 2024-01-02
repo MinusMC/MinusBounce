@@ -117,7 +117,7 @@ class KillAura : Module() {
     val aacValue = BoolValue("AAC", false)
 
     private val silentRotationValue = BoolValue("SilentRotation", true) { !rotations.get().equals("none", true) }
-    val movementCorrection = ListValue("MovementCorrection", arrayOf("Rise", "LiquidBounce", "Off"), "Off")
+    val movementCorrection = BoolValue("MovementCorrection", true)
     private val fovValue = FloatValue("FOV", 180f, 0f, 180f)
 
     // Predict

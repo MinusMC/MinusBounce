@@ -39,6 +39,7 @@ object RotationUtils : MinecraftInstance(), Listenable {
      *
      * @param event Tick event
      */
+
     @EventTarget
     fun onTick(event: TickEvent) {
         if (targetRotation != null) {
