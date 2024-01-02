@@ -359,12 +359,12 @@ class KillAura : Module() {
                 event.cancelEvent()
             } else {
                 if (!movementCorrection.get().equals("Off", true)) {
-                    MovementUtils.jumpCorrection(event)
+                    MovementUtils.strafeCorrection(event)
                     return
                 }
 
                 update()
-                MovementUtils.strafeFix(event, rotationStrafeValue.get())
+                MovementUtils.strafeFix(event, rotationStrafeValue.get(), RotationUtils.targetRotation)
             }
         }
     }

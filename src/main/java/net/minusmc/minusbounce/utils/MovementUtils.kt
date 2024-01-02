@@ -9,13 +9,11 @@ import net.minecraft.block.BlockIce
 import net.minecraft.block.BlockPackedIce
 import net.minecraft.potion.Potion
 import net.minecraft.util.BlockPos
+import net.minecraft.util.MathHelper
 import net.minusmc.minusbounce.MinusBounce
-import net.minusmc.minusbounce.event.MoveEvent
+import net.minusmc.minusbounce.event.*
 import net.minusmc.minusbounce.features.module.modules.movement.TargetStrafe
-import kotlin.math.atan2
-import kotlin.math.cos
-import kotlin.math.sin
-import kotlin.math.sqrt
+import kotlin.math.*
 
 object MovementUtils : MinecraftInstance() {
     private var lastX = -999999.0
@@ -380,17 +378,19 @@ object MovementUtils : MinecraftInstance() {
 
         when (mode.lowercase()) {
             "rise" -> {
-                if (forward == 0 && strafe == 0) return
+                if (forward == 0f && strafe == 0f) return
 
-                var closestForward = 0
-                var closestStrafe = 0
+                val angle = MathHelper.wrapAngleTo180_double(Math.toDegrees(MovementUtils.getDirectionRotation(mc.thePlayer.rotationYaw, forward, strafe)))
+
+                var closestForward = 0f
+                var closestStrafe = 0f
                 var closestDifference = Float.MAX_VALUE
 
                 var predictedForward = -1f
                 while (predictedForward <= 1f) {
                     var predictedStrafe = -1f
                     while (predictedStrafe <= 1f) {
-                        if (predictedStrafe == 0 && predictedForward == 0) {
+                        if (predictedStrafe == 0f && predictedForward == 0f) {
                             predictedStrafe += 1f
                             continue
                         }
@@ -411,7 +411,7 @@ object MovementUtils : MinecraftInstance() {
                 event.strafe = closestStrafe
             }
             "liquidbounce" -> {
-                val rotationOffset = Math.toRadians(mc.thePlayer.rotationYaw - yaw)
+                val rotationOffset = Math.toRadians(mc.thePlayer.rotationYaw.toDouble() - yaw).toFloat()
                 val cosValue = cos(rotationOffset)
                 val sinValue = sin(rotationOffset)
 

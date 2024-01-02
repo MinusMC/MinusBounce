@@ -19,6 +19,7 @@ import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.Vec3;
+import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityDispatcher;
@@ -206,10 +207,10 @@ public abstract class MixinEntity {
         if ((Entity) (Object) this != Minecraft.getMinecraft().thePlayer)
             return;
         
-        final StrafeEvent strafeEvent = new StrafeEvent(strafe, forward, friction, this.rotationYaw);
-        MinusBounce.eventManager.callEvent(strafeEvent);
+        final StrafeEvent event = new StrafeEvent(strafe, forward, friction, this.rotationYaw);
+        MinusBounce.eventManager.callEvent(event);
 
-        if (strafeEvent.isCancelled())
+        if (event.isCancelled())
             return;
 
         strafe = event.getStrafe();

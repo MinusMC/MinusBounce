@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.*;
 import net.minusmc.minusbounce.injection.forge.mixins.client.MixinMovementInput;
 
 @Mixin(MovementInputFromOptions.class)
-public class MixinMovementInputFromOptions extends MixinMovementInput{
+public class MixinMovementInputFromOptions extends MixinMovementInput {
     @Shadow
     @Final
     private GameSettings gameSettings;
