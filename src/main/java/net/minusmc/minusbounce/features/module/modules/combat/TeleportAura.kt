@@ -78,7 +78,7 @@ class TeleportAura : Module() {
     }
 
     override fun onInitialize() {
-        auraMod = MinusBounce.moduleManager.getModule(KillAura::class.java)!! as KillAura
+        auraMod = MinusBounce.moduleManager[KillAura::class.java]!! as KillAura
     }
 
     @EventTarget
