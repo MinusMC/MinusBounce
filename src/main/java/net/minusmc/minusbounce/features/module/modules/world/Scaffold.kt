@@ -89,8 +89,8 @@ class Scaffold: Module() {
     private val stopWhenBlockAbove = BoolValue("StopWhenBlockAbove", false) { !onTowerValue.get().equals("None", true) }
     private val towerTimerValue = FloatValue("TowerTimer", 1F, 0.1F, 10F) { !onTowerValue.get().equals("None", true) }
 
-    private val sameYValue = ListValue("SameY", arrayOf("Same", "AutoJump", "MotionY", "DelayedTower", "BlocksJump", "Off"), "Off")
-    private val blocksPerJump = IntegerValue("BlocksPerJump", 5, 0, 10) {sameYValue.get().equals("blocksjump", true)}
+    private val sameYValue = ListValue("SameY", arrayOf("Same", "AutoJump", "MotionY", "DelayedTower", "Off"), "Off")
+    private val blocksPerJump = IntegerValue("BlocksPerJump", 5, 0, 10)
 
     private val safeWalkValue = ListValue("SafeWalk", arrayOf("Ground", "Air", "Off"), "Off")
     private val hitableCheckValue = BoolValue("HitableCheck", true)
@@ -304,14 +304,15 @@ class Scaffold: Module() {
                         delayedTowerTicks++
                     }
                 }
-                "blocksjump" -> if (blocksStart - blocksAmount >= blocksPerJump.get()) {
-                    canSameY = false
-                    if (mc.thePlayer.onGround && MovementUtils.isMoving) {
-                        mc.thePlayer.jump()
-                        blocksStart = blocksAmount
-                    }
-                }
                 else -> canSameY = false
+            }
+
+            if (blocksStart - blocksAmount >= blocksPerJump.get() && blocksPerJump.get() > 0) {
+                canSameY = false
+                if (mc.thePlayer.onGround && MovementUtils.isMoving) {
+                    mc.thePlayer.jump()
+                    blocksStart = blocksAmount
+                }
             }
 
             if (mc.thePlayer.onGround)
