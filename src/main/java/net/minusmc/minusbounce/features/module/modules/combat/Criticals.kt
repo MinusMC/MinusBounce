@@ -51,7 +51,7 @@ class Criticals : Module() {
 
     @EventTarget
     fun onAttack(event: AttackEvent) {
-        if (onlyAuraValue.get() && !MinusBounce.moduleManager[KillAura::class.java]!!.state) return
+        if (onlyAuraValue.get() && !MinusBounce.moduleManager[KillAura::class.java]!!.state && !MinusBounce.moduleManager[TeleportAura::class.java]!!.state) return
 
         if (event.targetEntity is EntityLivingBase) {
             entity = event.targetEntity

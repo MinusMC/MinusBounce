@@ -16,6 +16,5 @@ enum class ModuleCategory(var displayName: String) {
     CLIENT("Client"),
     WORLD("World"),
     EXPLOIT("Exploit"),
-    MISC("Misc"),
-    SCRIPT("Script");
+    MISC("Misc")
 }
