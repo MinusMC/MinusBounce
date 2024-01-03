@@ -490,16 +490,16 @@ class KillAura : Module() {
         val criticals = MinusBounce.moduleManager[Criticals::class.java] as Criticals
 
         //Unblock
-        val attack = PreAttackEvent(entity)
-        MinusBounce.eventManager.callEvent(event)
+        val preAttack = PreAttackEvent(entity)
+        MinusBounce.eventManager.callEvent(preAttack)
 
-        if(event.isCancelled) return
+        if(preAttack.isCancelled) return
 
         //After unblock start attacking
         val attack = AttackEvent(entity)
-        MinusBounce.eventManager.callEvent(event)
+        MinusBounce.eventManager.callEvent(attack)
 
-        if(event.isCancelled) return
+        if(attack.isCancelled) return
 
         // Attack target
         runSwing()
