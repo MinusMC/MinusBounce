@@ -96,7 +96,7 @@ class Target : Element() {
         val mainStyle = style
 
         val kaTarget = MinusBounce.combatManager.target
-        val taTarget =(MinusBounce.moduleManager[TeleportAura::class.java]!!.lastTarget
+        val taTarget = MinusBounce.moduleManager[TeleportAura::class.java]!!.lastTarget
 
         val actualTarget = if (kaTarget != null && kaTarget is EntityPlayer) kaTarget 
                             else if (taTarget != null && taTarget is EntityPlayer) taTarget
