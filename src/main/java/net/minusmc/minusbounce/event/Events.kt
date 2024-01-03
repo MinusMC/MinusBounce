@@ -26,6 +26,10 @@ import net.minecraft.util.EnumFacing
  */
 class AttackEvent(val targetEntity: Entity?) : CancellableEvent()
 
+class PreAttackEvent(val targetEntity: Entity?) : CancellableEvent()
+
+class PostAttackEvent(val targetEntity: Entity?) : Event()
+
 /**
  * Called when minecraft get bounding box of block
  *

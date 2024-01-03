@@ -489,9 +489,17 @@ class KillAura : Module() {
     private fun attackEntity(entity: EntityLivingBase) {
         val criticals = MinusBounce.moduleManager[Criticals::class.java] as Criticals
 
-        stopBlocking()
+        //Unblock
+        val attack = PreAttackEvent(entity)
+        MinusBounce.eventManager.callEvent(event)
 
-        MinusBounce.eventManager.callEvent(AttackEvent(entity))
+        if(event.isCancelled) return
+
+        //After unblock start attacking
+        val attack = AttackEvent(entity)
+        MinusBounce.eventManager.callEvent(event)
+
+        if(event.isCancelled) return
 
         // Attack target
         runSwing()
@@ -510,6 +518,8 @@ class KillAura : Module() {
                 mc.thePlayer.attackTargetEntityWithCurrentItem(entity)
         }
 
+        //AfterAttack
+        MinusBounce.eventManager.callEvent(PostAttackEvent(entity))
     }
 
     private fun updateRotations(entity: Entity): Boolean {
