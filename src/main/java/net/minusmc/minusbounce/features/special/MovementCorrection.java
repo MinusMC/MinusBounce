@@ -18,11 +18,7 @@ public final class MovementCorrection extends MinecraftInstance implements Liste
 
     @EventTarget
     public void onInput(final MoveInputEvent event) {
-        final Scaffold scaffold = MinusBounce.moduleManager.getModule(Scaffold.class);
-        final KillAura killAura = MinusBounce.moduleManager.getModule(KillAura.class);
-
-        if (killAura.getState() && !killAura.getMovementCorrection().get()) return;
-        if (scaffold.getState() && !scaffold.getMovementCorrection().get()) return;
+        if (!canCorrection()) return;
 
         if (targetRotation != null){
             final float forward = event.getForward();
@@ -39,24 +35,24 @@ public final class MovementCorrection extends MinecraftInstance implements Liste
 
     @EventTarget 
     public void onJump(final JumpEvent event) {
-        final Scaffold scaffold = MinusBounce.moduleManager.getModule(Scaffold.class);
-        final KillAura killAura = MinusBounce.moduleManager.getModule(KillAura.class);
-
-        if (killAura.getState() && !killAura.getMovementCorrection().get()) return;
-        if (scaffold.getState() && !scaffold.getMovementCorrection().get()) return;
+        if (!canCorrection()) return;
 
         if(targetRotation != null) event.setYaw(targetRotation.getYaw());
     }
 
     @EventTarget 
     public void onStrafe(final StrafeEvent event) {
+        if (!canCorrection()) return;
+
+        if(targetRotation != null) event.setYaw(targetRotation.getYaw());
+    }
+
+    public boolean canCorrection() {
         final Scaffold scaffold = MinusBounce.moduleManager.getModule(Scaffold.class);
         final KillAura killAura = MinusBounce.moduleManager.getModule(KillAura.class);
 
-        if (killAura.getState() && !killAura.getMovementCorrection().get()) return;
-        if (scaffold.getState() && !scaffold.getMovementCorrection().get()) return;
-
-        if(targetRotation != null) event.setYaw(targetRotation.getYaw());
+        return (killAura.getState() && killAura.getMovementCorrection().get()) ||
+            (scaffold.getState() && scaffold.getMovementCorrection().get());
     }
 
     @Override 

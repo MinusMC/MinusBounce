@@ -33,6 +33,7 @@ import net.minusmc.minusbounce.features.module.modules.movement.InvMove;
 import net.minusmc.minusbounce.features.module.modules.movement.NoSlow;
 import net.minusmc.minusbounce.features.module.modules.movement.Sprint;
 import net.minusmc.minusbounce.features.module.modules.world.Scaffold;
+import net.minusmc.minusbounce.injection.implementations.IEntityPlayerSP;
 import net.minusmc.minusbounce.utils.*;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
@@ -43,7 +44,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import java.util.List;
 
 @Mixin(EntityPlayerSP.class)
-public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
+public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer implements IEntityPlayerSP {
 
     @Shadow
     public boolean serverSprintState;
@@ -129,11 +130,35 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
     @Unique
     private boolean lastOnGround;
 
+    @Unique
+    private int onGroundTicks;
+
+    @Unique
+    private int offGroundTicks;
+
+    @Override
+    public int getOnGroundTicks() {
+        return onGroundTicks;
+    }
+
+    @Override
+    public int getOffGroundTicks() {
+        return offGroundTicks;
+    }
+
     /**
      * @author CCBlueX
      */
     @Overwrite
     public void onUpdateWalkingPlayer() {
+        if (this.onGround) {
+            this.offGroundTicks = 0;
+            this.onGroundTicks++;
+        } else {
+            this.onGroundTicks = 0;
+            this.offGroundTicks++;
+        }
+
         try {
             PreMotionEvent event = new PreMotionEvent(this.posX, this.getEntityBoundingBox().minY, this.posZ, this.rotationYaw, this.rotationPitch, this.onGround);
             MinusBounce.eventManager.callEvent(event);
