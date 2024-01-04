@@ -8,7 +8,7 @@ class SwingBlocking: KillAuraBlocking("Swing") {
     	when (mc.thePlayer.swingProgressInt) {
             1 -> killAura.stopBlocking()
             2 -> {
-                if (currentTarget != null && mc.thePlayer.getDistanceToEntityBox(killAura.currentTarget!!) < killAura.rangeValue.get())
+                if (killAura.currentTarget != null && mc.thePlayer.getDistanceToEntityBox(killAura.currentTarget!!) < killAura.rangeValue.get())
                     killAura.startBlocking()
             }
         }
