@@ -15,7 +15,11 @@ import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
 import net.minecraft.crash.CrashReportCategory;
 import net.minecraft.entity.Entity;
-import net.minecraft.util.*;
+import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Vec3;
+import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityDispatcher;
@@ -198,12 +202,9 @@ public abstract class MixinEntity {
             callbackInfoReturnable.setReturnValue(0.1F + hitBox.getSizeValue().get());
     }
 
-    /**
-     * @author fmcpe
-     */
     @Overwrite
-    public void moveFlying(float strafe, float forward, float friction){
-        if ((Entity) (Object) this != Minecraft.getMinecraft().thePlayer) 
+    public void moveFlying(float strafe, float forward, float friction) {
+        if ((Entity) (Object) this != Minecraft.getMinecraft().thePlayer)
             return;
         
         final StrafeEvent event = new StrafeEvent(strafe, forward, friction, this.rotationYaw);

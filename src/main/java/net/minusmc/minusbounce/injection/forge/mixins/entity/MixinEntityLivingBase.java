@@ -93,13 +93,11 @@ public abstract class MixinEntityLivingBase extends MixinEntity {
     }
 
     /**
-     * @author fmcpe
+     * @author CCBlueX
      */
     @Overwrite
     protected void jump() {
-
         final JumpEvent jumpEvent = new JumpEvent(this.getJumpUpwardsMotion(), this.rotationYaw);
-
         MinusBounce.eventManager.callEvent(jumpEvent);
         if (jumpEvent.isCancelled())
             return;
@@ -107,7 +105,7 @@ public abstract class MixinEntityLivingBase extends MixinEntity {
         float yaw = jumpEvent.getYaw();
 
         final TargetStrafe tsMod = MinusBounce.moduleManager.getModule(TargetStrafe.class);
-        
+
         if (tsMod.getCanStrafe()) 
             yaw = tsMod.getMovingYaw();
 
@@ -117,7 +115,13 @@ public abstract class MixinEntityLivingBase extends MixinEntity {
             this.motionY += (double) ((float) (this.getActivePotionEffect(Potion.jump).getAmplifier() + 1) * 0.1F);
 
         if (this.isSprinting()) {
-            final float f = yaw * 0.017453292F;
+            final Sprint sprintMod = MinusBounce.moduleManager.getModule(Sprint.class);
+            
+            if (Patcher.INSTANCE.getJumpPatch().get())
+                if (sprintMod.getState() && sprintMod.getAllDirectionsValue().get() && sprintMod.getMoveDirPatchValue().get())
+                    yaw = MovementUtils.INSTANCE.getRawDirection();
+                
+            float f = yaw * 0.017453292F;
             this.motionX -= (double) (MathHelper.sin(f) * 0.2F);
             this.motionZ += (double) (MathHelper.cos(f) * 0.2F);
         }

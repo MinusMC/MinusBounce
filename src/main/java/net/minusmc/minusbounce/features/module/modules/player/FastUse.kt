@@ -16,16 +16,17 @@ import net.minusmc.minusbounce.value.BoolValue
 import net.minusmc.minusbounce.value.FloatValue
 import net.minusmc.minusbounce.value.IntegerValue
 import net.minusmc.minusbounce.value.ListValue
+import net.minusmc.minusbounce.utils.PacketUtils
 import net.minecraft.item.ItemBucketMilk
 import net.minecraft.item.ItemFood
 import net.minecraft.item.ItemPotion
 import net.minecraft.network.play.client.C03PacketPlayer
+import net.minecraft.network.play.client.C03PacketPlayer.C06PacketPlayerPosLook
 
 @ModuleInfo(name = "FastUse", spacedName = "Fast Use", description = "Allows you to use items faster.", category = ModuleCategory.PLAYER)
 class FastUse : Module() {
 
-    private val modeValue = ListValue("Mode", arrayOf("Instant", "Grim", "NCP", "Matrix", "AAC", "CustomDelay", "DelayedInstant", "AACv4_2", "Minemora"), "NCP")
-
+    private val modeValue = ListValue("Mode", arrayOf("Instant", "OldGrim18", "OldGrim", "NewGrim", "NCP", "Matrix", "AAC", "CustomDelay", "DelayedInstant", "AACv4_2", "Minemora"), "NCP")
     private val instantDurationDelay = IntegerValue("InstantDurationDelay", 14, 0, 35) {modeValue.get().equals("DelayedInstant")}
 
     private val delayValue = IntegerValue("CustomDelay", 0, 0, 300) { modeValue.get().equals("customdelay", true) }
@@ -83,10 +84,22 @@ class FastUse : Module() {
                     usedTimer = true
                 }
 
-                "grim" -> {
+                "oldgrim18" -> {
                     mc.timer.timerSpeed = 0.3F
                     usedTimer = true
                     send(34)
+                }
+
+                "newgrim" -> {
+                    repeat(5) {
+                        PacketUtils.sendPacketNoEvent(C06PacketPlayerPosLook(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ, mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch, mc.thePlayer.onGround))
+                    }
+                }
+
+                "oldgrim" -> {
+                    repeat(5) {
+                        PacketUtils.sendPacketNoEvent(C03PacketPlayer(mc.thePlayer.onGround))
+                    }
                 }
 
                 "customdelay" -> {

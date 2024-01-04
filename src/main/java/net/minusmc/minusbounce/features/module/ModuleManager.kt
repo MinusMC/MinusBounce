@@ -33,6 +33,7 @@ class ModuleManager : Listenable {
     fun registerModules() {
         ClientUtils.logger.info("[ModuleManager] Loading modules...")
         ClassUtils.resolvePackage("${this.javaClass.`package`.name}.modules", Module::class.java).forEach(this::registerModule)
+        modules.forEach {it.onInitialize()}
         ClientUtils.logger.info("[ModuleManager] Successfully loaded ${modules.size} modules.")
     }
 
@@ -42,8 +43,6 @@ class ModuleManager : Listenable {
     fun registerModule(module: Module) {
         modules += module
         moduleClassMap[module.javaClass] = module
-
-        module.onInitialize()
 
         generateCommand(module)
         MinusBounce.eventManager.registerListener(module)
@@ -78,7 +77,7 @@ class ModuleManager : Listenable {
     /**
      * Generate command for [module]
      */
-    fun generateCommand(module: Module) {
+     fun generateCommand(module: Module) {
         val values = module.values
 
         if (values.isEmpty())

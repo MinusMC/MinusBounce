@@ -38,11 +38,7 @@ abstract class Panel(val name: String, var x: Int, var y: Int, val width: Int, v
         val clickGui = MinusBounce.moduleManager[ClickGUI::class.java]!!.style
         if (clickGui !is DropDownClickGui) return
         if (!isVisible) return
-        val maxElements = Objects.requireNonNull(
-            MinusBounce.moduleManager.getModule(
-                ClickGUI::class.java
-            )
-        )!!.maxElementsValue.get()
+        val maxElements = MinusBounce.moduleManager[ClickGUI::class.java]!!.maxElementsValue.get()
 
         // Drag
         if (drag) {
@@ -96,11 +92,7 @@ abstract class Panel(val name: String, var x: Int, var y: Int, val width: Int, v
     }
 
     fun handleScroll(mouseX: Int, mouseY: Int, wheel: Int): Boolean {
-        val maxElements = Objects.requireNonNull(
-            MinusBounce.moduleManager.getModule(
-                ClickGUI::class.java
-            )
-        )!!.maxElementsValue.get()
+        val maxElements = MinusBounce.moduleManager[ClickGUI::class.java]!!.maxElementsValue.get()
         if (mouseX >= x && mouseX <= x + 100 && mouseY >= y && mouseY <= y + 19 + elementsHeight) {
             if (wheel < 0 && scroll < elements.size - maxElements) {
                 ++scroll

@@ -9,6 +9,7 @@ import net.minecraft.client.gui.GuiChat
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.entity.player.EntityPlayer
 import net.minusmc.minusbounce.MinusBounce
+import net.minusmc.minusbounce.features.module.modules.combat.TeleportAura
 import net.minusmc.minusbounce.ui.client.hud.designer.GuiHudDesigner
 import net.minusmc.minusbounce.ui.client.hud.element.Border
 import net.minusmc.minusbounce.ui.client.hud.element.Element
@@ -95,8 +96,10 @@ class Target : Element() {
         val mainStyle = style
 
         val kaTarget = MinusBounce.combatManager.target
+        val taTarget = MinusBounce.moduleManager[TeleportAura::class.java]!!.lastTarget
 
-        val actualTarget = if (kaTarget != null && kaTarget is EntityPlayer && mc.thePlayer.getDistanceToEntityBox(kaTarget) <= 8.0) kaTarget 
+        val actualTarget = if (kaTarget != null && kaTarget is EntityPlayer) kaTarget 
+                            else if (taTarget != null && taTarget is EntityPlayer) taTarget
                             else if ((mc.currentScreen is GuiChat && showWithChatOpen.get()) || mc.currentScreen is GuiHudDesigner) mc.thePlayer 
                             else null
 

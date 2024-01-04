@@ -7,6 +7,7 @@ package net.minusmc.minusbounce.features.special;
 
 import net.minusmc.minusbounce.MinusBounce;
 import net.minusmc.minusbounce.features.module.modules.world.Scaffold;
+import net.minusmc.minusbounce.features.module.modules.combat.KillAura;
 import net.minusmc.minusbounce.event.*;
 import net.minusmc.minusbounce.utils.*;
 import net.minecraft.util.MathHelper;
@@ -18,6 +19,10 @@ public final class MovementCorrection extends MinecraftInstance implements Liste
     @EventTarget
     public void onInput(final MoveInputEvent event) {
         final Scaffold scaffold = MinusBounce.moduleManager.getModule(Scaffold.class);
+        final KillAura killAura = MinusBounce.moduleManager.getModule(KillAura.class);
+
+        if (scaffold.getState() && !scaffold.getMovementCorrection().get()) return;
+        if (killAura.getState() && !killAura.getMovementCorrection().get()) return;
 
         if (targetRotation == null) return;
 
@@ -30,6 +35,30 @@ public final class MovementCorrection extends MinecraftInstance implements Liste
 
         event.setForward(Math.round(forward * cosValue + strafe * sinValue));
         event.setStrafe(Math.round(strafe * cosValue - forward * sinValue));
+    }
+
+    @EventTarget
+    public void onStrafe(final StrafeEvent event) {
+        final Scaffold scaffold = MinusBounce.moduleManager.getModule(Scaffold.class);
+        final KillAura killAura = MinusBounce.moduleManager.getModule(KillAura.class);
+
+        if (scaffold.getState() && !scaffold.getMovementCorrection().get()) return;
+        if (killAura.getState() && !killAura.getMovementCorrection().get()) return;
+        
+        if (targetRotation != null)
+            event.setYaw(targetRotation.getYaw());
+    }
+
+    @EventTarget
+    public void onJump(final JumpEvent event) {
+        final Scaffold scaffold = MinusBounce.moduleManager.getModule(Scaffold.class);
+        final KillAura killAura = MinusBounce.moduleManager.getModule(KillAura.class);
+
+        if (scaffold.getState() && !scaffold.getMovementCorrection().get()) return;
+        if (killAura.getState() && !killAura.getMovementCorrection().get()) return;
+        
+        if (targetRotation != null)
+            event.setYaw(targetRotation.getYaw());
     }
 
     @Override 

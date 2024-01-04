@@ -1,7 +1,7 @@
 package net.minusmc.minusbounce.features.module.modules.movement.flys.other
 
 import net.minusmc.minusbounce.event.JumpEvent
-import net.minusmc.minusbounce.event.PostMotionEvent
+import net.minusmc.minusbounce.event.MotionEvent
 import net.minusmc.minusbounce.features.module.modules.movement.flys.FlyMode
 import net.minusmc.minusbounce.features.module.modules.movement.flys.FlyType
 import net.minusmc.minusbounce.utils.MovementUtils
@@ -30,11 +30,10 @@ class BlocksMCFly: FlyMode("BlocksMC", FlyType.OTHER) {
         }
     }
 
-    override fun onPostMotion(event: PostMotionEvent) {
+    override fun onMotion(event: MotionEvent) {
         mc.thePlayer.posY -= mc.thePlayer.posY - mc.thePlayer.lastTickPosY
         mc.thePlayer.lastTickPosY -= mc.thePlayer.posY - mc.thePlayer.lastTickPosY
     }
-
     override fun onJump(event: JumpEvent) {
         c = true
     }

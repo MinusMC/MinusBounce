@@ -18,28 +18,11 @@ import org.lwjgl.input.Mouse
 
 @ModuleInfo(name = "AutoTool", spacedName = "Auto Tool", description = "Automatically selects the best tool in your inventory to mine a block.", category = ModuleCategory.PLAYER)
 class AutoTool : Module() {
-    private val swapValue = BoolValue("SwapBack", false)
-    private var previtem = 0
-    private var mining = false
     private var tickDelay = 0
+    
     @EventTarget
     fun onClick(event: ClickBlockEvent) {
         switchSlot(event.clickedBlock ?: return)
-    }
-
-    @EventTarget
-    fun onRender2D(event: Render2DEvent) {
-        if (Mouse.isButtonDown(0)) {
-            tickDelay++
-        } else tickDelay = 0
-        if (!mining && Mouse.isButtonDown(0)) {
-            previtem = mc.thePlayer.inventory.currentItem
-            mining = true
-        }
-        if (mining && !Mouse.isButtonDown(0) && swapValue.get()) {
-            mc.thePlayer.inventory.currentItem = previtem
-            mining = false
-        }
     }
 
     fun switchSlot(blockPos: BlockPos) {
