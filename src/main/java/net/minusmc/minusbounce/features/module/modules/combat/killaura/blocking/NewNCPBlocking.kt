@@ -1,13 +1,8 @@
 package net.minusmc.minusbounce.features.module.modules.killaura.blocking
 
-import net.minusmc.minusbounce.utils.MinecraftInstance
-import net.minecraft.network.play.client.*
-import net.minecraft.util.BlockPos
 import net.minusmc.minusbounce.features.module.modules.killaura.KillAuraBlocking
-import net.minusmc.minusbounce.features.module.modules.combat.KillAura.blockingStatus
 
 class NewNCP: KillAuraBlocking("NewNCP") {
-
     override fun onPreAttack(){
         mc.netHandler.addToSendQueue(C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem % 8 + 1))
         mc.netHandler.addToSendQueue(C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem))

@@ -76,14 +76,6 @@ class Watchdog: KillAuraBlocking("Watchdog") {
         }
     }
 
-    override fun onPreAttack(){
-        KillAura.stopBlocking()
-    }
-
-    override fun onPostAttack(){
-        KillAura.startBlocking()
-    }
-
     override fun onDisable() {
         watchdogkaing = false
         watchdogblocked = false

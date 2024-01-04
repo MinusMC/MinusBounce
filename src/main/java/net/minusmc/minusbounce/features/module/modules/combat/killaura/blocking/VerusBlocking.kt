@@ -15,10 +15,6 @@ import net.minusmc.minusbounce.features.module.modules.combat.KillAura.blockingS
 class Verus: KillAuraBlocking("Verus") {
     private var verusBlocking = false
 
-    override fun onEnable() {
-        verusBlocking = false
-    }
-
     override fun onDisable() {
         if (verusBlocking && !blockingStatus && !mc.thePlayer.isBlocking) {
             verusBlocking = false
@@ -35,7 +31,7 @@ class Verus: KillAuraBlocking("Verus") {
             verusBlocking = false
     }
 
-    override fun onUpdate(){
+    override fun onPreUpdate(){
         if (blockingStatus || mc.thePlayer.isBlocking)
             verusBlocking = true
         else if (verusBlocking) {
@@ -44,11 +40,12 @@ class Verus: KillAuraBlocking("Verus") {
         }
     }
 
-    override fun onPreAttack(){
-        KillAura.stopBlocking()
+    override fun onPreAttack() {
+        blockingStatus = false
     }
 
     override fun onPostAttack(){
-        KillAura.startBlocking()
+        PacketUtils.sendPacketNoEvent(C08PacketPlayerBlockPlacement(mc.thePlayer.inventory.getCurrentItem()))
+        blockingStatus = true
     }
 }

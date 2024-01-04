@@ -37,15 +37,15 @@ import kotlin.math.*
 import net.minusmc.minusbounce.features.module.modules.killaura.KillAuraBlocking
 
 @ModuleInfo(name = "KillAura", spacedName = "Kill Aura", description = "Automatically attacks targets around you.", category = ModuleCategory.COMBAT, keyBind = Keyboard.KEY_R)
-object KillAura : Module() {
+class KillAura : Module() {
 
     //Blocking modes
-    private val modes = ClassUtils.resolvePackage("${this.javaClass.`package`.name}.killaura.blocking", KillAuraBlocking::class.java)
+    private val blockingModes = ClassUtils.resolvePackage("${this.javaClass.`package`.name}.killaura.blocking", KillAuraBlocking::class.java)
         .map { it.newInstance() as KillAuraBlocking }
         .sortedBy { it.modeName }
 
-    private val mode: KillAuraBlocking
-        get() = modes.find { autoBlockModeValue.get().equals(it.modeName, true) } ?: throw NullPointerException()
+    private val blockingMode: KillAuraBlocking
+        get() = blockingModes.find { autoBlockModeValue.get().equals(it.modeName, true) } ?: throw NullPointerException()
     
     //Options
     private val cps = IntRangeValue("CPS", 5, 8, 1, 20)
@@ -148,6 +148,23 @@ object KillAura : Module() {
         attackTimer.reset()
         clicks = 0
         stopBlocking()
+        mc.gameSettings.keyBindUseItem.pressed = false
+    }
+
+    @EventTarget
+    fun onPreMotion(event: PreMotionEvent) {
+        blockingMode.onPreMotion()
+    }
+
+    @EventTarget
+    fun onPostMotion(event: PostMotionEvent) {
+        updateHitable()
+        blockingMode.onPostMotion()
+    }
+
+    @EventTarget
+    fun onPacket(event: PacketEvent) {
+        blockingMode.onPacket(event)
     }
 
     @EventTarget
@@ -166,11 +183,9 @@ object KillAura : Module() {
 
     @EventTarget
     fun onPreUpdate(event: PreUpdateEvent){
-        mode.onPreUpdate()
+        blockingMode.onPreUpdate()
 
-        // Update target
         updateTarget()
-
         if(currentTarget == null){
             stopBlocking()
         }
@@ -329,24 +344,15 @@ object KillAura : Module() {
     }
 
     private fun attackEntity(entity: EntityLivingBase) {
-        val criticals = MinusBounce.moduleManager[Criticals::class.java] as Criticals
-
-        //Unblock
-        val preAttack = PreAttackEvent(entity)
-        MinusBounce.eventManager.callEvent(preAttack)
-
-        if(preAttack.isCancelled) return
-
-        //After unblock start attacking
-        val attack = AttackEvent(entity)
-        MinusBounce.eventManager.callEvent(attack)
-
-        if(attack.isCancelled) return
+        MinusBounce.eventManager.callEvent(AttackEvent(event))
+        blockingMode.onPreAttack()
 
         // Attack target
         runSwing()
 
         mc.netHandler.addToSendQueue(C02PacketUseEntity(entity, C02PacketUseEntity.Action.ATTACK))
+
+        val criticals = MinusBounce.moduleManager[Criticals::class.java] as Criticals
 
         if (keepSprintValue.get()) {
             if (mc.thePlayer.fallDistance > 0F && !mc.thePlayer.onGround && !mc.thePlayer.isOnLadder && !mc.thePlayer.isInWater && !mc.thePlayer.isPotionActive(Potion.blindness) && mc.thePlayer.ridingEntity == null || criticals.state && criticals.msTimer.hasTimePassed(criticals.delayValue.get().toLong()) && !mc.thePlayer.isInWater && !mc.thePlayer.isInLava && !mc.thePlayer.isInWeb)
@@ -360,8 +366,7 @@ object KillAura : Module() {
                 mc.thePlayer.attackTargetEntityWithCurrentItem(entity)
         }
 
-        //AfterAttack
-        MinusBounce.eventManager.callEvent(PostAttackEvent(entity))
+        blockingMode.onPostAttack()
     }
 
     private fun updateRotations(entity: Entity): Boolean {
@@ -470,11 +475,10 @@ object KillAura : Module() {
     }
 
     fun startBlocking() {
-        if (autoBlockModeValue.get().equals("none", true) || !canBlock)
-            return
-
-        mc.netHandler.addToSendQueue(C08PacketPlayerBlockPlacement(mc.thePlayer.inventory.getCurrentItem()))
-        blockingStatus = true
+        if (canBlock) {
+            mc.netHandler.addToSendQueue(C08PacketPlayerBlockPlacement(mc.thePlayer.inventory.getCurrentItem()))
+            blockingStatus = true
+        }
     }
 
     fun stopBlocking() {
@@ -489,34 +493,4 @@ object KillAura : Module() {
 
     override val tag: String
         get() = targetModeValue.get()
-    
-    @EventTarget
-    fun onPacket(event: PacketEvent) {
-        mode.onPacket(event)
-    }
-
-    @EventTarget
-    fun onPreMotion(event: PreMotionEvent) {
-        mode.onPreMotion()
-    }
-
-    @EventTarget
-    fun onPostMotion(event: PostMotionEvent) {
-        mode.onPostMotion()
-    }
-
-    @EventTarget
-    fun onPreAttack(event: PreAttackEvent) {
-        mode.onPreAttack()
-    }
-
-    @EventTarget
-    fun onPostAttack(event: PostAttackEvent) {
-        mode.onPostAttack()
-    }
-
-    @EventTarget
-    fun onUpdate(event: UpdateEvent) {
-        mode.onUpdate()
-    }
 }
