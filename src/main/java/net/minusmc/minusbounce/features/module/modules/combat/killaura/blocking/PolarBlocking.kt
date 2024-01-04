@@ -10,7 +10,8 @@ class PolarBlocking: KillAuraBlocking("Polar") {
 
     override fun onPostAttack() {
         if (mc.thePlayer.hurtTime < 8 && mc.thePlayer.hurtTime != 1 && mc.thePlayer.fallDistance > 0)
-            return
-        mc.gameSettings.keyBindUseItem.pressed = true
+            mc.gameSettings.keyBindUseItem.pressed = false
+        else 
+            mc.gameSettings.keyBindUseItem.pressed = true
     }
 }
