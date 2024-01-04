@@ -1,18 +1,12 @@
-package net.minusmc.minusbounce.features.module.modules.killaura.blocking
+package net.minusmc.minusbounce.features.module.modules.combat.killaura.blocking
 
-import net.minusmc.minusbounce.utils.MinecraftInstance
-import net.minusmc.minusbounce.features.module.modules.combat.KillAura
-import net.minecraft.item.ItemSword
-import net.minusmc.minusbounce.MinusBounce
-import net.minusmc.minusbounce.utils.*
-import net.minusmc.minusbounce.features.module.modules.killaura.KillAuraBlocking
+import net.minusmc.minusbounce.utils.PacketUtils
+import net.minusmc.minusbounce.features.module.modules.combat.killaura.KillAuraBlocking
 import net.minecraft.util.*
 import net.minusmc.minusbounce.event.PacketEvent
 import net.minecraft.network.play.client.*
-import net.minusmc.minusbounce.features.module.modules.combat.KillAura.currentTarget
-import net.minusmc.minusbounce.features.module.modules.combat.KillAura.blockingStatus
 
-class Verus: KillAuraBlocking("Verus") {
+class VerusBlocking: KillAuraBlocking("Verus") {
     private var verusBlocking = false
 
     override fun onDisable() {

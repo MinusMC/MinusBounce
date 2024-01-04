@@ -34,7 +34,7 @@ import org.lwjgl.input.Keyboard
 import org.lwjgl.opengl.GL11
 import java.util.*
 import kotlin.math.*
-import net.minusmc.minusbounce.features.module.modules.killaura.KillAuraBlocking
+import net.minusmc.minusbounce.features.module.modules.combat.killaura.KillAuraBlocking
 
 @ModuleInfo(name = "KillAura", spacedName = "Kill Aura", description = "Automatically attacks targets around you.", category = ModuleCategory.COMBAT, keyBind = Keyboard.KEY_R)
 class KillAura : Module() {
@@ -77,7 +77,7 @@ class KillAura : Module() {
     private val swingValue = ListValue("Swing", arrayOf("Normal", "Packet", "None"), "Normal")
     val keepSprintValue = BoolValue("KeepSprint", true)
 
-    public val autoBlockModeValue: ListValue = object : ListValue("AutoBlock", modes.map { it.modeName }.toTypedArray(), "None") {
+    public val autoBlockModeValue: ListValue = object : ListValue("AutoBlock", blockingModes.map { it.modeName }.toTypedArray(), "None") {
         override fun onChange(oldValue: String, newValue: String) {
             if (state) onDisable()
         }
@@ -135,13 +135,11 @@ class KillAura : Module() {
     override fun onEnable() {
         mc.thePlayer ?: return
         mc.theWorld ?: return
-
-        mode.onEnable()
         updateTarget()
     }
 
     override fun onDisable() {
-        mode.onDisable()
+        blockingMode.onDisable()
         currentTarget = null
         hitable = false
         prevTargetEntities.clear()
@@ -344,7 +342,7 @@ class KillAura : Module() {
     }
 
     private fun attackEntity(entity: EntityLivingBase) {
-        MinusBounce.eventManager.callEvent(AttackEvent(event))
+        MinusBounce.eventManager.callEvent(AttackEvent(entity))
         blockingMode.onPreAttack()
 
         // Attack target

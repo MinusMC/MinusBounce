@@ -1,6 +1,6 @@
-package net.minusmc.minusbounce.features.module.modules.killaura.blocking
+package net.minusmc.minusbounce.features.module.modules.combat.killaura.blocking
 
-import net.minusmc.minusbounce.features.module.modules.killaura.KillAuraBlocking
+import net.minusmc.minusbounce.features.module.modules.combat.killaura.KillAuraBlocking
 
 class PolarBlocking: KillAuraBlocking("Polar") {
 

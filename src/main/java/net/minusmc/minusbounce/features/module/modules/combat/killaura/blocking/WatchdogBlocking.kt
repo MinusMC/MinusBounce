@@ -1,17 +1,15 @@
-package net.minusmc.minusbounce.features.module.modules.killaura.blocking
+package net.minusmc.minusbounce.features.module.modules.combat.killaura.blocking
 
 import net.minusmc.minusbounce.utils.MinecraftInstance
 import net.minusmc.minusbounce.features.module.modules.combat.KillAura
 import net.minecraft.item.ItemSword
-import net.minusmc.minusbounce.MinusBounce
 import net.minusmc.minusbounce.utils.*
 import net.minecraft.util.*
 import net.minusmc.minusbounce.event.PacketEvent
 import net.minecraft.network.play.client.*
-import net.minusmc.minusbounce.features.module.modules.killaura.KillAuraBlocking
-import net.minusmc.minusbounce.features.module.modules.combat.KillAura.currentTarget
+import net.minusmc.minusbounce.features.module.modules.combat.killaura.KillAuraBlocking
 
-class Watchdog: KillAuraBlocking("Watchdog") {
+class WatchdogBlocking: KillAuraBlocking("Watchdog") {
 
 	private var watchdogc02 = 0
     private var watchdogdelay = 0
@@ -24,7 +22,7 @@ class Watchdog: KillAuraBlocking("Watchdog") {
     private var watchdogcancelc02 = false
 
     override fun onPreMotion() {
-    	if (mc.thePlayer.heldItem.item is ItemSword && currentTarget != null) {
+    	if (mc.thePlayer.heldItem.item is ItemSword && killAura.currentTarget != null) {
             watchdogkaing = true
             watchdogcancelc02 = false
             watchdogcancelTicks = 0
@@ -55,7 +53,7 @@ class Watchdog: KillAuraBlocking("Watchdog") {
                 }
             }
         }
-        if (watchdogkaing && currentTarget == null) {
+        if (watchdogkaing && killAura.currentTarget == null) {
             watchdogkaing = false
             watchdogblocked = false
             watchdogc02 = 0
@@ -85,12 +83,12 @@ class Watchdog: KillAuraBlocking("Watchdog") {
 
     override fun onPacket(event: PacketEvent){
         val packet = event.packet
-        if (mc.thePlayer.heldItem?.item is ItemSword && currentTarget != null && watchdogkaing) {
+        if (mc.thePlayer.heldItem?.item is ItemSword && killAura.currentTarget != null && watchdogkaing) {
             if (packet is C08PacketPlayerBlockPlacement || packet is C07PacketPlayerDigging) {
                 event.cancelEvent()
             }
         }
-        if (mc.thePlayer.heldItem?.item is ItemSword && currentTarget != null && watchdogblocked || watchdogcancelc02) {
+        if (mc.thePlayer.heldItem?.item is ItemSword && killAura.currentTarget != null && watchdogblocked || watchdogcancelc02) {
             if (packet is C02PacketUseEntity) {
                 event.cancelEvent()
                 watchdogblocked = false

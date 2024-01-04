@@ -1,4 +1,4 @@
-package net.minusmc.minusbounce.features.module.modules.killaura
+package net.minusmc.minusbounce.features.module.modules.combat.killaura
 
 import net.minusmc.minusbounce.utils.ClassUtils
 import net.minusmc.minusbounce.utils.MinecraftInstance
@@ -11,7 +11,7 @@ abstract class KillAuraBlocking(val modeName: String): MinecraftInstance() {
 	protected val killAura: KillAura
 		get() = MinusBounce.moduleManager[KillAura::class.java]!!
 		 
-	protected val blockingStatus: Boolean
+	protected var blockingStatus: Boolean
 		get() = killAura.blockingStatus
 		set(value: Boolean) {
 			killAura.blockingStatus = value

@@ -1,14 +1,16 @@
-package net.minusmc.minusbounce.features.module.modules.killaura.blocking
+package net.minusmc.minusbounce.features.module.modules.combat.killaura.blocking
 
-import net.minusmc.minusbounce.utils.MinecraftInstance
-import net.minusmc.minusbounce.features.module.modules.combat.KillAura
-import net.minusmc.minusbounce.MinusBounce
+import net.minusmc.minusbounce.features.module.modules.combat.killaura.KillAuraBlocking
+import net.minusmc.minusbounce.utils.extensions.*
 
 class SwingBlocking: KillAuraBlocking("Swing") {
     override fun onPostMotion() {
     	when (mc.thePlayer.swingProgressInt) {
-            1 -> stopBlocking()
-            2 -> startBlocking(currentTarget!!, mc.thePlayer.getDistanceToEntityBox(killAura.currentTarget!!) < killAura.rangeValue.get())
+            1 -> killAura.stopBlocking()
+            2 -> {
+                if (currentTarget != null && mc.thePlayer.getDistanceToEntityBox(killAura.currentTarget!!) < killAura.rangeValue.get())
+                    killAura.startBlocking(killAura.currentTarget!!)
+            }
         }
     }
 }
