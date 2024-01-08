@@ -2,7 +2,7 @@ uniform float iTime;
 uniform vec2 iResolution;
 
 void main( void ) {
-    vec2 uv = ( gl_FragCoord.xy + 10 * iResolution.xy ) / iResolution.y + 10.0 ;
+    vec2 uv = ( gl_FragCoord.xy + 10.0 * iResolution.xy ) / iResolution.y + 10.0 ;
     float X = uv.x * 64.0;
     float Y = -uv.y * 64.0;
     float c = sin( X / 10.0 + Y / 15.0 ) * cos( X / 20.0 + ( iTime * 2.0 ) + cos( 0.1 * (iTime * 2.0) + Y / 5.0 ));
