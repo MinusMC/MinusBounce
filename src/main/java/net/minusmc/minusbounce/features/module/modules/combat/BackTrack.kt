@@ -20,7 +20,7 @@ import net.minusmc.minusbounce.utils.PacketUtils
 import java.util.Queue
 import java.util.concurrent.ConcurrentLinkedQueue
 
-@ModuleInfo(name = "BackTrack", description = "backtrack.", category = ModuleCategory.COMBAT)
+@ModuleInfo(name = "BackTrack", description = "Attack entity at previous locations.", category = ModuleCategory.COMBAT)
 class BackTrack: Module() {
 
     var packets: Queue<Packet<*>> = ConcurrentLinkedQueue()
