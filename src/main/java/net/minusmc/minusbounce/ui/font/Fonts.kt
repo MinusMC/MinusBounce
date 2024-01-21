@@ -64,6 +64,12 @@ object Fonts {
     @field:FontDetails(fontName = "Lexend Bold", fontSize = 50)
     lateinit var fontLexendBold50: GameFontRenderer
 
+    @field:FontDetails(fontName = "Blanka", fontSize = 70)
+    lateinit var fontBlanka70: GameFontRenderer
+
+    @field:FontDetails(fontName = "Blanka", fontSize = 35)
+    lateinit var fontBlanka35: GameFontRenderer
+
     @field:FontDetails(fontName = "Minecraft Font")
     val minecraftFont: FontRenderer = Minecraft.getMinecraft().fontRendererObj
 
@@ -94,6 +100,8 @@ object Fonts {
         fontLexendBold30 = GameFontRenderer(getFont("Lexend-Bold.ttf", 30))
         fontLexendBold40 = GameFontRenderer(getFont("Lexend-Bold.ttf", 40))
         fontLexendBold50 = GameFontRenderer(getFont("Lexend-Bold.ttf", 50))
+        fontBlanka70 = GameFontRender(getFont("Blanka-Regular.otf", 70))
+        fontBlanka35 = GameFontRender(getFont("Blanka-Regular.otf", 35))
 
 
         try {
