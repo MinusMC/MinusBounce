@@ -14,6 +14,7 @@ import net.minusmc.minusbounce.ui.client.hud.element.Border
 import net.minusmc.minusbounce.ui.client.hud.element.Element
 import net.minusmc.minusbounce.ui.client.hud.element.ElementInfo
 import net.minusmc.minusbounce.ui.font.Fonts
+import net.minusmc.minusbounce.utils.Colors.getColor
 import net.minusmc.minusbounce.utils.MathUtils
 import net.minusmc.minusbounce.utils.extensions.getDistanceToEntityBox
 import net.minusmc.minusbounce.utils.render.*
@@ -23,25 +24,32 @@ import net.minusmc.minusbounce.value.IntegerValue
 import net.minusmc.minusbounce.value.ListValue
 import org.lwjgl.opengl.GL11
 import java.awt.Color
+import kotlin.math.pow
 
 /**
- * A target hud
+ * A target hud recode by longathelstan
  */
 @ElementInfo(name = "Target", disableScale = true, retrieveDamage = true)
 class Target : Element() {
     override fun drawElement(): Border? {
         target ?: return null
         val playerInfo = mc.netHandler.getPlayerInfo(target!!.uniqueID) ?: return null
-
-        val healthString = "Health: ${MathUtils.round(target!!.health)}"
-
-        RenderUtils.drawRoundedRect(0f, 0f, 150f, 50f, 6f, Color(0, 0, 0, 90).rgb)
-        Fonts.fontLexend35.drawStringWithShadow("Target: ${target!!.name}", 45f, 10f, Color.WHITE.rgb)
-        RenderUtils.drawHead(playerInfo.locationSkin, 8, 10, 30, 30)
+        val healthString = String.format("%.1f - 20", target!!.health)
+        val width = (38 + Fonts.font40.getStringWidth(target!!.name))
+            .coerceAtLeast(118)
+            .toFloat()
+        RenderUtils.drawRoundedRect(0f, 0f, 130f, 45f, 0f, Color(0, 0, 0, 90).rgb)
+        RenderUtils.drawHead(playerInfo.locationSkin, 8, 8, 30, 30)
+        Fonts.fontLexend35.drawStringWithShadow("${target!!.name}", 45f, 10f, Color.WHITE.rgb)
         Fonts.fontLexend35.drawStringWithShadow(healthString, 45f, 20f, Color.WHITE.rgb)
-
         val health = target!!.health.coerceIn(0f, 20f)
-        RenderUtils.drawRoundedCornerRect(45f, 32f, 45f + 4.8f * health, 40f, 3f, Color(140, 255, 155, 180).rgb)
+        val maxHealth = target!!.maxHealth
+        val barColor = when {
+            health >= 18f -> Color(119, 130, 190).rgb
+            health > 7 && health < 18f -> Color(252, 185, 65).rgb
+            else -> Color(225, 38, 53).rgb
+        }
+        RenderUtils.drawRect(45F, 30F, (health / maxHealth) * width, 36F, barColor)
 
         return Border(0f, 0f, 150f, 50f)
     }
