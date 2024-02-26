@@ -25,6 +25,7 @@ class TickBase : Module() {
 		get() = MinusBounce.moduleManager[KillAura::class.java]!!
 
     private val ticks = IntegerValue("Ticks", 3, 1, 10)
+    private val range = FloatValue("Active-range", 4f, 1f, 10f)
 
     override fun onEnable() {
         counter = -1
@@ -37,8 +38,7 @@ class TickBase : Module() {
         freezing = false
 
         val isInRange = 
-            if(killAura.state) 
-                killAura.target == null || mc.thePlayer.getDistanceToEntityBox(killAura.target!!) > killAura.rangeValue.get() 
+            if(killAura.state) mc.thePlayer.getDistanceToEntityBox(killAura.target!!) > range.get()
             else false
 
         if (isInRange && mc.thePlayer.hurtTime <= 2) {

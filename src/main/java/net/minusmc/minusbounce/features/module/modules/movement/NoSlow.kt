@@ -5,11 +5,17 @@
  */
 package net.minusmc.minusbounce.features.module.modules.movement
 
+import net.minecraft.client.renderer.GlStateManager
+import net.minecraft.client.renderer.block.model.ItemCameraTransforms
 import net.minecraft.item.*
 import net.minecraft.network.play.client.C03PacketPlayer.C06PacketPlayerPosLook
+import net.minecraft.network.play.client.C07PacketPlayerDigging
+import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement
 import net.minecraft.network.play.client.C09PacketHeldItemChange
 import net.minecraft.network.play.server.S08PacketPlayerPosLook
 import net.minecraft.network.play.server.S09PacketHeldItemChange
+import net.minecraft.util.BlockPos
+import net.minecraft.util.EnumFacing
 import net.minusmc.minusbounce.MinusBounce
 import net.minusmc.minusbounce.event.*
 import net.minusmc.minusbounce.features.module.Module
@@ -55,6 +61,9 @@ class NoSlow : Module() {
     val soulsandValue = BoolValue("Soulsand", true)
     val liquidPushValue = BoolValue("LiquidPush", true)
     private val antiSwitchItem = BoolValue("AntiSwitchItem", false)
+
+    // Bypass Intave ? @longathelstan
+    val interactionPacket = BoolValue("Interaction Packets", false) {!modeValue.get().equals("IntavePacketDelay")}
 
     private val teleportValue = BoolValue("Teleport", false)
 
@@ -111,6 +120,7 @@ class NoSlow : Module() {
         mc.thePlayer ?: return
         mc.theWorld ?: return
         if (!MovementUtils.isMoving && !modeValue.get().equals("blink", true)) return
+        if (interactionPacket.get()) mc.thePlayer.sendQueue.addToSendQueue(C07PacketPlayerDigging(C07PacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN))
         if (isBlocking || isEating || isBowing) mode.onPreMotion(event)
     }
 
@@ -119,6 +129,12 @@ class NoSlow : Module() {
         mc.thePlayer ?: return
         mc.theWorld ?: return
         if (!MovementUtils.isMoving && !modeValue.get().equals("blink", true)) return
+        if (interactionPacket.get()) {
+            if (isBlocking || isEating || isBowing) {
+                mc.thePlayer.sendQueue.addToSendQueue(C08PacketPlayerBlockPlacement(mc.thePlayer.inventory.getCurrentItem()))
+
+            }
+        }
         if (isBlocking || isEating || isBowing) mode.onPostMotion(event)
     }
 
