@@ -359,6 +359,8 @@ public abstract class MixinMinecraft {
             this.timer.updateTimer();
         }
 
+        MinusBounce.eventManager.callEvent(new GameLoopEvent());
+
         this.mcProfiler.startSection("scheduledExecutables");
 
         synchronized (this.scheduledTasks)

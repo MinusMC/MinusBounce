@@ -41,7 +41,6 @@ open class Module : MinecraftInstance(), Listenable {
     private val canEnable: Boolean
     val onlyEnable: Boolean
     private val forceNoSound: Boolean
-
     var slideStep = 0F
     var animation = 0F
     var autoDisables = mutableListOf<DisableEvent>()

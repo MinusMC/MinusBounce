@@ -238,3 +238,7 @@ class ReloadClientEvent : Event()
  */
 class EntityKilledEvent(val targetEntity: EntityLivingBase): Event()
 
+/**
+ * Called when packets sent to client are processed
+ */
+class GameLoopEvent() : Event()

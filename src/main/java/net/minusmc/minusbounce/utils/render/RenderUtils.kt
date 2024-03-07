@@ -77,6 +77,22 @@ object RenderUtils : MinecraftInstance() {
         GL11.glEndList()
     }
 
+    fun drawBacktrackBox(axisAlignedBB: AxisAlignedBB, color: Color) {
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+        glEnable(GL_BLEND)
+        glLineWidth(2f)
+        glDisable(GL_TEXTURE_2D)
+        glDisable(GL_DEPTH_TEST)
+        glDepthMask(false)
+        glColor(color.red, color.green, color.blue, 90)
+        drawFilledBox(axisAlignedBB)
+        glColor4f(1f, 1f, 1f, 1f)
+        glEnable(GL_TEXTURE_2D)
+        glEnable(GL_DEPTH_TEST)
+        glDepthMask(true)
+        glDisable(GL_BLEND)
+    }
+
     fun drawFilledCircleNoGL(x: Int, y: Int, r: Double, c: Int, quality: Int) {
         val f = (c shr 24 and 0xff) / 255f
         val f1 = (c shr 16 and 0xff) / 255f

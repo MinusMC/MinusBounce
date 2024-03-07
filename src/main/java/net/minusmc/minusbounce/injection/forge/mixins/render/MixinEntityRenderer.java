@@ -9,6 +9,7 @@ import net.minusmc.minusbounce.MinusBounce;
 import com.google.common.base.Predicates;
 import com.google.common.base.Predicate;
 import net.minusmc.minusbounce.event.Render3DEvent;
+import net.minusmc.minusbounce.features.module.modules.render.FreeLook;
 import net.minusmc.minusbounce.utils.*;
 import net.minusmc.minusbounce.features.module.modules.combat.KillAura;
 import net.minusmc.minusbounce.features.module.modules.player.Reach;
@@ -27,16 +28,20 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItemFrame;
 import net.minecraft.entity.passive.EntityAnimal;
 import net.minecraft.util.*;
+import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.Slice;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import static org.objectweb.asm.Opcodes.GETFIELD;
 
 import java.util.List;
+import java.util.Objects;
 
 @Mixin(EntityRenderer.class)
 public abstract class MixinEntityRenderer {
@@ -104,6 +109,62 @@ public abstract class MixinEntityRenderer {
     private void injectHurtCameraEffect(CallbackInfo callbackInfo) {
         if (MinusBounce.moduleManager.getModule(NoHurtCam.class).getState())
             callbackInfo.cancel();
+    }
+    /**
+     * Update camera and render boolean.
+     *
+     * @param minecraft the minecraft
+     * @return the boolean
+     */
+    @Redirect(method = "updateCameraAndRender", at = @At(value = "FIELD", target = "Lnet/minecraft/client/Minecraft;inGameHasFocus:Z", opcode = GETFIELD))
+    public boolean updateCameraAndRender(Minecraft minecraft) {
+        if (Objects.requireNonNull(MinusBounce.moduleManager.getModule(FreeLook.class)).isEnabled && !Objects.requireNonNull(MinusBounce.moduleManager.getModule(FreeLook.class)).isReverse) {
+            return FreeLook.overrideMouse();
+        } else return mc.inGameHasFocus && Display.isActive();
+    }
+
+    /**
+     * Gets rotation yaw.
+     *
+     * @param entity the entity
+     * @return the rotation yaw
+     */
+    @Redirect(method = "orientCamera", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/Entity;rotationYaw:F", opcode = GETFIELD))
+    public float getRotationYaw(Entity entity) {
+        return FreeLook.perspectiveToggled ? FreeLook.cameraYaw : entity.rotationYaw;
+    }
+
+    /**
+     * Gets prev rotation yaw.
+     *
+     * @param entity the entity
+     * @return the prev rotation yaw
+     */
+    @Redirect(method = "orientCamera", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/Entity;prevRotationYaw:F", opcode = GETFIELD))
+    public float getPrevRotationYaw(Entity entity) {
+        return FreeLook.perspectiveToggled ? FreeLook.cameraYaw : entity.prevRotationYaw;
+    }
+
+    /**
+     * Gets rotation pitch.
+     *
+     * @param entity the entity
+     * @return the rotation pitch
+     */
+    @Redirect(method = "orientCamera", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/Entity;rotationPitch:F", opcode = GETFIELD))
+    public float getRotationPitch(Entity entity) {
+        return FreeLook.perspectiveToggled ? FreeLook.cameraPitch : entity.rotationPitch;
+    }
+
+    /**
+     * Gets prev rotation pitch.
+     *
+     * @param entity the entity
+     * @return the prev rotation pitch
+     */
+    @Redirect(method = "orientCamera", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/Entity;prevRotationPitch:F"))
+    public float getPrevRotationPitch(Entity entity) {
+        return FreeLook.perspectiveToggled ? FreeLook.cameraPitch : entity.prevRotationPitch;
     }
 
     @Inject(method = "orientCamera", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/Vec3;distanceTo(Lnet/minecraft/util/Vec3;)D"), cancellable = true)
