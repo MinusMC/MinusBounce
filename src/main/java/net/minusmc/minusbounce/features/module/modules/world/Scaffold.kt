@@ -20,6 +20,7 @@ import net.minusmc.minusbounce.event.*
 import net.minusmc.minusbounce.features.module.Module
 import net.minusmc.minusbounce.features.module.ModuleCategory
 import net.minusmc.minusbounce.features.module.ModuleInfo
+//import net.minusmc.minusbounce.features.module.modules.world.scaffold.ModeScaffold
 import net.minusmc.minusbounce.features.module.modules.world.scaffold.TowerScaffold
 import net.minusmc.minusbounce.injection.access.StaticStorage
 import net.minusmc.minusbounce.ui.font.Fonts
@@ -43,6 +44,11 @@ import kotlin.math.*
 
 @ModuleInfo(name = "Scaffold", description = "Automatically places blocks beneath your feet.", category = ModuleCategory.WORLD, keyBind = Keyboard.KEY_I)
 class Scaffold: Module() {
+    /*private val bridgeModes = ClassUtils.resolvePackage("${this.javaClass.`package`.name}.scaffold.mode", ModeScaffold::class.java)
+        .map { it.newInstance() as ModeScaffold }
+        .sortedBy { it.modeName }
+    private val bridgeMode: ModeScaffold
+        get() = bridgeModes.find { bridgeModeValue.get().equals(it.modeName, true) } ?: throw NullPointerException()*/
     //Tower modes
     private val towerModes = ClassUtils.resolvePackage("${this.javaClass.`package`.name}.scaffold.tower", TowerScaffold::class.java)
         .map { it.newInstance() as TowerScaffold }
@@ -51,6 +57,8 @@ class Scaffold: Module() {
     private val towerMode: TowerScaffold
         get() = towerModes.find { towerModeValue.get().equals(it.modeName, true) } ?: throw NullPointerException()
 
+
+    /*private val bridgeModeValue = ListValue("Mode", bridgeModes.map {it.modeName}.toTypedArray(), "NinjaBridge")*/
     private val placeableDelay = ListValue("PlaceableDelay", arrayOf("Normal", "Smart", "Off"), "Normal")
     private val maxDelayValue: IntegerValue = object: IntegerValue("MaxDelay", 0, 0, 1000, "ms", {!placeableDelay.get().equals("off", true)}) {
         override fun onChanged(oldValue: Int, newValue: Int) {

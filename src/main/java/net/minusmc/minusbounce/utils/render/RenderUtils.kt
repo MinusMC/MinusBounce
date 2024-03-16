@@ -27,6 +27,8 @@ import net.minecraft.util.AxisAlignedBB
 import net.minecraft.util.BlockPos
 import net.minecraft.util.MathHelper
 import net.minecraft.util.ResourceLocation
+import net.minecraft.util.Timer
+import net.minecraft.util.Vec3
 import net.minusmc.minusbounce.MinusBounce
 import net.minusmc.minusbounce.features.module.modules.render.TargetMark
 import net.minusmc.minusbounce.ui.font.Fonts
@@ -77,6 +79,46 @@ object RenderUtils : MinecraftInstance() {
         GL11.glEndList()
     }
 
+  fun drawBackTrackBox(entity: Entity, realPos: Vec3, lastPos: Vec3, color: Color, outline: Boolean) {
+    val renderManager = mc.renderManager
+    val timer = mc.timer
+
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+    glEnable(GL_BLEND)
+    glDisable(GL_TEXTURE_2D)
+    glDisable(GL_DEPTH_TEST)
+    glDepthMask(false)
+
+    val x = lastPos.x + (realPos.x - lastPos.x) * timer.renderPartialTicks - renderManager.viewerPosX
+    val y = lastPos.y + (realPos.y - lastPos.y) * timer.renderPartialTicks - renderManager.viewerPosY
+    val z = lastPos.z + (realPos.z - lastPos.z) * timer.renderPartialTicks - renderManager.viewerPosZ
+
+    val entityBox = entity.entityBoundingBox
+    val axisAlignedBB = AxisAlignedBB(
+        entityBox.minX - entity.posX + x - 0.05,
+        entityBox.minY - entity.posY + y,
+        entityBox.minZ - entity.posZ + z - 0.05,
+        entityBox.maxX - entity.posX + x + 0.05,
+        entityBox.maxY - entity.posY + y + 0.15,
+        entityBox.maxZ - entity.posZ + z + 0.05
+    )
+
+    if (outline) {
+        glLineWidth(1F)
+        glEnable(GL_LINE_SMOOTH)
+        glColor4f(color.red.toFloat(), color.green.toFloat(), color.blue.toFloat(), 0.95f)
+        RenderGlobal.drawSelectionBoundingBox(axisAlignedBB)
+    }
+
+    glColor4f(color.red.toFloat(), color.green.toFloat(), color.blue.toFloat(), if (outline) 0.26f else 0.35f)
+    drawFilledBox(axisAlignedBB)
+    GlStateManager.resetColor()
+    glDepthMask(true)
+    glDisable(GL_BLEND)
+    glEnable(GL_TEXTURE_2D)
+    glEnable(GL_DEPTH_TEST)
+    glDepthMask(true)
+}
     fun drawFilledCircleNoGL(x: Int, y: Int, r: Double, c: Int, quality: Int) {
         val f = (c shr 24 and 0xff) / 255f
         val f1 = (c shr 16 and 0xff) / 255f

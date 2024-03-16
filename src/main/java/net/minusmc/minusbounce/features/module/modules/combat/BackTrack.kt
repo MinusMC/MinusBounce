@@ -41,6 +41,11 @@ class BackTrack: Module() {
             packets.clear()
         }
     }
+    @EventTarget
+    fun onRender3D(event: Render3DEvent) {
+        if (target == null) return
+        Render3DUtil.drawBackTrackBox(target, vec3, lastVec3, color.getColor(), false)
+    }
 
     @EventTarget
     fun onPacket(event: PacketEvent) {
