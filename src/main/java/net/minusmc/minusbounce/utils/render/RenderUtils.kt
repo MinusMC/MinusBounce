@@ -28,6 +28,7 @@ import net.minecraft.util.BlockPos
 import net.minecraft.util.MathHelper
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.Timer
+import net.minecraft.util.Vec3
 import net.minusmc.minusbounce.MinusBounce
 import net.minusmc.minusbounce.features.module.modules.render.TargetMark
 import net.minusmc.minusbounce.ui.font.Fonts
