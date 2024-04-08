@@ -668,63 +668,7 @@ class Scaffold: Module() {
 
     private fun search(blockPosition: BlockPos, checks: Boolean): Boolean {
         if (!BlockUtils.isReplaceable(blockPosition)) return false
-
-        val eyesPos = Vec3(mc.thePlayer.posX, mc.thePlayer.entityBoundingBox.minY + mc.thePlayer.getEyeHeight(), mc.thePlayer.posZ)
-
-        var placeRotation: PlaceRotation? = null
-
-        for (side in StaticStorage.facings()) {
-            val neighbor = blockPosition.offset(side)
-            if (!BlockUtils.canBeClicked(neighbor)) continue
-
-            val dirVec = Vec3(side.directionVec)
-
-            var xSearch = 0.1
-            while (xSearch < 0.9) {
-                var ySearch = 0.1
-                while (ySearch < 0.9) {
-                    var zSearch = 0.1
-                    while (zSearch < 0.9) {
-                        val posVec = Vec3(blockPosition).addVector(xSearch, ySearch, zSearch)
-                        val distanceSqPosVec = eyesPos.squareDistanceTo(posVec)
-                        val hitVec = posVec.add(Vec3(dirVec.xCoord * 0.5, dirVec.yCoord * 0.5, dirVec.zCoord * 0.5))
-
-                        if (checks && (eyesPos.squareDistanceTo(hitVec) > 18.0 || distanceSqPosVec > eyesPos.squareDistanceTo(posVec.add(dirVec)) || mc.theWorld.rayTraceBlocks(eyesPos, hitVec, false, true, false) != null)) {
-                            zSearch += 0.1
-                            continue
-                        }
-
-                        val diffX = hitVec.xCoord - eyesPos.xCoord
-                        val diffY = hitVec.yCoord - eyesPos.yCoord
-                        val diffZ = hitVec.zCoord - eyesPos.zCoord
-                        val diffXZ = MathHelper.sqrt_double(diffX * diffX + diffZ * diffZ).toDouble()
-                        val rotation = Rotation(
-                            MathHelper.wrapAngleTo180_float(Math.toDegrees(atan2(diffZ, diffX)).toFloat() - 90f),
-                            MathHelper.wrapAngleTo180_float((-Math.toDegrees(atan2(diffY, diffXZ))).toFloat())
-                        )
-                        val rotationVector = RotationUtils.getVectorForRotation(rotation)
-                        val vector = eyesPos.addVector(
-                            rotationVector.xCoord * 4,
-                            rotationVector.yCoord * 4,
-                            rotationVector.zCoord * 4
-                        )
-                        val obj = mc.theWorld.rayTraceBlocks(eyesPos, vector, false, false, true)
-                        if (!(obj.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK && obj.blockPos == neighbor)) {
-                            zSearch += 0.1
-                            continue
-                        }
-                        if (placeRotation == null || RotationUtils.getRotationDifference(rotation) < RotationUtils.getRotationDifference(placeRotation.rotation))
-                            placeRotation = PlaceRotation(PlaceInfo(neighbor, side.opposite, hitVec), rotation)
-
-                        zSearch += 0.1
-                    }
-                    ySearch += 0.1
-                }
-                xSearch += 0.1
-            }
-        }
-
-        placeRotation ?: return false
+        val placeRotation = BlockUtils.searchBlock(blockPosition, checks) ?: return false
 
         if (towerRotationsValue.get() != "None" && towerStatus) {
             lockRotation = when (towerRotationsValue.get().lowercase()) {
