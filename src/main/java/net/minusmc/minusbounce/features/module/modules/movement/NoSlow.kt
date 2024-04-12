@@ -7,6 +7,8 @@ package net.minusmc.minusbounce.features.module.modules.movement
 
 import net.minecraft.item.*
 import net.minecraft.network.play.client.C03PacketPlayer.C06PacketPlayerPosLook
+import net.minecraft.network.play.client.C07PacketPlayerDigging
+import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement
 import net.minecraft.network.play.client.C09PacketHeldItemChange
 import net.minecraft.network.play.server.S08PacketPlayerPosLook
 import net.minecraft.network.play.server.S09PacketHeldItemChange
