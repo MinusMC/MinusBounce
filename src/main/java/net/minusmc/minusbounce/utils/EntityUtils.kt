@@ -105,4 +105,8 @@ object EntityUtils : MinecraftInstance() {
         val name = ColorUtils.stripColor(entity.name ?: return false) ?: return false
         return MinusBounce.fileManager.friendsConfig.isFriend(name)
     }
+
+    fun isRendered(entityToCheck: Entity?): Boolean {
+        return mc.theWorld != null && mc.theWorld.getLoadedEntityList().contains(entityToCheck)
+    }
 }
