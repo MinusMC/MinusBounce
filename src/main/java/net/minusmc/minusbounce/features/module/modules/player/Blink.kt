@@ -1,8 +1,3 @@
-/*
- * LiquidBounce+ Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/WYSI-Foundation/LiquidBouncePlus/
- */
 package net.minusmc.minusbounce.features.module.modules.player
 
 import net.minusmc.minusbounce.event.EventTarget
@@ -13,6 +8,7 @@ import net.minecraft.network.Packet
 import net.minecraft.network.play.client.*
 import net.minecraft.network.play.client.C03PacketPlayer.C04PacketPlayerPosition
 import net.minecraft.network.play.client.C03PacketPlayer.C06PacketPlayerPosLook
+import net.minecraft.network.play.server.S12PacketEntityVelocity
 import net.minusmc.minusbounce.MinusBounce
 import net.minusmc.minusbounce.event.PacketEvent
 import net.minusmc.minusbounce.event.Render3DEvent
@@ -33,6 +29,7 @@ class Blink : Module() {
     
     private val C0F = BoolValue("C0F", false)
     private val C00 = BoolValue("C00", false)
+    private val S12 = BoolValue("S12", true)
     val pulseValue = BoolValue("Pulse", false)
     private val pulseDelayValue = IntegerValue("PulseDelay", 1000, 500, 5000, "ms") {pulseValue.get()}
     private val Ground = BoolValue("BlinkOnGround", false) {pulseValue.get()}
@@ -78,6 +75,8 @@ class Blink : Module() {
         val packet = event.packet
         if (mc.thePlayer == null || disableLogger || !(Ground.get() || !mc.thePlayer.onGround)) return
         if (packet is C03PacketPlayer) // Cancel all movement stuff
+            event.cancelEvent()
+        if (S12.get() && packet is S12PacketEntityVelocity) // Lol this bypass intave
             event.cancelEvent()
         if (packet is C04PacketPlayerPosition || packet is C06PacketPlayerPosLook ||
                 packet is C08PacketPlayerBlockPlacement ||
