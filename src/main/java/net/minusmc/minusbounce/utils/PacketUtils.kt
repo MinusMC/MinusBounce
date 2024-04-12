@@ -7,6 +7,7 @@ package net.minusmc.minusbounce.utils
 
 import net.minecraft.network.NetworkManager
 import net.minecraft.network.Packet
+import net.minecraft.network.play.INetHandlerPlayServer
 import net.minecraft.network.play.INetHandlerPlayClient
 import net.minecraft.network.play.server.*
 import net.minusmc.minusbounce.event.*
