@@ -30,6 +30,7 @@ class Blink : Module() {
     private val C0F = BoolValue("C0F", false)
     private val C00 = BoolValue("C00", false)
     private val S12 = BoolValue("S12", true)
+    private val disableSPacket = BoolValue("PacketStartwith - S", false) {!S12.get()}
     val pulseValue = BoolValue("Pulse", false)
     private val pulseDelayValue = IntegerValue("PulseDelay", 1000, 500, 5000, "ms") {pulseValue.get()}
     private val Ground = BoolValue("BlinkOnGround", false) {pulseValue.get()}
@@ -76,7 +77,12 @@ class Blink : Module() {
         if (mc.thePlayer == null || disableLogger || !(Ground.get() || !mc.thePlayer.onGround)) return
         if (packet is C03PacketPlayer) // Cancel all movement stuff
             event.cancelEvent()
-        if (S12.get() && packet is S12PacketEntityVelocity) // Lol this bypass intave
+        if (disableSPacket.get() && packet.javaClass.simpleName.startsWith("S", ignoreCase = true)) { // Lol this bypass intave
+            if (mc.thePlayer.ticksExisted < 20) return
+            event.cancelEvent()
+            packets.add(packet as Packet<INetHandlerPlayClient>)
+        }
+        if (S12.get() && packet is S12PacketEntityVelocity) // Lol this bypass outtave 
             event.cancelEvent()
         if (packet is C04PacketPlayerPosition || packet is C06PacketPlayerPosLook ||
                 packet is C08PacketPlayerBlockPlacement ||
