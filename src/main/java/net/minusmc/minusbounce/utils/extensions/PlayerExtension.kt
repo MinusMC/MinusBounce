@@ -5,12 +5,15 @@
  */
 package net.minusmc.minusbounce.utils.extensions
 
+import net.minecraft.client.Minecraft
 import net.minusmc.minusbounce.utils.Rotation
 import net.minecraft.entity.Entity
 import net.minecraft.util.AxisAlignedBB
 import net.minecraft.util.Vec3
 import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.util.MovingObjectPosition
 import net.minusmc.minusbounce.utils.MinecraftInstance
+import net.minusmc.minusbounce.utils.RotationUtils.getVectorForRotation
 import kotlin.math.abs
 import kotlin.math.pow
 import kotlin.math.sqrt
