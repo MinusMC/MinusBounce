@@ -45,7 +45,7 @@ fun EntityPlayer.getPing(): Int {
     return playerInfo?.responseTime ?: 0
 }
 
-fun rayTraceCustom(blockReachDistance: Double, yaw: Float, pitch: Float): MovingObjectPosition? {
+fun EntityPlayer.rayTraceCustom(blockReachDistance: Double, yaw: Float, pitch: Float): MovingObjectPosition? {
     val mc = Minecraft.getMinecraft()
     val vec3 = mc.thePlayer.getPositionEyes(1.0f)
     val vec31 = mc.thePlayer.getVectorForRotation(yaw, pitch)
