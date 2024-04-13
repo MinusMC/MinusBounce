@@ -32,7 +32,7 @@ val EntityLivingBase.skin: ResourceLocation // TODO: add special skin for mobs
 val Entity.eyes: Vec3
     get() = getPositionEyes(1f)
 
-fun rayTraceCustom(blockReachDistance: Double, yaw: Float, pitch: Float): MovingObjectPosition? {
+fun Entity.rayTraceCustom(blockReachDistance: Double, yaw: Float, pitch: Float): MovingObjectPosition? {
     val mc = Minecraft.getMinecraft()
     val vec3 = mc.thePlayer.getPositionEyes(1.0f)
     val vec31 = mc.thePlayer.getVectorForRotation(yaw, pitch)
