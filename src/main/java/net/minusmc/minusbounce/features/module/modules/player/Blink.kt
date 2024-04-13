@@ -4,6 +4,7 @@ import net.minusmc.minusbounce.event.EventTarget
 import net.minusmc.minusbounce.features.module.Module
 import net.minusmc.minusbounce.utils.render.RenderUtils
 import net.minecraft.client.entity.EntityOtherPlayerMP
+import net.minecraft.network.play.INetHandlerPlayClient
 import net.minecraft.network.Packet
 import net.minecraft.network.play.client.*
 import net.minecraft.network.play.client.C03PacketPlayer.C04PacketPlayerPosition
