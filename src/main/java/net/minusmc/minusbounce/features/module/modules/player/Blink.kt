@@ -28,7 +28,7 @@ import java.util.concurrent.LinkedBlockingQueue
 class Blink : Module() {
     
     private val C0F = BoolValue("C0F", false)
-    private val C00 = BoolValue("C00", false)
+    private val C00 = BoolValue("C00", true)
     private val S12 = BoolValue("S12", true)
     private val disableSPacket = BoolValue("PacketStartwith - S", false) {!S12.get()}
     val pulseValue = BoolValue("Pulse", false)
