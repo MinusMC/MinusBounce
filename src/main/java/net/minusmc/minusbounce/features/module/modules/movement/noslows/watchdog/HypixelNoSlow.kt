@@ -31,7 +31,7 @@ class HypixelNoSlow : NoSlowMode("Hypixel") {
                         )
                     ) return
                     event.cancelEvent()
-                    val position: MovingObjectPosition = rayTraceCustom(
+                    val position: MovingObjectPosition = mc.thePlayer.rayTraceCustom(
                         mc.playerController.blockReachDistance.toDouble(), mc.thePlayer.rotationYaw, 90f
                     )
                         ?: return
