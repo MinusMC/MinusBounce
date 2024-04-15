@@ -4,7 +4,7 @@ import net.minusmc.minusbounce.event.JumpEvent
 import net.minusmc.minusbounce.event.PostMotionEvent
 import net.minusmc.minusbounce.features.module.modules.movement.flys.FlyMode
 import net.minusmc.minusbounce.features.module.modules.movement.flys.FlyType
-import net.minusmc.minusbounce.utils.MovementUtils
+import net.minusmc.minusbounce.utils.player.MovementUtils
 import net.minusmc.minusbounce.value.FloatValue
 
 class BlocksMCFly: FlyMode("BlocksMC", FlyType.OTHER) {

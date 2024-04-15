@@ -14,6 +14,7 @@ import net.minecraft.util.*
 import net.minusmc.minusbounce.injection.access.StaticStorage
 import net.minusmc.minusbounce.utils.*
 import net.minusmc.minusbounce.utils.extensions.*
+import net.minusmc.minusbounce.utils.player.RotationUtils
 import kotlin.collections.set
 import kotlin.math.*
 

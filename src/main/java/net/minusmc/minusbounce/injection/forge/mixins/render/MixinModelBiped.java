@@ -7,7 +7,7 @@ package net.minusmc.minusbounce.injection.forge.mixins.render;
 
 import net.minusmc.minusbounce.MinusBounce;
 import net.minusmc.minusbounce.features.module.modules.misc.SpinBot;
-import net.minusmc.minusbounce.utils.RotationUtils;
+import net.minusmc.minusbounce.utils.player.RotationUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelRenderer;

@@ -4,7 +4,7 @@ import net.minusmc.minusbounce.features.module.modules.player.nofalls.NoFallMode
 import net.minecraft.network.play.client.C03PacketPlayer
 import net.minusmc.minusbounce.event.PacketEvent
 import net.minusmc.minusbounce.event.WorldEvent
-import net.minusmc.minusbounce.utils.MovementUtils
+import net.minusmc.minusbounce.utils.player.MovementUtils
 
 class VulcanNoFall: NoFallMode("Vulcan") {
     private var doSpoof = false

@@ -4,9 +4,8 @@ import net.minusmc.minusbounce.features.module.modules.movement.noslows.NoSlowMo
 import net.minusmc.minusbounce.utils.PacketUtils
 import net.minusmc.minusbounce.event.PostMotionEvent
 import net.minusmc.minusbounce.event.PacketEvent
-import net.minusmc.minusbounce.event.EventState
 import net.minusmc.minusbounce.utils.extensions.rayTraceCustom
-import net.minusmc.minusbounce.utils.RotationUtils
+import net.minusmc.minusbounce.utils.player.RotationUtils
 import net.minecraft.util.BlockPos
 import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement
 import net.minecraft.util.MovingObjectPosition
@@ -31,7 +30,7 @@ class WatchdogNoSlow: NoSlowMode("Watchdog") {
                     mc.playerController.blockReachDistance.toDouble(), mc.thePlayer.rotationYaw, 90f)
                     ?: return
                 val rot = Rotation(mc.thePlayer.rotationYaw, 90f)
-                RotationUtils.setTargetRot(rot)
+                RotationUtils.setTargetRotation(rot)
                 sendUseItem(position)
             }
         }

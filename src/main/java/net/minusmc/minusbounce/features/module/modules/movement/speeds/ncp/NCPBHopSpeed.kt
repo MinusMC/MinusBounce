@@ -3,7 +3,7 @@ package net.minusmc.minusbounce.features.module.modules.movement.speeds.ncp
 import net.minusmc.minusbounce.features.module.modules.movement.speeds.SpeedType
 import net.minusmc.minusbounce.features.module.modules.movement.speeds.SpeedMode
 import net.minusmc.minusbounce.event.PostMotionEvent
-import net.minusmc.minusbounce.utils.MovementUtils
+import net.minusmc.minusbounce.utils.player.MovementUtils
 import net.minecraft.potion.Potion
 import java.math.BigDecimal
 import java.math.RoundingMode

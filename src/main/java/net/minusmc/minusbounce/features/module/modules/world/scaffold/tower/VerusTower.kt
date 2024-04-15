@@ -2,7 +2,7 @@ package net.minusmc.minusbounce.features.module.modules.world.scaffold.tower
 
 import net.minusmc.minusbounce.features.module.modules.world.scaffold.TowerScaffold
 import net.minusmc.minusbounce.event.PreMotionEvent
-import net.minusmc.minusbounce.utils.MovementUtils
+import net.minusmc.minusbounce.utils.player.MovementUtils
 
 class VerusTower: TowerScaffold("Verus") {
     private var verusState = 0

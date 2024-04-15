@@ -2,7 +2,7 @@ package net.minusmc.minusbounce.features.module.modules.movement.nowebs.aac
 
 import net.minusmc.minusbounce.features.module.modules.movement.nowebs.NoWebMode
 import net.minusmc.minusbounce.event.JumpEvent
-import net.minusmc.minusbounce.utils.MovementUtils
+import net.minusmc.minusbounce.utils.player.MovementUtils
 
 class AACv4NoWeb: NoWebMode("AACv4") {
 	override fun onUpdate() {

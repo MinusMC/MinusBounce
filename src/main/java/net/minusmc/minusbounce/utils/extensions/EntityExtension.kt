@@ -1,17 +1,15 @@
 package net.minusmc.minusbounce.utils.extensions
 
-import net.minusmc.minusbounce.utils.MinecraftInstance
 import net.minecraft.client.Minecraft
 import net.minecraft.client.resources.DefaultPlayerSkin
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.util.MathHelper
 import net.minecraft.util.MovingObjectPosition
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.Vec3
 import net.minusmc.minusbounce.utils.Rotation
-import net.minusmc.minusbounce.utils.RotationUtils
+import net.minusmc.minusbounce.utils.player.RotationUtils
 
 fun EntityPlayer.getEyeVec3(): Vec3 {
     return Vec3(this.posX, this.entityBoundingBox.minY + this.getEyeHeight(), this.posZ)

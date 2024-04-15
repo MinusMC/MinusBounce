@@ -18,12 +18,10 @@ import net.minusmc.minusbounce.features.module.ModuleInfo
 import net.minusmc.minusbounce.features.module.modules.combat.KillAura
 import net.minusmc.minusbounce.features.module.modules.movement.noslows.NoSlowMode
 import net.minusmc.minusbounce.utils.ClassUtils
-import net.minusmc.minusbounce.utils.MovementUtils
-import net.minusmc.minusbounce.utils.PacketUtils
+import net.minusmc.minusbounce.utils.player.MovementUtils
 import net.minusmc.minusbounce.value.BoolValue
 import net.minusmc.minusbounce.value.FloatValue
 import net.minusmc.minusbounce.value.ListValue
-import kotlin.math.sqrt
 
 @ModuleInfo(name = "NoSlow", spacedName = "No Slow", category = ModuleCategory.MOVEMENT, description = "Prevent you from getting slowed down by items (swords, foods, etc.) and liquids.")
 class NoSlow : Module() {

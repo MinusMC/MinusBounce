@@ -5,39 +5,30 @@
  */
 package net.minusmc.minusbounce.injection.forge.mixins.entity;
 
+import net.minecraft.util.Vec3;
 import net.minusmc.minusbounce.MinusBounce;
 import net.minusmc.minusbounce.event.JumpEvent;
 import net.minusmc.minusbounce.event.LookEvent;
-import net.minusmc.minusbounce.features.module.modules.combat.KillAura;
-import net.minusmc.minusbounce.features.module.modules.misc.Patcher;
 import net.minusmc.minusbounce.features.module.modules.movement.NoJumpDelay;
 import net.minusmc.minusbounce.features.module.modules.movement.Sprint;
 import net.minusmc.minusbounce.features.module.modules.movement.TargetStrafe;
 import net.minusmc.minusbounce.features.module.modules.client.Animations;
 import net.minusmc.minusbounce.features.module.modules.render.AntiBlind;
-import net.minusmc.minusbounce.utils.MovementUtils;
-import net.minusmc.minusbounce.utils.RotationUtils;
 import net.minecraft.block.Block;
-import net.minecraft.client.entity.EntityPlayerSP;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.ItemStack;
-import net.minecraft.network.play.server.S0BPacketAnimation;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.MathHelper;
-import net.minecraft.util.Vec3;
-import net.minecraft.world.WorldServer;
+
 import java.util.Iterator;
-import java.util.Map;
+
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Constant;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyConstant;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
@@ -148,6 +139,15 @@ public abstract class MixinEntityLivingBase extends MixinEntity {
     private int getArmSwingAnimationEnd() {
         int speed = MinusBounce.moduleManager.getModule(Animations.class).getState() ? 2 + (20 - Animations.INSTANCE.getSpeedSwing().get()) : 6;
         return this.isPotionActive(Potion.digSpeed) ? speed - (1 + this.getActivePotionEffect(Potion.digSpeed).getAmplifier()) * 1 : (this.isPotionActive(Potion.digSlowdown) ? speed + (1 + this.getActivePotionEffect(Potion.digSlowdown).getAmplifier()) * 2 : speed);
+    }
+
+    @Overwrite
+    public Vec3 getLook(float partialTicks)
+    {
+        final LookEvent event = new LookEvent(this.rotationYaw, this.rotationPitch);
+        MinusBounce.eventManager.callEvent(event);
+
+        return this.getVectorForRotation(event.getPitch(), event.getYaw());
     }
 
 }

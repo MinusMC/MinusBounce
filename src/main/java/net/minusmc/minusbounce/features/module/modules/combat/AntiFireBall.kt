@@ -1,48 +1,87 @@
 /*
  * MinusBounce Hacked Client
  * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/MinusMC/MinusBounce
+ * https://github.com/MinusMC/MinusBounce/
  */
 package net.minusmc.minusbounce.features.module.modules.combat
 
-import net.minusmc.minusbounce.event.EventTarget
-import net.minusmc.minusbounce.event.UpdateEvent
 import net.minusmc.minusbounce.features.module.Module
 import net.minusmc.minusbounce.features.module.ModuleCategory
-import net.minusmc.minusbounce.features.module.ModuleInfo
-import net.minusmc.minusbounce.utils.RotationUtils
-import net.minusmc.minusbounce.utils.timer.MSTimer
-import net.minusmc.minusbounce.value.BoolValue
-import net.minusmc.minusbounce.value.ListValue
+import net.minusmc.minusbounce.utils.extensions.*
+import net.minusmc.minusbounce.utils.player.RotationUtils
+import net.minusmc.minusbounce.utils.misc.RandomUtils.nextFloat
+import net.minusmc.minusbounce.value.FloatRangeValue
+import net.minusmc.minusbounce.value.FloatValue
+import net.minecraft.entity.Entity
 import net.minecraft.entity.projectile.EntityFireball
 import net.minecraft.network.play.client.C02PacketUseEntity
-import net.minecraft.network.play.client.C0APacketAnimation
+import net.minecraft.world.WorldSettings
+import net.minusmc.minusbounce.event.*
+import net.minusmc.minusbounce.features.module.ModuleInfo
+import net.minusmc.minusbounce.utils.PacketUtils.sendPacketNoEvent
+import net.minusmc.minusbounce.utils.player.MovementCorrection
 
-@ModuleInfo(name = "AntiFireBall", spacedName = "Anti Fire Ball", category = ModuleCategory.COMBAT, description = "Automatically punch fireballs away from you.")
+@ModuleInfo(name = "AntiFireball", description = "Make fireballs roll back", category = ModuleCategory.COMBAT)
 class AntiFireBall : Module() {
-    private val timer = MSTimer()
+    private val range = FloatValue("Range", 4.5f, 3f,8f)
+    private val turnSpeed = FloatRangeValue("TurnSpeed", 0f, 180f, 180f, 180f)
 
-    private val swingValue = ListValue("Swing", arrayOf("Normal", "Packet", "None"), "Normal")
-    private val rotationValue = BoolValue("Rotation", true)
+    private var target: Entity? = null
+    @EventTarget
+    private fun onMotion(event: PreUpdateEvent) {
+        val player = mc.thePlayer ?: return
+
+        target = null
+
+        for (entity in mc.theWorld.loadedEntityList.filterIsInstance<EntityFireball>()
+            .sortedBy { player.getDistanceToBox(it.hitBox) }) {
+            val nearestPoint = getNearestPointBB(player.eyes, entity.hitBox)
+
+            val entityPrediction = entity.currPos - entity.prevPos
+
+            val normalDistance = player.getDistanceToBox(entity.hitBox)
+
+            val predictedDistance = player.getDistanceToBox(
+                entity.hitBox.offset(
+                    entityPrediction.xCoord,
+                    entityPrediction.yCoord,
+                    entityPrediction.zCoord
+                )
+            )
+
+            // Skip if the predicted distance is (further than/same as) the normal distance or the predicted distance is out of reach
+            if (predictedDistance >= normalDistance || predictedDistance > range.get()) {
+                continue
+            }
+
+            RotationUtils.setTargetRotation(
+                RotationUtils.toRotation(nearestPoint, true),
+                keepLength = 2,
+                speed = nextFloat(turnSpeed.getMinValue(), turnSpeed.getMaxValue()),
+                fixType = MovementCorrection.Type.STRICT
+            )
+
+            target = entity
+            break
+        }
+    }
 
     @EventTarget
-    private fun onUpdate(event: UpdateEvent) {
-        for (entity in mc.theWorld.loadedEntityList) {
-            if (entity is EntityFireball && mc.thePlayer.getDistanceToEntity(entity) < 5.5 && timer.hasTimePassed(300)) {
-                if(rotationValue.get()) {
-                    RotationUtils.setTargetRot(RotationUtils.getRotations(entity))
-                }
+    fun onTick(event: TickEvent) {
+        val player = mc.thePlayer ?: return
+        val entity = target ?: return
 
-                mc.thePlayer.sendQueue.addToSendQueue(C02PacketUseEntity(entity, C02PacketUseEntity.Action.ATTACK))
+        if (RotationUtils.isFaced(entity, range.get().toDouble())
+        ) {
+            mc.thePlayer.swingItem()
 
-                when (swingValue.get().lowercase()) {
-                    "normal" -> mc.thePlayer.swingItem()
-                    "packet" -> mc.netHandler.addToSendQueue(C0APacketAnimation())
-                }
+            sendPacketNoEvent(C02PacketUseEntity(entity, C02PacketUseEntity.Action.ATTACK))
 
-                timer.reset()
-                break
+            if (mc.playerController.currentGameType != WorldSettings.GameType.SPECTATOR) {
+                player.attackTargetEntityWithCurrentItem(entity)
             }
+
+            target = null
         }
     }
 }

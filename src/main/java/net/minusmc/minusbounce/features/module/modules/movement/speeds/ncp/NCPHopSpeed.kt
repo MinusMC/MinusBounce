@@ -2,7 +2,7 @@ package net.minusmc.minusbounce.features.module.modules.movement.speeds.ncp
 
 import net.minusmc.minusbounce.features.module.modules.movement.speeds.SpeedType
 import net.minusmc.minusbounce.features.module.modules.movement.speeds.SpeedMode
-import net.minusmc.minusbounce.utils.MovementUtils
+import net.minusmc.minusbounce.utils.player.MovementUtils
 
 class NCPHopSpeed: SpeedMode("NCPHop", SpeedType.NCP) {
 	override fun onEnable() {

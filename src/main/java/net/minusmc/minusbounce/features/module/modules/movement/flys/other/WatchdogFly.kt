@@ -2,11 +2,10 @@ package net.minusmc.minusbounce.features.module.modules.movement.flys.other
 
 import net.minusmc.minusbounce.features.module.modules.movement.flys.FlyType
 import net.minusmc.minusbounce.features.module.modules.movement.flys.FlyMode
-import net.minusmc.minusbounce.utils.MovementUtils
-import net.minusmc.minusbounce.utils.RotationUtils
+import net.minusmc.minusbounce.utils.player.MovementUtils
+import net.minusmc.minusbounce.utils.player.RotationUtils
 import net.minusmc.minusbounce.utils.PacketUtils
 import net.minusmc.minusbounce.utils.PlayerUtils
-import net.minusmc.minusbounce.event.EventState
 import net.minusmc.minusbounce.event.PreMotionEvent
 import net.minusmc.minusbounce.event.PostMotionEvent
 import net.minusmc.minusbounce.event.PacketEvent
@@ -67,8 +66,8 @@ class WatchdogFly: FlyMode("Watchdog", FlyType.OTHER) {
 
             mc.thePlayer.motionY = -0.0015
         } else if (wdState < 3) {
-            val rot = RotationUtils.getRotationFromPosition(mc.thePlayer.posX, mc.thePlayer.posZ, mc.thePlayer.posY - 1)
-            RotationUtils.setTargetRot(rot)
+            val rot = RotationUtils.getRotations(mc.thePlayer.posX, mc.thePlayer.posZ, mc.thePlayer.posY - 1)
+            RotationUtils.setTargetRotation(rot)
             event.yaw = rot.yaw
             event.pitch = rot.pitch
         } else
@@ -82,7 +81,7 @@ class WatchdogFly: FlyMode("Watchdog", FlyType.OTHER) {
                 mc.thePlayer.inventoryContainer.getSlot(expectItemStack).stack, 
                 BlockPos(mc.thePlayer.posX, mc.thePlayer.posY - 2, mc.thePlayer.posZ), 
                 EnumFacing.UP, 
-                RotationUtils.getVectorForRotation(RotationUtils.getRotationFromPosition(mc.thePlayer.posX, mc.thePlayer.posZ, mc.thePlayer.posY - 1))))
+                RotationUtils.getVectorForRotation(RotationUtils.getRotations(mc.thePlayer.posX, mc.thePlayer.posZ, mc.thePlayer.posY - 1))))
                 mc.netHandler.addToSendQueue(C0APacketAnimation())
             wdState = 3
         }

@@ -1,13 +1,12 @@
 package net.minusmc.minusbounce.features.module.modules.movement.flys.other
 
-import net.minusmc.minusbounce.event.EventState
 import net.minusmc.minusbounce.event.JumpEvent
 import net.minusmc.minusbounce.event.PreMotionEvent
 import net.minusmc.minusbounce.event.PostMotionEvent
 import net.minusmc.minusbounce.event.StepEvent
 import net.minusmc.minusbounce.features.module.modules.movement.flys.FlyMode
 import net.minusmc.minusbounce.features.module.modules.movement.flys.FlyType
-import net.minusmc.minusbounce.utils.MovementUtils
+import net.minusmc.minusbounce.utils.player.MovementUtils
 
 class FunCraftFly: FlyMode("FunCraft", FlyType.OTHER) {
 	private var moveSpeed = 0.0

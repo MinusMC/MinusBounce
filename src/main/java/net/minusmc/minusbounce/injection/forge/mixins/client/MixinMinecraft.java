@@ -7,7 +7,6 @@ package net.minusmc.minusbounce.injection.forge.mixins.client;
 
 import net.minusmc.minusbounce.MinusBounce;
 import net.minusmc.minusbounce.event.*;
-import net.minusmc.minusbounce.utils.*;
 import net.minusmc.minusbounce.features.module.modules.combat.AutoClicker;
 import net.minusmc.minusbounce.features.module.modules.combat.TickBase;
 import net.minusmc.minusbounce.features.module.modules.exploit.MultiActions;
@@ -16,6 +15,7 @@ import net.minusmc.minusbounce.features.module.modules.world.FastPlace;
 import net.minusmc.minusbounce.injection.forge.mixins.accessors.MinecraftForgeClientAccessor;
 import net.minusmc.minusbounce.ui.client.GuiMainMenu;
 import net.minusmc.minusbounce.utils.CPSCounter;
+import net.minusmc.minusbounce.utils.player.RotationUtils;
 import net.minusmc.minusbounce.utils.render.IconUtils;
 import net.minusmc.minusbounce.utils.render.RenderUtils;
 import net.minecraft.block.material.Material;
@@ -26,7 +26,6 @@ import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.*;
 import net.minecraft.client.gui.achievement.GuiAchievement;
 import net.minecraft.client.gui.inventory.GuiInventory;
-import net.minecraft.client.main.GameConfiguration;
 import net.minecraft.client.multiplayer.PlayerControllerMP;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.network.NetHandlerPlayClient;
@@ -49,18 +48,14 @@ import net.minecraft.entity.*;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.client.C16PacketClientStatus;
-import net.minecraft.profiler.IPlayerUsage;
 import net.minecraft.profiler.PlayerUsageSnooper;
 import net.minecraft.profiler.Profiler;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.integrated.IntegratedServer;
 import net.minecraft.util.*;
 import net.minecraft.world.EnumDifficulty;
-import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.client.MinecraftForgeClient;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import org.apache.commons.lang3.SystemUtils;
-import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.Sys;
 import org.lwjgl.input.Keyboard;
@@ -1119,7 +1114,7 @@ public abstract class MixinMinecraft {
      * @author CCBlueX
      */
     @Overwrite
-    private void sendClickBlockToController(boolean leftClick) {
+    public void sendClickBlockToController(boolean leftClick) {
         if(!leftClick)
             this.leftClickCounter = 0;
 

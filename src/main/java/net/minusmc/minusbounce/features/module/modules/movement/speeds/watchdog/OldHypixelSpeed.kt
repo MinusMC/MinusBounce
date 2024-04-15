@@ -2,8 +2,8 @@ package net.minusmc.minusbounce.features.module.modules.movement.speeds.hypixel
 
 import net.minusmc.minusbounce.features.module.modules.movement.speeds.SpeedMode
 import net.minusmc.minusbounce.features.module.modules.movement.speeds.SpeedType
-import net.minusmc.minusbounce.utils.MovementUtils
-import net.minusmc.minusbounce.utils.RotationUtils
+import net.minusmc.minusbounce.utils.player.MovementUtils
+import net.minusmc.minusbounce.utils.player.RotationUtils
 import net.minecraft.client.settings.GameSettings
 import kotlin.math.abs
 
