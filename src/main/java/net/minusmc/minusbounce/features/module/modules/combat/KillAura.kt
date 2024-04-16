@@ -26,8 +26,7 @@ import net.minusmc.minusbounce.utils.EntityUtils.isSelected
 import net.minusmc.minusbounce.utils.RaycastUtils
 import net.minusmc.minusbounce.utils.RaycastUtils.runWithModifiedRaycastResult
 import net.minusmc.minusbounce.utils.Rotation
-import net.minusmc.minusbounce.utils.extensions.getDistanceToEntityBox
-import net.minusmc.minusbounce.utils.extensions.getNearestPointBB
+import net.minusmc.minusbounce.utils.extensions.*
 import net.minusmc.minusbounce.utils.misc.RandomUtils
 import net.minusmc.minusbounce.utils.player.MovementCorrection
 import net.minusmc.minusbounce.utils.player.RotationUtils
@@ -43,8 +42,6 @@ import kotlin.math.sin
 
 @ModuleInfo(name = "KillAura", spacedName = "Kill Aura", description = "Automatically attacks targets around you.", category = ModuleCategory.COMBAT, keyBind = Keyboard.KEY_R)
 class KillAura : Module() {
-
-    //AutoBlock modes
     private val blockingModes = ClassUtils.resolvePackage("${this.javaClass.`package`.name}.killaura.blocking", KillAuraBlocking::class.java)
         .map { it.newInstance() as KillAuraBlocking }
         .sortedBy { it.modeName }
@@ -52,11 +49,9 @@ class KillAura : Module() {
     private val blockingMode: KillAuraBlocking
         get() = blockingModes.find { autoBlockModeValue.get().equals(it.modeName, true) } ?: throw NullPointerException()
 
-    //CPS & HurtTime
     private val cps = IntRangeValue("CPS", 5, 8, 1, 20)
     private val hurtTimeValue = IntegerValue("HurtTime", 10, 0, 10)
 
-    // Range & throughWalls
     val rangeValue = FloatValue("Range", 3.7f, 1f, 8f, "m")
     private val throughWallsValue = BoolValue("ThroughWalls", true)
     private val throughWallsRangeValue = object: FloatValue("ThroughWallsRange", 2f, 1f, 8f, {throughWallsValue.get()}) {
@@ -71,14 +66,12 @@ class KillAura : Module() {
         }
     }
 
-    // Rotations & TurnSpeed
     private val rotationValue = ListValue("RotationMode", arrayOf("Vanilla", "BackTrack", "Grim", "Intave", "None"), "BackTrack")
     private val intaveRandomAmount = FloatValue("Random", 4f, 0.25f, 10f) { rotationValue.get().equals("Intave", true) }
     private val turnSpeed = FloatRangeValue("TurnSpeed", 180f, 180f, 0f, 180f, "°") {
         !rotationValue.get().equals("None", true)
     }
 
-    //Target / Modes
     private val priorityValue = ListValue("Priority", arrayOf("Health", "Distance", "HurtResistance", "HurtTime", "Armor"), "Distance")
     val targetModeValue = ListValue("TargetMode", arrayOf("Single", "Switch", "Multi"), "Switch")
     private val switchDelayValue = IntegerValue("SwitchDelay", 1000, 1, 2000, "ms") {
@@ -88,11 +81,9 @@ class KillAura : Module() {
         targetModeValue.get().equals("multi", true)
     }
 
-    // Bypass
     private val swingValue = ListValue("Swing", arrayOf("Normal", "Packet", "None"), "Normal")
     private val hitableCheckValue = BoolValue("HitableCheck", false) { !rotationValue.get().equals("none", true) && !throughWallsValue.get()}
 
-    // AutoBlock & Interact
     val autoBlockModeValue: ListValue = object : ListValue("AutoBlock", blockingModes.map { it.modeName }.toTypedArray(), "None") {
         override fun onChange(oldValue: String, newValue: String) {
             if (state) onDisable()
@@ -107,16 +98,12 @@ class KillAura : Module() {
         !autoBlockModeValue.get().equals("None", true)
     }
 
-    // Raycast & Rotation
     private val raycastValue = BoolValue("RayCast", true)
     private val silentRotationValue = BoolValue("SilentRotation", true) { !rotationValue.get().equals("none", true) }
     private val movementCorrection = ListValue("MovementCorrection", arrayOf("None", "Normal", "Strict"), "Strict")
-
-    // Predict
     private val predictValue = BoolValue("Predict", true)
     private val predictSize = FloatRangeValue("PredictSize", 1f, 1f, 0.1f, 5f) {predictValue.get()}
 
-    // Visuals
     private val espModes = ListValue("ESP", arrayOf("Jello", "Off"), "Jello")
     private val circleValue = BoolValue("Circle", true)
     private val accuracyValue = IntegerValue("Accuracy", 59, 0, 59) { circleValue.get() }
@@ -316,7 +303,7 @@ class KillAura : Module() {
                     .forEach(this::attackEntity)
 
             prevTargetEntities.add(target!!.entityId)
-        } else runWithModifiedRaycastResult(rangeValue.get(), throughWallsRange) { obj ->
+        } else runWithModifiedRaycastResult(rangeValue.get(), throughWallsRangeValue.get()) { obj ->
             if (obj.typeOfHit != MovingObjectPosition.MovingObjectType.MISS) {
                 return@runWithModifiedRaycastResult
             }
@@ -395,14 +382,14 @@ class KillAura : Module() {
 
         val rotation = getTargetRotation(entity)
 
-        val raycastdEntity = RaycastUtils.raycastEntity(reach, rotation.yaw, rotation.pitch, object: RaycastUtils.IEntityFilter {
+        val raycastEntity = RaycastUtils.raycastEntity(reach, rotation.yaw, rotation.pitch, object: RaycastUtils.IEntityFilter {
             override fun canRaycast(entity: Entity?): Boolean {
                 return entity is EntityLivingBase && entity !is EntityArmorStand && isSelected(entity, true)
             }
         }) ?: entity // if not found raycast entity, use entity to check
 
-        target = if (raycastValue.get() && raycastdEntity == entity) {
-            raycastdEntity as EntityLivingBase
+        target = if (raycastValue.get() && raycastEntity == entity) {
+            raycastEntity as EntityLivingBase
         } else entity
 
         RotationUtils.setTargetRotation(
@@ -418,8 +405,16 @@ class KillAura : Module() {
         )
 
         if (hitableCheckValue.get() && mc.objectMouseOver != null)
-            hitable = (mc.objectMouseOver.typeOfHit == MovingObjectPosition.MovingObjectType.ENTITY && RotationUtils.isFaced(target!!, reach)) ||
-                    (throughWallsValue.get() && mc.thePlayer.getDistanceToEntityBox(target!!) < throughWallsRange)
+            hitable = (mc.objectMouseOver.typeOfHit == MovingObjectPosition.MovingObjectType.ENTITY && RotationUtils.isFaced(target!!, reach)) || throughWallsValue.get()
+
+        val eyes = mc.thePlayer.getPositionEyes(1F)
+
+        val intercept = target?.let {it.hitBox.calculateIntercept(eyes,
+            eyes + RotationUtils.getVectorForRotation(rotation) * rangeValue.get().toDouble()
+        )} ?: return true
+
+        if (throughWallsValue.get())
+            hitable = RotationUtils.isVisible(intercept.hitVec) || mc.thePlayer.getDistanceToEntityBox(target!!) < throughWallsRangeValue.get()
 
         return true
     }
@@ -496,9 +491,6 @@ class KillAura : Module() {
 
     val canBlock: Boolean
         get() = mc.thePlayer.heldItem != null && mc.thePlayer.heldItem.item is ItemSword
-
-    private val throughWallsRange: Float
-        get() = if (throughWallsValue.get()) throughWallsRangeValue.get() else 0f
 
     override val tag: String
         get() = targetModeValue.get()
