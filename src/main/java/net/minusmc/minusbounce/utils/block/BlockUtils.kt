@@ -256,7 +256,7 @@ object BlockUtils : MinecraftInstance() {
             sqrt(d0 * d0 + d1 * d1 + d2 * d2)
         }
     }
-
+    
     private fun blockRelativeToPlayer(offsetX: Double, offsetY: Double, offsetZ: Double): Block {
         return mc.theWorld.getBlockState(BlockPos(mc.thePlayer).add(offsetX, offsetY, offsetZ)).block
     }

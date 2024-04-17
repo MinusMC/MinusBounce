@@ -16,4 +16,7 @@ open class MinecraftInstance {
 
     val EntityPlayerSP.rotation: Rotation
         get() = Rotation(mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch)
+
+    val EntityPlayerSP.prevRotation: Rotation
+        get() = Rotation(mc.thePlayer.prevRotationYaw, mc.thePlayer.prevRotationPitch)
 }

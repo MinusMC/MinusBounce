@@ -10,6 +10,7 @@ package net.minusmc.minusbounce.utils.extensions
 
 import net.minecraft.client.gui.ScaledResolution
 import net.minecraft.entity.Entity
+import net.minecraft.util.BlockPos
 import net.minecraft.util.Vec3
 import net.minecraft.util.Vec3i
 
@@ -59,6 +60,9 @@ operator fun Vec3.times(number: Double) = Vec3(xCoord * number, yCoord * number,
 operator fun Vec3.div(number: Double) = times(1 / number)
 
 fun Vec3.toFloatTriple() = Triple(xCoord.toFloat(), yCoord.toFloat(), zCoord.toFloat())
+
+operator fun BlockPos.equals(blockPos: BlockPos) = x == blockPos.x && y == blockPos.y && z == blockPos.z
+
 
 fun Float.toRadians() = this * 0.017453292f
 fun Float.toRadiansD() = toRadians().toDouble()

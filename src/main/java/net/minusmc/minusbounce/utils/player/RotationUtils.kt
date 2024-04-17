@@ -453,4 +453,23 @@ object RotationUtils : MinecraftInstance(), Listenable {
             -MathUtils.toDegrees(atan2(y, dist))
         )
     }
+
+    fun mouseSens(yaw: Float, pitch: Float, lastYaw: Float, lastPitch: Float): Rotation {
+        if (mc.gameSettings.mouseSensitivity == 0.5f)
+            mc.gameSettings.mouseSensitivity = 0.47887325f
+
+        if (yaw == lastYaw && pitch == lastPitch)
+            return Rotation(yaw, pitch)
+
+        val f1 = mc.gameSettings.mouseSensitivity * 0.6f + 0.2f
+        val f2 = f1 * f1 * f1 * 8.0f
+        val deltaX = ((6.667 * yaw - 6.667 * lastYaw) / f2).toInt()
+        val deltaY = ((6.667 * pitch - 6.667 * lastPitch) / f2 * -1).toInt()
+        val f3 = deltaX * f2
+        val f4 = deltaY * f2
+        var newYaw = lastYaw + f3 * 0.15f
+        val f5 = lastPitch - f4 * 0.15f
+        val newPitch = f5.coerceIn(-90.0f, 90.0f)
+        return Rotation(newYaw, newPitch)
+    }
 }
