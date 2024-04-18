@@ -304,9 +304,8 @@ class KillAura : Module() {
 
             prevTargetEntities.add(target!!.entityId)
         } else runWithModifiedRaycastResult(rangeValue.get(), throughWallsRangeValue.get()) { obj ->
-            if (obj.typeOfHit != MovingObjectPosition.MovingObjectType.MISS) {
+            if (obj.typeOfHit != MovingObjectPosition.MovingObjectType.MISS)
                 return@runWithModifiedRaycastResult
-            }
 
             lastMovingObjectPosition?.let {
                 if (it.typeOfHit == obj.typeOfHit)
@@ -429,7 +428,7 @@ class KillAura : Module() {
 
         mc.playerController.attackEntity(mc.thePlayer, entity)
 
-        if (interactValue.get()){
+        if (interactValue.get()) {
             mc.playerController.isPlayerRightClickingOnEntity(mc.thePlayer, mc.objectMouseOver.entityHit, mc.objectMouseOver)
             mc.playerController.interactWithEntitySendPacket(mc.thePlayer, mc.objectMouseOver.entityHit)
         }

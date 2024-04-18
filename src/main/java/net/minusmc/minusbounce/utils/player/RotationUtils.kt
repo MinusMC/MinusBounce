@@ -155,7 +155,7 @@ object RotationUtils : MinecraftInstance(), Listenable {
                 for(z in 0.1..0.9){
                     val eyesPos = Vec3(
                         mc.thePlayer.posX,
-                        mc.thePlayer.entityBoundingBox.minY + mc.thePlayer.getEyeHeight(),
+                        mc.thePlayer.entityBoundingBox.minY + mc.thePlayer.eyeHeight,
                         mc.thePlayer.posZ
                     )
                     val posVec = Vec3(blockPos).addVector(x, y, z)
@@ -172,16 +172,11 @@ object RotationUtils : MinecraftInstance(), Listenable {
                         rotationVector.xCoord * dist, rotationVector.yCoord * dist,
                         rotationVector.zCoord * dist
                     )
-                    val obj = mc.theWorld.rayTraceBlocks(
-                        eyesPos, vector, false,
-                        false, true
-                    )
+                    val obj = mc.theWorld.rayTraceBlocks(eyesPos, vector, false, false, true)
                     if (obj.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK) {
                         val currentVec = VecRotation(posVec, rotation)
-                        if (vecRotation == null || getRotationDifference(currentVec.rotation) < getRotationDifference(
-                                vecRotation.rotation
-                            )
-                        ) vecRotation = currentVec
+                        if (vecRotation == null || getRotationDifference(currentVec.rotation) < getRotationDifference(vecRotation.rotation)) 
+                            vecRotation = currentVec
                     }
                 }
             }
@@ -201,7 +196,7 @@ object RotationUtils : MinecraftInstance(), Listenable {
         val player = mc.thePlayer
         val (posX, posY, posZ) = Vec3(
             target.posX + (if (predict) (target.posX - target.prevPosX) * predictSize else 0.0) - (player.posX + (if (predict) player.posX - player.prevPosX else 0.0)),
-            target.entityBoundingBox.minY + (if (predict) (target.entityBoundingBox.minY - target.prevPosY) * predictSize else 0.0) + target.eyeHeight - 0.15 - (player.entityBoundingBox.minY + if (predict) player.posY - player.prevPosY else 0.0) - player.getEyeHeight(),
+            target.entityBoundingBox.minY + (if (predict) (target.entityBoundingBox.minY - target.prevPosY) * predictSize else 0.0) + target.eyeHeight - 0.15 - (player.entityBoundingBox.minY + if (predict) player.posY - player.prevPosY else 0.0) - player.eyeHeight,
             target.posZ + (if (predict) (target.posZ - target.prevPosZ) * predictSize else 0.0) - (player.posZ + if (predict) player.posZ - player.prevPosZ else 0.0)
         )
         val posSqrt = sqrt(posX * posX + posZ * posZ)
@@ -431,7 +426,7 @@ object RotationUtils : MinecraftInstance(), Listenable {
     fun isVisible(vec3: Vec3?): Boolean {
         val eyesPos = Vec3(
             mc.thePlayer.posX,
-            mc.thePlayer.entityBoundingBox.minY + mc.thePlayer.getEyeHeight(),
+            mc.thePlayer.entityBoundingBox.minY + mc.thePlayer.eyeHeight,
             mc.thePlayer.posZ
         )
         return mc.theWorld.rayTraceBlocks(eyesPos, vec3) == null
