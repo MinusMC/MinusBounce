@@ -1,25 +1,31 @@
 package net.minusmc.minusbounce.features.module.modules.world
 
-import net.minecraft.block.Block
 import net.minecraft.block.BlockAir
-import net.minecraft.client.settings.KeyBinding
 import net.minecraft.item.ItemBlock
+import net.minecraft.item.ItemStack
 import net.minecraft.network.play.client.C03PacketPlayer.C04PacketPlayerPosition
 import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement
+import net.minecraft.network.play.client.C0APacketAnimation
 import net.minecraft.network.play.client.C0BPacketEntityAction
 import net.minecraft.network.play.server.S2FPacketSetSlot
 import net.minecraft.potion.Potion
-import net.minecraft.util.*
+import net.minecraft.util.BlockPos
+import net.minecraft.util.EnumFacing
+import net.minecraft.util.MovingObjectPosition
+import net.minecraft.util.Vec3
 import net.minusmc.minusbounce.event.*
 import net.minusmc.minusbounce.features.module.Module
 import net.minusmc.minusbounce.features.module.ModuleCategory
 import net.minusmc.minusbounce.features.module.ModuleInfo
 import net.minusmc.minusbounce.injection.access.StaticStorage
 import net.minusmc.minusbounce.utils.InventoryUtils
+import net.minusmc.minusbounce.utils.PacketUtils
 import net.minusmc.minusbounce.utils.Rotation
 import net.minusmc.minusbounce.utils.block.BlockUtils
 import net.minusmc.minusbounce.utils.block.PlaceInfo
-import net.minusmc.minusbounce.utils.extensions.*
+import net.minusmc.minusbounce.utils.extensions.plus
+import net.minusmc.minusbounce.utils.extensions.step
+import net.minusmc.minusbounce.utils.extensions.times
 import net.minusmc.minusbounce.utils.misc.MathUtils
 import net.minusmc.minusbounce.utils.misc.RandomUtils
 import net.minusmc.minusbounce.utils.player.MovementCorrection
@@ -27,8 +33,10 @@ import net.minusmc.minusbounce.utils.player.MovementUtils
 import net.minusmc.minusbounce.utils.player.RotationUtils
 import net.minusmc.minusbounce.utils.timer.MSTimer
 import net.minusmc.minusbounce.value.*
-import java.util.*
-import kotlin.math.*
+import kotlin.math.abs
+import kotlin.math.cos
+import kotlin.math.floor
+import kotlin.math.sin
 
 
 @ModuleInfo("Scaffold2", "Scaffold Two", "Make ur balls floating in the mid-air", ModuleCategory.WORLD)
@@ -38,7 +46,7 @@ class Scaffold2: Module(){
 
     private val delayValue = IntRangeValue("Delay", 0, 0, 0, 10)
     private val sprint = ListValue("Sprint", arrayOf("Normal", "Matrix", "VulcanToggle", "Bypass", "Omni"), "Normal")
-    
+
     private val speed = FloatRangeValue("Speed", 90f, 90f, 0f, 180f)
 
     private val eagleValue = ListValue("Eagle", arrayOf("Off", "DelayedBlocks", "DelayedTimer"), "Off")
@@ -46,21 +54,21 @@ class Scaffold2: Module(){
     private val eagleBlocksValue = IntegerValue("EagleBlocks", 0, 1, 10) { eagleValue.get().equals("delayedblocks", true) }
     private val eagleDelayValue = IntegerValue("EagleDelay", 0, 0, 20) { eagleValue.get().equals("delayedtimer", true) }
     private val eagleSilent = BoolValue("Silent", false) { !eagleValue.get().equals("Off", true) }
-    
+
     private val towerModeValue = ListValue("Tower", arrayOf("Off", "Vanilla", "Legit", "Matrix", "Vulcan", "Verus", "Air"), "Off")
     private val rayCastValue = ListValue("rayCast", arrayOf("Off", "Normal", "Strict"))
     private val sameYValue = ListValue("SameY", arrayOf("Off", "Same", "AutoJump"), "Off")
-    
+
     private val timer = FloatValue("Timer", 1f, 0f, 5f)
     private val safeWalk = BoolValue("SafeWalk", false)
     private val movementCorrection = BoolValue("MovementCorrection", true)
-    
+
     private val counter = BoolValue("Counter", false)
 
     /* Values */
     private var targetBlock: Vec3? = null
-    private val placeInfo: PlaceInfo? = null
-    private val blockPlace: BlockPos? = null
+    private var placeInfo: PlaceInfo? = null
+    private var blockPlace: BlockPos? = null
     private var targetYaw = 0f
     private var targetPitch = 0f
     private var ticksOnAir = 0
@@ -73,7 +81,8 @@ class Scaffold2: Module(){
     private val eagleDelayTimer = MSTimer()
 
     var time = 0
-    var active = false
+    private var active = false
+    private var itemStack: ItemStack? = null
 
     override fun onDisable() {
         mc.gameSettings.keyBindSneak.pressed = false
@@ -194,7 +203,7 @@ class Scaffold2: Module(){
     fun onPacket(event: PacketEvent){
         val packet = event.packet
 
-        if(packet is C08PacketPlayerBlockPlacement && active && packet.placedBlockDirection != 255){
+        if (packet is C08PacketPlayerBlockPlacement && active && packet.placedBlockDirection != 255){
             time = 0
         }
 
@@ -225,14 +234,93 @@ class Scaffold2: Module(){
     @EventTarget
     fun onPreUpdate(event: PreUpdateEvent){
         if (active) {
-            time++;
+            time++
             mc.gameSettings.keyBindSneak.pressed = time >= 4
+        }
+
+        val blockSlot = InventoryUtils.findAutoBlockBlock()
+        if (blockSlot != -1) {
+            mc.thePlayer.inventory.currentItem = blockSlot - 36
+            itemStack = mc.thePlayer.inventoryContainer.getSlot(blockSlot).stack
         }
 
         if (BlockUtils.blockRelativeToPlayer(0, -1, 0) is BlockAir)
             ticksOnAir++
         else
             ticksOnAir = 0
+
+        //calculateSneaking()
+
+        // Gets block to place
+
+        // Gets block to place
+        targetBlock = BlockUtils.getPlacePossibility(0.0, 0.0, 0.0)
+
+        if (targetBlock == null) {
+            return
+        }
+
+        //Gets EnumFacing
+        placeInfo = BlockUtils.getEnumFacing(targetBlock!!)
+
+        if (placeInfo == null) {
+            return
+        }
+
+        val position = BlockPos(targetBlock!!.xCoord, targetBlock!!.yCoord, targetBlock!!.zCoord)
+        blockPlace = position.add(placeInfo!!.vec3.xCoord, placeInfo!!.vec3.yCoord, placeInfo!!.vec3.zCoord)
+
+        if (blockPlace == null || placeInfo == null) {
+            return
+        }
+
+        calculateRotations()
+
+        if (targetBlock == null || placeInfo == null || blockPlace == null) {
+            return
+        }
+
+        if (sameYValue.get().equals("AutoJump", true)) {
+            mc.gameSettings.keyBindJump.pressed = mc.thePlayer.onGround && MovementUtils.isMoving || mc.gameSettings.keyBindJump.isPressed
+        }
+
+        // Same Y
+
+        // Same Y
+        val sameY = !sameYValue.get().equals("Off", true) && !mc.gameSettings.keyBindJump.isKeyDown && MovementUtils.isMoving
+
+        if (startY - 1 != floor(targetBlock!!.yCoord) && sameY) {
+            return
+        }
+
+        if (ticksOnAir > RandomUtils.nextInt(delayValue.getMinValue(), delayValue.getMaxValue()) && (isObjectMouseOverBlock(placeInfo!!.enumFacing, blockPlace!!, rayCastValue.get().equals("Strict", true)) || rayCastValue.get().equals("Off", true))) {
+            val hitVec = getHitVec()
+            if (mc.playerController.onPlayerRightClick(mc.thePlayer, mc.theWorld, itemStack, blockPlace, placeInfo!!.enumFacing, hitVec)) {
+                mc.thePlayer.swingItem()
+            }
+            mc.rightClickDelayTimer = 0
+            ticksOnAir = 0
+        } else if (Math.random() > 0.92 && mc.rightClickDelayTimer <= 0) {
+            PacketUtils.sendPacketNoEvent(C08PacketPlayerBlockPlacement(itemStack))
+            mc.rightClickDelayTimer = 0
+        }
+
+        //For Same Y
+
+        //For Same Y
+        if (mc.thePlayer.onGround || mc.gameSettings.keyBindJump.isKeyDown && !MovementUtils.isMoving) {
+            startY = floor(mc.thePlayer.posY)
+        }
+
+        if (mc.thePlayer.posY < startY) {
+            startY = mc.thePlayer.posY
+        }
+    }
+
+    private fun isObjectMouseOverBlock(enumFacing: EnumFacing, pos: BlockPos, strict: Boolean): Boolean {
+        val movingObjectPosition = mc.objectMouseOver ?: return false
+        val hitVec = movingObjectPosition.hitVec ?: return false
+        return movingObjectPosition.blockPos == pos && (!strict || movingObjectPosition.sideHit == enumFacing)
     }
 
     @EventTarget
@@ -262,7 +350,7 @@ class Scaffold2: Module(){
     fun getHitVec(): Vec3? {
 
         val facing = placeInfo?.enumFacing ?: return null
-        val blockPlace = this.blockPlace ?: return
+        val blockPlace = this.blockPlace ?: return null
 
         val x = blockPlace.x + Math.random() + if (facing == EnumFacing.EAST) 1 else 0
         val y = blockPlace.y + Math.random() + if (facing == EnumFacing.UP) 1 else 0
@@ -282,21 +370,17 @@ class Scaffold2: Module(){
     
     fun calculateRotations() {
 
-        val currentRotation = RotationUtils.targetRotation ?: return
-        val blockPlace = this.blockPlace ?: return
-        val facing = placeInfo?.enumFacing ?: return
-
         when (modes.get().lowercase()) {
-            "normal" -> if (ticksOnAir > 0 && !isObjectMouseOverBlock(currentRotation, blockPlace, facing)) getRotations()
+            "normal" -> if (ticksOnAir > 0 && !isObjectMouseOverBlock(RotationUtils.targetRotation!!, blockPlace!!, placeInfo!!.enumFacing)) getRotations()
             "snap" -> {
                 getRotations()
 
-                if (ticksOnAir <= 0 || isObjectMouseOverBlock(currentRotation, blockPlace, facing))
-                    targetYaw = direction
+                if (ticksOnAir <= 0 || isObjectMouseOverBlock(RotationUtils.targetRotation!!, blockPlace!!, placeInfo!!.enumFacing))
+                    targetYaw = MovementUtils.getRawDirection().toFloat()
             }
 
             "telly" -> if (ticksOnAir >= 3) {
-                if (!isObjectMouseOverBlock(currentRotation, blockPlace, facing))
+                if (!isObjectMouseOverBlock(RotationUtils.targetRotation!!, blockPlace!!, placeInfo!!.enumFacing))
                     getRotations()
 
             } else {
@@ -324,7 +408,7 @@ class Scaffold2: Module(){
         for (possibleYaw in (mc.thePlayer.rotationYaw - 180.0)..(mc.thePlayer.rotationYaw + 180.0) step 45.0) {
             var possiblePitch = 90.0
             while (possiblePitch > 30.0 && !found) {
-                if (checks(Rotation(possibleYaw, possiblePitch), blockPlace, facing)) {
+                if (isObjectMouseOverBlock(Rotation(possibleYaw, possiblePitch), blockPlace, facing)) {
                     targetYaw = possibleYaw.toFloat()
                     targetPitch = possiblePitch.toFloat()
                     found = true
@@ -343,7 +427,7 @@ class Scaffold2: Module(){
 
     private fun isObjectMouseOverBlock(rotation: Rotation, block: BlockPos, facing: EnumFacing, obj: MovingObjectPosition? = rayTrace(rotation)): Boolean{
         obj ?: return false
-        return when (rayTrace.get().lowercase()) {
+        return when (rayCastValue.get().lowercase()) {
             "normal" -> obj.blockPos == block
             "strict" -> obj.blockPos == block && obj.sideHit == facing
             else -> true

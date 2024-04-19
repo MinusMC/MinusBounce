@@ -12,11 +12,16 @@ import net.minecraft.block.state.IBlockState
 import net.minecraft.init.Blocks
 import net.minecraft.util.*
 import net.minusmc.minusbounce.injection.access.StaticStorage
-import net.minusmc.minusbounce.utils.*
-import net.minusmc.minusbounce.utils.extensions.*
+import net.minusmc.minusbounce.utils.MinecraftInstance
+import net.minusmc.minusbounce.utils.PlaceRotation
+import net.minusmc.minusbounce.utils.Rotation
+import net.minusmc.minusbounce.utils.extensions.iterator
 import net.minusmc.minusbounce.utils.player.RotationUtils
 import kotlin.collections.set
-import kotlin.math.*
+import kotlin.math.abs
+import kotlin.math.atan2
+import kotlin.math.floor
+import kotlin.math.sqrt
 
 
 object BlockUtils : MinecraftInstance() {
@@ -212,18 +217,45 @@ object BlockUtils : MinecraftInstance() {
     }
 
     fun getEnumFacing(position: Vec3): PlaceInfo? {
+        var x2 = -1
+        while (x2 <= 1) {
+            if (block(position.xCoord + x2, position.yCoord, position.zCoord) !is BlockAir) {
+                return if (x2 > 0) {
+                    PlaceInfo(BlockPos(0, 0, 0), EnumFacing.WEST, Vec3(x2.toDouble(), 0.0, 0.0))
+                } else {
+                    PlaceInfo(BlockPos(0, 0, 0), EnumFacing.EAST, Vec3(x2.toDouble(), 0.0, 0.0))
+                }
+            }
+            x2 += 2
+        }
 
-        val facings = arrayOf(EnumFacing.EAST, EnumFacing.WEST, EnumFacing.DOWN, EnumFacing.SOUTH, EnumFacing.NORTH)
+        var y2 = -1
+        while (y2 <= 1) {
+            if (block(position.xCoord, position.yCoord + y2, position.zCoord) !is BlockAir) {
+                if (y2 < 0) {
+                    return PlaceInfo(BlockPos(0, 0, 0), EnumFacing.UP, Vec3(0.0, y2.toDouble(), 0.0))
+                }
+            }
+            y2 += 2
+        }
 
-        for (facing in facings) {
-            val directionVec = Vec3(facing.directionVec.x.toDouble(), facing.directionVec.y.toDouble(), facing.directionVec.z.toDouble())
-            val blockPosAfterAddEnum = position.add(directionVec)
-            if (mc.theWorld.getBlockState(BlockPos(blockPosAfterAddEnum.xCoord, blockPosAfterAddEnum.yCoord, blockPosAfterAddEnum.zCoord)) !is BlockAir)
-                return PlaceInfo(
-                    BlockPos(blockPosAfterAddEnum.xCoord, blockPosAfterAddEnum.yCoord, blockPosAfterAddEnum.zCoord), facing.opposite, directionVec)
+        var z2 = -1
+        while (z2 <= 1) {
+            if (block(position.xCoord, position.yCoord, position.zCoord + z2) !is BlockAir) {
+                return if (z2 < 0) {
+                    PlaceInfo(BlockPos(0, 0, 0), EnumFacing.SOUTH, Vec3(0.0, 0.0, z2.toDouble()))
+                } else {
+                    PlaceInfo(BlockPos(0, 0, 0), EnumFacing.NORTH, Vec3(0.0, 0.0, z2.toDouble()))
+                }
+            }
+            z2 += 2
         }
 
         return null
+    }
+
+    fun block(x: Double, y: Double, z: Double): Block {
+        return mc.theWorld.getBlockState(BlockPos(x, y, z)).block
     }
 
     fun getPlacePossibility(offsetX: Double, offsetY: Double, offsetZ: Double): Vec3? {
@@ -261,5 +293,5 @@ object BlockUtils : MinecraftInstance() {
         return mc.theWorld.getBlockState(BlockPos(mc.thePlayer).add(offsetX, offsetY, offsetZ)).block
     }
 
-    private fun blockRelativeToPlayer(offsetX: Int, offsetY: Int, offsetZ: Int) = blockRelativeToPlayer(offsetX.toDouble(), offsetY.toDouble(), offsetZ.toDouble())
+    fun blockRelativeToPlayer(offsetX: Int, offsetY: Int, offsetZ: Int) = blockRelativeToPlayer(offsetX.toDouble(), offsetY.toDouble(), offsetZ.toDouble())
 }
