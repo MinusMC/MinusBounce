@@ -56,7 +56,7 @@ class Scaffold2: Module(){
     private val eagleSilent = BoolValue("Silent", false) { !eagleValue.get().equals("Off", true) }
 
     private val towerModeValue = ListValue("Tower", arrayOf("Off", "Vanilla", "Legit", "Matrix", "Vulcan", "Verus", "Air"), "Off")
-    private val rayCastValue = ListValue("rayCast", arrayOf("Off", "Normal", "Strict"))
+    private val rayCastValue = ListValue("rayCast", arrayOf("Off", "Normal", "Strict"), "Off")
     private val sameYValue = ListValue("SameY", arrayOf("Off", "Same", "AutoJump"), "Off")
 
     private val timer = FloatValue("Timer", 1f, 0f, 5f)
