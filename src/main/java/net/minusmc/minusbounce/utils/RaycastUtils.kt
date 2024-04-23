@@ -20,10 +20,13 @@ object RaycastUtils : MinecraftInstance() {
     /**
      * Modified mouse object pickup
      */
+
     fun runWithModifiedRaycastResult(range: Float, wallRange: Float, action: (MovingObjectPosition) -> Unit) {
-
         val rotation = RotationUtils.targetRotation ?: RotationUtils.serverRotation
+        runWithModifiedRaycastResult(rotation, range, wallRange, action)
+    }
 
+    fun runWithModifiedRaycastResult(rotation: Rotation, range: Float, wallRange: Float, action: (MovingObjectPosition) -> Unit) {
         val entity = mc.renderViewEntity
 
         val prevPointedEntity = mc.pointedEntity

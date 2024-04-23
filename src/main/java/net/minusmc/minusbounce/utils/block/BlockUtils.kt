@@ -224,6 +224,7 @@ object BlockUtils : MinecraftInstance() {
 
             if (block(blockPos.xCoord, blockPos.yCoord, blockPos.zCoord) !is BlockAir)
                 return PlaceInfo(BlockPos(0, 0, 0), facing.opposite, Vec3(facing.directionVec))
+        }
 
         return null
     }
