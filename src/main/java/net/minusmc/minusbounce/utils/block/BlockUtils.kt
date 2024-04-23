@@ -217,38 +217,13 @@ object BlockUtils : MinecraftInstance() {
     }
 
     fun getEnumFacing(position: Vec3): PlaceInfo? {
-        var x2 = -1
-        while (x2 <= 1) {
-            if (block(position.xCoord + x2, position.yCoord, position.zCoord) !is BlockAir) {
-                return if (x2 > 0) {
-                    PlaceInfo(BlockPos(0, 0, 0), EnumFacing.WEST, Vec3(x2.toDouble(), 0.0, 0.0))
-                } else {
-                    PlaceInfo(BlockPos(0, 0, 0), EnumFacing.EAST, Vec3(x2.toDouble(), 0.0, 0.0))
-                }
-            }
-            x2 += 2
-        }
+        val facings = arrayOf(EnumFacing.EAST, EnumFacing.WEST, EnumFacing.DOWN, EnumFacing.NORTH, EnumFacing.SOUTH)
 
-        var y2 = -1
-        while (y2 <= 1) {
-            if (block(position.xCoord, position.yCoord + y2, position.zCoord) !is BlockAir) {
-                if (y2 < 0) {
-                    return PlaceInfo(BlockPos(0, 0, 0), EnumFacing.UP, Vec3(0.0, y2.toDouble(), 0.0))
-                }
-            }
-            y2 += 2
-        }
+        for (facing in facings) {
+            val blockPos = position.add(Vec3(facing.directionVec))
 
-        var z2 = -1
-        while (z2 <= 1) {
-            if (block(position.xCoord, position.yCoord, position.zCoord + z2) !is BlockAir) {
-                return if (z2 < 0) {
-                    PlaceInfo(BlockPos(0, 0, 0), EnumFacing.SOUTH, Vec3(0.0, 0.0, z2.toDouble()))
-                } else {
-                    PlaceInfo(BlockPos(0, 0, 0), EnumFacing.NORTH, Vec3(0.0, 0.0, z2.toDouble()))
-                }
-            }
-            z2 += 2
+            if (block(blockPos.xCoord, blockPos.yCoord, blockPos.zCoord) !is BlockAir)
+                return PlaceInfo(BlockPos(0, 0, 0), facing.opposite, Vec3(facing.directionVec))
         }
 
         return null

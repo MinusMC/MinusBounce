@@ -367,8 +367,8 @@ class Scaffold2: Module(){
      *
      * @return block relative to the player
      */
-    
-    fun calculateRotations() {
+
+    private fun calculateRotations() {
 
         when (modes.get().lowercase()) {
             "normal" -> if (ticksOnAir > 0 && !isObjectMouseOverBlock(RotationUtils.targetRotation!!, blockPlace!!, placeInfo!!.enumFacing)) getRotations()
@@ -401,14 +401,10 @@ class Scaffold2: Module(){
 
     private fun getRotations() {
         var found = false
-
-        val blockPlace = this.blockPlace ?: return
-        val facing = placeInfo?.enumFacing ?: return
-
         for (possibleYaw in (mc.thePlayer.rotationYaw - 180.0)..(mc.thePlayer.rotationYaw + 180.0) step 45.0) {
             var possiblePitch = 90.0
             while (possiblePitch > 30.0 && !found) {
-                if (isObjectMouseOverBlock(Rotation(possibleYaw, possiblePitch), blockPlace, facing)) {
+                if (isObjectMouseOverBlock(Rotation(possibleYaw, possiblePitch), blockPlace!!, placeInfo!!.enumFacing)) {
                     targetYaw = possibleYaw.toFloat()
                     targetPitch = possiblePitch.toFloat()
                     found = true
@@ -418,7 +414,7 @@ class Scaffold2: Module(){
         }
 
         if (!found) {
-            val rotations = RotationUtils.toRotation(Vec3(blockPlace) + 0.5 + Vec3(facing.directionVec) * 0.5)
+            val rotations = RotationUtils.toRotation(Vec3(blockPlace) + 0.5 + Vec3(placeInfo!!.enumFacing.directionVec) * 0.5)
 
             targetYaw = rotations.yaw
             targetPitch = rotations.pitch
