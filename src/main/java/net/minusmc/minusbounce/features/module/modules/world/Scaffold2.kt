@@ -45,7 +45,7 @@ class Scaffold2: Module(){
     private val modes = ListValue("Mode", arrayOf("Normal", "Snap", "Telly"), "Normal")
 
     private val delayValue = IntRangeValue("Delay", 0, 0, 0, 10)
-    private val sprint = ListValue("Sprint", arrayOf("Normal", "Matrix", "VulcanToggle", "Bypass", "Omni"), "Normal")
+    private val sprint = ListValue("Sprint", arrayOf("Normal", "Matrix", "VulcanToggle", "Bypass", "Omni", "Off"), "Normal")
 
     private val speed = FloatRangeValue("Speed", 90f, 90f, 0f, 180f)
 

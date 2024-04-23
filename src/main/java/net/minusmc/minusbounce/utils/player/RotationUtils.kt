@@ -113,6 +113,14 @@ object RotationUtils : MinecraftInstance(), Listenable {
         serverRotation.pitch = mc.thePlayer.lastReportedPitch
     }
 
+    @EventTarget
+    fun onLook(event: LookEvent) {
+        targetRotation?.let {
+            event.yaw = it.yaw
+            event.pitch = it.pitch
+        }
+    }
+
     /**
      * Set your target rotation
      *
@@ -273,9 +281,9 @@ object RotationUtils : MinecraftInstance(), Listenable {
         val eyes = mc.thePlayer.getPositionEyes(1f)
         var vecRotation: VecRotation? = null
 
-        for (x in 0.0..1.0){
-            for (y in 0.0..1.0){
-                for (z in 0.0..1.0){
+        for (x in 0.0..1.0) {
+            for (y in 0.0..1.0) {
+                for (z in 0.0..1.0) {
                     val vec3 = Vec3(bb.minX + (bb.maxX - bb.minX) * x, bb.minY + (bb.maxY - bb.minY) * y, bb.minZ + (bb.maxZ - bb.minZ) * z)
                     val currentVec = VecRotation(vec3, toRotation(Vec3(0.0, 0.0, 0.0), predict, getVectorForRotation(
                         targetRotation ?: serverRotation) - vec3)

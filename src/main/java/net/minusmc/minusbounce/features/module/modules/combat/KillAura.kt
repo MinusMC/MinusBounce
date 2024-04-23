@@ -379,7 +379,7 @@ class KillAura : Module() {
         if (rotationValue.get().equals("none", true) || turnSpeed.getMaxValue() <= 0.0f)
             return true
 
-        val rotation = getTargetRotation(entity)
+        val rotation = getTargetRotation(entity) ?: return false
 
         val raycastEntity = RaycastUtils.raycastEntity(reach, rotation.yaw, rotation.pitch, object: RaycastUtils.IEntityFilter {
             override fun canRaycast(entity: Entity?): Boolean {
@@ -392,7 +392,7 @@ class KillAura : Module() {
         } else entity
 
         RotationUtils.setTargetRotation(
-            rotation = getTargetRotation(target ?: return false),
+            rotation = getTargetRotation(target ?: return false) ?: return false,
             keepLength = 0,
             speed = RandomUtils.nextFloat(turnSpeed.getMinValue(), turnSpeed.getMaxValue()),
             fixType = when (movementCorrection.get().lowercase()) {
@@ -436,7 +436,7 @@ class KillAura : Module() {
         blockingMode.onPostAttack()
     }
 
-    private fun getTargetRotation(entity: Entity): Rotation {
+    private fun getTargetRotation(entity: Entity): Rotation? {
         var boundingBox = entity.entityBoundingBox
 
         if (predictValue.get() && !rotationValue.get().equals("Grim", true) && !rotationValue.get().equals("Intave", true)) {
@@ -451,7 +451,7 @@ class KillAura : Module() {
             "vanilla" -> {
                 val (_, rotation) = RotationUtils.searchCenter(
                     boundingBox, false, predictValue.get(), throughWallsValue.get(), rangeValue.get()
-                ) ?: return RotationUtils.serverRotation
+                ) ?: return null
                 rotation
             }
             "backtrack" -> RotationUtils.toRotation(RotationUtils.getCenter(entity.entityBoundingBox))
