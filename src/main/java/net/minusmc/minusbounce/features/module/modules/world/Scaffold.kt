@@ -23,12 +23,12 @@ import net.minusmc.minusbounce.features.module.modules.world.scaffold.TowerScaff
 import net.minusmc.minusbounce.injection.access.StaticStorage
 import net.minusmc.minusbounce.ui.font.Fonts
 import net.minusmc.minusbounce.utils.*
+import net.minusmc.minusbounce.utils.extensions.*
 import net.minusmc.minusbounce.utils.block.BlockUtils
 import net.minusmc.minusbounce.utils.block.PlaceInfo
 import net.minusmc.minusbounce.utils.block.PlaceInfo.Companion.get
 import net.minusmc.minusbounce.utils.extensions.rayTraceWithServerSideRotation
 import net.minusmc.minusbounce.utils.RaycastUtils.runWithModifiedRaycastResult
-import net.minusmc.minusbounce.utils.RotationUtils.*
 import net.minusmc.minusbounce.utils.render.BlurUtils
 import net.minusmc.minusbounce.utils.render.RenderUtils
 import net.minusmc.minusbounce.utils.timer.MSTimer
@@ -85,7 +85,8 @@ class Scaffold: Module() {
     }
     private val expandLengthValue = IntegerValue("ExpandLength", 1, 1, 6, " blocks")
 
-    val rotationsValue = ListValue("Rotation", arrayOf("Normal", "Intave", "Bridge", "None"), "Normal")
+    //val rotationsValue = ListValue("Rotation", arrayOf("Normal", "Intave", "Bridge", "None"), "Normal")
+    val rotationsValue = ListValue("Rotation", arrayOf("Normal", "Intave", "Backwards", "None"), "Normal")
 
     private val maxTurnSpeed: FloatValue = object: FloatValue("MaxTurnSpeed", 180F, 0F, 180F, "°", {!rotationsValue.get().equals("None", true)}) {
         override fun onChanged(oldValue: Float, newValue: Float) {
@@ -399,10 +400,8 @@ class Scaffold: Module() {
 
     @EventTarget
     fun onPreUpdate(event: PreUpdateEvent) {
-
         targetPlace ?: return
-
-        lockRotation ?: return
+        RotationUtils.setTargetRotation(lockRotation ?: return, keepLengthValue.get(), rotationSpeed, if (movementCorrection.get()) MovementCorrection.Type.STRICT else MovementCorrection.Type.NONE)
 
         // raytrace check
         runWithModifiedRaycastResult(mc.playerController.blockReachDistance, 0f) {obj ->
@@ -662,92 +661,79 @@ class Scaffold: Module() {
 
 
     // thay the thuat toan search
-    // private fun search(blockPosition: BlockPos, checks: Boolean): Boolean {
-    //     if (!BlockUtils.isReplaceable(blockPosition)) return false
-    //     val placeRotation = BlockUtils.searchBlock(blockPosition, checks) ?: return false
-
-    //     if (towerRotationsValue.get() != "None" && towerStatus) {
-    //         lockRotation = when (towerRotationsValue.get().lowercase()) {
-    //             "aac" -> Rotation(mc.thePlayer.rotationYaw + (if (mc.thePlayer.movementInput.moveForward < 0) 0 else 180) + aacOffsetValue.get(), placeRotation.rotation.pitch)
-    //             "normal" -> placeRotation.rotation
-    //             "backwards" -> {
-    //                 val calcyaw = ((MovementUtils.movingYaw - 180) / 45).roundToInt() * 45
-    //                 val calcpitch = if (calcyaw % 90 == 0) {
-    //                     82f
-    //                 } else {
-    //                     78f
-    //                 }
-    //                 Rotation(calcyaw.toFloat(), calcpitch)
-    //             }
-    //             else -> return false
-    //         }
-    //     }
-
-    //     if (!rotationsValue.get().equals("None", true) && !towerStatus) {
-    //         lockRotation = when(rotationsValue.get().lowercase()) {
-    //             "custom" -> Rotation(mc.thePlayer.rotationYaw + customYawValue.get(), customPitchValue.get())
-    //             "spin" -> if (speenRotation != null) speenRotation else return false
-    //             "normal" -> placeRotation.rotation
-    //             "aac" -> Rotation(mc.thePlayer.rotationYaw + (if (mc.thePlayer.movementInput.moveForward < 0) 0 else 180) + aacOffsetValue.get(), placeRotation.rotation.pitch)
-    //             "intave" -> Rotation(mc.thePlayer.rotationYaw + 180, placeRotation.rotation.pitch)
-    //             "backwards" -> {
-    //                 val calcyaw = ((MovementUtils.movingYaw - 180) / 45).roundToInt() * 45
-    //                 val calcpitch = if (calcyaw % 90 == 0) 82f else 78f
-    //                 Rotation(calcyaw.toFloat(), calcpitch)
-    //             }
-    //             else -> return false
-    //         }
-    //     }
-    //     RotationUtils.setTargetRotation(lockRotation!!, keepLengthValue.get(), rotationSpeed, if (movementCorrection.get()) MovementCorrection.Type.STRICT else MovementCorrection.Type.NONE)
-
-    //     targetPlace = placeRotation.placeInfo
-    //     return true
-    // }
-
     private fun search(blockPosition: BlockPos, checks: Boolean): Boolean {
+        if (!BlockUtils.isReplaceable(blockPosition)) 
+            return false
 
-        if (rotationsValue.get().equals("none", true)) {
-            return true
-        }
-
-        val startYaw = when (rotationsValue.get().lowercase()) {
-            "intave" -> 180.0
-            //"bridge" -> calcBridgeRotation()
-            "normal" -> mc.thePlayer.rotationYaw.toDouble() - 180.0
-            else -> return false
-        }
-
-        val endYaw = when (rotationsValue.get().lowercase()) {
-            "intave" -> 180f
-            //"bridge" -> calcBridgeRotation()
-            "normal" -> mc.thePlayer.rotationYaw.toDouble() + 180.0
-            else -> return false
-        }
-
-        var placeRotation: PlaceRotation? = null
-
-        for (facing in StaticStorage.facings()) {
-            for (yaw in startYaw..endYaw step 1.0) {
-                for (pitch in -90.0..90.0 step 1.0) {
-                    val rotation = Rotation(yaw, pitch)
-
-                    runWithModifiedRaycastResult(rotation, mc.playerController.blockReachDistance, 0.0) {
-                        if (it.typeOfHit != MovingObjectPosition.MovingObjectType.BLOCK)
-                            return@runWithModifiedRaycastResult
-
-                        placeRotation = PlaceRotation(PlaceInfo(rayTrace.blockPos, rayTrace.sideHit, rayTrace.hitVec), rotation)
-
-                        if (placeRotation.blockPos == blockPosition && placeRotation.enumFacing == facing) {
-                            if (targetPlace == null || getRotationDifference(targetPlace.rotation) < getRotationDifference(placeRotation.rotation)) {
-                                targetPlace = placeRotation
-                            }
-                        }
-                    }
+        if (lockRotation != null && targetPlace != null)
+            performBlockRaytrace(lockRotation!!, mc.playerController.blockReachDistance)?.let {
+                if (it.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK && 
+                    it.blockPos == blockPosition && it.sideHit == targetPlace!!.enumFacing) {
+                    return true
                 }
             }
+
+        val placeRotation = BlockUtils.searchBlock(blockPosition, checks) ?: return false
+
+        lockRotation = when(rotationsValue.get().lowercase()) {
+            "normal" -> placeRotation.rotation
+            "intave" -> Rotation(mc.thePlayer.rotationYaw + 180, placeRotation.rotation.pitch)
+            "backwards" -> {
+                val calcyaw = ((MovementUtils.movingYaw - 180) / 45).roundToInt() * 45
+                val calcpitch = if (calcyaw % 90 == 0) 82f else 78f
+                Rotation(calcyaw.toFloat(), calcpitch)
+            }
+            else -> return false
         }
 
+        RotationUtils.setTargetRotation(lockRotation!!, keepLengthValue.get(), rotationSpeed, if (movementCorrection.get()) MovementCorrection.Type.STRICT else MovementCorrection.Type.NONE)
+
+        targetPlace = placeRotation.placeInfo
+        return true
     }
+
+    // private fun search(blockPosition: BlockPos, checks: Boolean): Boolean {
+
+    //     if (lockRotation != null && targetPlace != null)
+    //         performBlockRaytrace(lockRotation!!, mc.playerController.blockReachDistance)?.let {
+    //             if (it.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK && 
+    //                 it.blockPos == blockPosition && it.sideHit == targetPlace!!.enumFacing) {
+    //                 return true
+    //             }
+    //         }
+
+    //     val startYaw = when (rotationsValue.get().lowercase()) {
+    //         "intave" -> 180f
+    //         //"bridge" -> calcBridgeRotation()
+    //         else -> mc.thePlayer.rotationYaw - 180f
+    //     }
+
+    //     val endYaw = when (rotationsValue.get().lowercase()) {
+    //         "intave" -> 180f
+    //         //"bridge" -> calcBridgeRotation()
+    //         else -> mc.thePlayer.rotationYaw + 180f
+    //     }
+    //     val placeInfo = BlockUtils.getEnumFacing(Vec3(blockPosition.x.toDouble(), blockPosition.y.toDouble(), blockPosition.z.toDouble())) ?: return false
+    //     var yaw = startYaw
+    //     while (yaw <= endYaw) {
+    //         for (pitch in -90.0..90.0 step 10.0) {
+    //             val rotation = Rotation(yaw, pitch.toFloat())
+
+    //             performBlockRaytrace(rotation, mc.playerController.blockReachDistance)?.let {
+    //                 if (it.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK && 
+    //                     it.blockPos == blockPosition && it.sideHit == placeInfo.enumFacing) {
+    //                     lockRotation = rotation
+    //                     targetPlace = PlaceInfo(it.blockPos, it.sideHit, it.hitVec)
+    //                     return true
+    //                 }
+    //             }
+    //         }
+    //         yaw += 30f
+    //     }
+
+    //     return false
+
+    // }
 
     private fun fakeJump() {
         mc.thePlayer.isAirBorne = true
@@ -771,6 +757,14 @@ class Scaffold: Module() {
     private fun isBlockToScaffold(itemBlock: ItemBlock): Boolean {
         val block = itemBlock.block
         return (!InventoryUtils.BLOCK_BLACKLIST.contains(block) && block.isFullCube) || (allowTntBlock.get() && block == Blocks.tnt)
+    }
+
+    private fun performBlockRaytrace(rotation: Rotation, maxReach: Float): MovingObjectPosition? {
+        val eyes = mc.thePlayer.eyes
+        val rotationVec = RotationUtils.getVectorForRotation(rotation)
+        val reach = eyes + (rotationVec * maxReach.toDouble())
+
+        return mc.theWorld.rayTraceBlocks(eyes, reach, false, false, true)
     }
 
     val canSprint: Boolean
