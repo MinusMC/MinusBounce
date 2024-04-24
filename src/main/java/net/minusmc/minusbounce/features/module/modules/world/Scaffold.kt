@@ -665,28 +665,22 @@ class Scaffold: Module() {
         if (!BlockUtils.isReplaceable(blockPosition)) 
             return false
 
-        if (lockRotation != null && targetPlace != null)
+        val placeRotation = BlockUtils.searchBlock(blockPosition, checks) ?: return false
+
+        if (lockRotation != null) {
             performBlockRaytrace(lockRotation!!, mc.playerController.blockReachDistance)?.let {
                 if (it.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK && 
-                    it.blockPos == blockPosition && it.sideHit == targetPlace!!.enumFacing) {
+                    it.blockPos == blockPosition && it.sideHit == placeRotation.placeInfo.enumFacing) {
                     return true
                 }
             }
-
-        val placeRotation = BlockUtils.searchBlock(blockPosition, checks) ?: return false
+        }
 
         lockRotation = when(rotationsValue.get().lowercase()) {
             "normal" -> placeRotation.rotation
             "intave" -> Rotation(mc.thePlayer.rotationYaw + 180, placeRotation.rotation.pitch)
-            "backwards" -> {
-                val calcyaw = ((MovementUtils.movingYaw - 180) / 45).roundToInt() * 45
-                val calcpitch = if (calcyaw % 90 == 0) 82f else 78f
-                Rotation(calcyaw.toFloat(), calcpitch)
-            }
             else -> return false
         }
-
-        RotationUtils.setTargetRotation(lockRotation!!, keepLengthValue.get(), rotationSpeed, if (movementCorrection.get()) MovementCorrection.Type.STRICT else MovementCorrection.Type.NONE)
 
         targetPlace = placeRotation.placeInfo
         return true
