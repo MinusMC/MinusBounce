@@ -61,6 +61,7 @@ class NoSlow : Module() {
     private val antiSwitchItem = BoolValue("AntiSwitchItem", false)
     // Bypass Intave ? @longathelstan
     val interactionPacket = BoolValue("Interaction Packets", false)
+    var funny = BoolValue("Funny", false)
 
     private val teleportValue = BoolValue("Teleport", false)
 
@@ -126,7 +127,15 @@ class NoSlow : Module() {
         mc.thePlayer ?: return
         mc.theWorld ?: return
         if (!MovementUtils.isMoving && !modeValue.get().equals("blink", true)) return
-        if (interactionPacket.get()) if (isBlocking || isEating || isBowing) mc.thePlayer.sendQueue.addToSendQueue(C08PacketPlayerBlockPlacement(mc.thePlayer.inventory.getCurrentItem()))
+        if (interactionPacket.get() && (isBlocking || isEating || isBowing) && msTimer.hasTimePassed(delay)) {
+            mc.thePlayer.sendQueue.addToSendQueue(C08PacketPlayerBlockPlacement(mc.thePlayer.inventory.getCurrentItem()))
+            delay = if (funnyBoolean.get()) {
+                100L
+            } else {
+                200L
+            }
+            msTimer.reset()
+        }
         if (isBlocking || isEating || isBowing) mode.onPostMotion(event)
     }
 
