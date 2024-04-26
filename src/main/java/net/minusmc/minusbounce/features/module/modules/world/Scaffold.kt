@@ -337,6 +337,9 @@ class Scaffold: Module() {
                 zitterDirection = !zitterDirection
             }
         }
+
+
+
         //if (placeModeValue.equals("legit")) place()
     }
 
@@ -356,8 +359,6 @@ class Scaffold: Module() {
         if (!placeCondition || if (!autoBlockMode.get().equals("off", true)) InventoryUtils.findAutoBlockBlock() == -1 else mc.thePlayer.heldItem == null || !(mc.thePlayer.heldItem.item is ItemBlock && isBlockToScaffold(mc.thePlayer.heldItem.item as ItemBlock))) {
             return
         }
-
-        findBlock(expandLengthValue.get() > 1 && !towerStatus)
 
         if (placeModeValue.get().equals("pre", true)) place()
 
@@ -400,8 +401,13 @@ class Scaffold: Module() {
 
     @EventTarget
     fun onPreUpdate(event: PreUpdateEvent) {
-        targetPlace ?: return
-        RotationUtils.setTargetRotation(lockRotation ?: return, keepLengthValue.get(), rotationSpeed, if (movementCorrection.get()) MovementCorrection.Type.STRICT else MovementCorrection.Type.NONE)
+        findBlock(expandLengthValue.get() > 1 && !towerStatus)
+        
+        lockRotation?.let {
+            RotationUtils.setTargetRotation(it, keepLengthValue.get(), rotationSpeed, 
+                if (movementCorrection.get()) MovementCorrection.Type.STRICT else MovementCorrection.Type.NONE)
+        
+        }
 
         // raytrace check
         runWithModifiedRaycastResult(mc.playerController.blockReachDistance, 0f) {obj ->
@@ -660,7 +666,6 @@ class Scaffold: Module() {
     }
 
 
-    // thay the thuat toan search
     private fun search(blockPosition: BlockPos, checks: Boolean): Boolean {
         if (!BlockUtils.isReplaceable(blockPosition)) 
             return false
@@ -671,10 +676,12 @@ class Scaffold: Module() {
             performBlockRaytrace(lockRotation!!, mc.playerController.blockReachDistance)?.let {
                 if (it.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK && 
                     it.blockPos == blockPosition && it.sideHit == placeRotation.placeInfo.enumFacing) {
+                    targetPlace = placeRotation.placeInfo
                     return true
                 }
             }
         }
+        
 
         lockRotation = when(rotationsValue.get().lowercase()) {
             "normal" -> placeRotation.rotation
