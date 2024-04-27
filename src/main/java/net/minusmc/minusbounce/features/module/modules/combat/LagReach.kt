@@ -32,7 +32,7 @@ class LagReach : Module() {
     private val pulseDelayValue = IntegerValue("Pulse", 200, 50, 1000)
     private val maxDelayValue = IntegerValue("Delay", 500, 50, 2000)
     private val spoof = BoolValue("Spoof", false)
-    private val velocityDelay = IntegerValue("Spoof-Delay", 50, 0, 500)
+    private val spoofDelay = IntegerValue("Spoof-Delay", 50, 0, 500)
     private val incomingBlink = BoolValue("IncomingBlink", true) { mode.get().equals("IncomingBlink", true) }
     private val velocityValue = BoolValue("StopOnVelocity", true) { mode.get().equals("IncomingBlink", true) }
     private val outgoingBlink = BoolValue("OutgoingBlink", true) { mode.get().equals("IncomingBlink", true) }
@@ -295,7 +295,7 @@ class LagReach : Module() {
                 event.cancelEvent()
                 times.add(System.currentTimeMillis())
                 packets.add(packet as Packet<INetHandlerPlayClient>)
-                if (packet is S12PacketEntityVelocity) targetDelay = velocityDelay.get().toLong()
+                if (packet is S12PacketEntityVelocity) targetDelay = spoofDelay.get().toLong()
                 if (packet is S08PacketPlayerPosLook) {
                     targetDelay = 0L
                     while (!packets.isEmpty()) {
