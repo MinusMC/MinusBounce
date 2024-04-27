@@ -146,7 +146,7 @@ class SuperKnockback : Module() {
 
     @EventTarget
     fun onStrafe(event: StrafeEvent) {
-        if (moreMode.get().equals("CancelMove")) {
+        if (moreMode.get().equals("CancelMovement")) {
             target?.let {
                 if (mc.thePlayer.getDistanceToEntityBox(it) <= minDistance.get() && !tick.hasTimePassed(keepTick.get())) {
                     if (!onlyForward.get() || event.forward > 0F) {
