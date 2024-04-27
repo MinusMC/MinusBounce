@@ -20,14 +20,17 @@ import net.minusmc.minusbounce.value.ListValue
 @ModuleInfo(name = "SuperKnockback", spacedName = "Super Knockback", description = "Increases knockback dealt to other entities.", category = ModuleCategory.COMBAT)
 class SuperKnockback : Module() {
     private val hurtTimeValue = IntegerValue("HurtTime", 10, 0, 10)
-    private val modeValue = ListValue("Mode", arrayOf("ExtraPacket", "Legit", "Silent", "WTap", "Packet"), "ExtraPacket")
+    private val modeValue = ListValue("Mode", arrayOf("ExtraPacket", "Legit", "LegitFast", "Silent", "WTap", "Packet"), "ExtraPacket")
     //custom useless mode :V
     private val delay = IntegerValue("Delay", 0, 0, 500, "ms")
 
     val timer = MSTimer()
 
     private var ticks = 0
-
+    private var isHit = false
+    override fun onEnable() {
+        isHit = false
+    }
     @EventTarget
     // I added since LB only have one SuperKnockback mode.ik there is superkb script that better than this
     fun onAttack(event: AttackEvent) {
@@ -47,6 +50,15 @@ class SuperKnockback : Module() {
                 }
                 "silent" -> ticks = 1
                 "legit", "wtap" -> ticks = 2
+                "legitfast" -> {
+                    if (mc.thePlayer.hurtTime === 10) {
+                        if (mc.thePlayer.isSprinting()) {
+                            mc.thePlayer.isSprinting = false
+                        }
+                        mc.getNetHandler().addToSendQueue(C0BPacketEntityAction(mc.thePlayer, C0BPacketEntityAction.Action.START_SPRINTING))
+                        mc.thePlayer.serverSprintState = true
+                    }
+                }
                 "packet" -> {
                     if(mc.thePlayer.isSprinting)
                         mc.thePlayer.isSprinting = true
