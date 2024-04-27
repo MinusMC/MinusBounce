@@ -5,6 +5,8 @@
  */
 package net.minusmc.minusbounce.features.module.modules.movement
 
+import net.minecraft.client.renderer.GlStateManager
+import net.minecraft.client.renderer.block.model.ItemCameraTransforms
 import net.minecraft.item.*
 import net.minecraft.network.play.client.C03PacketPlayer.C06PacketPlayerPosLook
 import net.minecraft.network.play.client.C07PacketPlayerDigging
@@ -24,6 +26,7 @@ import net.minusmc.minusbounce.features.module.modules.movement.noslows.NoSlowMo
 import net.minusmc.minusbounce.utils.ClassUtils
 import net.minusmc.minusbounce.utils.MovementUtils
 import net.minusmc.minusbounce.utils.PacketUtils
+import net.minusmc.minusbounce.utils.timer.MSTimer
 import net.minusmc.minusbounce.value.BoolValue
 import net.minusmc.minusbounce.value.FloatValue
 import net.minusmc.minusbounce.value.ListValue
@@ -59,9 +62,10 @@ class NoSlow : Module() {
     val soulsandValue = BoolValue("Soulsand", true)
     val liquidPushValue = BoolValue("LiquidPush", true)
     private val antiSwitchItem = BoolValue("AntiSwitchItem", false)
+
     // Bypass Intave ? @longathelstan
     val interactionPacket = BoolValue("Interaction Packets", false)
-    var funny = BoolValue("Funny", false)
+    var funnyBoolean = BoolValue("Funny", false)
 
     private val teleportValue = BoolValue("Teleport", false)
 
@@ -69,6 +73,8 @@ class NoSlow : Module() {
     private var lastMotionX = 0.0
     private var lastMotionY = 0.0
     private var lastMotionZ = 0.0
+    private val msTimer = MSTimer()
+    private var delay = 100L
 
     override fun onInitialize() {
         modes.map { mode -> mode.values.forEach { value -> value.name = "${mode.modeName}-${value.name}" } }
@@ -79,6 +85,7 @@ class NoSlow : Module() {
     }
 
     override fun onDisable() {
+        msTimer.reset()
         pendingFlagApplyPacket = false
         mode.onDisable()
     }
