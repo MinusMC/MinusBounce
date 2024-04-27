@@ -1,4 +1,4 @@
-package net.minusmc.minusbounce.features.module.modules
+package net.minusmc.minusbounce.features.module.modules.combat
 
 import net.minecraft.client.entity.EntityOtherPlayerMP
 import net.minecraft.entity.EntityLivingBase
@@ -8,15 +8,12 @@ import net.minecraft.network.play.server.*
 import net.minecraft.network.play.INetHandlerPlayClient
 import net.minecraft.world.WorldSettings
 import net.minusmc.minusbounce.MinusBounce
-import net.minusmc.minusbounce.event.AttackEvent
-import net.minusmc.minusbounce.event.EventTarget
-import net.minusmc.minusbounce.event.PacketEvent
-import net.minusmc.minusbounce.event.UpdateEvent
+import net.minusmc.minusbounce.event.*
 import net.minusmc.minusbounce.features.module.Module
 import net.minusmc.minusbounce.features.module.ModuleCategory
 import net.minusmc.minusbounce.features.module.ModuleInfo
-import net.minusmc.minusbounce.features.module.modules.combat.KillAura
 import net.minusmc.minusbounce.utils.BlinkUtils
+import net.minusmc.minusbounce.utils.ClientUtils
 import net.minusmc.minusbounce.utils.EntityUtils
 import net.minusmc.minusbounce.utils.PacketUtils
 import net.minusmc.minusbounce.utils.extensions.getDistanceToEntityBox
@@ -33,7 +30,9 @@ class LagReach : Module() {
     private val aura = BoolValue("Aura", false)
     private val mode = ListValue("Mode", arrayOf("FakePlayer", "Intave", "IncomingBlink"), "IncomingBlink")
     private val pulseDelayValue = IntegerValue("Pulse", 200, 50, 1000)
-    private val maxDelayValue = IntegerValue("Delay", 700, 50, 2000)
+    private val maxDelayValue = IntegerValue("Delay", 500, 50, 2000)
+    private val spoof = BoolValue("Spoof", false)
+    private val velocityDelay = IntegerValue("Spoof-Delay", 50, 0, 500)
     private val incomingBlink = BoolValue("IncomingBlink", true) { mode.get().equals("IncomingBlink", true) }
     private val velocityValue = BoolValue("StopOnVelocity", true) { mode.get().equals("IncomingBlink", true) }
     private val outgoingBlink = BoolValue("OutgoingBlink", true) { mode.get().equals("IncomingBlink", true) }
@@ -46,13 +45,22 @@ class LagReach : Module() {
     private var shown = false
 
     private val packets = LinkedBlockingQueue<Packet<INetHandlerPlayClient>>()
+    private val times = ArrayList<Long>()
 
     private var comboCounter = 0
     private var backtrack = false
 
+    private var delay = 0L
+    private var targetDelay = 0L
+
+
     private var releasing = false
 
     override fun onEnable() {
+        if (spoof.get()) {
+            packets.clear()
+            times.clear()
+        }
         backtrack = false
         releasing = false
         if (mode.equals("IncomingBlink") && outgoingBlink.get()) {
@@ -65,6 +73,12 @@ class LagReach : Module() {
         clearPackets()
         if (mode.equals("IncomingBlink") && outgoingBlink.get()) {
             BlinkUtils.setBlinkState(off = true, release = true)
+        }
+        if (spoof.get()) {
+            while (!packets.isEmpty()) {
+                PacketUtils.handlePacket(packets.take() as Packet<INetHandlerPlayClient?>)
+            }
+            times.clear()
         }
     }
 
@@ -151,6 +165,11 @@ class LagReach : Module() {
                 BlinkUtils.releasePacket()
             }
         }
+        if (spoof.get()) {
+            if (event.targetEntity?.let { mc.thePlayer.getDistanceToEntityBox(it) }!! > 2.6f) {
+                targetDelay = maxDelayValue.get().toLong()
+            }
+        }
     }
 
     @EventTarget
@@ -229,6 +248,21 @@ class LagReach : Module() {
                 backtrack = false
             }
         }
+        if (spoof.get()) {
+            if (mc.thePlayer.ticksExisted < 20) {
+                times.clear()
+                packets.clear()
+            }
+            ClientUtils.displayChatMessage(delay.toString() + ' ' + times.size.toString())
+            delay += ((targetDelay - delay) / 3)
+            targetDelay = (targetDelay * 0.93).toLong()
+            if (!packets.isEmpty()) {
+                while (times.first() < System.currentTimeMillis() - delay) {
+                    PacketUtils.handlePacket(packets.take() as Packet<INetHandlerPlayClient?>)
+                    times.remove(times.first())
+                }
+            }
+        }
     }
 
     @EventTarget
@@ -255,6 +289,34 @@ class LagReach : Module() {
                     packets.add(packet as Packet<INetHandlerPlayClient>)
                 }
             }
+        }
+        if (spoof.get()) {
+            if (packet.javaClass.simpleName.startsWith("S", ignoreCase = true) && mc.thePlayer.ticksExisted > 20 && targetDelay > 0) {
+                event.cancelEvent()
+                times.add(System.currentTimeMillis())
+                packets.add(packet as Packet<INetHandlerPlayClient>)
+                if (packet is S12PacketEntityVelocity) targetDelay = velocityDelay.get().toLong()
+                if (packet is S08PacketPlayerPosLook) {
+                    targetDelay = 0L
+                    while (!packets.isEmpty()) {
+                        val packet = packets.take() as Packet<INetHandlerPlayClient?>
+                        try {
+                            PacketUtils.handlePacket(packet)
+                        } catch (ignored: Exception) {
+                            chat("Failed to process packet: " + packet.javaClass.name.replace("net.minecraft.network.play.server.", " "))
+                        }
+                    }
+                    times.clear()
+                    return
+                }
+            }
+        }
+    }
+    @EventTarget
+    fun onWorld(event: WorldEvent) {
+        if (spoof.get()) {
+            times.clear()
+            packets.clear()
         }
     }
 }
