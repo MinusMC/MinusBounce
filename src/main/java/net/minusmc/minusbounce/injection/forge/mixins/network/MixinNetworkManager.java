@@ -9,6 +9,7 @@ import io.netty.channel.ChannelHandlerContext;
 import net.minusmc.minusbounce.MinusBounce;
 import net.minusmc.minusbounce.event.PacketEvent;
 import net.minusmc.minusbounce.features.module.modules.client.HUD;
+import net.minusmc.minusbounce.features.module.modules.combat.BackTrack;
 import net.minusmc.minusbounce.utils.PacketUtils;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;
@@ -17,7 +18,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import net.minusmc.minusbounce.features.module.modules.combat.BackTrack;
 
 @Mixin(NetworkManager.class)
 public class MixinNetworkManager {
@@ -25,20 +25,11 @@ public class MixinNetworkManager {
     @Inject(method = "channelRead0", at = @At("HEAD"), cancellable = true)
     private void read(ChannelHandlerContext context, Packet<?> packet, CallbackInfo callback) {
         final PacketEvent event = new PacketEvent(packet);
-        final BackTrack backTrack = MinusBounce.moduleManager.getModule(BackTrack.class);
-        /* I hate NPE */
-        if(backTrack != null){
-            if (backTrack.getState()) {
-                try {
-                    backTrack.onPacket(event);
-                } catch (Exception ignored) {
-                    /* Nothing */
-                }
-
-                if (event.isCancelled()) {
-                    callback.cancel();
-                }
-            }
+        // fix gium
+        if (BackTrack.INSTANCE.getState() && (BackTrack.INSTANCE.getModeValue().equals("Automatic") || BackTrack.INSTANCE.getModeValue().equals("Manual"))) {
+            try {
+                BackTrack.INSTANCE.backTrackPacket(event);
+            } catch (Exception ignored) {}
         }
         MinusBounce.eventManager.callEvent(event);
 
