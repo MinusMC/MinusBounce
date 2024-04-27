@@ -8,7 +8,7 @@ import net.minecraft.network.play.server.S08PacketPlayerPosLook
 import net.minusmc.minusbounce.event.PacketEvent
 import net.minusmc.minusbounce.features.module.modules.movement.flys.FlyMode
 import net.minusmc.minusbounce.features.module.modules.movement.flys.FlyType
-import net.minusmc.minusbounce.utils.MovementUtils
+import net.minusmc.minusbounce.utils.player.MovementUtils
 import net.minusmc.minusbounce.utils.PacketUtils
 import net.minusmc.minusbounce.value.BoolValue
 import net.minusmc.minusbounce.value.FloatValue

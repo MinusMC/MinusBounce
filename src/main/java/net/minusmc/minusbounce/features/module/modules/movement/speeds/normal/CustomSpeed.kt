@@ -6,9 +6,7 @@
 package net.minusmc.minusbounce.features.module.modules.movement.speeds.custom
 
 import net.minusmc.minusbounce.MinusBounce
-import net.minusmc.minusbounce.event.EventState
 import net.minusmc.minusbounce.event.PostMotionEvent
-import net.minusmc.minusbounce.event.MoveEvent
 import net.minusmc.minusbounce.features.module.modules.movement.Speed
 import net.minusmc.minusbounce.features.module.modules.movement.speeds.SpeedMode
 import net.minusmc.minusbounce.features.module.modules.movement.speeds.SpeedType
@@ -16,7 +14,7 @@ import net.minusmc.minusbounce.value.FloatValue
 import net.minusmc.minusbounce.value.ListValue
 import net.minusmc.minusbounce.value.IntegerValue
 import net.minusmc.minusbounce.value.BoolValue
-import net.minusmc.minusbounce.utils.MovementUtils
+import net.minusmc.minusbounce.utils.player.MovementUtils
 import java.util.*
 
 class CustomSpeed: SpeedMode("Custom", SpeedType.NORMAL) {

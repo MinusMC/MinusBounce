@@ -1,7 +1,7 @@
 package net.minusmc.minusbounce.features.module.modules.movement.nowebs.other
 
 import net.minusmc.minusbounce.features.module.modules.movement.nowebs.NoWebMode
-import net.minusmc.minusbounce.utils.MovementUtils
+import net.minusmc.minusbounce.utils.player.MovementUtils
 
 class CardinalNoWeb: NoWebMode("Cardinal") {
     override fun onUpdate() {

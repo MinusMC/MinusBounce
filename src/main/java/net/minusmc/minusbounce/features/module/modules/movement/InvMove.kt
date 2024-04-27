@@ -6,9 +6,7 @@
 package net.minusmc.minusbounce.features.module.modules.movement
 
 import net.minusmc.minusbounce.MinusBounce
-import net.minusmc.minusbounce.features.module.modules.movement.Speed
 import net.minusmc.minusbounce.event.ClickWindowEvent
-import net.minusmc.minusbounce.event.EventState
 import net.minusmc.minusbounce.event.EventTarget
 import net.minusmc.minusbounce.event.PreMotionEvent
 import net.minusmc.minusbounce.event.PacketEvent
@@ -16,7 +14,7 @@ import net.minusmc.minusbounce.event.UpdateEvent
 import net.minusmc.minusbounce.features.module.Module
 import net.minusmc.minusbounce.features.module.ModuleCategory
 import net.minusmc.minusbounce.features.module.ModuleInfo
-import net.minusmc.minusbounce.utils.MovementUtils
+import net.minusmc.minusbounce.utils.player.MovementUtils
 import net.minusmc.minusbounce.value.BoolValue
 import net.minusmc.minusbounce.value.ListValue
 import net.minecraft.client.gui.GuiChat

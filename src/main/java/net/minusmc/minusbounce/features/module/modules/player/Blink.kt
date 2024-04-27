@@ -25,7 +25,7 @@ import java.awt.Color
 import java.util.*
 import java.util.concurrent.LinkedBlockingQueue
 
-@ModuleInfo(name = "Blink", description = "Suspends all movement packets.", category = ModuleCategory.PLAYER)
+@ModuleInfo(name = "Blink", description = "Suspends all player packets.", category = ModuleCategory.PLAYER)
 class Blink : Module() {
     
     private val C0F = BoolValue("C0F", false)
@@ -76,7 +76,7 @@ class Blink : Module() {
     fun onPacket(event: PacketEvent) {
         val packet = event.packet
         if (mc.thePlayer == null || disableLogger || !(Ground.get() || !mc.thePlayer.onGround)) return
-        if (packet is C03PacketPlayer) // Cancel all movement stuff
+        if (packet is C03PacketPlayer) // Cancel all player stuff
             event.cancelEvent()
         if (disableSPacket.get() && packet.javaClass.simpleName.startsWith("S", ignoreCase = true)) { // Lol this bypass intave
             if (mc.thePlayer.ticksExisted < 20) return

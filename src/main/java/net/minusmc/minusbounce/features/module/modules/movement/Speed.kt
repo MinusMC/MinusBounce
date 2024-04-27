@@ -8,7 +8,7 @@ import net.minusmc.minusbounce.features.module.modules.movement.speeds.SpeedMode
 import net.minusmc.minusbounce.features.module.modules.movement.speeds.SpeedType
 import net.minusmc.minusbounce.utils.ClassUtils
 import net.minusmc.minusbounce.utils.LateinitValue
-import net.minusmc.minusbounce.utils.MovementUtils
+import net.minusmc.minusbounce.utils.player.MovementUtils
 import net.minusmc.minusbounce.value.*
 
 @ModuleInfo(name = "Speed", description = "Run faster.", category = ModuleCategory.MOVEMENT)

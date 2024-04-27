@@ -18,6 +18,10 @@ public class MixinMovementInputFromOptions extends MixinMovementInput {
     @Final
     private GameSettings gameSettings;
 
+    /**
+     * @author
+     * @reason
+     */
     @Overwrite
     public void updatePlayerMoveState() {
         this.moveStrafe = 0.0F;

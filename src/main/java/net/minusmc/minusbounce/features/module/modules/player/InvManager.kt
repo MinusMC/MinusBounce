@@ -27,7 +27,7 @@ import net.minusmc.minusbounce.features.module.modules.world.Scaffold
 import net.minusmc.minusbounce.injection.implementations.IItemStack
 import net.minusmc.minusbounce.utils.ClientUtils
 import net.minusmc.minusbounce.utils.InventoryUtils
-import net.minusmc.minusbounce.utils.MovementUtils
+import net.minusmc.minusbounce.utils.player.MovementUtils
 import net.minusmc.minusbounce.utils.item.ArmorPart
 import net.minusmc.minusbounce.utils.item.ItemHelper
 import net.minusmc.minusbounce.utils.misc.RandomUtils

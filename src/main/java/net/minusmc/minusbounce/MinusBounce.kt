@@ -11,13 +11,12 @@ import net.minusmc.minusbounce.event.ClientShutdownEvent
 import net.minusmc.minusbounce.event.EventManager
 import net.minusmc.minusbounce.features.command.CommandManager
 import net.minusmc.minusbounce.features.module.ModuleManager
-import net.minusmc.minusbounce.features.module.modules.client.ClickGUI
 import net.minusmc.minusbounce.features.special.AntiForge
 import net.minusmc.minusbounce.features.special.BungeeCordSpoof
 import net.minusmc.minusbounce.features.special.CombatManager
 import net.minusmc.minusbounce.features.special.MacroManager
 import net.minusmc.minusbounce.features.special.SessionManager
-import net.minusmc.minusbounce.features.special.MovementCorrection
+import net.minusmc.minusbounce.utils.player.MovementCorrection
 import net.minusmc.minusbounce.ui.font.Fonts
 import net.minusmc.minusbounce.file.FileManager
 import net.minusmc.minusbounce.plugin.PluginAPIVersion
@@ -29,6 +28,7 @@ import net.minusmc.minusbounce.ui.client.hud.HUD
 import net.minusmc.minusbounce.ui.client.hud.HUD.Companion.createDefault
 import net.minusmc.minusbounce.utils.*
 import net.minusmc.minusbounce.utils.misc.sound.TipSoundManager
+import net.minusmc.minusbounce.utils.player.RotationUtils
 
 object MinusBounce {
 
@@ -52,7 +52,6 @@ object MinusBounce {
     lateinit var pluginManager: PluginManager
     lateinit var clickGui: DropDownClickGui
     lateinit var sessionManager: SessionManager
-    lateinit var movementCorrection: MovementCorrection
 
     // HUD & ClickGUI
     lateinit var hud: HUD

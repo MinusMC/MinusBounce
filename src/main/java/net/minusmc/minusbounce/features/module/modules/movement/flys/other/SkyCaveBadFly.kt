@@ -3,7 +3,7 @@ package net.minusmc.minusbounce.features.module.modules.movement.flys.other
 import net.minecraft.network.play.client.C03PacketPlayer
 import net.minusmc.minusbounce.features.module.modules.movement.flys.FlyMode
 import net.minusmc.minusbounce.features.module.modules.movement.flys.FlyType
-import net.minusmc.minusbounce.utils.MovementUtils
+import net.minusmc.minusbounce.utils.player.MovementUtils
 import net.minusmc.minusbounce.value.FloatValue
 
 class SkyCaveBadFly: FlyMode("SkyCaveBad", FlyType.OTHER) {

@@ -7,7 +7,6 @@ package net.minusmc.minusbounce.event
 
 import net.minecraft.block.Block
 import net.minecraft.client.gui.GuiScreen
-import net.minecraft.client.gui.ScaledResolution
 import net.minecraft.client.model.ModelPlayer
 import net.minecraft.client.multiplayer.WorldClient
 import net.minecraft.entity.Entity
@@ -56,7 +55,7 @@ class ClickEvent : CancellableEvent()
 class ClientShutdownEvent : Event()
 
 /**
- * Called when an other entity moves
+ * Called when the other entity moves
  */
 data class EntityMovementEvent(val movedEntity: Entity) : Event()
 
@@ -92,7 +91,7 @@ class JumpEvent(var motion: Float, var yaw: Float) : CancellableEvent()
 class LookEvent(var yaw: Float, var pitch: Float) : Event()
 
 /**
- * Called when movement input
+ * Called when player input
  */
 
 class MoveInputEvent(var forward: Float, var strafe: Float, var jump: Boolean, var sneak: Boolean, var sneakMultiplier: Double) : Event()

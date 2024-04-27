@@ -34,7 +34,7 @@ import net.minusmc.minusbounce.features.module.modules.movement.NoSlow;
 import net.minusmc.minusbounce.features.module.modules.movement.Sprint;
 import net.minusmc.minusbounce.features.module.modules.world.Scaffold;
 import net.minusmc.minusbounce.injection.implementations.IEntityPlayerSP;
-import net.minusmc.minusbounce.utils.*;
+import net.minusmc.minusbounce.utils.player.RotationUtils;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -192,13 +192,6 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer impl
             if (this.isCurrentViewEntity()) {
                 float yaw = event.getYaw();
                 float pitch = event.getPitch();
-                float lastReportedYaw = RotationUtils.serverRotation.getYaw();
-                float lastReportedPitch = RotationUtils.serverRotation.getPitch();
-
-                if (RotationUtils.targetRotation != null) {
-                    yaw = RotationUtils.targetRotation.getYaw();
-                    pitch = RotationUtils.targetRotation.getPitch();
-                }
 
                 double xDiff = event.getX() - this.lastReportedPosX;
                 double yDiff = event.getY() - this.lastReportedPosY;

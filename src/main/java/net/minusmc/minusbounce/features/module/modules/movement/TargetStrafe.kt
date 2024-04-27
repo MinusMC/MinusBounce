@@ -15,10 +15,9 @@ import net.minusmc.minusbounce.features.module.Module
 import net.minusmc.minusbounce.features.module.ModuleCategory
 import net.minusmc.minusbounce.features.module.ModuleInfo
 import net.minusmc.minusbounce.features.module.modules.combat.KillAura
-import net.minusmc.minusbounce.utils.MovementUtils
-import net.minusmc.minusbounce.utils.RotationUtils
+import net.minusmc.minusbounce.utils.player.MovementUtils
+import net.minusmc.minusbounce.utils.player.RotationUtils
 import net.minusmc.minusbounce.utils.render.ColorUtils
-import net.minusmc.minusbounce.utils.render.RenderUtils
 import net.minusmc.minusbounce.value.BoolValue
 import net.minusmc.minusbounce.value.FloatValue
 import net.minusmc.minusbounce.value.IntegerValue

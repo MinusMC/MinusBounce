@@ -5,16 +5,19 @@
  */
 package net.minusmc.minusbounce.utils.block
 
-import net.minusmc.minusbounce.utils.*
-import net.minusmc.minusbounce.utils.block.PlaceInfo.Companion.get
-import net.minusmc.minusbounce.injection.access.StaticStorage
-import net.minusmc.minusbounce.utils.extensions.*
-import net.minecraft.init.Blocks
 import net.minecraft.block.Block
+import net.minecraft.block.BlockAir
 import net.minecraft.block.material.Material
 import net.minecraft.block.state.IBlockState
+import net.minecraft.init.Blocks
 import net.minecraft.util.*
+import net.minusmc.minusbounce.injection.access.StaticStorage
+import net.minusmc.minusbounce.utils.*
+import net.minusmc.minusbounce.utils.extensions.*
+import net.minusmc.minusbounce.utils.player.RotationUtils
+import kotlin.collections.set
 import kotlin.math.*
+
 
 object BlockUtils : MinecraftInstance() {
 
@@ -207,4 +210,56 @@ object BlockUtils : MinecraftInstance() {
         }
         return placeRotation
     }
+
+    fun getEnumFacing(position: Vec3): PlaceInfo? {
+
+        val facings = arrayOf(EnumFacing.EAST, EnumFacing.WEST, EnumFacing.DOWN, EnumFacing.SOUTH, EnumFacing.NORTH)
+
+        for (facing in facings) {
+            val directionVec = Vec3(facing.directionVec.x.toDouble(), facing.directionVec.y.toDouble(), facing.directionVec.z.toDouble())
+            val blockPosAfterAddEnum = position.add(directionVec)
+            if (mc.theWorld.getBlockState(BlockPos(blockPosAfterAddEnum.xCoord, blockPosAfterAddEnum.yCoord, blockPosAfterAddEnum.zCoord)) !is BlockAir)
+                return PlaceInfo(
+                    BlockPos(blockPosAfterAddEnum.xCoord, blockPosAfterAddEnum.yCoord, blockPosAfterAddEnum.zCoord), facing.opposite, directionVec)
+        }
+
+        return null
+    }
+
+    fun getPlacePossibility(offsetX: Double, offsetY: Double, offsetZ: Double): Vec3? {
+        val possibilities = mutableListOf<Vec3>()
+        val range = (5 + (abs(offsetX) + abs(offsetZ))).toInt()
+
+        for (x in -range..range) {
+            for (y in -range..range) {
+                for (z in -range..range) {
+                    val block = blockRelativeToPlayer(x, y, z)
+                    if (block is BlockAir) continue
+                    possibilities.add(Vec3(mc.thePlayer.posX + x - 1, mc.thePlayer.posY + y, mc.thePlayer.posZ + z))
+                    possibilities.add(Vec3(mc.thePlayer.posX + x + 1, mc.thePlayer.posY + y, mc.thePlayer.posZ + z))
+                    possibilities.add(Vec3(mc.thePlayer.posX + x, mc.thePlayer.posY + y - 1, mc.thePlayer.posZ + z))
+                    possibilities.add(Vec3(mc.thePlayer.posX + x, mc.thePlayer.posY + y + 1, mc.thePlayer.posZ + z))
+                    possibilities.add(Vec3(mc.thePlayer.posX + x, mc.thePlayer.posY + y, mc.thePlayer.posZ + z - 1))
+                    possibilities.add(Vec3(mc.thePlayer.posX + x, mc.thePlayer.posY + y, mc.thePlayer.posZ + z + 1))
+                }
+            }
+        }
+        possibilities.removeIf {
+            mc.thePlayer.getDistance(it.xCoord, it.yCoord, it.zCoord) > 5 ||
+                    mc.theWorld.getBlockState(BlockPos(it.xCoord, it.yCoord, it.zCoord)).block !is BlockAir
+        }
+
+        return possibilities.minByOrNull {
+            val d0 = mc.thePlayer.posX + offsetX - it.xCoord
+            val d1 = mc.thePlayer.posY - 1 + offsetY - it.yCoord
+            val d2 = mc.thePlayer.posZ + offsetZ - it.zCoord
+            sqrt(d0 * d0 + d1 * d1 + d2 * d2)
+        }
+    }
+
+    private fun blockRelativeToPlayer(offsetX: Double, offsetY: Double, offsetZ: Double): Block {
+        return mc.theWorld.getBlockState(BlockPos(mc.thePlayer).add(offsetX, offsetY, offsetZ)).block
+    }
+
+    private fun blockRelativeToPlayer(offsetX: Int, offsetY: Int, offsetZ: Int) = blockRelativeToPlayer(offsetX.toDouble(), offsetY.toDouble(), offsetZ.toDouble())
 }

@@ -2,7 +2,7 @@ package net.minusmc.minusbounce.features.module.modules.combat.velocitys.normal
 
 import net.minusmc.minusbounce.features.module.modules.combat.velocitys.VelocityMode
 import net.minusmc.minusbounce.event.PacketEvent
-import net.minusmc.minusbounce.utils.MovementUtils
+import net.minusmc.minusbounce.utils.player.MovementUtils
 import net.minecraft.network.play.server.S12PacketEntityVelocity
 import net.minusmc.minusbounce.value.FloatValue
 import net.minusmc.minusbounce.utils.timer.MSTimer

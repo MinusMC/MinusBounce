@@ -3,17 +3,15 @@
  * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
  * https://github.com/MinusMC/MinusBounce
  */
-package net.minusmc.minusbounce.utils
+package net.minusmc.minusbounce.utils.player
 
 import net.minecraft.potion.Potion
-import net.minecraft.util.BlockPos
 import net.minusmc.minusbounce.MinusBounce
 import net.minusmc.minusbounce.event.MoveEvent
-import net.minusmc.minusbounce.event.MoveInputEvent
 import net.minusmc.minusbounce.features.module.modules.movement.TargetStrafe
 import net.minusmc.minusbounce.utils.misc.MathUtils
-import net.minecraft.util.*
-import kotlin.math.round
+import net.minusmc.minusbounce.utils.MinecraftInstance
+import net.minusmc.minusbounce.utils.PlayerUtils
 import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.sin

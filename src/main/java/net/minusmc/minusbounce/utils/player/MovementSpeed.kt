@@ -1,4 +1,4 @@
-package net.minusmc.minusbounce.utils
+package net.minusmc.minusbounce.utils.player
 
 
 data class MovementSpeed(val forward: Float, val strafe: Float, val yaw: Float) {

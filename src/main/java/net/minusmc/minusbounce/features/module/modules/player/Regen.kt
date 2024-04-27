@@ -5,7 +5,6 @@
  */
 package net.minusmc.minusbounce.features.module.modules.player
 
-import net.minusmc.minusbounce.MinusBounce
 import net.minecraft.network.play.client.C03PacketPlayer
 import net.minecraft.network.play.client.C03PacketPlayer.C06PacketPlayerPosLook
 import net.minecraft.potion.Potion
@@ -14,9 +13,8 @@ import net.minusmc.minusbounce.event.UpdateEvent
 import net.minusmc.minusbounce.features.module.Module
 import net.minusmc.minusbounce.features.module.ModuleCategory
 import net.minusmc.minusbounce.features.module.ModuleInfo
-import net.minusmc.minusbounce.utils.MovementUtils
+import net.minusmc.minusbounce.utils.player.MovementUtils
 import net.minusmc.minusbounce.utils.PacketUtils
-import net.minusmc.minusbounce.ui.client.hud.element.elements.Notification
 import net.minusmc.minusbounce.utils.timer.MSTimer
 import net.minusmc.minusbounce.value.BoolValue
 import net.minusmc.minusbounce.value.IntegerValue

@@ -12,7 +12,7 @@ import net.minusmc.minusbounce.features.module.Module
 import net.minusmc.minusbounce.features.module.ModuleCategory
 import net.minusmc.minusbounce.features.module.ModuleInfo
 import net.minusmc.minusbounce.utils.EntityUtils
-import net.minusmc.minusbounce.utils.RotationUtils
+import net.minusmc.minusbounce.utils.player.RotationUtils
 import net.minusmc.minusbounce.utils.render.RenderUtils
 import net.minusmc.minusbounce.value.BoolValue
 import net.minusmc.minusbounce.value.FloatValue
@@ -46,7 +46,7 @@ class BowAimbot : Module() {
             val entity = getTarget(throughWallsValue.get(), priorityValue.get()) ?: return
 
             target = entity
-            RotationUtils.faceBow(target!!, silentValue.get(), predictValue.get(), predictSizeValue.get())
+            RotationUtils.faceBow(target!!, predictValue.get(), predictSizeValue.get())
         }
     }
 
