@@ -5,15 +5,22 @@
  */
 package net.minusmc.minusbounce.features.module.modules.combat
 
+import net.minecraft.client.settings.GameSettings
 import net.minecraft.entity.EntityLivingBase
+import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.network.play.client.C0BPacketEntityAction
 import net.minusmc.minusbounce.event.AttackEvent
 import net.minusmc.minusbounce.event.EventTarget
+import net.minusmc.minusbounce.event.StrafeEvent
 import net.minusmc.minusbounce.event.UpdateEvent
 import net.minusmc.minusbounce.features.module.Module
 import net.minusmc.minusbounce.features.module.ModuleCategory
 import net.minusmc.minusbounce.features.module.ModuleInfo
+import net.minusmc.minusbounce.utils.extensions.getDistanceToEntityBox
 import net.minusmc.minusbounce.utils.timer.MSTimer
+import net.minusmc.minusbounce.utils.timer.TickTimer
+import net.minusmc.minusbounce.value.BoolValue
+import net.minusmc.minusbounce.value.FloatValue
 import net.minusmc.minusbounce.value.IntegerValue
 import net.minusmc.minusbounce.value.ListValue
 
@@ -24,16 +31,35 @@ class SuperKnockback : Module() {
     //custom useless mode :V
     private val delay = IntegerValue("Delay", 0, 0, 500, "ms")
 
+    private val more = BoolValue("More", false)
+    private val moreMode = ListValue("More-mode", arrayOf("Release", "CancelMovement"), "Release") {more.get()}
+    private val minDistance = FloatValue("Min", 2.3F, 0F, 4F, "m") {more.get()}
+    private val maxDistance = FloatValue("Max", 4.0F, 3F, 7F, "m") {more.get()}
+    private val keepTick = IntegerValue("Keep", 10, 0, 40, "tick") {more.get()}
+    private val restTick = IntegerValue("Rest", 4, 0, 40, "tick") {more.get()}
+    private val onlyForward = BoolValue("OnlyForward", true) {more.get()}
+    private val onlyNoHurt = BoolValue("OnlyNoHurt", true) {more.get()}
+
     val timer = MSTimer()
+    private val tick = TickTimer()
 
     private var ticks = 0
     private var isHit = false
+    var target: EntityPlayer? = null
+    private val binds = arrayOf(
+        mc.gameSettings.keyBindForward,
+        mc.gameSettings.keyBindBack,
+        mc.gameSettings.keyBindRight,
+        mc.gameSettings.keyBindLeft
+    )
+
     override fun onEnable() {
         isHit = false
     }
     @EventTarget
     // I added since LB only have one SuperKnockback mode.ik there is superkb script that better than this
     fun onAttack(event: AttackEvent) {
+        if (more.get()) target = if (event.targetEntity is EntityPlayer) event.targetEntity else return
         if (event.targetEntity is EntityLivingBase) {
             if (event.targetEntity.hurtTime > hurtTimeValue.get() || !timer.hasTimePassed(delay.get().toLong()))
                 return
@@ -96,8 +122,40 @@ class SuperKnockback : Module() {
                 ticks = 0
             }
         }
+        if (more.get()) {
+            if (target == null) return
+            if (onlyNoHurt.get() && mc.thePlayer.hurtTime > 0) return
+            if (tick.hasTimePassed(keepTick.get() + restTick.get())) tick.reset()
+            tick.update()
+            val distance = mc.thePlayer.getDistanceToEntityBox(target!!)
+            if (target!!.isDead || distance >= maxDistance.get()) {
+                target = null
+                for (bind in binds) bind.pressed = GameSettings.isKeyDown(bind)
+                return
+            }
+            if (moreMode.get().equals("Release")) {
+                if (distance <= minDistance.get() && !tick.hasTimePassed(keepTick.get())) {
+                    if (onlyForward.get()) mc.gameSettings.keyBindForward.pressed = false
+                    else for (bind in binds) bind.pressed = false
+                } else {
+                    for (bind in binds) bind.pressed = GameSettings.isKeyDown(bind)
+                }
+            }
+        }
     }
 
+    @EventTarget
+    fun onStrafe(event: StrafeEvent) {
+        if (moreMode.get().equals("CancelMove")) {
+            target?.let {
+                if (mc.thePlayer.getDistanceToEntityBox(it) <= minDistance.get() && !tick.hasTimePassed(keepTick.get())) {
+                    if (!onlyForward.get() || event.forward > 0F) {
+                        event.cancelEvent()
+                    }
+                }
+            }
+        }
+    }
     override val tag: String
         get() = modeValue.get()
 }
