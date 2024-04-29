@@ -94,25 +94,6 @@ class SuperKnockback : Module() {
                     mc.netHandler.addToSendQueue(C0BPacketEntityAction(mc.thePlayer, C0BPacketEntityAction.Action.START_SPRINTING))
                     mc.thePlayer.serverSprintState = true
                 }
-                "zitter" -> {
-                    if (mc.thePlayer.hurtTime == 10 && mc.thePlayer.onGround) {
-                        if (!GameSettings.isKeyDown(mc.gameSettings.keyBindRight)) mc.gameSettings.keyBindRight.pressed = false
-                        if (!GameSettings.isKeyDown(mc.gameSettings.keyBindLeft)) mc.gameSettings.keyBindLeft.pressed = false
-                        if (zitterTimer.hasTimePassed(100)) {
-                            zitterDirection = !zitterDirection
-                            mc.netHandler.addToSendQueue(C0BPacketEntityAction(mc.thePlayer, C0BPacketEntityAction.Action.START_SPRINTING))
-                            mc.thePlayer.serverSprintState = true
-                            zitterTimer.reset()
-                        }
-                        if (zitterDirection) {
-                            mc.gameSettings.keyBindRight.pressed = true
-                            mc.gameSettings.keyBindLeft.pressed = false
-                        } else {
-                            mc.gameSettings.keyBindRight.pressed = false
-                            mc.gameSettings.keyBindLeft.pressed = true
-                        }
-                    }
-                }
             }
             timer.reset()
         }
@@ -141,6 +122,25 @@ class SuperKnockback : Module() {
             } else if (ticks == 2) {
                 mc.netHandler.addToSendQueue(C0BPacketEntityAction(mc.thePlayer, C0BPacketEntityAction.Action.START_SPRINTING))
                 ticks = 0
+            }
+             "zitter" -> {
+                if (MinusBounce.combatManager.inCombat && mc.thePlayer.hurtTime == 10 && mc.thePlayer.onGround) {
+                    if (!GameSettings.isKeyDown(mc.gameSettings.keyBindRight)) mc.gameSettings.keyBindRight.pressed = false
+                    if (!GameSettings.isKeyDown(mc.gameSettings.keyBindLeft)) mc.gameSettings.keyBindLeft.pressed = false
+                    if (zitterTimer.hasTimePassed(100)) {
+                        zitterDirection = !zitterDirection
+                        mc.netHandler.addToSendQueue(C0BPacketEntityAction(mc.thePlayer, C0BPacketEntityAction.Action.START_SPRINTING))
+                        mc.thePlayer.serverSprintState = true
+                        zitterTimer.reset()
+                    }
+                    if (zitterDirection) {
+                        mc.gameSettings.keyBindRight.pressed = true
+                        mc.gameSettings.keyBindLeft.pressed = false
+                    } else {
+                        mc.gameSettings.keyBindRight.pressed = false
+                        mc.gameSettings.keyBindLeft.pressed = true
+                    }
+                }
             }
         }
         if (more.get()) {
