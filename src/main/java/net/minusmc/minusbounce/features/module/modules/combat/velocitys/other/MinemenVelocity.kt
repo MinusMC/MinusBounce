@@ -4,7 +4,7 @@ import net.minusmc.minusbounce.event.PacketEvent
 import net.minusmc.minusbounce.event.UpdateEvent
 import net.minusmc.minusbounce.features.module.modules.combat.velocitys.VelocityMode
 import net.minecraft.network.play.server.S12PacketEntityVelocity
-import net.minusmc.minusbounce.utils.MovementUtils
+import net.minusmc.minusbounce.utils.player.MovementUtils
 
 class MinemenVelocity : VelocityMode("Minemen") {
 

@@ -23,6 +23,7 @@ import net.minusmc.minusbounce.features.module.ModuleCategory
 import net.minusmc.minusbounce.features.module.ModuleInfo
 import net.minusmc.minusbounce.features.module.modules.combat.KillAura
 import net.minusmc.minusbounce.features.module.modules.movement.noslows.NoSlowMode
+import net.minusmc.minusbounce.utils.timer.MSTimer
 import net.minusmc.minusbounce.utils.ClassUtils
 import net.minusmc.minusbounce.utils.player.MovementUtils
 import net.minusmc.minusbounce.value.BoolValue

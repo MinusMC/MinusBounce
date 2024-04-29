@@ -12,7 +12,7 @@ import net.minusmc.minusbounce.features.module.modules.combat.KillAura
 import net.minusmc.minusbounce.features.module.modules.movement.noslows.NoSlowMode
 import net.minusmc.minusbounce.utils.PacketUtils
 import net.minusmc.minusbounce.utils.Rotation
-import net.minusmc.minusbounce.utils.RotationUtils
+import net.minusmc.minusbounce.utils.player.RotationUtils
 
 class HypixelNoSlow : NoSlowMode("Hypixel") {
     val killAura = MinusBounce.moduleManager[KillAura::class.java]!!
@@ -36,7 +36,7 @@ class HypixelNoSlow : NoSlowMode("Hypixel") {
                     )
                         ?: return
                     val rot = Rotation(mc.thePlayer.rotationYaw, 90f)
-                    RotationUtils.setTargetRot(rot)
+                    RotationUtils.setTargetRotation(rot)
                     sendUseItem(position)
                 }
             }
