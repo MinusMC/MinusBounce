@@ -13,6 +13,7 @@ import net.minusmc.minusbounce.event.AttackEvent
 import net.minusmc.minusbounce.event.EventTarget
 import net.minusmc.minusbounce.event.StrafeEvent
 import net.minusmc.minusbounce.event.UpdateEvent
+import net.minusmc.minusbounce.MinusBounce
 import net.minusmc.minusbounce.features.module.Module
 import net.minusmc.minusbounce.features.module.ModuleCategory
 import net.minusmc.minusbounce.features.module.ModuleInfo
