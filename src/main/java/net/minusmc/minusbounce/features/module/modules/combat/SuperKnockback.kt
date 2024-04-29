@@ -9,6 +9,7 @@ import net.minecraft.client.settings.GameSettings
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.network.play.client.C0BPacketEntityAction
+import net.minusmc.minusbounce.MinusBounce
 import net.minusmc.minusbounce.event.AttackEvent
 import net.minusmc.minusbounce.event.EventTarget
 import net.minusmc.minusbounce.event.StrafeEvent
@@ -124,7 +125,7 @@ class SuperKnockback : Module() {
                 mc.netHandler.addToSendQueue(C0BPacketEntityAction(mc.thePlayer, C0BPacketEntityAction.Action.START_SPRINTING))
                 ticks = 0
             }
-             "zitter" -> {
+            "zitter" -> {
                 if (MinusBounce.combatManager.inCombat && mc.thePlayer.hurtTime == 10 && mc.thePlayer.onGround) {
                     if (!GameSettings.isKeyDown(mc.gameSettings.keyBindRight)) mc.gameSettings.keyBindRight.pressed = false
                     if (!GameSettings.isKeyDown(mc.gameSettings.keyBindLeft)) mc.gameSettings.keyBindLeft.pressed = false

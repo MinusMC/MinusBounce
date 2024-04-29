@@ -41,15 +41,7 @@ object PacketUtils : MinecraftInstance(), Listenable {
 
     @JvmStatic
     fun sendPacketNoEvent(packet: Packet<*>) {
-        sendPacket(packet, false)
-    }
-
-    @JvmStatic
-    fun sendPacket(packet: Packet<*>, triggerEvent: Boolean) {
-        if (triggerEvent) {
-            mc.netHandler?.addToSendQueue(packet)
-            return
-        }
+        packetList.add(packet)
 
         val netManager = mc.netHandler?.networkManager ?: return
         if (netManager.isChannelOpen) {
@@ -73,6 +65,10 @@ object PacketUtils : MinecraftInstance(), Listenable {
                 packet.processPacket(netManager.packetListener as INetHandlerPlayServer)
             } catch (e: Exception) {}
         }
+    }
+
+    fun handlePacketNoEvent(packet: Packet<*>) {
+        (packet as Packet<INetHandlerPlayClient>).processPacket(mc.netHandler)
     }
 
     @EventTarget
