@@ -27,7 +27,7 @@ import net.minusmc.minusbounce.value.ListValue
 @ModuleInfo(name = "SuperKnockback", spacedName = "Super Knockback", description = "Increases knockback dealt to other entities.", category = ModuleCategory.COMBAT)
 class SuperKnockback : Module() {
     private val hurtTimeValue = IntegerValue("HurtTime", 10, 0, 10)
-    private val modeValue = ListValue("Mode", arrayOf("ExtraPacket", "Legit", "LegitFast", "Silent", "WTap", "Packet"), "ExtraPacket")
+    private val modeValue = ListValue("Mode", arrayOf("ExtraPacket", "Legit", "LegitFast", "Silent", "WTap", "Packet", "Zitter"), "ExtraPacket")
     //custom useless mode :V
     private val delay = IntegerValue("Delay", 0, 0, 500, "ms")
 
@@ -42,7 +42,8 @@ class SuperKnockback : Module() {
 
     val timer = MSTimer()
     private val tick = TickTimer()
-
+    private val zitterTimer = MSTimer()
+    
     private var ticks = 0
     private var isHit = false
     var target: EntityPlayer? = null
@@ -52,6 +53,7 @@ class SuperKnockback : Module() {
         mc.gameSettings.keyBindRight,
         mc.gameSettings.keyBindLeft
     )
+    private var zitterDirection = false
 
     override fun onEnable() {
         isHit = false
@@ -91,6 +93,25 @@ class SuperKnockback : Module() {
                     mc.netHandler.addToSendQueue(C0BPacketEntityAction(mc.thePlayer, C0BPacketEntityAction.Action.STOP_SPRINTING))
                     mc.netHandler.addToSendQueue(C0BPacketEntityAction(mc.thePlayer, C0BPacketEntityAction.Action.START_SPRINTING))
                     mc.thePlayer.serverSprintState = true
+                }
+                "zitter" -> {
+                    if (mc.thePlayer.hurtTime == 10 && mc.thePlayer.onGround) {
+                        if (!GameSettings.isKeyDown(mc.gameSettings.keyBindRight)) mc.gameSettings.keyBindRight.pressed = false
+                        if (!GameSettings.isKeyDown(mc.gameSettings.keyBindLeft)) mc.gameSettings.keyBindLeft.pressed = false
+                        if (zitterTimer.hasTimePassed(100)) {
+                            zitterDirection = !zitterDirection
+                            mc.netHandler.addToSendQueue(C0BPacketEntityAction(mc.thePlayer, C0BPacketEntityAction.Action.START_SPRINTING))
+                            mc.thePlayer.serverSprintState = true
+                            zitterTimer.reset()
+                        }
+                        if (zitterDirection) {
+                            mc.gameSettings.keyBindRight.pressed = true
+                            mc.gameSettings.keyBindLeft.pressed = false
+                        } else {
+                            mc.gameSettings.keyBindRight.pressed = false
+                            mc.gameSettings.keyBindLeft.pressed = true
+                        }
+                    }
                 }
             }
             timer.reset()
