@@ -265,7 +265,7 @@ class BackTrack : Module() {
             if (attacked != entity) 
                 continue
 
-            if (!modeValue.get().equals("manual", true) && timer.hasTimePassed(delayValue.get()) && range >= 6)
+            if (!modeValue.get().equals("manual", true) && timer.hasTimePassed(delayValue.get()) || range >= 6)
                 break
         }
 
