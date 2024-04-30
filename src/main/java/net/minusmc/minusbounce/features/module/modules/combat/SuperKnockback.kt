@@ -48,19 +48,21 @@ class SuperKnockback : Module() {
     private var ticks = 0
     private var isHit = false
     var target: EntityPlayer? = null
+    
     private val binds = arrayOf(
         mc.gameSettings.keyBindForward,
         mc.gameSettings.keyBindBack,
         mc.gameSettings.keyBindRight,
         mc.gameSettings.keyBindLeft
     )
+
     private var zitterDirection = false
 
     override fun onEnable() {
         isHit = false
     }
+
     @EventTarget
-    // I added since LB only have one SuperKnockback mode.ik there is superkb script that better than this
     fun onAttack(event: AttackEvent) {
         if (more.get()) target = if (event.targetEntity is EntityPlayer) event.targetEntity else return
         if (event.targetEntity is EntityLivingBase) {
@@ -80,11 +82,11 @@ class SuperKnockback : Module() {
                 "silent" -> ticks = 1
                 "legit", "wtap" -> ticks = 2
                 "legitfast" -> {
-                    if (mc.thePlayer.hurtTime === 10) {
+                    if (mc.thePlayer.hurtTime == 10) {
                         if (mc.thePlayer.isSprinting()) {
                             mc.thePlayer.isSprinting = false
                         }
-                        mc.getNetHandler().addToSendQueue(C0BPacketEntityAction(mc.thePlayer, C0BPacketEntityAction.Action.START_SPRINTING))
+                        mc.netHandler.addToSendQueue(C0BPacketEntityAction(mc.thePlayer, C0BPacketEntityAction.Action.START_SPRINTING))
                         mc.thePlayer.serverSprintState = true
                     }
                 }

@@ -112,7 +112,7 @@ class BackTrack : Module() {
                         return
                     }
 
-                    if (!event.isCancelled && !needFreeze) {
+                    if (!needFreeze) {
                         MinusBounce.eventManager.callEvent(EntityMovementEvent(entity))
                         val yaw = if (packet.func_149060_h()) packet.func_149066_f().toFloat() * 360 / 256.0f else entity.rotationYaw
                         val pitch = if (packet.func_149060_h()) packet.func_149063_g().toFloat() * 360 / 256.0f else entity.rotationPitch
@@ -121,7 +121,7 @@ class BackTrack : Module() {
                     }
 
                     event.cancelEvent()
-                } else if (needFreeze && !event.isCancelled) {
+                } else if (needFreeze) {
                     if (packet is S19PacketEntityStatus && packet.opCode == 2.toByte())
                         return
 
@@ -130,9 +130,6 @@ class BackTrack : Module() {
                 }
             }
         } else {
-            if (event.isCancelled)
-                return
-
             if (packet is S03PacketTimeUpdate)
                 return
 
@@ -224,7 +221,6 @@ class BackTrack : Module() {
 
     @EventTarget
     fun onPostMotion(event: PostMotionEvent) {
-
         mc.thePlayer ?: return
 
         if (!modeValue.get().equals("packetdelay", true)) {
@@ -235,43 +231,42 @@ class BackTrack : Module() {
         if (!needFreeze)
             return
 
-        if (!modeValue.get().equals("manual", true)) {
-            if (timer.hasTimePassed(delayValue.get())) {
-                releasePackets()
-                return
-            }
+        if (!modeValue.get().equals("manual", true) && timer.hasTimePassed(delayValue.get())) {
+            releasePackets()
+            return
         }
 
-        if (storageEntities.isNotEmpty()) {
-            var release = false
-            for (entity in storageEntities) {
-                val x = entity.serverPosX.toDouble() / 32.0
-                val y = entity.serverPosY.toDouble() / 32.0
-                val z = entity.serverPosZ.toDouble() / 32.0
+        if (storageEntities.isEmpty())
+            return
 
-                val entityBB = AxisAlignedBB(x - 0.4F, y - 0.1F, z - 0.4F, x + 0.4F, y + 1.9F, z + 0.4F)
-                var range = entityBB.getLookingTargetRange(mc.thePlayer)
+        var release = false
+        for (entity in storageEntities) {
+            val x = entity.serverPosX.toDouble() / 32.0
+            val y = entity.serverPosY.toDouble() / 32.0
+            val z = entity.serverPosZ.toDouble() / 32.0
 
-                if (range == Double.MAX_VALUE) {
-                    val eyes = mc.thePlayer.getPositionEyes(1F)
-                    range = getNearestPointBB(eyes, entityBB).distanceTo(eyes) + 0.075
-                }
+            val entityBB = AxisAlignedBB(x - 0.4F, y - 0.1F, z - 0.4F, x + 0.4F, y + 1.9F, z + 0.4F)
+            var range = entityBB.getLookingTargetRange(mc.thePlayer)
 
-                if (range <= 0.5) {
-                    release = true
-                    break
-                }
-
-                if (attacked != entity) 
-                    continue
-
-                if (!modeValue.get().equals("manual", true) && timer.hasTimePassed(delayValue.get()) && range >= 6)
-                    break
+            if (range == Double.MAX_VALUE) {
+                val eyes = mc.thePlayer.getPositionEyes(1F)
+                range = getNearestPointBB(eyes, entityBB).distanceTo(eyes) + 0.075
             }
 
-            if (!modeValue.get().equals("manual", true) && release)
-                releasePackets()
+            if (range <= 0.5) {
+                release = true
+                break
+            }
+
+            if (attacked != entity) 
+                continue
+
+            if (!modeValue.get().equals("manual", true) && timer.hasTimePassed(delayValue.get()) && range >= 6)
+                break
         }
+
+        if (!modeValue.get().equals("manual", true) && release)
+            releasePackets()
     }
 
     @EventTarget

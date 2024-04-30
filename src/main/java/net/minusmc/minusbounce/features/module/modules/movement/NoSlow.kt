@@ -122,16 +122,25 @@ class NoSlow : Module() {
     fun onPreMotion(event: PreMotionEvent) {
         mc.thePlayer ?: return
         mc.theWorld ?: return
-        if (!MovementUtils.isMoving && !modeValue.get().equals("blink", true)) return
-        if (interactionPacket.get()) if (isBlocking || isEating || isBowing) mc.thePlayer.sendQueue.addToSendQueue(C07PacketPlayerDigging(C07PacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN))
-        if (isBlocking || isEating || isBowing) mode.onPreMotion(event)
+
+        if (!MovementUtils.isMoving && !modeValue.get().equals("blink", true)) 
+            return
+
+        if (interactionPacket.get()) if (isBlocking || isEating || isBowing) 
+            mc.thePlayer.sendQueue.addToSendQueue(C07PacketPlayerDigging(C07PacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN))
+        
+        if (isBlocking || isEating || isBowing) 
+            mode.onPreMotion(event)
     }
 
     @EventTarget
     fun onPostMotion(event: PostMotionEvent) {
         mc.thePlayer ?: return
         mc.theWorld ?: return
-        if (!MovementUtils.isMoving && !modeValue.get().equals("blink", true)) return
+
+        if (!MovementUtils.isMoving && !modeValue.get().equals("blink", true)) 
+            return
+            
         if (interactionPacket.get() && (isBlocking || isEating || isBowing) && msTimer.hasTimePassed(delay)) {
             mc.thePlayer.sendQueue.addToSendQueue(C08PacketPlayerBlockPlacement(mc.thePlayer.inventory.getCurrentItem()))
             delay = if (funnyBoolean.get()) {
@@ -141,7 +150,9 @@ class NoSlow : Module() {
             }
             msTimer.reset()
         }
-        if (isBlocking || isEating || isBowing) mode.onPostMotion(event)
+
+        if (isBlocking || isEating || isBowing) 
+            mode.onPostMotion(event)
     }
 
     @EventTarget

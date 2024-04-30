@@ -173,7 +173,7 @@ class LagReach : Module() {
     }
 
     @EventTarget
-    fun onUpdate(@Suppress("UNUSED_PARAMETER") event: UpdateEvent?) {
+    fun onUpdate(event: UpdateEvent) {
         if (!MinusBounce.combatManager.inCombat) {
             removeFakePlayer()
         }

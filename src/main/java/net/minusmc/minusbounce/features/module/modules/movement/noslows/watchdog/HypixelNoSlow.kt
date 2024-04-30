@@ -15,7 +15,6 @@ import net.minusmc.minusbounce.utils.Rotation
 import net.minusmc.minusbounce.utils.player.RotationUtils
 
 class HypixelNoSlow : NoSlowMode("Hypixel") {
-    val killAura = MinusBounce.moduleManager[KillAura::class.java]!!
     override fun onPacket(event: PacketEvent) {
         val packet = event.packet
         if (!mc.thePlayer.isEating) {
@@ -44,7 +43,7 @@ class HypixelNoSlow : NoSlowMode("Hypixel") {
     }
 
     override fun onPostMotion(event: PostMotionEvent) {
-        if ((mc.thePlayer.isUsingItem || killAura.blockingStatus) && mc.thePlayer.heldItem != null && mc.thePlayer.heldItem.item is ItemSword) {
+        if ((mc.thePlayer.isUsingItem || MinusBounce.moduleManager[KillAura::class.java]!!.blockingStatus) && mc.thePlayer.heldItem != null && mc.thePlayer.heldItem.item is ItemSword) {
             mc.netHandler.addToSendQueue(
                 C08PacketPlayerBlockPlacement(
                     mc.thePlayer.inventoryContainer.getSlot(
