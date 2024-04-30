@@ -64,6 +64,10 @@ class BackTrack : Module() {
         val packet = event.packet
 
         if (modeValue.get().equals("automatic", true) || modeValue.get().equals("manual", true)) {
+
+            if (!state)
+                return
+
             if (packet.javaClass.name.contains("play.server.", true)) {
                 if (packet is S14PacketEntity) {
                     val entity = packet.getEntity(mc.theWorld)
