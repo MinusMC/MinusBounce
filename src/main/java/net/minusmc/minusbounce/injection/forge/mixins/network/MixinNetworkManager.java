@@ -25,6 +25,20 @@ public class MixinNetworkManager {
     @Inject(method = "channelRead0", at = @At("HEAD"), cancellable = true)
     private void read(ChannelHandlerContext context, Packet<?> packet, CallbackInfo callback) {
         final PacketEvent event = new PacketEvent(packet);
+        final BackTrack backTrack = MinusBounce.moduleManager.getModule(BackTrack.class);
+        if(backTrack != null){
+            if (backTrack.getState() && (backTrack.getModeValue().equals("Automatic", true) || backTrack.getModeValue().equals("Manual", true))) {
+                try {
+                    backTrack.onPacket(event);
+                } catch (Exception ignored) {
+                    /* Nothing */
+                }
+
+                if (event.isCancelled()) {
+                    callback.cancel();
+                }
+            }
+        }
         MinusBounce.eventManager.callEvent(event);
 
         if(event.isCancelled())
