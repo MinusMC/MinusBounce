@@ -49,12 +49,7 @@ class SuperKnockback : Module() {
     private var isHit = false
     var target: EntityPlayer? = null
     
-    private val binds = arrayOf(
-        mc.gameSettings.keyBindForward,
-        mc.gameSettings.keyBindBack,
-        mc.gameSettings.keyBindRight,
-        mc.gameSettings.keyBindLeft
-    )
+    private val binds = arrayOf(mc.gameSettings.keyBindForward, mc.gameSettings.keyBindBack, mc.gameSettings.keyBindRight, mc.gameSettings.keyBindLeft)
 
     private var zitterDirection = false
 

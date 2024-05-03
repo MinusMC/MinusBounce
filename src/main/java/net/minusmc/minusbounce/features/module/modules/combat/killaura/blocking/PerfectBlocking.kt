@@ -12,6 +12,7 @@ class PerfectBlocking: KillAuraBlocking("Perfect") {
       if (blockingStatus && ((packet is C07PacketPlayerDigging && packet.status == C07PacketPlayerDigging.Action.RELEASE_USE_ITEM) || packet is C08PacketPlayerBlockPlacement)) event.cancelEvent()
       if (packet is C09PacketHeldItemChange) blockingStatus = false
     }
+    
     override fun onPostMotion() {
       mc.netHandler.addToSendQueue(C08PacketPlayerBlockPlacement(mc.thePlayer.inventory.getCurrentItem()))
       blockingStatus = true

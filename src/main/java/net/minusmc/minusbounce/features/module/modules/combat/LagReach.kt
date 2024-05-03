@@ -25,23 +25,22 @@ import java.util.concurrent.LinkedBlockingQueue
 
 @ModuleInfo(name = "LagReach", "Lag Reach", "Very very lag", ModuleCategory.COMBAT)
 class LagReach : Module() {
-
-    var fakePlayer: EntityOtherPlayerMP? = null
-    private val aura = BoolValue("Aura", false)
-    private val mode = ListValue("Mode", arrayOf("FakePlayer", "Intave", "IncomingBlink"), "IncomingBlink")
+    private val modeValue = ListValue("Mode", arrayOf("FakePlayer", "Intave", "IncomingBlink"), "IncomingBlink")
     private val pulseDelayValue = IntegerValue("Pulse", 200, 50, 1000)
     private val maxDelayValue = IntegerValue("Delay", 500, 50, 2000)
     private val spoof = BoolValue("Spoof", false)
-    private val spoofDelay = IntegerValue("Spoof-Delay", 50, 0, 500) {spoof.get()}
-    private val incomingBlink = BoolValue("IncomingBlink", true) { mode.get().equals("IncomingBlink", true) }
-    private val velocityValue = BoolValue("StopOnVelocity", true) { mode.get().equals("IncomingBlink", true) }
-    private val outgoingBlink = BoolValue("OutgoingBlink", true) { mode.get().equals("IncomingBlink", true) }
-    private val attackValue = BoolValue("ReleaseOnAttack", true) { mode.get().equals("IncomingBlink", true) }
-    private val intaveHurtTime = IntegerValue("Packets", 5, 0, 30) { mode.get().equals("Intave", true) }
+    private val spoofDelay = IntegerValue("Spoof delay", 50, 0, 500) {spoof.get()}
+    private val incomingBlink = BoolValue("Incoming Blink", true) { modeValue.get().equals("IncomingBlink", true) }
+    private val velocityValue = BoolValue("Pause on velocity", true) { modeValue.get().equals("IncomingBlink", true) }
+    private val outgoingBlink = BoolValue("Outgoing Blink", true) { modeValue.get().equals("IncomingBlink", true) }
+    private val attackValue = BoolValue("Release on attack", true) { modeValue.get().equals("IncomingBlink", true) }
+    private val intaveHurtTime = IntegerValue("Packets", 5, 0, 30) { modeValue.get().equals("Intave", true) }
+    private val aura = BoolValue("Only aura", false)
 
+    var fakePlayer: EntityOtherPlayerMP? = null
     private val pulseTimer = MSTimer()
     private val maxTimer = MSTimer()
-    var currentTarget: EntityLivingBase? = null
+    private var currentTarget: EntityLivingBase? = null
     private var shown = false
 
     private val packets = LinkedBlockingQueue<Packet<INetHandlerPlayClient>>()
@@ -61,17 +60,18 @@ class LagReach : Module() {
             packets.clear()
             times.clear()
         }
+
         backtrack = false
         releasing = false
-        if (mode.equals("IncomingBlink") && outgoingBlink.get()) {
+
+        if (modeValue.get().equals("incomingblink", true) && outgoingBlink.get())
             BlinkUtils.setBlinkState(off = true, release = true)
-        }
     }
 
     override fun onDisable() {
         removeFakePlayer()
         clearPackets()
-        if (mode.equals("IncomingBlink") && outgoingBlink.get()) {
+        if (modeValue.get().equals("IncomingBlink") && outgoingBlink.get()) {
             BlinkUtils.setBlinkState(off = true, release = true)
         }
         if (spoof.get()) {
@@ -114,7 +114,7 @@ class LagReach : Module() {
     @EventTarget
     fun onAttack(event: AttackEvent) {
         comboCounter ++
-        if ( mode.equals("FakePlayer") || mode.equals("Intave") ) {
+        if ( modeValue.get().equals("FakePlayer") || modeValue.get().equals("Intave") ) {
             clearPackets()
             if (fakePlayer == null) {
                 currentTarget = event.targetEntity as EntityLivingBase?
@@ -177,7 +177,7 @@ class LagReach : Module() {
         if (!MinusBounce.combatManager.inCombat) {
             removeFakePlayer()
         }
-        if ( mode.equals("FakePlayer") || mode.equals("Intave") ) {
+        if ( modeValue.get().equals("FakePlayer") || modeValue.get().equals("Intave") ) {
             if (aura.get() && !MinusBounce.moduleManager[KillAura::class.java]!!.state) {
                 removeFakePlayer()
             }
@@ -196,7 +196,7 @@ class LagReach : Module() {
                     (fakePlayer ?: return).setCurrentItemOrArmor(index, equipmentInSlot)
                 }
             }
-            if (mode.equals("Intave") && mc.thePlayer.ticksExisted % intaveHurtTime.get() == 0) {
+            if (modeValue.get().equals("Intave") && mc.thePlayer.ticksExisted % intaveHurtTime.get() == 0) {
                 if (fakePlayer != null) {
                     (fakePlayer ?: return).rotationYawHead = (currentTarget ?: return).rotationYawHead
                     (fakePlayer ?: return).renderYawOffset = (currentTarget ?: return).renderYawOffset
@@ -204,7 +204,7 @@ class LagReach : Module() {
                     (fakePlayer ?: return).rotationYawHead = (currentTarget ?: return).rotationYawHead
                 }
                 pulseTimer.reset()
-            } else if (mode.equals("FakePlayer") && pulseTimer.hasTimePassed(pulseDelayValue.get().toLong())) {
+            } else if (modeValue.get().equals("FakePlayer") && pulseTimer.hasTimePassed(pulseDelayValue.get().toLong())) {
                 if (fakePlayer != null) {
                     (fakePlayer ?: return).rotationYawHead = (currentTarget ?: return).rotationYawHead
                     (fakePlayer ?: return).renderYawOffset = (currentTarget ?: return).renderYawOffset
@@ -274,7 +274,7 @@ class LagReach : Module() {
             return
         }
 
-        if (mode.equals("IncomingBlink") && backtrack) {
+        if (modeValue.get().equals("IncomingBlink") && backtrack) {
             if (packet.javaClass.simpleName.startsWith("S", ignoreCase = true)) {
                 if (mc.thePlayer.ticksExisted < 20) return
                 if (incomingBlink.get()) {
