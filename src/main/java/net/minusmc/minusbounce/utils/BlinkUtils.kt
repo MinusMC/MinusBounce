@@ -1,25 +1,28 @@
 package net.minusmc.minusbounce.utils
 
+import net.minusmc.minusbounce.event.*
 import net.minecraft.network.Packet
+import net.minecraft.network.handshake.client.*
 import net.minecraft.network.play.INetHandlerPlayServer
 import net.minecraft.network.play.client.*
 import net.minecraft.network.play.client.C03PacketPlayer.*
-import java.math.BigInteger
-import java.util.*
+import net.minecraft.network.status.client.*
+import net.minecraft.network.status.server.*
+import net.minecraft.network.login.client.*
+import net.minecraft.network.login.server.*
 
-object BlinkUtils : MinecraftInstance() {
-    private val packets = LinkedList<Packet<INetHandlerPlayServer>>()
-    private var movingPacketStat = false
-    private var transactionStat = false
-    private var keepAliveStat = false
-    private var actionStat = false
-    private var abilitiesStat = false
-    private var invStat = false
-    private var interactStat = false
+object BlinkUtils : MinecraftInstance(), Listenable {
+    private val packets = mutableListOf<Packet<INetHandlerPlayServer>>()
+    private var movingPacketState = false
+    private var transactionState = false
+    private var keepAliveState = false
+    private var actionState = false
+    private var abilitiesState = false
+    private var invState = false
+    private var interactState = false
     private var otherPacket = false
 
-    private val packetToggleState = hashMapOf<Class<Packet<INetHandlerPlayServer>>, Boolean>()
-    private var packetToggleStat = BooleanArray(20)
+    private val packetToggleState = hashMapOf<Class<out Packet<INetHandlerPlayServer>>, Boolean>()
 
     init {
         Constants.clientPacketClasses.forEach {
@@ -30,9 +33,18 @@ object BlinkUtils : MinecraftInstance() {
         clearPacket()
     }
 
+
+    @EventTarget(priority = -100)
+    fun onPacket(event: PacketEvent) {
+        if (pushPacket(event.packet))
+            event.cancelEvent()
+    }
+
+    override fun handleEvents() = true
+
     fun releasePacket(onlySelected: Boolean = false, amount: Int = -1, minBuff: Int = 0) {
         for (packet in packets) {
-            if (packetToggleState[packet.javaClass] || !onlySelected)
+            if (packetToggleState[packet.javaClass] ?: false || !onlySelected)
                 PacketUtils.sendPacketNoEvent(packet)
         }
 
@@ -42,10 +54,10 @@ object BlinkUtils : MinecraftInstance() {
 
     fun releasePacket(packetType: Class<Packet<INetHandlerPlayServer>>, onlySelected: Boolean = false, amount: Int = -1, minBuff: Int = 0) {
         var count = 0
-        val filteredPackets = packets.filter {it.javaClass == packetType}
+        val filteredPackets = packets.filter {it.javaClass == packetType}.toMutableList()
         
-        while (tempBuffer.size > minBuff && (count < amount || amount <= 0)) {
-            PacketUtils.sendPacketNoEvent(filteredPackets.removeAt(0)) 
+        while (filteredPackets.size > minBuff && (count < amount || amount <= 0)) {
+            PacketUtils.sendPacketNoEvent(filteredPackets.removeFirst()) 
             count++
         }
         
@@ -53,7 +65,7 @@ object BlinkUtils : MinecraftInstance() {
     }
 
     fun clearPacket(onlySelected: Boolean = false, amount: Int = -1) {
-        val filteredPackets = packets.filter {!packetToggleState[it.javaClass] && onlySelected}
+        val filteredPackets = packets.filter {!(packetToggleState[it.javaClass] ?: false) && onlySelected}
         packets.clear()
 
         filteredPackets.forEach {packets.add(it)}
@@ -78,7 +90,7 @@ object BlinkUtils : MinecraftInstance() {
     }
 
     fun pushPacket(packet: Packet<*>): Boolean {
-        if (packetToggleStat[packet.javaClass] && !isBlacklisted(packet.javaClass)) {
+        if (packetToggleState[packet::class.java] ?: false && !isBlacklisted(packet)) {
             packets.add(packet as Packet<INetHandlerPlayServer>)
             return true
         }
@@ -87,9 +99,9 @@ object BlinkUtils : MinecraftInstance() {
     }
 
     private fun isBlacklisted(packet: Packet<*>): Boolean {
-        return packetType is C00Handshake || packetType is C00PacketLoginStart ||
-            packetType is C00PacketServerQuery || packetType is C01PacketChatMessage ||
-            packetType is C01PacketEncryptionResponse || packetType is C01PacketPing
+        return packet is C00Handshake || packet is C00PacketLoginStart ||
+            packet is C00PacketServerQuery || packet is C01PacketChatMessage ||
+            packet is C01PacketEncryptionResponse || packet is C01PacketPing
     }
 
     fun setBlinkState() {
@@ -98,21 +110,21 @@ object BlinkUtils : MinecraftInstance() {
     }
 
     fun setBlinkState(off: Boolean = false, release: Boolean = false, all: Boolean = false,
-        packetMoving: Boolean = movingPacketStat, packetTransaction: Boolean = transactionStat, 
-        packetKeepAlive: Boolean = keepAliveStat, packetAction: Boolean = actionStat, 
-        packetAbilities: Boolean = abilitiesStat, packetInventory: Boolean = invStat, 
-        packetInteract: Boolean = interactStat, other: Boolean = otherPacket
+        packetMoving: Boolean = movingPacketState, packetTransaction: Boolean = transactionState, 
+        packetKeepAlive: Boolean = keepAliveState, packetAction: Boolean = actionState, 
+        packetAbilities: Boolean = abilitiesState, packetInventory: Boolean = invState, 
+        packetInteract: Boolean = interactState, other: Boolean = otherPacket
     ) {
         if (release)
             releasePacket()
 
-        movingPacketStat = (packetMoving && !off) || all
-        transactionStat = (packetTransaction && !off) || all
-        keepAliveStat = (packetKeepAlive && !off) || all
-        actionStat = (packetAction && !off) || all
-        abilitiesStat = (packetAbilities && !off) || all
-        invStat = (packetInventory && !off ) || all
-        interactStat = (packetInteract && !off) || all
+        movingPacketState = (packetMoving && !off) || all
+        transactionState = (packetTransaction && !off) || all
+        keepAliveState = (packetKeepAlive && !off) || all
+        actionState = (packetAction && !off) || all
+        abilitiesState = (packetAbilities && !off) || all
+        invState = (packetInventory && !off ) || all
+        interactState = (packetInteract && !off) || all
         otherPacket = (other && !off) || all
 
         if (all) {
@@ -126,7 +138,7 @@ object BlinkUtils : MinecraftInstance() {
         packetToggleState.keys.forEach {
 
             if (it == C00PacketKeepAlive::class.java)
-                packetToggleState[it] = keepAliveStat
+                packetToggleState[it] = keepAliveState
 
             else if (it == C01PacketChatMessage::class.java || it == C11PacketEnchantItem::class.java ||
                 it == C12PacketUpdateSign::class.java || it == C14PacketTabComplete::class.java ||
@@ -134,26 +146,26 @@ object BlinkUtils : MinecraftInstance() {
                 it == C18PacketSpectate::class.java || it == C19PacketResourcePackStatus::class.java)
                 packetToggleState[it] = otherPacket
 
-            else if (it == C03PacketPlayer::class.java || it == C04PacketPlayerPosition::class.java
+            else if (it == C03PacketPlayer::class.java || it == C04PacketPlayerPosition::class.java ||
                 it == C05PacketPlayerLook::class.java || it == C06PacketPlayerPosLook::class.java)
-                packetToggleState[it] = movingPacketStat
+                packetToggleState[it] = movingPacketState
 
             else if (it == C0FPacketConfirmTransaction::class.java)
-                packetToggleState[it] = transactionStat
+                packetToggleState[it] = transactionState
 
             else if (it == C02PacketUseEntity::class.java || it == C09PacketHeldItemChange::class.java ||
                 it == C0APacketAnimation::class.java || it == C0BPacketEntityAction::class.java)
-                packetToggleState[it] = actionStat
+                packetToggleState[it] = actionState
 
             else if (it == C0CPacketInput::class.java || it == C13PacketPlayerAbilities::class.java)
-                packetToggleStat[it] == abilitiesStat
+                packetToggleState[it] == abilitiesState
 
             else if (it == C0DPacketCloseWindow::class.java || it == C0EPacketClickWindow::class.java ||
                 it == C10PacketCreativeInventoryAction::class.java || it == C16PacketClientStatus::class.java)
-                packetToggleState[it] = invStat
+                packetToggleState[it] = invState
 
             else if (it == C07PacketPlayerDigging::class.java || it == C08PacketPlayerBlockPlacement::class.java)
-                packetToggleState[it] = interactStat
+                packetToggleState[it] = interactState
         }
     }
 
@@ -161,12 +173,7 @@ object BlinkUtils : MinecraftInstance() {
         get() = packets.size
 
     fun getTotalPackets(packetType: Class<Packet<INetHandlerPlayServer>>): Int {
-        var packetCount = 0
-        for (packet in packets) {
-            if (packet::class.java == packetType)
-                packetCount++
-        }
-
+        val packetCount = packets.count {it::class.java == packetType}
         return if (packetCount > 0) packetCount else -302
     }
 }

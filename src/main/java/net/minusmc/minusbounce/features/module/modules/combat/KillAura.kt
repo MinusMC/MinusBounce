@@ -81,7 +81,7 @@ class KillAura : Module() {
         targetModeValue.get().equals("multi", true)
     }
 
-    private val swingValue = ListValue("Swing", arrayOf("Normal", "Packet", "None"), "Normal")
+    val swingValue = ListValue("Swing", arrayOf("Normal", "Packet", "None"), "Normal")
     private val hitableCheckValue = BoolValue("HitableCheck", false) { !rotationValue.get().equals("none", true) && !throughWallsValue.get()}
 
     val autoBlockModeValue: ListValue = object : ListValue("AutoBlock", blockingModes.map { it.modeName }.toTypedArray(), "None") {
@@ -429,7 +429,7 @@ class KillAura : Module() {
 
         mc.playerController.attackEntity(mc.thePlayer, entity)
 
-        if (interactValue.get()){
+        if (interactValue.get()) {
             mc.playerController.isPlayerRightClickingOnEntity(mc.thePlayer, mc.objectMouseOver.entityHit, mc.objectMouseOver)
             mc.playerController.interactWithEntitySendPacket(mc.thePlayer, mc.objectMouseOver.entityHit)
         }

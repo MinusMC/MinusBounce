@@ -27,6 +27,7 @@ import org.lwjgl.opengl.GL11
 import org.lwjgl.opengl.GL11.*
 import java.util.*
 
+import java.lang.reflect.ParameterizedType
 
 @ModuleInfo(name = "BackTrack", spacedName = "Back Track", description = "Let you attack in their previous position", category = ModuleCategory.COMBAT)
 class BackTrack : Module() {
@@ -62,7 +63,7 @@ class BackTrack : Module() {
     fun onPacket(event: PacketEvent) {
         mc.thePlayer ?: return
         val packet = event.packet
-
+        
         if (modeValue.get().equals("automatic", true) || modeValue.get().equals("manual", true)) {
 
             if (!state)

@@ -58,7 +58,7 @@ class Criticals : Module() {
 
             if (!mc.thePlayer.onGround || mc.thePlayer.isOnLadder || mc.thePlayer.isInWeb || mc.thePlayer.isInWater ||
                     mc.thePlayer.isInLava || mc.thePlayer.ridingEntity != null || entity!!.hurtTime > hurtTimeValue.get() ||
-                    MinusBounce.moduleManager[Fly::class.java]!!.state || !msTimer.hasTimePassed(delayValue.get().toLong()))
+                    MinusBounce.moduleManager[Fly::class.java]!!.state || !msTimer.hasTimePassed(delayValue.get()))
                 return
 
             antiDesync = true
@@ -72,9 +72,11 @@ class Criticals : Module() {
         val packet = event.packet
         if (onlyAuraValue.get() && !MinusBounce.moduleManager[KillAura::class.java]!!.state) return
         
-        if ((packet is C03PacketPlayer && (MovementUtils.isMoving || msTimer.hasTimePassed((delayValue.get() / 5 + 75).toLong()))) || packet is S08PacketPlayerPosLook) {
+        if (packet is S08PacketPlayerPosLook)
             antiDesync = false
-        }
+
+        if (packet is C03PacketPlayer && (MovementUtils.isMoving || msTimer.hasTimePassed(delayValue.get() / 5 + 75)))
+            antiDesync = false
 
         mode.onPacket(event)
     }

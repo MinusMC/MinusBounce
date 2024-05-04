@@ -32,8 +32,8 @@ class SuperKnockback : Module() {
     //custom useless mode :V
     private val delay = IntegerValue("Delay", 0, 0, 500, "ms")
 
-    private val more = BoolValue("More", false)
-    private val moreMode = ListValue("More-mode", arrayOf("Release", "CancelMovement"), "Release") {more.get()}
+    private val more = BoolValue("More KB", false)
+    private val moreMode = ListValue("More mode", arrayOf("Release", "Cancel Movement"), "Release") {more.get()}
     private val minDistance = FloatValue("Min", 2.3F, 0F, 4F, "m") {more.get()}
     private val maxDistance = FloatValue("Max", 4.0F, 3F, 7F, "m") {more.get()}
     private val keepTick = IntegerValue("Keep", 10, 0, 40, "tick") {more.get()}
@@ -68,7 +68,6 @@ class SuperKnockback : Module() {
                     if (mc.thePlayer.isSprinting)
                         mc.thePlayer.isSprinting = true
                     mc.netHandler.addToSendQueue(C0BPacketEntityAction(mc.thePlayer, C0BPacketEntityAction.Action.STOP_SPRINTING))
-
                     mc.netHandler.addToSendQueue(C0BPacketEntityAction(mc.thePlayer, C0BPacketEntityAction.Action.START_SPRINTING))
                     mc.netHandler.addToSendQueue(C0BPacketEntityAction(mc.thePlayer, C0BPacketEntityAction.Action.STOP_SPRINTING))
                     mc.netHandler.addToSendQueue(C0BPacketEntityAction(mc.thePlayer, C0BPacketEntityAction.Action.START_SPRINTING))
