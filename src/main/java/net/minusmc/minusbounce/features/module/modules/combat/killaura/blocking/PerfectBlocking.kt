@@ -17,4 +17,8 @@ class PerfectBlocking: KillAuraBlocking("Perfect") {
       mc.netHandler.addToSendQueue(C08PacketPlayerBlockPlacement(mc.thePlayer.inventory.getCurrentItem()))
       blockingStatus = true
     }
+    
+    override fun onPreAttack() {
+        blockingStatus = false
+    }
 }
