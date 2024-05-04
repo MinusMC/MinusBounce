@@ -59,7 +59,7 @@ class LagReach : Module() {
 
         backtrack = false
 
-        if (modeValue.get().equals("incomingblink", true) && outgoingBlink.get())
+        if (modeValue.get().equals("IncomingBlink", true) && outgoingBlink.get())
             BlinkUtils.setBlinkState(off = true, release = true)
     }
 
