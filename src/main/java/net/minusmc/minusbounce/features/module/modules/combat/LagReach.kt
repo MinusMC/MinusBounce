@@ -28,13 +28,13 @@ class LagReach : Module() {
     private val pulseDelayValue = IntegerValue("Pulse", 200, 50, 1000)
     private val maxDelayValue = IntegerValue("Delay", 500, 50, 2000)
     private val spoof = BoolValue("Spoof", false)
-    private val spoofDelay = IntegerValue("Spoof delay", 50, 0, 500) {spoof.get()}
-    private val incomingBlink = BoolValue("Incoming Blink", true) { modeValue.get().equals("IncomingBlink", true) }
-    private val velocityValue = BoolValue("Pause on velocity", true) { modeValue.get().equals("IncomingBlink", true) }
-    private val outgoingBlink = BoolValue("Outgoing Blink", true) { modeValue.get().equals("IncomingBlink", true) }
-    private val attackValue = BoolValue("Release on attack", true) { modeValue.get().equals("IncomingBlink", true) }
+    private val spoofDelay = IntegerValue("SpoofDelay", 50, 0, 500) {spoof.get()}
+    private val incomingBlink = BoolValue("IncomingBlink", true) { modeValue.get().equals("IncomingBlink", true) }
+    private val velocityValue = BoolValue("PauseOnVelocity", true) { modeValue.get().equals("IncomingBlink", true) }
+    private val outgoingBlink = BoolValue("OutgoingBlink", true) { modeValue.get().equals("IncomingBlink", true) }
+    private val attackValue = BoolValue("ReleaseOnAttack", true) { modeValue.get().equals("IncomingBlink", true) }
     private val intaveHurtTime = IntegerValue("Packets", 5, 0, 30) { modeValue.get().equals("Intave", true) }
-    private val aura = BoolValue("Only aura", false)
+    private val aura = BoolValue("OnlyAura", false)
 
     private var fakePlayer: EntityOtherPlayerMP? = null
     private val pulseTimer = MSTimer()

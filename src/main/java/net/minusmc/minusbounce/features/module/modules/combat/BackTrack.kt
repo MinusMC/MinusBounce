@@ -31,11 +31,11 @@ import java.lang.reflect.ParameterizedType
 
 @ModuleInfo(name = "BackTrack", spacedName = "Back Track", description = "Let you attack in their previous position", category = ModuleCategory.COMBAT)
 class BackTrack : Module() {
-    private val modeValue = ListValue("Track mode", arrayOf("PacketDelay", "Automatic", "Manual"), "Automatic")
+    private val modeValue = ListValue("TrackMode", arrayOf("PacketDelay", "Automatic", "Manual"), "Automatic")
     private val esp = BoolValue("ESP", true)
     private val delayValue = IntegerValue("Delay", 200, 0, 2000) { modeValue.get().equals("automatic", true) }
-    private val onlyPlayer = BoolValue("Only player", true) { modeValue.get().equals("automatic", true) }
-    private val packetSize = IntegerValue("Limit packet size", 100, 0, 1000) { modeValue.get().equals("packetdelay", true) }
+    private val onlyPlayer = BoolValue("OnlyƠlayer", true) { modeValue.get().equals("automatic", true) }
+    private val packetSize = IntegerValue("LimitPacketSize", 100, 0, 1000) { modeValue.get().equals("packetdelay", true) }
 
     private var needFreeze = false
     private val packets = mutableListOf<Packet<INetHandlerPlayClient>>()
