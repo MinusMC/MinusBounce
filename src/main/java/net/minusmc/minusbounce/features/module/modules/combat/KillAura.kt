@@ -380,41 +380,39 @@ class KillAura : Module() {
         if (rotationValue.get().equals("none", true) || turnSpeed.getMaxValue() <= 0.0f)
             return true
 
-        val rotation = getTargetRotation(entity)
+        val rotation = getTargetRotation(entity) ?: return false
 
         val raycastEntity = RaycastUtils.raycastEntity(reach, rotation.yaw, rotation.pitch, object: RaycastUtils.IEntityFilter {
             override fun canRaycast(entity: Entity?): Boolean {
                 return entity is EntityLivingBase && entity !is EntityArmorStand && isSelected(entity, true)
             }
-        }) ?: entity // if not found raycast entity, use entity to check
+        }) ?: entity
 
         target = if (raycastValue.get() && raycastEntity == entity) {
             raycastEntity as EntityLivingBase
         } else entity
 
-        RotationUtils.setTargetRotation(
-            rotation = getTargetRotation(target ?: return false),
-            keepLength = 0,
-            speed = RandomUtils.nextFloat(turnSpeed.getMinValue(), turnSpeed.getMaxValue()),
-            fixType = when (movementCorrection.get().lowercase()) {
-                "strict" -> MovementCorrection.Type.STRICT
-                "normal" -> MovementCorrection.Type.NORMAL
-                else -> MovementCorrection.Type.NONE
-            },
-            silent = silentRotationValue.get()
-        )
+        target?.let {
+            RotationUtils.setTargetRotation(
+                rotation = getTargetRotation(it) ?: return false,
+                keepLength = 0,
+                speed = RandomUtils.nextFloat(turnSpeed.getMinValue(), turnSpeed.getMaxValue()),
+                fixType = when (movementCorrection.get().lowercase()) {
+                    "strict" -> MovementCorrection.Type.STRICT
+                    "normal" -> MovementCorrection.Type.NORMAL
+                    else -> MovementCorrection.Type.NONE
+                },
+                silent = silentRotationValue.get()
+            )
 
-        if (hitableCheckValue.get() && mc.objectMouseOver != null)
-            hitable = (mc.objectMouseOver.typeOfHit == MovingObjectPosition.MovingObjectType.ENTITY && RotationUtils.isFaced(target!!, reach)) || throughWallsValue.get()
+            hitable = mc.thePlayer.canEntityBeSeen(it)
 
-        val eyes = mc.thePlayer.getPositionEyes(1F)
+            if (throughWallsValue.get())
+                hitable = mc.thePlayer.getDistanceToEntityBox(it) < throughWallsRangeValue.get()
 
-        val intercept = target?.let {it.hitBox.calculateIntercept(eyes,
-            eyes + RotationUtils.getVectorForRotation(rotation) * rangeValue.get().toDouble()
-        )} ?: return true
-
-        if (throughWallsValue.get())
-            hitable = RotationUtils.isVisible(intercept.hitVec) || mc.thePlayer.getDistanceToEntityBox(target!!) < throughWallsRangeValue.get()
+            if (hitableCheckValue.get() && mc.objectMouseOver != null)
+                hitable = mc.objectMouseOver.typeOfHit == MovingObjectPosition.MovingObjectType.ENTITY && RotationUtils.isFaced(it, reach)
+        } ?: return false
 
         return true
     }
@@ -437,7 +435,7 @@ class KillAura : Module() {
         blockingMode.onPostAttack()
     }
 
-    private fun getTargetRotation(entity: Entity): Rotation {
+    private fun getTargetRotation(entity: Entity): Rotation? {
         var boundingBox = entity.entityBoundingBox
 
         if (predictValue.get() && !rotationValue.get().equals("Grim", true) && !rotationValue.get().equals("Intave", true)) {
@@ -452,7 +450,7 @@ class KillAura : Module() {
             "vanilla" -> {
                 val (_, rotation) = RotationUtils.searchCenter(
                     boundingBox, false, predictValue.get(), throughWallsValue.get(), rangeValue.get()
-                ) ?: return RotationUtils.serverRotation
+                ) ?: return null
                 rotation
             }
             "backtrack" -> RotationUtils.toRotation(RotationUtils.getCenter(entity.entityBoundingBox))

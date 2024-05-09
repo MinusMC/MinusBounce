@@ -12,7 +12,7 @@ class NewNCPBlocking: KillAuraBlocking("NewNCP") {
         blockingStatus = false
     }
 
-    override fun onPostAttack(){
+    override fun onPostAttack() {
         mc.netHandler.addToSendQueue(C08PacketPlayerBlockPlacement(BlockPos(-1, -1, -1), 255, null, 0.0f, 0.0f, 0.0f))
         blockingStatus = true
     }

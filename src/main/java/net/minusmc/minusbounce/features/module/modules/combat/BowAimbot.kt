@@ -42,31 +42,32 @@ class BowAimbot : Module() {
     fun onUpdate(event: UpdateEvent) {
         target = null
 
-        if (mc.thePlayer.itemInUse?.item is ItemBow) {
-            val entity = getTarget(throughWallsValue.get(), priorityValue.get()) ?: return
+        if (mc.thePlayer.itemInUse?.item !is ItemBow)
+            return
 
-            target = entity
-            RotationUtils.faceBow(target!!, predictValue.get(), predictSizeValue.get())
+        val targets = mc.theWorld.loadedEntityList.filter {
+            it is EntityLivingBase && EntityUtils.isSelected(it, true) &&
+                    (throughWallsValue.get() || mc.thePlayer.canEntityBeSeen(it))
+        }.toMutableList()
+
+        when (priorityValue.get().lowercase()) {
+            "distance" -> targets.sortBy { mc.thePlayer.getDistanceToEntity(it) }
+            "direction" -> targets.sortBy { RotationUtils.getRotationDifference(it) }
+            "health" -> targets.sortBy { (it as EntityLivingBase).health }
+            else -> null
         }
+
+        val entity = targets.first()
+
+        target = entity
+        RotationUtils.faceBow(entity, predictValue.get(), predictSizeValue.get())
     }
 
     @EventTarget
     fun onRender3D(event: Render3DEvent) {
-        if (target != null && !priorityValue.get().equals("Multi", ignoreCase = true) && markValue.get())
-            RenderUtils.drawPlatform(target!!, Color(37, 126, 255, 70))
-    }
-
-    private fun getTarget(throughWalls: Boolean, priorityMode: String): Entity? {
-        val targets = mc.theWorld.loadedEntityList.filter {
-            it is EntityLivingBase && EntityUtils.isSelected(it, true) &&
-                    (throughWalls || mc.thePlayer.canEntityBeSeen(it))
-        }
-
-        return when (priorityMode.uppercase()) {
-            "DISTANCE" -> targets.minByOrNull { mc.thePlayer.getDistanceToEntity(it) }
-            "DIRECTION" -> targets.minByOrNull { RotationUtils.getRotationDifference(it) }
-            "HEALTH" -> targets.minByOrNull { (it as EntityLivingBase).health }
-            else -> null
+        target?.let {
+            if (markValue.get())
+                RenderUtils.drawPlatform(it, Color(37, 126, 255, 70))
         }
     }
 }

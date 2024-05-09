@@ -67,7 +67,7 @@ class LagReach : Module() {
         removeFakePlayer()
         clearPackets()
 
-        if (modeValue.get().equals("IncomingBlink") && outgoingBlink.get())
+        if (modeValue.get().equals("imcomingblink", true) && outgoingBlink.get())
             BlinkUtils.setBlinkState(off = true, release = true)
 
         if (spoof.get()) {

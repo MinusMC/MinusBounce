@@ -103,8 +103,6 @@ public abstract class MixinEntityLivingBase extends MixinEntity {
         
         if (tsMod.getCanStrafe()) 
             yaw = tsMod.getMovingYaw();
-        // else if (sprintMod.getState() && sprintMod.getRotationOmmiSprint().get())
-        //     yaw = MovementUtils.INSTANCE.getRawDirection();
 
         this.motionY = jumpEvent.getMotion();
 

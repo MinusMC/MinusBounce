@@ -5,9 +5,7 @@
  */
 package net.minusmc.minusbounce.features.module.modules.combat
 
-import net.minecraft.client.settings.GameSettings
 import net.minecraft.entity.EntityLivingBase
-import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.network.play.client.C0BPacketEntityAction
 import net.minusmc.minusbounce.MinusBounce
 import net.minusmc.minusbounce.event.AttackEvent
@@ -27,153 +25,81 @@ import net.minusmc.minusbounce.value.ListValue
 
 @ModuleInfo(name = "SuperKnockback", spacedName = "Super Knockback", description = "Increases knockback dealt to other entities.", category = ModuleCategory.COMBAT)
 class SuperKnockback : Module() {
+    private val modeValue = ListValue("Mode", arrayOf("DoublePacket", "Packet", "LegitFast", "WTap", "STap", "SprintTap", "SneakTap", "SprintSilentTap"), "DoublePacket")
     private val hurtTimeValue = IntegerValue("HurtTime", 10, 0, 10)
-    private val modeValue = ListValue("Mode", arrayOf("ExtraPacket", "Legit", "LegitFast", "Silent", "WTap", "Packet", "Zitter"), "ExtraPacket")
-    //custom useless mode :V
-    private val delay = IntegerValue("Delay", 0, 0, 500, "ms")
-
-    private val more = BoolValue("MoreKB", false)
-    private val moreMode = ListValue("MoreLBMode", arrayOf("Release", "Cancel Movement"), "Release") {more.get()}
-    private val minDistance = FloatValue("Min", 2.3F, 0F, 4F, "m") {more.get()}
-    private val maxDistance = FloatValue("Max", 4.0F, 3F, 7F, "m") {more.get()}
-    private val keepTick = IntegerValue("Keep", 10, 0, 40, "tick") {more.get()}
-    private val restTick = IntegerValue("Rest", 4, 0, 40, "tick") {more.get()}
-    private val onlyForward = BoolValue("OnlyForward", true) {more.get()}
-    private val onlyNoHurt = BoolValue("OnlyNoHurt", true) {more.get()}
-
-    val timer = MSTimer()
-    private val tick = TickTimer()
-    private val zitterTimer = MSTimer()
-    
+    private val ticksDelay = IntegerValue("TicksDelay", 1, 1, 10)
     private var ticks = 0
-    private var isHit = false
-    var target: EntityPlayer? = null
-    
-    private val binds = arrayOf(mc.gameSettings.keyBindForward, mc.gameSettings.keyBindBack, mc.gameSettings.keyBindRight, mc.gameSettings.keyBindLeft)
 
-    private var zitterDirection = false
-
-    override fun onEnable() {
-        isHit = false
+    override fun onDisable() {
+        ticks = 0
+        mc.thePlayer.isSneaking = false
     }
 
     @EventTarget
     fun onAttack(event: AttackEvent) {
-        if (more.get()) target = if (event.targetEntity is EntityPlayer) event.targetEntity else return
-        if (event.targetEntity is EntityLivingBase) {
-            if (event.targetEntity.hurtTime > hurtTimeValue.get() || !timer.hasTimePassed(delay.get().toLong()))
-                return
-            when (modeValue.get().lowercase()) {
-                "extrapacket" -> {
-                    if (mc.thePlayer.isSprinting)
-                        mc.thePlayer.isSprinting = true
-                    mc.netHandler.addToSendQueue(C0BPacketEntityAction(mc.thePlayer, C0BPacketEntityAction.Action.STOP_SPRINTING))
-                    mc.netHandler.addToSendQueue(C0BPacketEntityAction(mc.thePlayer, C0BPacketEntityAction.Action.START_SPRINTING))
-                    mc.netHandler.addToSendQueue(C0BPacketEntityAction(mc.thePlayer, C0BPacketEntityAction.Action.STOP_SPRINTING))
-                    mc.netHandler.addToSendQueue(C0BPacketEntityAction(mc.thePlayer, C0BPacketEntityAction.Action.START_SPRINTING))
-                    mc.thePlayer.serverSprintState = true
-                }
-                "silent" -> ticks = 1
-                "legit", "wtap" -> ticks = 2
-                "legitfast" -> {
-                    if (mc.thePlayer.hurtTime == 10) {
-                        if (mc.thePlayer.isSprinting()) {
-                            mc.thePlayer.isSprinting = false
-                        }
-                        mc.netHandler.addToSendQueue(C0BPacketEntityAction(mc.thePlayer, C0BPacketEntityAction.Action.START_SPRINTING))
-                        mc.thePlayer.serverSprintState = true
-                    }
-                }
-                "packet" -> {
-                    if(mc.thePlayer.isSprinting)
-                        mc.thePlayer.isSprinting = true
-                    mc.netHandler.addToSendQueue(C0BPacketEntityAction(mc.thePlayer, C0BPacketEntityAction.Action.STOP_SPRINTING))
-                    mc.netHandler.addToSendQueue(C0BPacketEntityAction(mc.thePlayer, C0BPacketEntityAction.Action.START_SPRINTING))
-                    mc.thePlayer.serverSprintState = true
-                }
+        val target = event.targetEntity
+
+        if (target !is EntityLivingBase)
+            return
+
+        if (target.hurtTime > hurtTimeValue.get())
+            return
+
+        when (modeValue.get().lowercase()) {
+            "doublepacket" -> {
+                if (mc.thePlayer.isSprinting)
+                    mc.thePlayer.isSprinting = true
+                mc.netHandler.addToSendQueue(C0BPacketEntityAction(mc.thePlayer, C0BPacketEntityAction.Action.STOP_SPRINTING))
+                mc.netHandler.addToSendQueue(C0BPacketEntityAction(mc.thePlayer, C0BPacketEntityAction.Action.START_SPRINTING))
+                mc.netHandler.addToSendQueue(C0BPacketEntityAction(mc.thePlayer, C0BPacketEntityAction.Action.STOP_SPRINTING))
+                mc.netHandler.addToSendQueue(C0BPacketEntityAction(mc.thePlayer, C0BPacketEntityAction.Action.START_SPRINTING))
+                mc.thePlayer.serverSprintState = true
             }
-            timer.reset()
+            "packet" -> {
+                if(mc.thePlayer.isSprinting)
+                    mc.thePlayer.isSprinting = true
+
+                mc.netHandler.addToSendQueue(C0BPacketEntityAction(mc.thePlayer, C0BPacketEntityAction.Action.STOP_SPRINTING))
+                mc.netHandler.addToSendQueue(C0BPacketEntityAction(mc.thePlayer, C0BPacketEntityAction.Action.START_SPRINTING))
+                mc.thePlayer.serverSprintState = true
+            }
+            "legitfast" -> {
+                if (mc.thePlayer.isSprinting)
+                    mc.thePlayer.isSprinting = false
+
+                mc.netHandler.addToSendQueue(C0BPacketEntityAction(mc.thePlayer, C0BPacketEntityAction.Action.START_SPRINTING))
+                mc.thePlayer.serverSprintState = true
+            }
+            "wtap", "stap", "sprinttap", "sneaktap", "sprintsilenttap" -> ticks = ticksDelay.get() + 2
         }
     }
 
     @EventTarget
     fun onUpdate(event: UpdateEvent) {
-        when (modeValue.get().lowercase()) {
-            "legit" -> if (ticks == 2) {
-                mc.gameSettings.keyBindForward.pressed = false
-                ticks = 1
-            } else if (ticks == 1) {
-                mc.gameSettings.keyBindForward.pressed = true
-                ticks = 0
+        ticks--
+
+        if (ticks == ticksDelay.get() + 1) {
+            when (modeValue.get().lowercase()) {
+                "wtap" -> mc.gameSettings.keyBindForward.pressed = false
+                "stap" -> mc.gameSettings.keyBindBack.pressed = true
+                "sprinttap" -> mc.thePlayer.isSprinting = false
+                "sprintsilenttap" -> mc.netHandler.addToSendQueue(C0BPacketEntityAction(mc.thePlayer, C0BPacketEntityAction.Action.STOP_SPRINTING))
+                "sneaktap" -> mc.gameSettings.keyBindSneak.pressed = true
             }
-            "wtap" -> if (ticks == 2) {
-                mc.thePlayer.isSprinting = false
-                ticks = 1
-            } else if (ticks == 1) {
-                mc.thePlayer.isSprinting = true
-                ticks = 0
-            }
-            "slient" -> if (ticks == 1) {
-                mc.netHandler.addToSendQueue(C0BPacketEntityAction(mc.thePlayer, C0BPacketEntityAction.Action.STOP_SPRINTING))
-                ticks = 2
-            } else if (ticks == 2) {
-                mc.netHandler.addToSendQueue(C0BPacketEntityAction(mc.thePlayer, C0BPacketEntityAction.Action.START_SPRINTING))
-                ticks = 0
-            }
-            "zitter" -> {
-                if (MinusBounce.combatManager.inCombat && mc.thePlayer.hurtTime == 10 && mc.thePlayer.onGround) {
-                    if (!GameSettings.isKeyDown(mc.gameSettings.keyBindRight)) mc.gameSettings.keyBindRight.pressed = false
-                    if (!GameSettings.isKeyDown(mc.gameSettings.keyBindLeft)) mc.gameSettings.keyBindLeft.pressed = false
-                    if (zitterTimer.hasTimePassed(100)) {
-                        zitterDirection = !zitterDirection
-                        mc.netHandler.addToSendQueue(C0BPacketEntityAction(mc.thePlayer, C0BPacketEntityAction.Action.START_SPRINTING))
-                        mc.thePlayer.serverSprintState = true
-                        zitterTimer.reset()
-                    }
-                    if (zitterDirection) {
-                        mc.gameSettings.keyBindRight.pressed = true
-                        mc.gameSettings.keyBindLeft.pressed = false
-                    } else {
-                        mc.gameSettings.keyBindRight.pressed = false
-                        mc.gameSettings.keyBindLeft.pressed = true
-                    }
-                }
-            }
-        }
-        if (more.get()) {
-            if (target == null) return
-            if (onlyNoHurt.get() && mc.thePlayer.hurtTime > 0) return
-            if (tick.hasTimePassed(keepTick.get() + restTick.get())) tick.reset()
-            tick.update()
-            val distance = mc.thePlayer.getDistanceToEntityBox(target!!)
-            if (target!!.isDead || distance >= maxDistance.get()) {
-                target = null
-                for (bind in binds) bind.pressed = GameSettings.isKeyDown(bind)
-                return
-            }
-            if (moreMode.get().equals("Release")) {
-                if (distance <= minDistance.get() && !tick.hasTimePassed(keepTick.get())) {
-                    if (onlyForward.get()) mc.gameSettings.keyBindForward.pressed = false
-                    else for (bind in binds) bind.pressed = false
-                } else {
-                    for (bind in binds) bind.pressed = GameSettings.isKeyDown(bind)
-                }
+        } else if (ticks == 1) {
+            when (modeValue.get().lowercase()) {
+                "wtap" -> mc.gameSettings.keyBindForward.pressed = true
+                "stap" -> mc.gameSettings.keyBindBack.pressed = false
+                "sprinttap" -> mc.thePlayer.isSprinting = true
+                "sprintsilenttap" -> mc.netHandler.addToSendQueue(C0BPacketEntityAction(mc.thePlayer, C0BPacketEntityAction.Action.START_SPRINTING))
+                "sneaktap" -> mc.gameSettings.keyBindSneak.pressed = false
             }
         }
     }
 
-    @EventTarget
-    fun onStrafe(event: StrafeEvent) {
-        if (moreMode.get().equals("CancelMovement")) {
-            target?.let {
-                if (mc.thePlayer.getDistanceToEntityBox(it) <= minDistance.get() && !tick.hasTimePassed(keepTick.get())) {
-                    if (!onlyForward.get() || event.forward > 0F) {
-                        event.cancelEvent()
-                    }
-                }
-            }
-        }
-    }
+    val canSprint: Boolean
+        get() = !modeValue.get().equals("sprinttap", true) || ticks <= 1 || ticks >= ticksDelay.get() + 2
+
     override val tag: String
         get() = modeValue.get()
 }
