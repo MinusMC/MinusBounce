@@ -131,12 +131,13 @@ object RaycastUtils : MinecraftInstance() {
     }
 
     fun raycastEntity(range: Double, entityFilter: IEntityFilter): Entity? {
-        val rotation = RotationUtils.serverRotation
-        return raycastEntity(
-            range, rotation.yaw, rotation.pitch,
-            entityFilter
-        )
+        return raycastEntity(range, RotationUtils.serverRotation, entityFilter)
     }
+
+    fun raycastEntity(range: Double, rotation: Rotation, entityFilter: IEntityFilter): Entity? {
+        return raycastEntity(range, rotation.yaw, rotation.pitch, entityFilter)
+    }
+
     fun raycastEntity(range: Double, yaw: Float, pitch: Float, entityFilter: IEntityFilter): Entity? {
         val renderViewEntity = mc.renderViewEntity
         if (renderViewEntity != null && mc.theWorld != null) {

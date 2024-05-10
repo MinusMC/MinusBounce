@@ -380,13 +380,13 @@ class KillAura : Module() {
         if (rotationValue.get().equals("none", true) || turnSpeed.getMaxValue() <= 0.0f)
             return true
 
-        val rotation = getTargetRotation(entity) ?: return false
+        val rotation = RotationUtils.targetRotation ?: mc.thePlayer.rotation
 
         val raycastEntity = RaycastUtils.raycastEntity(reach, rotation.yaw, rotation.pitch, object: RaycastUtils.IEntityFilter {
             override fun canRaycast(entity: Entity?): Boolean {
                 return entity is EntityLivingBase && entity !is EntityArmorStand && isSelected(entity, true)
             }
-        }) ?: entity
+        })
 
         target = if (raycastValue.get() && raycastEntity == entity) {
             raycastEntity as EntityLivingBase

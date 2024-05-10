@@ -269,40 +269,35 @@ object RotationUtils : MinecraftInstance(), Listenable {
         randomMultiply: Float = 0f,
     ): VecRotation? {
         val randomVec = Vec3(
-            bb.minX + (bb.maxX - bb.minX) * x * randomMultiply * Math.random(),
-            bb.minY + (bb.maxY - bb.minY) * y * randomMultiply * Math.random(),
-            bb.minZ + (bb.maxZ - bb.minZ) * z * randomMultiply * Math.random()
+            bb.minX + (bb.maxX - bb.minX) * x * randomMultiply,
+            bb.minY + (bb.maxY - bb.minY) * y * randomMultiply,
+            bb.minZ + (bb.maxZ - bb.minZ) * z * randomMultiply
         )
 
         val randomRotation = toRotation(randomVec, predict)
         val eyes = mc.thePlayer.getPositionEyes(1f)
         var vecRotation: VecRotation? = null
 
-        for (x in 0.0..1.0){
-            for (y in 0.0..1.0){
-                for (z in 0.0..1.0){
-                    val vec3 = Vec3(bb.minX + (bb.maxX - bb.minX) * x, bb.minY + (bb.maxY - bb.minY) * y, bb.minZ + (bb.maxZ - bb.minZ) * z)
-                    val currentVec = VecRotation(vec3, toRotation(Vec3(0.0, 0.0, 0.0), predict, getVectorForRotation(
-                        targetRotation ?: serverRotation) - vec3)
+        for (x in 0.15..0.85)
+            for (y in 0.0..1.0)
+                for (z in 0.15..0.85) {
+                    val vec3 = Vec3(
+                        bb.minX + (bb.maxX - bb.minX) * x, 
+                        bb.minY + (bb.maxY - bb.minY) * y, 
+                        bb.minZ + (bb.maxZ - bb.minZ) * z
                     )
 
-                    if (eyes.distanceTo(vec3) > distance)
+                    val rotation = toRotation(vec3, predict)
+                    val vecDist = eyes.distanceTo(vec3)
+
+                    if (vecDist > distance)
                         continue
 
                     if (throughWalls || isVisible(vec3)) {
-                        if (vecRotation == null ||
-                            if (random) {
-                                getRotationDifference(currentVec.rotation, randomRotation) < getRotationDifference(vecRotation.rotation, randomRotation)
-                            } else {
-                                getRotationDifference(currentVec.rotation) < getRotationDifference(vecRotation.rotation)
-                            }
-                        ) {
-                            vecRotation = currentVec
-                        }
+                        if (vecRotation == null || if (random) getRotationDifference(rotation, randomRotation) < getRotationDifference(vecRotation.rotation, randomRotation) else getRotationDifference(rotation) < getRotationDifference(vecRotation.rotation))
+                            vecRotation = VecRotation(vec3, rotation)
                     }
                 }
-            }
-        }
 
         return vecRotation
     }
