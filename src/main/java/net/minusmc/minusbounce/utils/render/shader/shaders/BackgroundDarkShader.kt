@@ -19,7 +19,6 @@ class BackgroundDarkShader : Shader("backgrounddark.frag") {
     }
 
     override fun updateUniforms() {
-        val scaledResolution = ScaledResolution(mc)
         val resolutionID = getUniform("iResolution")
         if (resolutionID > -1) GL20.glUniform2f(
             resolutionID,

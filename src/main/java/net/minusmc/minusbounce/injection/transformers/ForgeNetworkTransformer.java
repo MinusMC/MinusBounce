@@ -6,8 +6,8 @@
 package net.minusmc.minusbounce.injection.transformers;
 
 import net.minusmc.minusbounce.features.special.AntiForge;
-import net.minusmc.minusbounce.utils.transformers.TransformersUtils;
-import net.minusmc.minusbounce.utils.transformers.NodeUtils;
+import net.minusmc.minusbounce.utils.asm.TransformersUtils;
+import net.minusmc.minusbounce.utils.asm.NodeUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.launchwrapper.IClassTransformer;
 import org.objectweb.asm.tree.*;

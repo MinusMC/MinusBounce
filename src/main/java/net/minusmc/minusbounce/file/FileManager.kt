@@ -31,6 +31,7 @@ class FileManager: MinecraftInstance() {
     val accountsConfig = AccountsConfig(File(dir, "accounts.json"))
     val friendsConfig = FriendsConfig(File(dir, "friends.json"))
     val hudConfig = HudConfig(File(dir, "hud.json"))
+    val clickGuiConfig = ClickGuiConfig(File(dir, "clickgui.json"))
 
     private val backgroundFile = File(dir, "userbackground.png")
 

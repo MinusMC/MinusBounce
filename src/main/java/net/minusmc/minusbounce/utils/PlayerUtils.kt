@@ -8,9 +8,8 @@ import net.minecraft.item.ItemEnderPearl
 import net.minecraft.item.ItemPotion
 import net.minecraft.item.ItemStack
 import net.minecraft.util.BlockPos
-import net.minusmc.minusbounce.utils.MinecraftInstance.Companion.mc
 
-object PlayerUtils {
+object PlayerUtils: MinecraftInstance() {
 	fun getSlimeSlot(): Int {
         for(i in 36..44) {
             val stack = mc.thePlayer.inventoryContainer.getSlot(i).stack
@@ -61,17 +60,13 @@ object PlayerUtils {
 
     val isBlockUnder: Boolean
         get() {
-            if (mc.thePlayer == null) return false
-            if (mc.thePlayer.posY < 0.0) {
-                return false
-            }
+            if (mc.thePlayer == null && mc.thePlayer.posY < 0.0) return false
             var off = 0
-            while (off < mc.thePlayer.posY.toInt() + 2) {
+
+            for (i in 0 until mc.thePlayer.posY.toInt() + 2 step 2) {
                 val bb = mc.thePlayer.entityBoundingBox.offset(0.0, (-off).toDouble(), 0.0)
-                if (!mc.theWorld.getCollidingBoundingBoxes(mc.thePlayer, bb).isEmpty()) {
+                if (!mc.theWorld.getCollidingBoundingBoxes(mc.thePlayer, bb).isEmpty())
                     return true
-                }
-                off += 2
             }
             return false
         }

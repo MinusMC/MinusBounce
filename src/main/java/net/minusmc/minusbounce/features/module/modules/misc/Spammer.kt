@@ -7,7 +7,6 @@ import net.minusmc.minusbounce.features.module.ModuleCategory
 import net.minusmc.minusbounce.features.module.ModuleInfo
 import net.minusmc.minusbounce.utils.misc.RandomUtils
 import net.minusmc.minusbounce.utils.timer.MSTimer
-import net.minusmc.minusbounce.utils.timer.TimeUtils
 import net.minusmc.minusbounce.value.BoolValue
 import net.minusmc.minusbounce.value.IntegerValue
 import net.minusmc.minusbounce.value.TextValue
@@ -39,7 +38,7 @@ class Spammer: Module() {
     private var delay: Long = 0
 
     override fun onEnable() {
-        delay = TimeUtils.randomDelay(minDelayValue.get(), maxDelayValue.get())
+        delay = RandomUtils.randomDelay(minDelayValue.get(), maxDelayValue.get())
     }
 
     @EventTarget
@@ -49,7 +48,7 @@ class Spammer: Module() {
         	val message = if (customValue.get()) replace(messageValue.get()) else messageValue.get()
             mc.thePlayer.sendChatMessage(message + randomString)
             msTimer.reset()
-            delay = TimeUtils.randomDelay(minDelayValue.get(), maxDelayValue.get())
+            delay = RandomUtils.randomDelay(minDelayValue.get(), maxDelayValue.get())
         }
     }
 

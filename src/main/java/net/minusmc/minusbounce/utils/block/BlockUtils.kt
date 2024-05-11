@@ -5,16 +5,19 @@
  */
 package net.minusmc.minusbounce.utils.block
 
-import net.minusmc.minusbounce.utils.*
-import net.minusmc.minusbounce.utils.block.PlaceInfo.Companion.get
-import net.minusmc.minusbounce.injection.access.StaticStorage
-import net.minusmc.minusbounce.utils.extensions.*
-import net.minecraft.init.Blocks
 import net.minecraft.block.Block
+import net.minecraft.block.BlockAir
 import net.minecraft.block.material.Material
 import net.minecraft.block.state.IBlockState
+import net.minecraft.init.Blocks
 import net.minecraft.util.*
+import net.minusmc.minusbounce.injection.access.StaticStorage
+import net.minusmc.minusbounce.utils.*
+import net.minusmc.minusbounce.utils.extensions.*
+import net.minusmc.minusbounce.utils.player.RotationUtils
+import kotlin.collections.set
 import kotlin.math.*
+
 
 object BlockUtils : MinecraftInstance() {
 
@@ -208,106 +211,55 @@ object BlockUtils : MinecraftInstance() {
         return placeRotation
     }
 
-    // /**
-    //  * Finding corrent yaw and pitch to placing block
-    //  * 
-    //  * @author fmcpe
-    //  */
-    // @JvmStatic
-    // fun searchBlock(blockPosition: BlockPos, yaw: Float): PlaceRotation? {
-    //     val fromPos = blockPosition.fromPos()
+    fun getEnumFacing(position: Vec3): PlaceInfo? {
 
-    //     var placeRotation: PlaceRotation? = null
+        val facings = arrayOf(EnumFacing.EAST, EnumFacing.WEST, EnumFacing.DOWN, EnumFacing.SOUTH, EnumFacing.NORTH)
 
-    //     for (side in StaticStorage.facings()) {
-    //         val blockPos = blockPosition.offset(side)
+        for (facing in facings) {
+            val directionVec = Vec3(facing.directionVec.x.toDouble(), facing.directionVec.y.toDouble(), facing.directionVec.z.toDouble())
+            val blockPosAfterAddEnum = position.add(directionVec)
+            if (mc.theWorld.getBlockState(BlockPos(blockPosAfterAddEnum.xCoord, blockPosAfterAddEnum.yCoord, blockPosAfterAddEnum.zCoord)) !is BlockAir)
+                return PlaceInfo(
+                    BlockPos(blockPosAfterAddEnum.xCoord, blockPosAfterAddEnum.yCoord, blockPosAfterAddEnum.zCoord), facing.opposite, directionVec)
+        }
 
-    //         if(!blockPos.isClickable())
-    //             continue
+        return null
+    }
 
-    //         for (pitch in -90.0..90.0 step 0.02) {
-    //             val rotation = Rotation(mc.thePlayer.rotationYaw - yaw, pitch.toFloat())
-    //             if (fromBlocks(rotation, blockPos, side.opposite)) {
-    //                 if (placeRotation == null || rotation.pitch < placeRotation.rotation.pitch)
-    //                     placeRotation = PlaceRotation(PlaceInfo(blockPos, side.opposite, Vec3(blockPos)), rotation)
-    //             }
-    //         }
+    fun getPlacePossibility(offsetX: Double, offsetY: Double, offsetZ: Double): Vec3? {
+        val possibilities = mutableListOf<Vec3>()
+        val range = (5 + (abs(offsetX) + abs(offsetZ))).toInt()
 
-    //         if(placeRotation == null && fromPos != null && fromBlocks(fromPos, blockPos, side.opposite))
-    //             placeRotation = PlaceRotation(PlaceInfo(blockPos, side.opposite, Vec3(blockPos)), fromPos)
-    //     }
+        for (x in -range..range) {
+            for (y in -range..range) {
+                for (z in -range..range) {
+                    val block = blockRelativeToPlayer(x, y, z)
+                    if (block is BlockAir) continue
+                    possibilities.add(Vec3(mc.thePlayer.posX + x - 1, mc.thePlayer.posY + y, mc.thePlayer.posZ + z))
+                    possibilities.add(Vec3(mc.thePlayer.posX + x + 1, mc.thePlayer.posY + y, mc.thePlayer.posZ + z))
+                    possibilities.add(Vec3(mc.thePlayer.posX + x, mc.thePlayer.posY + y - 1, mc.thePlayer.posZ + z))
+                    possibilities.add(Vec3(mc.thePlayer.posX + x, mc.thePlayer.posY + y + 1, mc.thePlayer.posZ + z))
+                    possibilities.add(Vec3(mc.thePlayer.posX + x, mc.thePlayer.posY + y, mc.thePlayer.posZ + z - 1))
+                    possibilities.add(Vec3(mc.thePlayer.posX + x, mc.thePlayer.posY + y, mc.thePlayer.posZ + z + 1))
+                }
+            }
+        }
+        possibilities.removeIf {
+            mc.thePlayer.getDistance(it.xCoord, it.yCoord, it.zCoord) > 5 ||
+                    mc.theWorld.getBlockState(BlockPos(it.xCoord, it.yCoord, it.zCoord)).block !is BlockAir
+        }
 
-    //     return placeRotation
-    // }
+        return possibilities.minByOrNull {
+            val d0 = mc.thePlayer.posX + offsetX - it.xCoord
+            val d1 = mc.thePlayer.posY - 1 + offsetY - it.yCoord
+            val d2 = mc.thePlayer.posZ + offsetZ - it.zCoord
+            sqrt(d0 * d0 + d1 * d1 + d2 * d2)
+        }
+    }
 
-    // /**
-    //  * Finding if the rotation is correct from blockPos and facing
-    //  * 
-    //  * @author fmcpe
-    //  */
-    // fun fromBlocks(rotation: Rotation, pos: BlockPos, facing: EnumFacing): Boolean {
-    //     val obj = rotation.distanceRayTrace() ?: return false
-    //     return obj.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK && obj.blockPos == pos && obj.sideHit == facing
-    // }
+    private fun blockRelativeToPlayer(offsetX: Double, offsetY: Double, offsetZ: Double): Block {
+        return mc.theWorld.getBlockState(BlockPos(mc.thePlayer).add(offsetX, offsetY, offsetZ)).block
+    }
 
-    // /**
-    //  * Raytrace from a rotation
-    //  * 
-    //  * @author fmcpe
-    //  */
-    // fun Rotation.rayTrace(): MovingObjectPosition {
-    //     val vec = RotationUtils.getVectorForRotation(this)
-    //     val vector = eyesPos.addVector(vec.xCoord * 4.5, vec.yCoord * 4.5, vec.zCoord * 4.5)
-    //     return mc.theWorld.rayTraceBlocks(eyesPos, vector, false, false, true)
-    // }
-
-    // fun Rotation.distanceRayTrace(): MovingObjectPosition? {
-    //     val vec = RotationUtils.getVectorForRotation(this)
-    //     val vector = eyesPos.addVector(vec.xCoord * 4.5, vec.yCoord * 4.5, vec.zCoord * 4.5)
-    //     val obj = mc.theWorld.rayTraceBlocks(eyesPos, vector, false, false, true)
-    //     return if(mc.thePlayer.getDistance(vector.xCoord, vector.yCoord, vector.zCoord) > 5) null else obj
-    // }
-
-    // /**
-    //  * Search rotation from blockPos
-    //  * 
-    //  * @author fmcpe
-    //  */
-    // fun BlockPos.fromPos(): Rotation? {
-    //     val blockData = get(this) ?: return null
-    //     val (posX, posY, posZ) = 
-    //         Vec3(blockData.blockPos).plus(0.5).plus(
-    //             Vec3(blockData.enumFacing.directionVec).times(0.5)
-    //             )
-
-    //     val (x, y, z) = Vec3(
-    //         posX - eyesPos.xCoord, 
-    //         posY - eyesPos.yCoord, 
-    //         posZ - eyesPos.zCoord
-    //     )
-
-    //     val dist = MathHelper.sqrt_double(x * x + z * z).toDouble()
-    //     val yaw = (atan2(z, x) * 180.0 / 3.141592653589793).toFloat() - 90.0f
-    //     val pitch = (-(atan2(y, dist) * 180.0 / 3.141592653589793)).toFloat()
-    //     return Rotation(yaw, pitch)
-    // }
-
-    // /**
-    //  * Check if [blockPos] is clickable
-    //  * 
-    //  * @author fmcpe
-    //  */
-    // fun BlockPos.isClickable() = getBlock(this)?.canCollideCheck(getState(this), false) ?: false &&
-    //         mc.theWorld.worldBorder.contains(this)
-    
-    // /**
-    //  * EyesPos
-    //  * 
-    //  * @author fmcpe
-    //  */
-    // val eyesPos: Vec3
-    //     get() = Vec3(mc.thePlayer.posX, mc.thePlayer.entityBoundingBox.minY + mc.thePlayer.eyeHeight, mc.thePlayer.posZ)
-
-    // val lastPos: Vec3
-    //     get() = Vec3(mc.thePlayer.lastReportedPosX, mc.thePlayer.lastReportedPosY + mc.thePlayer.eyeHeight, mc.thePlayer.lastReportedPosZ)
+    private fun blockRelativeToPlayer(offsetX: Int, offsetY: Int, offsetZ: Int) = blockRelativeToPlayer(offsetX.toDouble(), offsetY.toDouble(), offsetZ.toDouble())
 }

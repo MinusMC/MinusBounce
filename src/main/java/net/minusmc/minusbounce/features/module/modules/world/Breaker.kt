@@ -18,7 +18,7 @@ import net.minusmc.minusbounce.features.module.modules.combat.KillAura
 import net.minusmc.minusbounce.features.module.modules.player.AutoTool
 import net.minusmc.minusbounce.ui.client.hud.element.elements.Notification
 import net.minusmc.minusbounce.ui.font.Fonts
-import net.minusmc.minusbounce.utils.RotationUtils
+import net.minusmc.minusbounce.utils.player.RotationUtils
 import net.minusmc.minusbounce.utils.block.BlockUtils.getBlock
 import net.minusmc.minusbounce.utils.block.BlockUtils.getBlockName
 import net.minusmc.minusbounce.utils.block.BlockUtils.getCenterDistance
@@ -165,7 +165,7 @@ object Breaker : Module() {
 
         // Face block
         if (rotationsValue.get())
-            RotationUtils.setTargetRot(rotations.rotation)
+            RotationUtils.setTargetRotation(rotations.rotation)
 
         when {
             // Destory block
@@ -330,7 +330,7 @@ object Breaker : Module() {
             if (firstPos == null) {
                 firstPos = nearestBlock
                 MinusBounce.hud.addNotification(
-                    Notification(
+                    Notification("Breaker", 
                         "Found first ${getBlockName(targetID)} block at ${nearestBlock.x} ${nearestBlock.y} ${nearestBlock.z}",
                         Notification.Type.SUCCESS
                     )
@@ -346,7 +346,7 @@ object Breaker : Module() {
                 }
                 if (firstPosBed != null)
                     MinusBounce.hud.addNotification(
-                        Notification(
+                        Notification("Breaker", 
                             "Found second Bed block at ${firstPosBed!!.x} ${firstPosBed!!.y} ${firstPosBed!!.z}",
                             Notification.Type.SUCCESS
                         )

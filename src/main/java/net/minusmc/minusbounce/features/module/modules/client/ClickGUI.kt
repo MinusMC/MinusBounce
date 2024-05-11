@@ -9,7 +9,7 @@ import net.minusmc.minusbounce.MinusBounce
 import net.minusmc.minusbounce.features.module.Module
 import net.minusmc.minusbounce.features.module.ModuleCategory
 import net.minusmc.minusbounce.features.module.ModuleInfo
-import net.minusmc.minusbounce.ui.client.clickgui.ClickGui
+import net.minusmc.minusbounce.ui.client.clickgui.dropdown.DropDownClickGui
 import net.minusmc.minusbounce.utils.ClassUtils
 import net.minusmc.minusbounce.utils.render.ColorUtils
 import net.minusmc.minusbounce.utils.render.RenderUtils
@@ -42,7 +42,7 @@ object ClickGUI: Module() {
     }
     val gradEndValue = IntegerValue("GradientEndAlpha", 0, 0, 255) { backgroundValue.get().equals("gradient", true) }
 
-    val animationValue = ListValue("Animation", arrayOf("Azura", "Slide", "SlideBounce", "Zoom", "ZoomBounce", "None"), "Azura")
+    val animationValue = ListValue("Animation", arrayOf("Slide", "Zoom", "ZoomBounce", "None"), "None")
     val animSpeedValue = FloatValue("AnimSpeed", 1F, 0.01F, 5F, "x")
 
     val accentColor: Color?
@@ -54,11 +54,7 @@ object ClickGUI: Module() {
             else -> null
         }
 
-    fun changeClickGui() {
-        mc.displayGuiScreen(ClickGui())
-    }
-
     override fun onEnable() {
-        changeClickGui()
+        mc.displayGuiScreen(MinusBounce.clickGui)
     }
 }

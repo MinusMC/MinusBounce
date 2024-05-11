@@ -2,7 +2,7 @@ package net.minusmc.minusbounce.features.module.modules.movement.flys.verus
 
 import net.minusmc.minusbounce.features.module.modules.movement.flys.FlyType
 import net.minusmc.minusbounce.features.module.modules.movement.flys.FlyMode
-import net.minusmc.minusbounce.utils.MovementUtils
+import net.minusmc.minusbounce.utils.player.MovementUtils
 import net.minusmc.minusbounce.event.MoveEvent
 import net.minusmc.minusbounce.event.BlockBBEvent
 import net.minecraft.block.BlockAir

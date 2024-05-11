@@ -8,7 +8,7 @@ import net.minusmc.minusbounce.MinusBounce
 import net.minusmc.minusbounce.event.MoveEvent
 import net.minusmc.minusbounce.features.module.modules.movement.longjumps.LongJumpMode
 import net.minusmc.minusbounce.ui.client.hud.element.elements.Notification
-import net.minusmc.minusbounce.utils.MovementUtils
+import net.minusmc.minusbounce.utils.player.MovementUtils
 import net.minusmc.minusbounce.utils.PlayerUtils
 import net.minusmc.minusbounce.value.FloatValue
 
@@ -26,7 +26,7 @@ class PearlLongJump : LongJumpMode("Pearl") {
 		val enderPearlSlot = PlayerUtils.getPearlSlot()
         if (pearlState == 0) {
             if (enderPearlSlot == -1) {
-                MinusBounce.hud.addNotification(Notification("You don't have any ender pearl!", Notification.Type.ERROR))
+                MinusBounce.hud.addNotification(Notification("LongJump", "You don't have any ender pearl!", Notification.Type.ERROR))
                 pearlState = -1
                 longjump.state = false
                 return                    

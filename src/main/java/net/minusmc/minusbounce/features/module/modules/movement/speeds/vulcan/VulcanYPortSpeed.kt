@@ -3,7 +3,7 @@ package net.minusmc.minusbounce.features.module.modules.movement.speeds.vulcan
 import net.minecraft.client.settings.GameSettings
 import net.minusmc.minusbounce.features.module.modules.movement.speeds.SpeedMode
 import net.minusmc.minusbounce.features.module.modules.movement.speeds.SpeedType
-import net.minusmc.minusbounce.utils.MovementUtils
+import net.minusmc.minusbounce.utils.player.MovementUtils
 
 class VulcanYPortSpeed : SpeedMode("VulcanYPort", SpeedType.VULCAN) {
 

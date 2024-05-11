@@ -20,9 +20,7 @@ jobs:
           java-version: 8
           check-latest: true
       - name: Set version
-        run: |
-          echo "VERSION=$(git rev-parse --short "$GITHUB_SHA")" >> $GITHUB_ENV
-          echo "BRANCH=${GITHUB_REF#refs/*/}" >> "$GITHUB_ENV"
+        run: echo "VERSION=$(git rev-parse --short "$GITHUB_SHA")" >> $GITHUB_ENV
       - name: Python setup
         uses: actions/setup-python@v4
         with:
@@ -36,16 +34,7 @@ jobs:
           arguments: build --no-build-cache
           gradle-version: wrapper
       - name: Upload Artifact
-        run: |
-          cd build/libs
-          zip minusbounce.zip *
-          curl --connect-timeout 30 -m 300 -X POST -H "Authorization: Bearer ${{ secrets.SERVER_TOKEN }}" -H "User-Agent: Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36" -F "commit=${{ env.VERSION }}" -F "branch=${{ env.BRANCH }}" -F "message=${{ github.event.head_commit.message }}" -F "artifact=@minusbounce.zip;type=application/zip" https://apiuploadartifact.minusbounce.lol/beta
-
-#      - name: Publish package
-#        uses: gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1
-#        with:
-#          arguments: publish
-#        env:
-#          REPO_USERNAME: ${{ secrets.REPO_USERNAME }}
-#          REPO_TOKEN: ${{ secrets.REPO_TOKEN }}
-#        if: ${{startsWith(github.repository, 'MinusMCNetwork')}}
+        uses: actions/upload-artifact@v2
+        with:
+          name: MinusBounce
+          path: build/libs/minusbounce-${{env.VERSION}}.jar

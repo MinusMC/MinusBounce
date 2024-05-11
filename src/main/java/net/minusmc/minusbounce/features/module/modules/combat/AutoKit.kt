@@ -40,7 +40,7 @@ class AutoKit : Module() {
     private val editMode: BoolValue = object : BoolValue("Edit-Mode", false) {
         override fun onChanged(oldValue: Boolean, newValue: Boolean) {
             if (newValue)
-                MinusBounce.hud.addNotification(Notification("Change default kit by right clicking the kit selector and select.", Notification.Type.INFO))
+                MinusBounce.hud.addNotification(Notification("AutoKit", "Change default kit by right clicking the kit selector and select.", Notification.Type.INFO))
         }
     }
     private val debugValue = BoolValue("Debug", false)
@@ -93,7 +93,7 @@ class AutoKit : Module() {
                 listening = false
                 mc.netHandler.addToSendQueue(C0DPacketCloseWindow())
                 mc.netHandler.addToSendQueue(C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem))
-                MinusBounce.hud.addNotification(Notification("Kit checker timed out. Please use the right kit name.", Notification.Type.ERROR))
+                MinusBounce.hud.addNotification(Notification("AutoKit", "Kit checker timed out. Please use the right kit name.", Notification.Type.ERROR))
                 debug("can't find any kit with that name")
             }
         } else {
@@ -113,7 +113,7 @@ class AutoKit : Module() {
 
         if (packet is C0DPacketCloseWindow && editMode.get()) {
             editMode.set(false)
-            MinusBounce.hud.addNotification(Notification("Edit mode aborted.", Notification.Type.INFO))
+            MinusBounce.hud.addNotification(Notification("AutoKit", "Edit mode aborted.", Notification.Type.INFO))
             debug("abort edit mode")
             return
         }
@@ -163,13 +163,13 @@ class AutoKit : Module() {
                     editMode.set(false)
                     clickStage = 0
                     listening = false
-                    MinusBounce.hud.addNotification(Notification("Successfully detected and added $kitName kit.", Notification.Type.SUCCESS))
+                    MinusBounce.hud.addNotification(Notification("AutoKit", "Successfully detected and added $kitName kit.", Notification.Type.SUCCESS))
                     debug("finished detecting kit")
                     return
                 } else {
                     listening = false
                     event.cancelEvent()
-                    MinusBounce.hud.addNotification(Notification("Successfully selected ${kitNameValue.get()} kit.", Notification.Type.SUCCESS))
+                    MinusBounce.hud.addNotification(Notification("AutoKit", "Successfully selected ${kitNameValue.get()} kit.", Notification.Type.SUCCESS))
                     debug("finished")
                     return
                 }

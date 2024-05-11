@@ -5,12 +5,13 @@
  */
 package net.minusmc.minusbounce.utils.extensions
 
-import net.minusmc.minusbounce.utils.Rotation
+import net.minecraft.client.entity.EntityPlayerSP
 import net.minecraft.entity.Entity
+import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.util.AxisAlignedBB
 import net.minecraft.util.Vec3
-import net.minecraft.entity.player.EntityPlayer
 import net.minusmc.minusbounce.utils.MinecraftInstance
+import net.minusmc.minusbounce.utils.Rotation
 import kotlin.math.abs
 import kotlin.math.pow
 import kotlin.math.sqrt
@@ -27,6 +28,23 @@ fun Entity.getDistanceToEntityBox(entity: Entity): Double {
     return sqrt(xDist.pow(2) + yDist.pow(2) + zDist.pow(2))
 }
 
+fun Entity.getDistanceToBox(box: AxisAlignedBB) = eyes.distanceTo(getNearestPointBB(eyes, box))
+
+val Entity.prevPos: Vec3
+    get() = Vec3(this.prevPosX, this.prevPosY, this.prevPosZ)
+
+val Entity.currPos: Vec3
+    get() = this.positionVector
+
+val Entity.hitBox: AxisAlignedBB
+    get() {
+        val borderSize = collisionBorderSize.toDouble()
+        return entityBoundingBox.expand(borderSize, borderSize, borderSize)
+    }
+
+val Entity?.rotation
+    get() = Rotation(this?.rotationYaw ?: 0f, this?.rotationPitch ?: 0f)
+
 fun getNearestPointBB(eye: Vec3, box: AxisAlignedBB): Vec3 {
     val origin = doubleArrayOf(eye.xCoord, eye.yCoord, eye.zCoord)
     val destMins = doubleArrayOf(box.minX, box.minY, box.minZ)
@@ -41,5 +59,9 @@ fun EntityPlayer.getPing(): Int {
     val playerInfo = MinecraftInstance.mc.netHandler.getPlayerInfo(uniqueID)
     return playerInfo?.responseTime ?: 0
 }
-val Entity.rotation: Rotation
-    get() = Rotation(rotationYaw, rotationPitch)
+
+fun EntityPlayerSP.tryJump() {
+    if (!MinecraftInstance.mc.gameSettings.keyBindJump.isKeyDown) {
+        this.jump()
+    }
+}

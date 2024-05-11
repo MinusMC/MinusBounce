@@ -45,18 +45,20 @@ class Effects(x: Double = 2.0, y: Double = 10.0, scale: Float = 1F, side: Side =
 
             val potion = Potion.potionTypes[effect.potionID]
 
-            val number = when {
-                effect.amplifier == 1 -> "II"
-                effect.amplifier == 2 -> "III"
-                effect.amplifier == 3 -> "IV"
-                effect.amplifier == 4 -> "V"
-                effect.amplifier == 5 -> "VI"
-                effect.amplifier == 6 -> "VII"
-                effect.amplifier == 7 -> "VIII"
-                effect.amplifier == 8 -> "IX"
-                effect.amplifier == 9 -> "X"
-                effect.amplifier > 10 -> "X+"
-                else -> "I"
+            val amplifier = (effect.amplifier + 1).coerceIn(1, 11)
+
+            val number = when (amplifier) {
+                1 -> "I"
+                2 -> "II"
+                3 -> "III"
+                4 -> "IV"
+                5 -> "V"
+                6 -> "VI"
+                7 -> "VII"
+                8 -> "VIII"
+                9 -> "IX"
+                10 -> "X"
+                else -> "X+"
             }
 
             val duration = if (effect.isPotionDurationMax) 30 else effect.duration / 20

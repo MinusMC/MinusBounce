@@ -5,7 +5,7 @@
  */
 package net.minusmc.minusbounce.injection.transformers;
 
-import net.minusmc.minusbounce.utils.ASMUtils;
+import net.minusmc.minusbounce.utils.asm.ASMUtils;
 import net.minecraft.launchwrapper.IClassTransformer;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.AbstractInsnNode;

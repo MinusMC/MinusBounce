@@ -9,7 +9,7 @@
     "block.MixinBlock",
     "block.MixinBlockAnvil",
     "block.MixinBlockLiquid",
-    "block.MixinBlockRedstoneTorch",
+    "block.MixinBlockGlass",
     "block.MixinBlockSoulSand",
     "client.MixinGameSettings",
     "client.MixinMinecraft",

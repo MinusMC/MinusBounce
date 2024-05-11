@@ -5,20 +5,19 @@
  */
 package net.minusmc.minusbounce.utils
 
-import net.minusmc.minusbounce.event.StrafeEvent
+import net.minecraft.block.BlockPressurePlate.Sensitivity
 import net.minusmc.minusbounce.utils.block.PlaceInfo
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.util.MathHelper
 import net.minecraft.util.Vec3
-import net.minusmc.minusbounce.MinusBounce
-import kotlin.math.max
-import kotlin.math.min
-import kotlin.math.pow
+import net.minusmc.minusbounce.utils.player.RotationUtils
+import kotlin.math.round
 
 /**
  * Rotations
  */
 data class Rotation(var yaw: Float, var pitch: Float) {
+    constructor(yaw: Double, pitch: Double): this(yaw.toFloat(), pitch.toFloat())
 
     /**
      * Set rotations to [player]
@@ -38,22 +37,14 @@ data class Rotation(var yaw: Float, var pitch: Float) {
      *
      * @see net.minecraft.client.renderer.EntityRenderer.updateCameraAndRender
      */
-    fun fixedSensitivity(sensitivity: Float) {
-        val f = sensitivity * (1 + Math.random().toFloat() / 10000000) * 0.6F + 0.2F
-        val gcd = f * f * f * 1.2F
-
-        // get previous rotation
-        val rotation = RotationUtils.serverRotation!!
-
-        // fix yaw
-        var deltaYaw = yaw - rotation.yaw
-        deltaYaw -= deltaYaw % gcd
-        yaw = rotation.yaw + deltaYaw
-
-        // fix pitch
-        var deltaPitch = pitch - rotation.pitch
-        deltaPitch -= deltaPitch % gcd
-        pitch = rotation.pitch + deltaPitch
+    @JvmOverloads
+    fun fixedSensitivity(sensitivity: Float, rotation: Rotation? = RotationUtils.serverRotation) {
+        rotation?.let{
+            val f = sensitivity * (1f + Math.random().toFloat() / 10000000f) * 0.6F + 0.2F
+            val m = f * f * f * 8.0F * 0.15f
+            yaw = it.yaw + round((yaw - it.yaw) / m) * m
+            pitch = (it.pitch + round((pitch - it.pitch) / m) * m).coerceIn(-90F, 90F)
+        }
     }
 
     /**
@@ -84,26 +75,3 @@ data class VecRotation(val vec: Vec3, val rotation: Rotation)
  * Rotation with place info
  */
 data class PlaceRotation(val placeInfo: PlaceInfo, val rotation: Rotation)
-
-
-// Vestige
-data class FixedRotation(var yaw: Float, var pitch: Float, var lastYaw: Float, var lastPitch: Float) {
-    constructor(yaw: Float, pitch: Float): this(yaw, pitch, yaw, pitch)
-
-    fun updateRotations(requestedYaw: Float, requestedPitch: Float) {
-        lastYaw = yaw
-        lastPitch = pitch
-
-        val gcd = ((MinecraftInstance.mc.gameSettings.mouseSensitivity * 0.6 + 0.2).pow(3).toFloat() * 1.2).toFloat()
-        val yawDiff = requestedYaw - yaw
-        val pitchDiff = requestedPitch - pitch
-
-        val fixedYawDiff = yawDiff - (yawDiff % gcd)
-        val fixedPitchDiff = pitchDiff - (pitchDiff % gcd)
-
-        yaw += fixedYawDiff
-        pitch += fixedPitchDiff
-
-        pitch = max(-90f, min(90f, pitch))
-    }
-}

@@ -14,6 +14,7 @@ import net.minecraft.network.play.client.C07PacketPlayerDigging
 import net.minecraft.network.play.client.C03PacketPlayer
 import net.minecraft.network.play.client.C03PacketPlayer.C06PacketPlayerPosLook
 import net.minecraft.util.EnumFacing
+import net.minecraft.util.BlockPos
 
 class GrimC07Velocity : VelocityMode("GrimC07") {
     private var packetPayloadValue = ListValue("PacketPayload", arrayOf("C03", "C06"), "C03")
@@ -23,22 +24,23 @@ class GrimC07Velocity : VelocityMode("GrimC07") {
 
     override fun onEnable() {
         canCancel = false
+        flagTimer.reset()
     }
 
     override fun onTick() {
-         if (!flagTimer.hasTimePassed(50)) {
+        if (!flagTimer.hasTimePassed(50)) {
             canCancel = false
             return
         }
 
         if (canCancel) {
-            val pos = mc.thePlayer.getPosition()
+            val pos = BlockPos(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ)
 
             when (packetPayloadValue.get().lowercase()) {
-                "c03" -> PacketUtils.sendPacketNoEvent(C03PacketPlayer(mc.thePlayer.onGround))
-                "c06" -> PacketUtils.sendPacketNoEvent(C06PacketPlayerPosLook(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ, mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch, mc.thePlayer.onGround))
+                "c03" -> mc.netHandler.addToSendQueue(C03PacketPlayer(mc.thePlayer.onGround))
+                "c06" -> mc.netHandler.addToSendQueue(C06PacketPlayerPosLook(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ, mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch, mc.thePlayer.onGround))
             }
-            PacketUtils.sendPacketNoEvent(C07PacketPlayerDigging(C07PacketPlayerDigging.Action.STOP_DESTROY_BLOCK, pos, EnumFacing.DOWN))
+            mc.netHandler.addToSendQueue(C07PacketPlayerDigging(C07PacketPlayerDigging.Action.STOP_DESTROY_BLOCK, pos, EnumFacing.DOWN))
             canCancel = false
         }
     }
@@ -49,7 +51,15 @@ class GrimC07Velocity : VelocityMode("GrimC07") {
         if (packet is S08PacketPlayerPosLook)
             flagTimer.reset()
 
-        if ((packet is S12PacketEntityVelocity && packet.entityID == mc.thePlayer.entityId) || packet is S27PacketExplosion)
+        if (!flagTimer.hasTimePassed(50)) {
+            canCancel = false
+            return
+        }
+
+        if (packet is S12PacketEntityVelocity && packet.entityID == mc.thePlayer.entityId) {
+            event.cancelEvent()
+            canCancel = true
+        } else if (packet is S27PacketExplosion) {
             event.cancelEvent()
             canCancel = true
         }

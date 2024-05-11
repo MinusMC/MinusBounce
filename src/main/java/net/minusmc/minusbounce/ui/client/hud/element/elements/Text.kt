@@ -152,7 +152,6 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1F,
             "rcps" -> return CPSCounter.getCPS(CPSCounter.MouseButton.RIGHT).toString()
             "wdStatus" -> return if (PacketUtils.isWatchdogActive) "Active" else "Inactive"
             "sessionTime" -> return SessionUtils.formatSessionTime
-            "worldTime" -> return SessionUtils.formatSessionTime
             else -> null // Null = don't replace
         }
     }

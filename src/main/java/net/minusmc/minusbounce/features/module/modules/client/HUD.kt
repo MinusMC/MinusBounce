@@ -56,7 +56,6 @@ class HUD : Module() {
     val containerBackground = BoolValue("Container-Background", false)
     val containerButton = ListValue("Container-Button", arrayOf("TopLeft", "TopRight", "Off"), "TopLeft")
     val invEffectOffset = BoolValue("InvEffect-Offset", false)
-    val domainValue = TextValue("Scoreboard-Domain", ".hud scoreboard-domain <your domain here>")
 
     private var hotBarX = 0F
 
@@ -79,7 +78,7 @@ class HUD : Module() {
     }
 
     @EventTarget
-    fun onUpdate(event: UpdateEvent?) {
+    fun onUpdate(event: UpdateEvent) {
         MinusBounce.hud.update()
     }
 
@@ -89,11 +88,8 @@ class HUD : Module() {
     }
 
     fun getAnimPos(pos: Float): Float {
-        hotBarX = if (state && animHotbarValue.get()) AnimationUtils.animate(
-            pos,
-            hotBarX,
-            0.02F * RenderUtils.deltaTime.toFloat()
-        )
+        hotBarX = if (state && animHotbarValue.get())
+            AnimationUtils.animate(pos, hotBarX, 0.02F * RenderUtils.deltaTime.toFloat())
         else pos
 
         return hotBarX

@@ -5,6 +5,7 @@
  */
 package net.minusmc.minusbounce.injection.forge;
 
+import net.minusmc.minusbounce.ui.font.Fonts;
 import net.minusmc.minusbounce.injection.transformers.ForgeNetworkTransformer;
 import net.minusmc.minusbounce.injection.transformers.OptimizeTransformer;
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;

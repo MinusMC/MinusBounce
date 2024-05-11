@@ -5,42 +5,46 @@
  */
 package net.minusmc.minusbounce.utils.misc
 
-import java.util.*
+import kotlin.random.Random
+
+/**
+ * Utils for random
+ */
 
 object RandomUtils {
-    fun nextBoolean(): Boolean {
-        return Random().nextBoolean()
-    }
+    fun nextBoolean(): Boolean = Random.nextBoolean()
 
     fun nextInt(startInclusive: Int, endExclusive: Int): Int {
-        return if (endExclusive - startInclusive <= 0) startInclusive else startInclusive + Random().nextInt(
-            endExclusive - startInclusive
-        )
+        return if (endExclusive - startInclusive <= 0) startInclusive 
+            else startInclusive + Random.nextInt(endExclusive - startInclusive)
     }
 
     fun nextDouble(startInclusive: Double, endInclusive: Double): Double {
-        return if (startInclusive == endInclusive || endInclusive - startInclusive <= 0.0) startInclusive else startInclusive + (endInclusive - startInclusive) * Math.random()
+        return if (startInclusive == endInclusive || endInclusive - startInclusive <= 0.0) startInclusive
+            else startInclusive + Random.nextDouble(endInclusive - startInclusive)
     }
 
     fun nextFloat(startInclusive: Float, endInclusive: Float): Float {
-        return if (startInclusive == endInclusive || endInclusive - startInclusive <= 0f) startInclusive else (startInclusive + (endInclusive - startInclusive) * Math.random()).toFloat()
+        return nextDouble(startInclusive.toDouble(), endInclusive.toDouble()).toFloat()
     }
 
     fun randomNumber(length: Int): String {
-        return random(length, "123456789")
+        return random(length, "0123456789")
     }
 
     fun randomString(length: Int): String {
-        return random(length, "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz")
+        return random(length, "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
     }
 
-    fun random(length: Int, chars: String): String {
-        return random(length, chars.toCharArray())
+    fun random(length: Int, chars: String): String = (1..length).map {
+        chars.random()
+    }.joinToString("")
+
+    fun randomDelay(minDelay: Int, maxDelay: Int): Long {
+        return nextInt(minDelay, maxDelay).toLong()
     }
 
-    fun random(length: Int, chars: CharArray): String {
-        val stringBuilder = StringBuilder()
-        for (i in 0 until length) stringBuilder.append(chars[Random().nextInt(chars.size)])
-        return stringBuilder.toString()
+    fun randomClickDelay(minCPS: Int, maxCPS: Int): Long {
+        return (Random.nextDouble() * (1000 / minCPS - 1000 / maxCPS + 1) + 1000 / maxCPS).toLong()
     }
 }

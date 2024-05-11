@@ -11,18 +11,13 @@ import net.minusmc.minusbounce.features.module.Module
 import net.minusmc.minusbounce.features.module.ModuleCategory
 import net.minusmc.minusbounce.features.module.ModuleInfo
 import net.minusmc.minusbounce.utils.EntityUtils
-import net.minusmc.minusbounce.utils.RotationUtils
+import net.minusmc.minusbounce.utils.player.RotationUtils
 import net.minusmc.minusbounce.utils.extensions.getDistanceToEntityBox
-import net.minusmc.minusbounce.utils.extensions.rotation
 import net.minusmc.minusbounce.utils.misc.RandomUtils
 import net.minusmc.minusbounce.utils.timer.MSTimer
 import net.minusmc.minusbounce.value.BoolValue
 import net.minusmc.minusbounce.value.FloatValue
 import kotlin.random.Random
-
-/*
-TASK: Better aimbot (aimassist) cai nay thuc ra la y tuong wow
- */
 
 @ModuleInfo(name = "Aimbot", description = "Automatically faces selected entities around you.", category = ModuleCategory.COMBAT)
 class Aimbot : Module() {
@@ -63,14 +58,7 @@ class Aimbot : Module() {
         val destinationRotation = if (centerValue.get()) {
             RotationUtils.toRotation(RotationUtils.getCenter(boundingBox), true)
         } else {
-            RotationUtils.searchCenter(
-                boundingBox,
-                random = false,
-                outborder = false,
-                predict = true,
-                throughWalls = false,
-                distance = range
-            )!!.rotation
+            RotationUtils.searchCenter(boundingBox, true, false, false, range)!!.rotation
         }
         val rotation = RotationUtils.limitAngleChange(player.rotation, destinationRotation, (turnSpeedValue.get() + Math.random()).toFloat())
 

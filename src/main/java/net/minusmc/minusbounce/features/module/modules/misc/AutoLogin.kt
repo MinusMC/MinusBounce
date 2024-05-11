@@ -50,7 +50,7 @@ class AutoLogin : Module() {
 		else if (regTimer.hasTimePassed(delayValue.get().toLong())) {
 			for (packet in registerPackets)
 				PacketUtils.sendPacketNoEvent(packet)
-			MinusBounce.hud.addNotification(Notification("Successfully registered.", Notification.Type.SUCCESS))
+			MinusBounce.hud.addNotification(Notification("AutoLogin", "Successfully registered.", Notification.Type.SUCCESS))
 			registerPackets.clear()
 			regTimer.reset()
 		}
@@ -60,7 +60,7 @@ class AutoLogin : Module() {
 		else if (logTimer.hasTimePassed(delayValue.get().toLong())) {
 			for (packet in loginPackets)
 				PacketUtils.sendPacketNoEvent(packet)
-			MinusBounce.hud.addNotification(Notification("Successfully logined.", Notification.Type.SUCCESS))
+			MinusBounce.hud.addNotification(Notification("AutoLogin", "Successfully logined.", Notification.Type.SUCCESS))
 			loginPackets.clear()
 			logTimer.reset()
 		}

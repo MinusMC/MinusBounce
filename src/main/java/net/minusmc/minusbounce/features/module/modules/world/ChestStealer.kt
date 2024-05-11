@@ -20,15 +20,15 @@ import net.minusmc.minusbounce.event.UpdateEvent
 import net.minusmc.minusbounce.features.module.Module
 import net.minusmc.minusbounce.features.module.ModuleCategory
 import net.minusmc.minusbounce.features.module.ModuleInfo
-import net.minusmc.minusbounce.features.module.modules.player.Manager
+import net.minusmc.minusbounce.features.module.modules.player.InvManager
 import net.minusmc.minusbounce.ui.client.hud.element.elements.Notification
 import net.minusmc.minusbounce.utils.timer.MSTimer
-import net.minusmc.minusbounce.utils.timer.TimeUtils
+import net.minusmc.minusbounce.utils.misc.RandomUtils
 import net.minusmc.minusbounce.value.BoolValue
 import net.minusmc.minusbounce.value.IntegerValue
 import kotlin.random.Random
 
-@ModuleInfo(name = "Stealer", spacedName = "Stealer", description = "Automatically steals all items from a chest.", category = ModuleCategory.WORLD)
+@ModuleInfo(name = "ChestStealer", spacedName = "Chest Stealer", description = "Automatically steals all items from a chest.", category = ModuleCategory.WORLD)
 class ChestStealer : Module() {
 
     /**
@@ -41,7 +41,7 @@ class ChestStealer : Module() {
             if (i > newValue)
                 set(i)
 
-            nextDelay = TimeUtils.randomDelay(minDelayValue.get(), get())
+            nextDelay = RandomUtils.randomDelay(minDelayValue.get(), get())
         }
     }
 
@@ -52,7 +52,7 @@ class ChestStealer : Module() {
             if (i < newValue)
                 set(i)
 
-            nextDelay = TimeUtils.randomDelay(get(), maxDelayValue.get())
+            nextDelay = RandomUtils.randomDelay(get(), maxDelayValue.get())
         }
     }
 
@@ -69,7 +69,7 @@ class ChestStealer : Module() {
         override fun onChanged(oldValue: Int, newValue: Int) {
             val i = autoCloseMinDelayValue.get()
             if (i > newValue) set(i)
-            nextCloseDelay = TimeUtils.randomDelay(autoCloseMinDelayValue.get(), this.get())
+            nextCloseDelay = RandomUtils.randomDelay(autoCloseMinDelayValue.get(), this.get())
         }
     }
 
@@ -77,7 +77,7 @@ class ChestStealer : Module() {
         override fun onChanged(oldValue: Int, newValue: Int) {
             val i = autoCloseMaxDelayValue.get()
             if (i < newValue) set(i)
-            nextCloseDelay = TimeUtils.randomDelay(this.get(), autoCloseMaxDelayValue.get())
+            nextCloseDelay = RandomUtils.randomDelay(this.get(), autoCloseMaxDelayValue.get())
         }
     }
 
@@ -89,10 +89,10 @@ class ChestStealer : Module() {
      */
 
     private val delayTimer = MSTimer()
-    private var nextDelay = TimeUtils.randomDelay(minDelayValue.get(), maxDelayValue.get())
+    private var nextDelay = RandomUtils.randomDelay(minDelayValue.get(), maxDelayValue.get())
 
     private val autoCloseTimer = MSTimer()
-    private var nextCloseDelay = TimeUtils.randomDelay(autoCloseMinDelayValue.get(), autoCloseMaxDelayValue.get())
+    private var nextCloseDelay = RandomUtils.randomDelay(autoCloseMinDelayValue.get(), autoCloseMaxDelayValue.get())
 
     var contentReceived = 0
 
@@ -129,7 +129,7 @@ class ChestStealer : Module() {
             return
 
         // inventory cleaner
-        val inventoryCleaner = MinusBounce.moduleManager[Manager::class.java] as Manager
+        val inventoryCleaner = MinusBounce.moduleManager[InvManager::class.java]!!
 
         // Is empty?
         if (!isEmpty(screen) && !(closeOnFullValue.get() && fullInventory)) {
@@ -170,8 +170,8 @@ class ChestStealer : Module() {
         } else if (autoCloseValue.get() && screen.inventorySlots.windowId == contentReceived && autoCloseTimer.hasTimePassed(nextCloseDelay)) {
             mc.thePlayer.closeScreen()
 
-            if (silenceValue.get() && !stillDisplayValue.get()) MinusBounce.hud.addNotification(Notification("Closed chest.", Notification.Type.INFO))
-            nextCloseDelay = TimeUtils.randomDelay(autoCloseMinDelayValue.get(), autoCloseMaxDelayValue.get())
+            if (silenceValue.get() && !stillDisplayValue.get()) MinusBounce.hud.addNotification(Notification("ChestStealer", "Closed chest.", Notification.Type.INFO))
+            nextCloseDelay = RandomUtils.randomDelay(autoCloseMinDelayValue.get(), autoCloseMaxDelayValue.get())
 
             if (once) {
                 once = false
@@ -192,11 +192,11 @@ class ChestStealer : Module() {
     private fun move(screen: GuiChest, slot: Slot) {
         screen.handleMouseClick(slot, slot.slotNumber, 0, 1)
         delayTimer.reset()
-        nextDelay = TimeUtils.randomDelay(minDelayValue.get(), maxDelayValue.get())
+        nextDelay = RandomUtils.randomDelay(minDelayValue.get(), maxDelayValue.get())
     }
 
     private fun isEmpty(chest: GuiChest): Boolean {
-        val inventoryCleaner = MinusBounce.moduleManager[Manager::class.java] as Manager
+        val inventoryCleaner = MinusBounce.moduleManager[InvManager::class.java]!!
 
         for (i in 0 until chest.inventoryRows * 9) {
             val slot = chest.inventorySlots.inventorySlots[i]

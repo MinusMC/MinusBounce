@@ -38,7 +38,7 @@ class ThemeCommand : Command("theme", arrayOf("thememanager", "tm", "themes")) {
                             MinusBounce.hud = Config(theme).toHUD()
                             MinusBounce.isStarting = false
                             chat("§6Theme applied successfully.")
-                            MinusBounce.hud.addNotification(Notification("Updated HUD Theme.", Notification.Type.SUCCESS))
+                            MinusBounce.hud.addNotification(Notification("Theme loaded", args[2], Notification.Type.SUCCESS))
                             playEdit()
                         } catch (e: IOException) {
                             e.printStackTrace()

@@ -21,8 +21,8 @@ import org.spongepowered.asm.mixin.*;
 
 @Mixin(RenderEntityItem.class)
 public abstract class MixinRenderEntityItem extends Render<EntityItem> {
-    protected MixinRenderEntityItem(final RenderManager p_i46179_1_) {
-        super(p_i46179_1_);
+    protected MixinRenderEntityItem(final RenderManager renderManager) {
+        super(renderManager);
     }
 
     @Shadow
@@ -30,10 +30,9 @@ public abstract class MixinRenderEntityItem extends Render<EntityItem> {
     
     @Shadow
     protected abstract boolean shouldBob();
-
+    
     @Overwrite
-    private int func_177077_a(EntityItem itemIn, double p_177077_2_, double p_177077_4_, double p_177077_6_, float p_177077_8_, IBakedModel p_177077_9_)
-    {
+    private int func_177077_a(EntityItem itemIn, double x, double y, double z, float yaw, IBakedModel model) {
         final ItemPhysics itemPhysics = MinusBounce.moduleManager.getModule(ItemPhysics.class);
         ItemStack itemstack = itemIn.getEntityItem();
         Item item = itemstack.getItem();
@@ -44,19 +43,19 @@ public abstract class MixinRenderEntityItem extends Render<EntityItem> {
         }
         else
         {
-            boolean flag = p_177077_9_.isGui3d();
+            boolean flag = model.isGui3d();
             int i = this.func_177078_a(itemstack);
             float f = 0.25F;
-            float f1 = MathHelper.sin(((float)itemIn.getAge() + p_177077_8_) / 10.0F + itemIn.hoverStart) * 0.1F + 0.1F;
+            float f1 = MathHelper.sin(((float)itemIn.getAge() + yaw) / 10.0F + itemIn.hoverStart) * 0.1F + 0.1F;
             if (itemPhysics.getState()) {
                 f1 = 0.0f;
             }
-            float f2 = p_177077_9_.getItemCameraTransforms().getTransform(ItemCameraTransforms.TransformType.GROUND).scale.y;
-            GlStateManager.translate((float)p_177077_2_, (float)p_177077_4_ + f1 + 0.25F * f2, (float)p_177077_6_);
+            float f2 = model.getItemCameraTransforms().getTransform(ItemCameraTransforms.TransformType.GROUND).scale.y;
+            GlStateManager.translate((float)x, (float)y + f1 + 0.25F * f2, (float)z);
 
             if (flag || this.renderManager.options != null)
             {
-                float f3 = (((float)itemIn.getAge() + p_177077_8_) / 20.0F + itemIn.hoverStart) * (180F / (float)Math.PI);
+                float f3 = (((float)itemIn.getAge() + yaw) / 20.0F + itemIn.hoverStart) * (180F / (float)Math.PI);
                 if (itemPhysics.getState()) {
                     if (itemIn.onGround) {
                         GL11.glRotatef(itemIn.rotationYaw, 0.0f, 1.0f, 0.0f);

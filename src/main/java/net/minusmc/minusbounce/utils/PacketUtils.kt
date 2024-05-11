@@ -5,10 +5,11 @@
  */
 package net.minusmc.minusbounce.utils
 
+import net.minecraft.network.NetworkManager
 import net.minecraft.network.Packet
 import net.minecraft.network.play.INetHandlerPlayServer
-import net.minecraft.network.play.server.S32PacketConfirmTransaction
-import net.minecraft.network.NetworkManager
+import net.minecraft.network.play.INetHandlerPlayClient
+import net.minecraft.network.play.server.*
 import net.minusmc.minusbounce.event.*
 import net.minusmc.minusbounce.utils.timer.MSTimer
 
@@ -40,15 +41,7 @@ object PacketUtils : MinecraftInstance(), Listenable {
 
     @JvmStatic
     fun sendPacketNoEvent(packet: Packet<*>) {
-        sendPacket(packet, false)
-    }
-
-    @JvmStatic
-    fun sendPacket(packet: Packet<*>, triggerEvent: Boolean) {
-        if (triggerEvent) {
-            mc.netHandler?.addToSendQueue(packet)
-            return
-        }
+        packetList.add(packet)
 
         val netManager = mc.netHandler?.networkManager ?: return
         if (netManager.isChannelOpen) {
@@ -62,6 +55,20 @@ object PacketUtils : MinecraftInstance(), Listenable {
                 netManager.readWriteLock.writeLock().unlock()
             }
         }
+    }
+
+    fun receivePacketNoEvent(packet: Packet<INetHandlerPlayServer>) {
+        val netManager = mc.netHandler?.networkManager ?: return
+
+        if (netManager.channel.isOpen()) {
+            try {
+                packet.processPacket(netManager.packetListener as INetHandlerPlayServer)
+            } catch (e: Exception) {}
+        }
+    }
+
+    fun handlePacketNoEvent(packet: Packet<*>) {
+        (packet as Packet<INetHandlerPlayClient>).processPacket(mc.netHandler)
     }
 
     @EventTarget

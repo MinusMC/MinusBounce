@@ -44,77 +44,50 @@ class Notifications(x: Double = 0.0, y: Double = 30.0, scale: Float = 1F, side: 
     /**
      * Example notification for CustomHUD designer
      */
-    private val exampleNotification = Notification("Tested", Notification.Type.INFO)
+    private val exampleNotification = Notification("Info", "This is a test", Notification.Type.INFO)
 
     /**
      * Draw element
      */
     override fun drawElement(): Border? {
-        var animationY = 30F
-        val notifications = mutableListOf<Notification>()
+        hud.notifications.map {it}.forEachIndexed {index, notify ->
+            GL11.glPushMatrix()
 
-        for (i in hud.notifications)
-            notifications.add(i)
-        
-        if (mc.currentScreen !is GuiHudDesigner || notifications.isNotEmpty()) {
-            var indexz = 0
-            for (i in notifications) {
-                i.drawNotification(animationY, this)
-                if (indexz < notifications.size - 1) indexz++
-                animationY += 30f
+            if (notify.drawNotification(25f + 40f * index)) {
+                hud.notifications.remove(notify)
             }
-        } else {
-            exampleNotification.drawNotification(animationY, this)
+
+            GL11.glPopMatrix()
         }
 
         if (mc.currentScreen is GuiHudDesigner) {
+            if (!hud.notifications.contains(exampleNotification))
+                hud.addNotification(exampleNotification)
 
             exampleNotification.fadeState = Notification.FadeState.STAY
-            exampleNotification.x = exampleNotification.textLength + 8F
+            exampleNotification.alpha = 255
+            exampleNotification.displayTime = System.currentTimeMillis()
 
-            if (exampleNotification.stayTimer.hasTimePassed(exampleNotification.displayTime)) 
-                exampleNotification.stayTimer.reset()
-
-            return Border(-130F, -58F, 0F, -30F)
-        }
+            return Border(0f, 0f, 50f, 25f)
+        } else if (hud.notifications.contains(exampleNotification))
+            hud.notifications.remove(exampleNotification)
 
         return null
     }
 }
-class Notification(val message: String, val type: Type, val displayTime: Long) {
-    constructor(message: String) : this(message, Type.INFO, 500L)
-    constructor(message: String, type: Type) : this(message, type, 2000L)
-    constructor(message: String, displayTime: Long) : this(message, Type.INFO, displayTime)
+class Notification(val title: String, val message: String, val type: Type, var displayTime: Long) {
+    constructor(title: String, message: String) : this(title, message, Type.INFO, 500L)
+    constructor(title: String, message: String, type: Type) : this(title, message, type, 2000L)
+    constructor(title: String, message: String, displayTime: Long) : this(title, message, Type.INFO, displayTime)
 
-    private val notifyDir = "minusbounce/notification/"
+    private val success_icon = ResourceLocation("minusbounce/notification/success.png")
+    private val error_icon = ResourceLocation("minusbounce/notification/error.png")
+    private val warning_icon = ResourceLocation("minusbounce/notification/warning.png")
+    private val info_icon = ResourceLocation("minusbounce/notification/info.png")
 
-    private val imgSuccess = ResourceLocation("${notifyDir}checkmark.png")
-    private val imgError = ResourceLocation("${notifyDir}error.png")
-    private val imgWarning = ResourceLocation("${notifyDir}warning.png")
-    private val imgInfo = ResourceLocation("${notifyDir}info.png")
-
-    var x = 0F
-    val height = 30
-    var nowY = -height
-    var textLength = 0
     var fadeState = FadeState.IN
     var stayTimer = MSTimer()
-    var notifHeight = 0F
-    var animeXTime = System.currentTimeMillis()
-    var animeYTime = System.currentTimeMillis()
-    var width = 0f
-    private var messageList: List<String>
-    private var stay = 0F
-    private var fadeStep = 0F
-    private var firstY = 0f
-
-    init {
-        this.messageList = Fonts.font40.listFormattedStringToWidth(message, 105)
-        this.notifHeight = messageList.size.toFloat() * (Fonts.font40.FONT_HEIGHT.toFloat() + 2F) + 8F
-        this.firstY = 19190F
-        this.stayTimer.reset()
-        this.textLength = Fonts.font40.getStringWidth(message)
-    }
+    var alpha = 0
 
     enum class Type {
         SUCCESS, INFO, WARNING, ERROR
@@ -124,113 +97,47 @@ class Notification(val message: String, val type: Type, val displayTime: Long) {
         IN, STAY, OUT, END
     }
 
-    fun drawNotification(animationY: Float, parent: Notifications) {
-        val delta = RenderUtils.deltaTime
+    fun drawNotification(animationY: Float): Boolean {
 
-        val blur = parent.blurValue.get()
-        val strength = parent.blurStrength.get()
-
-        val hAnimMode = parent.hAnimModeValue.get()
-        val vAnimMode = parent.vAnimModeValue.get()
-        val animSpeed = parent.animationSpeed.get()
-
-        val originalX = parent.renderX.toFloat()
-        val originalY = parent.renderY.toFloat()
-        width = textLength.toFloat() + 8.0f
-
-        val backgroundColor = Color(0, 0, 0, parent.bgAlphaValue.get())
-        val enumColor = when (type) {
-            Type.SUCCESS -> Color(80, 255, 80).rgb
-            Type.ERROR -> Color(255, 80, 80).rgb
-            Type.INFO -> Color(255, 255, 255).rgb
-            Type.WARNING -> Color(255, 255, 0).rgb
+        when (fadeState) {
+            FadeState.IN -> {
+                if (alpha >= 213) {
+                    fadeState = FadeState.STAY
+                    alpha = 255
+                    stayTimer.reset()
+                } else alpha += 32
+            }
+            FadeState.STAY -> if (stayTimer.hasTimePassed(displayTime)) {
+                fadeState = FadeState.OUT
+                stayTimer.reset()
+            }
+            FadeState.OUT -> {
+                alpha = 0
+                fadeState = FadeState.END
+            }
+            FadeState.END -> return true
         }
-
-        firstY = if (vAnimMode.equals("smooth", true)) {
-            if (firstY == 19190.0F)
-                animationY
-            else
-                AnimationUtils.animate(animationY, firstY, 0.02F * delta)
-        } else {
-            animationY
-        }
-
-        val y = firstY
-
-        val dist = (x + 1 + 26F) - (x - 8 - textLength)
-        val kek = -x - 1 - 26F
 
         GlStateManager.resetColor()
-
-        if (blur) {
-            GL11.glTranslatef(-originalX, -originalY, 0F)
-            GL11.glPushMatrix()
-            BlurUtils.blurArea(originalX + kek, originalY + -28F - y, originalX + -x + 8 + textLength, originalY + -y, strength)
-            GL11.glPopMatrix()
-            GL11.glTranslatef(originalX, originalY, 0F)
-        }
-
-        RenderUtils.drawRect(-x + 8 + textLength, -y, kek, -28F - y, backgroundColor.rgb)
-
+        RenderUtils.drawRoundedRect(-5f, -animationY, -140f, -animationY - 35f, 2f, Color(30, 30, 30, alpha / 2).rgb)
+        
         GL11.glPushMatrix()
         GlStateManager.disableAlpha()
-        RenderUtils.drawImage2(when (type) {
-            Type.SUCCESS -> imgSuccess
-            Type.ERROR -> imgError
-            Type.WARNING -> imgWarning
-            Type.INFO -> imgInfo
-        }, kek, -27F - y, 26, 26)
+        RenderUtils.drawImage2(
+            when (type) {
+                Type.SUCCESS -> success_icon
+                Type.ERROR -> error_icon
+                Type.WARNING -> warning_icon
+                Type.INFO -> info_icon
+            }, -138f, -animationY - 35f, 32, 32
+        )
         GlStateManager.enableAlpha()
         GL11.glPopMatrix()
 
         GlStateManager.resetColor()
-        if (fadeState == FadeState.STAY && !stayTimer.hasTimePassed(displayTime))
-            RenderUtils.drawRect(kek, -y, kek + (dist * if (stayTimer.hasTimePassed(displayTime)) 0F else ((displayTime - (System.currentTimeMillis() - stayTimer.time)).toFloat() / displayTime.toFloat())), -1F - y, enumColor)
-        else if (fadeState == FadeState.IN)
-            RenderUtils.drawRect(kek, -y, kek + dist, -1F - y, enumColor)
-
-        GlStateManager.resetColor()
-        Fonts.font40.drawString(message, -x + 2, -18F - y, -1)
-
-        when (fadeState) {
-            FadeState.IN -> {
-                if (x < width) {
-                    x = if (hAnimMode.equals("smooth", true))
-                        AnimationUtils.animate(width, x, animSpeed * 0.025F * delta)
-                    else
-                        AnimationUtils.easeOut(fadeStep, width) * width
-                    fadeStep += delta / 4F
-                }
-                if (x >= width) {
-                    fadeState = FadeState.STAY
-                    x = width
-                    fadeStep = width
-                }
-
-                stay = 60F
-                stayTimer.reset()
-            }
-
-            FadeState.STAY -> {
-                if (stay > 0) {
-                    stay = 0F
-                    stayTimer.reset()
-                }
-                if (stayTimer.hasTimePassed(displayTime))
-                    fadeState = FadeState.OUT
-            }
-
-            FadeState.OUT -> if (x > 0) {
-                x = if (hAnimMode.equals("smooth", true))
-                    AnimationUtils.animate(-width / 2F, x, animSpeed * 0.025F * delta)
-                else
-                    AnimationUtils.easeOut(fadeStep, width) * width
-
-                fadeStep -= delta / 4F
-            } else
-                fadeState = FadeState.END
-
-            FadeState.END -> hud.removeNotification(this)
-        }
+        Fonts.fontLexendBold40.drawString(title, -100f, -animationY - 30f, Color(255, 255, 255, alpha).rgb)
+        Fonts.fontLexend35.drawString(message, -100f, -animationY - 15f, Color(255, 255, 255, alpha).rgb)
+        
+        return false
     }
 }

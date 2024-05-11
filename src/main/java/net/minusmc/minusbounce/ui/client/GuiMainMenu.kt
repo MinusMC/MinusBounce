@@ -11,6 +11,7 @@ import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.util.ResourceLocation
 import net.minecraftforge.fml.client.GuiModList
 import net.minusmc.minusbounce.MinusBounce
+import net.minusmc.minusbounce.plugin.PluginGuiManager
 import net.minusmc.minusbounce.ui.client.altmanager.GuiAltManager
 import net.minusmc.minusbounce.ui.font.Fonts
 import net.minusmc.minusbounce.utils.render.RenderUtils
@@ -33,7 +34,7 @@ class GuiMainMenu : GuiScreen(), GuiYesNoCallback {
 
 
         var id = 201
-        MinusBounce.mainMenuButton.forEach {
+        PluginGuiManager.mainMenuButton.forEach {
             val width = width / 2 + when (id % 2) {
                 0 -> 32
                 else -> -148

@@ -1,7 +1,7 @@
 package net.minusmc.minusbounce.features.module.modules.movement.longjumps.aac
 
 import net.minusmc.minusbounce.features.module.modules.movement.longjumps.LongJumpMode
-import net.minusmc.minusbounce.utils.MovementUtils
+import net.minusmc.minusbounce.utils.player.MovementUtils
 
 class AACv2LongJump : LongJumpMode("AACv2") {
 	override fun onUpdate() {

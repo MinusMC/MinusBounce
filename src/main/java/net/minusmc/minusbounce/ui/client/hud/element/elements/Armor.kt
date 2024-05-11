@@ -28,31 +28,33 @@ class Armor(x: Double = -8.0, y: Double = 57.0, scale: Float = 1F, side: Side = 
      * Draw element
      */
     override fun drawElement(): Border {
-        val renderItem = mc.renderItem
-        val isInsideWater = mc.thePlayer.isInsideOfMaterial(Material.water)
+        if (!mc.thePlayer.capabilities.isCreativeMode) {
+            val renderItem = mc.renderItem
+            val isInsideWater = mc.thePlayer.isInsideOfMaterial(Material.water)
 
-        var x = 1
-        var y = if (isInsideWater) -10 else 0
+            var x = 1
+            var y = if (isInsideWater) -10 else 0
 
-        RenderHelper.enableGUIStandardItemLighting()
-        
-        for (index in 3 downTo 0) {
-            val stack = mc.thePlayer.inventory.armorInventory[index]
-            if (stack != null) {
-                renderItem.renderItemIntoGUI(stack!!, x, y)
-                renderItem.renderItemOverlays(mc.fontRendererObj, stack!!, x, y)
+            RenderHelper.enableGUIStandardItemLighting()
+            
+            for (index in 3 downTo 0) {
+                val stack = mc.thePlayer.inventory.armorInventory[index]
+                if (stack != null) {
+                    renderItem.renderItemIntoGUI(stack, x, y)
+                    renderItem.renderItemOverlays(mc.fontRendererObj, stack, x, y)
+                }
+                when (alignment.get().lowercase()) {
+                    "horizontal" -> x += 21
+                    "vertical" -> y += 21
+                }
             }
-            when (alignment.get().lowercase()) {
-                "horizontal" -> x += 18
-                "vertical" -> y += 18
-            }
+            
+            RenderHelper.disableStandardItemLighting()
+            GlStateManager.enableAlpha()
+            GlStateManager.disableBlend()
+            GlStateManager.disableLighting()
+            GlStateManager.disableCull()
         }
-        
-        RenderHelper.disableStandardItemLighting()
-        GlStateManager.enableAlpha()
-        GlStateManager.disableBlend()
-        GlStateManager.disableLighting()
-        GlStateManager.disableCull()
 
         return when (alignment.get().lowercase()) {
             "horizontal" -> Border(0F, 0F, 72F, 17F)

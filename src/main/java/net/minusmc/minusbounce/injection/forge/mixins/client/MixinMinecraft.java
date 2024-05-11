@@ -7,7 +7,6 @@ package net.minusmc.minusbounce.injection.forge.mixins.client;
 
 import net.minusmc.minusbounce.MinusBounce;
 import net.minusmc.minusbounce.event.*;
-import net.minusmc.minusbounce.utils.*;
 import net.minusmc.minusbounce.features.module.modules.combat.AutoClicker;
 import net.minusmc.minusbounce.features.module.modules.combat.TickBase;
 import net.minusmc.minusbounce.features.module.modules.exploit.MultiActions;
@@ -16,6 +15,7 @@ import net.minusmc.minusbounce.features.module.modules.world.FastPlace;
 import net.minusmc.minusbounce.injection.forge.mixins.accessors.MinecraftForgeClientAccessor;
 import net.minusmc.minusbounce.ui.client.GuiMainMenu;
 import net.minusmc.minusbounce.utils.CPSCounter;
+import net.minusmc.minusbounce.utils.player.RotationUtils;
 import net.minusmc.minusbounce.utils.render.IconUtils;
 import net.minusmc.minusbounce.utils.render.RenderUtils;
 import net.minecraft.block.material.Material;
@@ -26,7 +26,6 @@ import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.*;
 import net.minecraft.client.gui.achievement.GuiAchievement;
 import net.minecraft.client.gui.inventory.GuiInventory;
-import net.minecraft.client.main.GameConfiguration;
 import net.minecraft.client.multiplayer.PlayerControllerMP;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.network.NetHandlerPlayClient;
@@ -49,18 +48,14 @@ import net.minecraft.entity.*;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.client.C16PacketClientStatus;
-import net.minecraft.profiler.IPlayerUsage;
 import net.minecraft.profiler.PlayerUsageSnooper;
 import net.minecraft.profiler.Profiler;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.integrated.IntegratedServer;
 import net.minecraft.util.*;
 import net.minecraft.world.EnumDifficulty;
-import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.client.MinecraftForgeClient;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import org.apache.commons.lang3.SystemUtils;
-import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.Sys;
 import org.lwjgl.input.Keyboard;
@@ -134,29 +129,20 @@ public abstract class MixinMinecraft {
     private boolean isGamePaused;
 
     @Shadow
-    public final Timer timer = new Timer(20.0F);
-
-    @Shadow
-    private void rightClickMouse() {
-
-    }
-
-    @Shadow
-    private void clickMouse() {
-
-    }
-
-    @Shadow
-    private void middleClickMouse() {
-
-    }
-
-    @Shadow
     @Final
-    public FrameTimer field_181542_y;
+    public Timer timer;
 
     @Shadow
-    public long field_181543_z;
+    private void rightClickMouse() {}
+
+    @Shadow
+    private void clickMouse() {}
+
+    @Shadow
+    private void middleClickMouse() {}
+
+    @Shadow
+    public long startNanoTime;
 
     @Shadow
     public boolean inGameHasFocus;
@@ -165,7 +151,7 @@ public abstract class MixinMinecraft {
     public abstract IResourceManager getResourceManager();
 
     @Shadow
-    private PlayerUsageSnooper usageSnooper = new PlayerUsageSnooper("client", (IPlayerUsage) this, MinecraftServer.getCurrentTimeMillis());
+    private PlayerUsageSnooper usageSnooper;
 
     @Shadow
     private Queue<FutureTask<?>> scheduledTasks;
@@ -177,29 +163,29 @@ public abstract class MixinMinecraft {
     public GuiAchievement guiAchievement;
 
     @Shadow
-    int fpsCounter;
+    public int fpsCounter;
+
     @Shadow
-    long prevFrameTime = -1L;
+    public long prevFrameTime;
 
     @Shadow
     private Framebuffer framebufferMc;
 
     @Shadow
-    long startNanoTime = System.nanoTime();
-
-    @Shadow
     public abstract void checkGLError(String message);
 
     @Shadow
-    long debugUpdateTime = getSystemTime();
+    public long debugUpdateTime;
 
     @Shadow
     private IStream stream;
-    @Shadow
-    public final FrameTimer frameTimer = new FrameTimer();
 
     @Shadow
-    public String debug = "";
+    @Final
+    public FrameTimer frameTimer;
+
+    @Shadow
+    public String debug;
 
     @Shadow
     private IntegratedServer theIntegratedServer;
@@ -217,13 +203,14 @@ public abstract class MixinMinecraft {
     public abstract boolean isSingleplayer();
 
     @Shadow
-    private static final Logger logger = LogManager.getLogger();
+    @Final
+    private static Logger logger;
 
     @Shadow
     private void displayDebugInfo(long elapsedTicksTime) {}
 
     @Shadow
-    private long debugCrashKeyPressTime = -1L;
+    private long debugCrashKeyPressTime;
 
     @Shadow
     public GuiIngame ingameGUI;
@@ -250,17 +237,20 @@ public abstract class MixinMinecraft {
     private NetworkManager myNetworkManager;
 
     @Shadow
-    long systemTime = getSystemTime();
+    public long systemTime;
 
     @Shadow
     public abstract Entity getRenderViewEntity();
 
     @Shadow
     private SoundHandler mcSoundHandler;
+
     @Shadow
     private MusicTicker mcMusicTicker;
+
     @Shadow
     public abstract NetHandlerPlayClient getNetHandler();
+
     @Shadow
     public abstract void setIngameFocus();
 
@@ -317,8 +307,7 @@ public abstract class MixinMinecraft {
         at = @At(value = "FIELD", target = "Lnet/minecraft/client/Minecraft;theWorld:Lnet/minecraft/client/multiplayer/WorldClient;", opcode = Opcodes.PUTFIELD, shift = At.Shift.AFTER)
     )
     private void clearRenderCache(CallbackInfo ci) {
-        //noinspection ResultOfMethodCallIgnored
-        MinecraftForgeClient.getRenderPass(); // Ensure class is loaded, strange accessor issue
+        MinecraftForgeClient.getRenderPass();
         MinecraftForgeClientAccessor.getRegionCache().invalidateAll();
         MinecraftForgeClientAccessor.getRegionCache().cleanUp();
     }
@@ -479,8 +468,8 @@ public abstract class MixinMinecraft {
         ++this.fpsCounter;
         this.isGamePaused = this.isSingleplayer() && this.currentScreen != null && this.currentScreen.doesGuiPauseGame() && !this.theIntegratedServer.getPublic();
         long k = System.nanoTime();
-        this.field_181542_y.addFrame(k - this.field_181543_z);
-        this.field_181543_z = k;
+        this.frameTimer.addFrame(k - this.startNanoTime);
+        this.startNanoTime = k;
 
         while (Minecraft.getSystemTime() >= this.debugUpdateTime + 1000L)
         {
@@ -1052,13 +1041,6 @@ public abstract class MixinMinecraft {
         this.systemTime = getSystemTime();
     }
 
-    @Inject(method = "sendClickBlockToController", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/MovingObjectPosition;getBlockPos()Lnet/minecraft/util/BlockPos;"))
-    private void onClickBlock(CallbackInfo callbackInfo) {
-        if(this.leftClickCounter == 0 && theWorld.getBlockState(objectMouseOver.getBlockPos()).getBlock().getMaterial() != Material.air) {
-            MinusBounce.eventManager.callEvent(new ClickBlockEvent(objectMouseOver.getBlockPos(), this.objectMouseOver.sideHit));
-        }
-    }
-
     @Inject(method = "setWindowIcon", at = @At("HEAD"), cancellable = true)
     private void setWindowIcon(CallbackInfo callbackInfo) {
         if(Util.getOSType() != Util.EnumOS.OSX) {
@@ -1116,11 +1098,16 @@ public abstract class MixinMinecraft {
         return (char) (Keyboard.getEventCharacter() + 256);
     }
 
+    @Redirect(method = "dispatchKeypresses", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/stream/GuiStreamUnavailable;func_152321_a(Lnet/minecraft/client/gui/GuiScreen;)V", remap = false))
+    private void noGuiStream1(GuiScreen screen) {
+        // no-op
+    }
+
     /**
      * @author CCBlueX
      */
     @Overwrite
-    private void sendClickBlockToController(boolean leftClick) {
+    public void sendClickBlockToController(boolean leftClick) {
         if(!leftClick)
             this.leftClickCounter = 0;
 

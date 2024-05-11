@@ -17,7 +17,7 @@ import net.minusmc.minusbounce.event.WorldEvent
 import net.minusmc.minusbounce.features.module.Module
 import net.minusmc.minusbounce.features.module.ModuleCategory
 import net.minusmc.minusbounce.features.module.ModuleInfo
-import net.minusmc.minusbounce.utils.MovementUtils
+import net.minusmc.minusbounce.utils.player.MovementUtils
 import net.minusmc.minusbounce.utils.PosLookInstance
 import net.minusmc.minusbounce.value.BoolValue
 import net.minusmc.minusbounce.value.FloatValue
@@ -76,6 +76,7 @@ class FreeCam : Module() {
     fun onUpdate(event: UpdateEvent) {
         if (noClipValue.get())
             mc.thePlayer.noClip = true
+            
         mc.thePlayer.fallDistance = 0F
 
         if (flyValue.get()) {
@@ -120,10 +121,13 @@ class FreeCam : Module() {
                     mc.netHandler.addToSendQueue(C03PacketPlayer(lastOnGround))
                 }
             }
-        } else if (packet is C03PacketPlayer)
+        }
+        if (packet is C03PacketPlayer)
             event.cancelEvent()
+
         if (packet is C0BPacketEntityAction)
             event.cancelEvent()
+
         if (packet is S08PacketPlayerPosLook) {
             event.cancelEvent()
             posLook.set(packet)

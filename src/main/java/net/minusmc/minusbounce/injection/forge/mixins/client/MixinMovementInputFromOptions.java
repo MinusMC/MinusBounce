@@ -13,11 +13,15 @@ import org.spongepowered.asm.mixin.*;
 import net.minusmc.minusbounce.injection.forge.mixins.client.MixinMovementInput;
 
 @Mixin(MovementInputFromOptions.class)
-public class MixinMovementInputFromOptions extends MixinMovementInput{
+public class MixinMovementInputFromOptions extends MixinMovementInput {
     @Shadow
     @Final
     private GameSettings gameSettings;
 
+    /**
+     * @author
+     * @reason
+     */
     @Overwrite
     public void updatePlayerMoveState() {
         this.moveStrafe = 0.0F;
@@ -43,7 +47,6 @@ public class MixinMovementInputFromOptions extends MixinMovementInput{
         this.sneak = this.gameSettings.keyBindSneak.isKeyDown();
 
         final MoveInputEvent moveInputEvent = new MoveInputEvent(this.moveForward, this.moveStrafe, this.jump, this.sneak, 0.3D);
-
         MinusBounce.eventManager.callEvent(moveInputEvent);
 
         final double sneakMultiplier = moveInputEvent.getSneakMultiplier();

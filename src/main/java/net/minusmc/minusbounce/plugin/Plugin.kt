@@ -8,7 +8,7 @@ open class Plugin(
 	val version: String,
 	val description: String = "No description",
 	val authors: Array<String> = arrayOf("No authors"),
-	private val minApiVersion: PluginAPIVersion,
+	val minApiVersion: PluginAPIVersion,
 	val image: String = "",
 ): Listenable {
 

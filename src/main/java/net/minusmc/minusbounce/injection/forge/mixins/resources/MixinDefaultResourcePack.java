@@ -20,7 +20,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class MixinDefaultResourcePack {
 
     @Shadow
-    public static final Set<String> defaultResourceDomains = ImmutableSet
-			.<String> of("minecraft", "realms");
+    public static final Set<String> defaultResourceDomains = ImmutableSet.<String> of("minecraft", "realms");
             
 }

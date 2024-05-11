@@ -5,6 +5,8 @@ import net.minusmc.minusbounce.event.Listenable
 import net.minusmc.minusbounce.utils.ClassUtils
 import net.minusmc.minusbounce.utils.ClientUtils
 
+
+// TODO: Update API 0.3 and specific Core Plugin file
 class PluginManager: Listenable {
 	val plugins = mutableListOf<Plugin>()
 

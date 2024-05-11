@@ -5,7 +5,6 @@
  */
 package net.minusmc.minusbounce.injection.forge.mixins.gui;
 
-import net.minusmc.minusbounce.ui.client.GuiKeybindHelper;
 import net.minusmc.minusbounce.utils.ServerUtils;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiIngameMenu;
@@ -21,8 +20,6 @@ public abstract class MixinGuiIngameMenu extends MixinGuiScreen {
     private void initGui(CallbackInfo callbackInfo) {
         if(!this.mc.isIntegratedServerRunning())
             this.buttonList.add(new GuiButton(1337, this.width / 2 - 100, this.height / 4 + 128, "Reconnect"));
-
-        this.buttonList.add(new GuiButton(727, this.width / 2 - 100, this.height - 30, "Keybind Helper"));
     }
 
     @Inject(method = "actionPerformed", at = @At("HEAD"))
@@ -31,7 +28,5 @@ public abstract class MixinGuiIngameMenu extends MixinGuiScreen {
             mc.theWorld.sendQuittingDisconnectingPacket();
             ServerUtils.INSTANCE.connectToLastServer();
         }
-        if (button.id == 727)
-            mc.displayGuiScreen(new GuiKeybindHelper((GuiIngameMenu) (Object) this));
     }
 }

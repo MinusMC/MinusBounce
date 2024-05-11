@@ -9,5 +9,5 @@ import net.minusmc.minusbounce.features.module.Module
 import net.minusmc.minusbounce.features.module.ModuleCategory
 import net.minusmc.minusbounce.features.module.ModuleInfo
 
-@ModuleInfo(name = "AntiDesync", spacedName = "Anti Desync", description = "Fix Minecraft's bug with active movement.", category = ModuleCategory.MISC)
+@ModuleInfo(name = "AntiDesync", spacedName = "Anti Desync", description = "Fix Minecraft's bug with active player.", category = ModuleCategory.MISC)
 class AntiDesync : Module()

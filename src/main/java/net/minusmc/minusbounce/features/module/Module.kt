@@ -76,7 +76,7 @@ open class Module : MinecraftInstance(), Listenable {
                     2 -> (if (value) MinusBounce.tipSoundManager.enableSound else MinusBounce.tipSoundManager.disableSound).asyncPlay(MinusBounce.moduleManager.toggleVolume)
                 }
                 if (MinusBounce.moduleManager.shouldNotify)
-                    MinusBounce.hud.addNotification(Notification("${if (value) "Enabled" else "Disabled"} §r$name", if (value) Notification.Type.SUCCESS else Notification.Type.ERROR, 1000L))
+                    MinusBounce.hud.addNotification(Notification("${if (value) "Enabled" else "Disabled"}", "$name", if (value) Notification.Type.SUCCESS else Notification.Type.ERROR, 1000L))
             }
 
             // Call on enabled or disabled

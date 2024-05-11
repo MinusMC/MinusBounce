@@ -51,6 +51,9 @@ object EntityUtils : MinecraftInstance() {
             if (!targetsModule.players.get() && entity is EntityPlayer)
                 return false
 
+            if (isFriend(entity))
+                return false
+
             if (!canAttackCheck)
                 return false
 
@@ -70,14 +73,6 @@ object EntityUtils : MinecraftInstance() {
         }
 
         return entity is EntityLivingBase && entity != mc.thePlayer
-    }
-
-    fun closestPerson(): EntityLivingBase? {
-        val targets = mc.theWorld.loadedEntityList.filter {
-            it is EntityLivingBase && it != mc.thePlayer && isSelected(it, true) && mc.thePlayer.canEntityBeSeen(it)
-        }
-        val entity = targets.minByOrNull { mc.thePlayer.getDistanceToEntity(it) }
-        return entity as EntityLivingBase?
     }
 
     fun isAnimal(entity: Entity?): Boolean {
@@ -105,13 +100,13 @@ object EntityUtils : MinecraftInstance() {
         return networkPlayerInfo?.responseTime ?: 0
     }
 
-    fun isRendered(entityToCheck: Entity?): Boolean {
-        return mc.theWorld != null && mc.theWorld.getLoadedEntityList().contains(entityToCheck)
-    }
-
     fun isFriend(entity: EntityLivingBase?): Boolean {
         if (entity !is EntityPlayer) return false
         val name = ColorUtils.stripColor(entity.name ?: return false) ?: return false
         return MinusBounce.fileManager.friendsConfig.isFriend(name)
+    }
+
+    fun isRendered(entityToCheck: Entity?): Boolean {
+        return mc.theWorld != null && mc.theWorld.getLoadedEntityList().contains(entityToCheck)
     }
 }

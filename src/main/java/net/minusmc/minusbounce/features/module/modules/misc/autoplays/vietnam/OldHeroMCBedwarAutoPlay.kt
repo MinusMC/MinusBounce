@@ -39,7 +39,7 @@ class OldHeroMCAutoPlay: AutoPlayMode("OldHeroMC") {
                 waitForLobby = false
             }
             if (showGuiWhenFailedValue.get() && text.contains("giây", false) && text.contains("thất bại", false)) {
-                MinusBounce.hud.addNotification(Notification("Failed to join, showing GUI...", Notification.Type.ERROR, 1000L))
+                MinusBounce.hud.addNotification(Notification("AutoPlay", "Failed to join, showing GUI...", Notification.Type.ERROR, 1000L))
                 mc.thePlayer.sendChatMessage("/bw gui ${bwModeValue.get()}")
             }
         }

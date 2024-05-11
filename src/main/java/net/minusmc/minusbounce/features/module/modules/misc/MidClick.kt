@@ -24,7 +24,7 @@ class MidClick : Module() {
     fun onRender2D(event: Render2DEvent) {
         if (mc.currentScreen != null) return
 
-        if (wasDown && Mouse.isButtonDown(2)) {
+        if (!wasDown && Mouse.isButtonDown(2)) {
             println("Clicked middle mouse button.")
             val entity = mc.objectMouseOver.entityHit
             if (entity != null && entity is EntityPlayer) {
@@ -43,5 +43,7 @@ class MidClick : Module() {
             } else
                 ClientUtils.displayChatMessage("§c§lError: §aYou need to select a player.")
         }
+
+        wasDown = Mouse.isButtonDown(2)
     }
 }

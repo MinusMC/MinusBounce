@@ -2,7 +2,7 @@ package net.minusmc.minusbounce.features.module.modules.movement.speeds.aac
 
 import net.minusmc.minusbounce.features.module.modules.movement.speeds.SpeedMode
 import net.minusmc.minusbounce.features.module.modules.movement.speeds.SpeedType
-import net.minusmc.minusbounce.utils.MovementUtils.isMoving
+import net.minusmc.minusbounce.utils.player.MovementUtils.isMoving
 
 class AAC4HopSpeed: SpeedMode("AAC4Hop", SpeedType.AAC) {
     override fun onDisable() {

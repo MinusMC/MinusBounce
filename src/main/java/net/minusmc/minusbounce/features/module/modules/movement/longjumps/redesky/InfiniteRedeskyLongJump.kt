@@ -1,7 +1,7 @@
 package net.minusmc.minusbounce.features.module.modules.movement.longjumps.redesky
 
 import net.minusmc.minusbounce.features.module.modules.movement.longjumps.LongJumpMode
-import net.minusmc.minusbounce.utils.MovementUtils
+import net.minusmc.minusbounce.utils.player.MovementUtils
 import kotlin.math.min
 import kotlin.math.max
 

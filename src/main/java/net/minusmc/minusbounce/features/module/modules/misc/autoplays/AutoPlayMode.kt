@@ -30,7 +30,7 @@ abstract class AutoPlayMode(val modeName: String): MinecraftInstance() {
                 queued = false
                 runnable.invoke()
             }
-            MinusBounce.hud.addNotification(Notification("Sending you to a new game in ${delay}s!", Notification.Type.INFO, delay))
+            MinusBounce.hud.addNotification(Notification("AutoPlay", "Sending you to a new game in ${delay}s!", Notification.Type.INFO, delay))
         }
     }
 

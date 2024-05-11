@@ -2,7 +2,7 @@ package net.minusmc.minusbounce.features.module.modules.movement.speeds.intave
 
 import net.minusmc.minusbounce.features.module.modules.movement.speeds.SpeedType
 import net.minusmc.minusbounce.features.module.modules.movement.speeds.SpeedMode
-import net.minusmc.minusbounce.utils.MovementUtils
+import net.minusmc.minusbounce.utils.player.MovementUtils
 import net.minecraft.client.settings.GameSettings
 
 class IntaveSpeed: SpeedMode("Intave", SpeedType.OTHER) {

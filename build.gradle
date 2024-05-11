@@ -102,14 +102,14 @@ classes.dependsOn(moveResources)
 
 jar {
     manifest.attributes(
-            "FMLCorePlugin": "net.minusmc.minusbounce.injection.forge.TransformerLoader",
-            "FMLCorePluginContainsFMLMod": true,
-            "ForceLoadAsMod": true,
-            "MixinConfigs": "minusbounce.forge.mixins.json",
-            "ModSide": "CLIENT",
-            "TweakClass": "org.spongepowered.asm.launch.MixinTweaker",
-            "TweakOrder": "0",
-            "FMLAT": "minusbounce_at.cfg",
+        "FMLCorePlugin": "net.minusmc.minusbounce.injection.forge.TransformerLoader",
+        "FMLCorePluginContainsFMLMod": true,
+        "ForceLoadAsMod": true,
+        "MixinConfigs": "minusbounce.forge.mixins.json",
+        "ModSide": "CLIENT",
+        "TweakClass": "org.spongepowered.asm.launch.MixinTweaker",
+        "TweakOrder": "0",
+        "FMLAT": "minusbounce_at.cfg",
     )
 
     enabled = true

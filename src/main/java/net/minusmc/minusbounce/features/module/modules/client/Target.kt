@@ -6,12 +6,10 @@ import net.minusmc.minusbounce.features.module.ModuleInfo
 import net.minusmc.minusbounce.value.BoolValue
 
 @ModuleInfo(name = "Target", description = "Select target to KillAura", category = ModuleCategory.CLIENT, canEnable = false)
-class Target: Module(){
+class Target: Module() {
     val players = BoolValue("Players", true)
     val mobs = BoolValue("Mobs", true)
     val animals = BoolValue("Animals", true)
     val invisible = BoolValue("Invisible", true)
     val dead = BoolValue("Dead", true)
-
-    override fun handleEvents(): Boolean = true
 }

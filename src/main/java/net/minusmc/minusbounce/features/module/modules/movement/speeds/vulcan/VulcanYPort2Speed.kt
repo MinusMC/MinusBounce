@@ -2,7 +2,7 @@ package net.minusmc.minusbounce.features.module.modules.movement.speeds.vulcan
 
 import net.minusmc.minusbounce.features.module.modules.movement.speeds.SpeedMode
 import net.minusmc.minusbounce.features.module.modules.movement.speeds.SpeedType
-import net.minusmc.minusbounce.utils.MovementUtils
+import net.minusmc.minusbounce.utils.player.MovementUtils
 
 class VulcanYPort2Speed: SpeedMode("VulcanYPort2", SpeedType.VULCAN) {
 	

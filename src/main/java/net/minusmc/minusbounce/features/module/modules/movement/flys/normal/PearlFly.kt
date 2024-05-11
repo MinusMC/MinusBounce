@@ -11,7 +11,7 @@ import net.minusmc.minusbounce.event.PacketEvent
 import net.minusmc.minusbounce.features.module.modules.movement.flys.FlyMode
 import net.minusmc.minusbounce.features.module.modules.movement.flys.FlyType
 import net.minusmc.minusbounce.ui.client.hud.element.elements.Notification
-import net.minusmc.minusbounce.utils.MovementUtils
+import net.minusmc.minusbounce.utils.player.MovementUtils
 import net.minusmc.minusbounce.utils.PlayerUtils
 import net.minusmc.minusbounce.value.FloatValue
 import net.minusmc.minusbounce.value.ListValue
@@ -43,7 +43,7 @@ class PearlFly: FlyMode("Pearl", FlyType.NORMAL) {
         val enderPearlSlot = PlayerUtils.getPearlSlot()
         if (pearlState == 0) {
             if (enderPearlSlot == -1) {
-                MinusBounce.hud.addNotification(Notification("You don't have any ender pearl!", Notification.Type.ERROR))
+                MinusBounce.hud.addNotification(Notification("Fly", "You don't have any ender pearl!", Notification.Type.ERROR))
                 pearlState = -1
                 fly.state = false
                 return

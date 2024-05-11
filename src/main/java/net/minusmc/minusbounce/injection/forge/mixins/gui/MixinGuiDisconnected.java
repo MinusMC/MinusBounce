@@ -59,7 +59,7 @@ public abstract class MixinGuiDisconnected extends MixinGuiScreen {
     @Inject(method = "initGui", at = @At("RETURN"))
     private void initGui(CallbackInfo callbackInfo) {
         reconnectTimer = 0;
-        SessionUtils.Companion.handleConnection();
+        SessionUtils.INSTANCE.handleConnection();
 
         buttonList.add(reconnectButton = new GuiButton(1, this.width / 2 - 100, this.height / 2 + field_175353_i / 2 + this.fontRendererObj.FONT_HEIGHT + 22, 98, 20, "Reconnect"));
 
@@ -156,7 +156,7 @@ public abstract class MixinGuiDisconnected extends MixinGuiScreen {
             this.updateReconnectButton();
         }
         Fonts.INSTANCE.getFontSFUI40().drawCenteredString("Username: §7"+ this.mc.session.getUsername() +"§r, Server: §7"+ ServerUtils.INSTANCE.getServerData().serverIP, this.width / 2F, this.height / 2F + field_175353_i / 2F + this.fontRendererObj.FONT_HEIGHT + 96, -1, true);
-        Fonts.INSTANCE.getFontSFUI40().drawCenteredString("Play time: §7" + SessionUtils.Companion.getFormatLastSessionTime(), this.width / 2F, this.height / 2F + field_175353_i / 2F + this.fontRendererObj.FONT_HEIGHT * 2F + 98, -1, true);
+        Fonts.INSTANCE.getFontSFUI40().drawCenteredString("Play time: §7" + SessionUtils.INSTANCE.getFormatLastSessionTime(), this.width / 2F, this.height / 2F + field_175353_i / 2F + this.fontRendererObj.FONT_HEIGHT * 2F + 98, -1, true);
     }
 
     private void drawReconnectDelaySlider() {

@@ -12,7 +12,6 @@ import net.minusmc.minusbounce.features.module.Module
 import net.minusmc.minusbounce.features.module.ModuleCategory
 import net.minusmc.minusbounce.features.module.ModuleInfo
 import net.minusmc.minusbounce.utils.misc.RandomUtils
-import net.minusmc.minusbounce.utils.timer.TimeUtils
 import net.minusmc.minusbounce.value.BoolValue
 import net.minusmc.minusbounce.value.IntegerValue
 import net.minecraft.client.settings.KeyBinding
@@ -44,9 +43,9 @@ class AutoClicker : Module() {
     private val leftValue = BoolValue("Left", true)
     private val jitterValue = BoolValue("Jitter", false)
 
-    private var rightDelay = TimeUtils.randomClickDelay(minCPSValue.get(), maxCPSValue.get())
+    private var rightDelay = RandomUtils.randomClickDelay(minCPSValue.get(), maxCPSValue.get())
     private var rightLastSwing = 0L
-    private var leftDelay = TimeUtils.randomClickDelay(minCPSValue.get(), maxCPSValue.get())
+    private var leftDelay = RandomUtils.randomClickDelay(minCPSValue.get(), maxCPSValue.get())
     private var leftLastSwing = 0L
 
     @EventTarget
@@ -57,7 +56,7 @@ class AutoClicker : Module() {
             KeyBinding.onTick(mc.gameSettings.keyBindAttack.keyCode) // Minecraft Click Handling
 
             leftLastSwing = System.currentTimeMillis()
-            leftDelay = TimeUtils.randomClickDelay(minCPSValue.get(), maxCPSValue.get())
+            leftDelay = RandomUtils.randomClickDelay(minCPSValue.get(), maxCPSValue.get())
         }
 
         // Right click
@@ -66,7 +65,7 @@ class AutoClicker : Module() {
             KeyBinding.onTick(mc.gameSettings.keyBindUseItem.keyCode) // Minecraft Click Handling
 
             rightLastSwing = System.currentTimeMillis()
-            rightDelay = TimeUtils.randomClickDelay(minCPSValue.get(), maxCPSValue.get())
+            rightDelay = RandomUtils.randomClickDelay(minCPSValue.get(), maxCPSValue.get())
         }
     }
 

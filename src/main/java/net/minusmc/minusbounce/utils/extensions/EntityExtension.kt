@@ -1,17 +1,15 @@
 package net.minusmc.minusbounce.utils.extensions
 
-import net.minusmc.minusbounce.utils.MinecraftInstance
 import net.minecraft.client.Minecraft
 import net.minecraft.client.resources.DefaultPlayerSkin
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.util.MathHelper
 import net.minecraft.util.MovingObjectPosition
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.Vec3
 import net.minusmc.minusbounce.utils.Rotation
-import net.minusmc.minusbounce.utils.RotationUtils
+import net.minusmc.minusbounce.utils.player.RotationUtils
 
 fun EntityPlayer.getEyeVec3(): Vec3 {
     return Vec3(this.posX, this.entityBoundingBox.minY + this.getEyeHeight(), this.posZ)
@@ -32,13 +30,6 @@ val EntityLivingBase.skin: ResourceLocation // TODO: add special skin for mobs
 val Entity.eyes: Vec3
     get() = getPositionEyes(1f)
 
-fun Entity.getVectorForRotation(pitch: Float, yaw: Float): Vec3 {
-    val f = MathHelper.cos(-yaw * 0.017453292f - 3.1415927f)
-    val f2 = MathHelper.sin(-yaw * 0.017453292f - 3.1415927f)
-    val f3 = -MathHelper.cos(-pitch * 0.017453292f)
-    val f4 = MathHelper.sin(-pitch * 0.017453292f)
-    return Vec3((f2 * f3).toDouble(), f4.toDouble(), (f * f3).toDouble())
-}
 fun Entity.rayTraceCustom(blockReachDistance: Double, yaw: Float, pitch: Float): MovingObjectPosition? {
     val mc = Minecraft.getMinecraft()
     val vec3 = mc.thePlayer.getPositionEyes(1.0f)
@@ -63,7 +54,7 @@ fun Entity.rayTraceWithCustomRotation(blockReachDistance: Double, rotation: Rota
 }
 
 fun Entity.rayTraceWithServerSideRotation(blockReachDistance: Double): MovingObjectPosition? {
-    return this.rayTraceWithCustomRotation(blockReachDistance, RotationUtils.serverRotation!!)
+    return this.rayTraceWithCustomRotation(blockReachDistance, RotationUtils.serverRotation)
 }
 
 fun Entity.getLookCustom(yaw: Float, pitch: Float): Vec3 {

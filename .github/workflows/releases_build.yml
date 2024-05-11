@@ -31,17 +31,9 @@ jobs:
           arguments: build --no-build-cache
           gradle-version: wrapper
       - name: Upload releases
-        run: |
-          echo "commit=$(git rev-parse --short "$GITHUB_SHA")" >> $GITHUB_ENV
-          cd build/libs
-          zip minusbounce.zip *
-          curl --connect-timeout 30 -m 300 -X POST -H "Authorization: Bearer ${{ secrets.SERVER_TOKEN }}" -H "User-Agent: Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36" -F "commit=${{ env.VERSION }}" -F "version=${{ env.VERSION }}" -F "artifact=@minusbounce.zip;type=application/zip" https://apiuploadartifact.minusbounce.lol/releases
-
-#      - name: Publish package
-#        uses: gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1
-#        with:
-#          arguments: publish
-#        env:
-#          REPO_USERNAME: ${{ secrets.REPO_USERNAME }}
-#          REPO_TOKEN: ${{ secrets.REPO_TOKEN }}
-#        if: ${{startsWith(github.repository, 'MinusMCNetwork')}}
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            build/libs/minusbounce-${{ env.VERSION }}.jar
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

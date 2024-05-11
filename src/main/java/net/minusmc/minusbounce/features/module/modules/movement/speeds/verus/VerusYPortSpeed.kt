@@ -3,7 +3,7 @@ package net.minusmc.minusbounce.features.module.modules.movement.speeds.verus
 import net.minusmc.minusbounce.event.MoveEvent
 import net.minusmc.minusbounce.features.module.modules.movement.speeds.SpeedMode
 import net.minusmc.minusbounce.features.module.modules.movement.speeds.SpeedType
-import net.minusmc.minusbounce.utils.MovementUtils
+import net.minusmc.minusbounce.utils.player.MovementUtils
 import net.minusmc.minusbounce.value.FloatValue
 
 class VerusYPortSpeed : SpeedMode("VerusYPort", SpeedType.VERUS) {

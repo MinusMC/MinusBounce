@@ -16,7 +16,7 @@ import net.minusmc.minusbounce.event.EntityDamageEvent;
 import net.minusmc.minusbounce.event.EntityMovementEvent;
 import net.minusmc.minusbounce.features.module.modules.misc.Patcher;
 import net.minusmc.minusbounce.features.special.AntiForge;
-import net.minusmc.minusbounce.ui.client.clickgui.ClickGui;
+import net.minusmc.minusbounce.ui.client.clickgui.dropdown.DropDownClickGui;
 import net.minusmc.minusbounce.ui.client.hud.designer.GuiHudDesigner;
 import net.minusmc.minusbounce.utils.ClientUtils;
 import net.minecraft.client.ClientBrandRetriever;
@@ -114,7 +114,7 @@ public abstract class MixinNetHandlerPlayClient {
 
     @Inject(method = "handleCloseWindow", at = @At("HEAD"), cancellable = true)
     private void handleCloseWindow(final S2EPacketCloseWindow packetIn, final CallbackInfo callbackInfo) {
-        if (this.gameController.currentScreen instanceof ClickGui
+        if (this.gameController.currentScreen instanceof DropDownClickGui
             || this.gameController.currentScreen instanceof GuiHudDesigner 
             || this.gameController.currentScreen instanceof GuiChat)
             callbackInfo.cancel();

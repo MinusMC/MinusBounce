@@ -24,14 +24,14 @@ class Cape : Module() {
     override fun onInitialize() {
         ClassUtils.capeFiles.forEach {
             val name = it.split("/").last().replace(".png", "")
-            capeCache[name.lowercase()] = ResourceLocation(it)
+            capeCache[name] = ResourceLocation(it)
         }
         if (capeCache.isEmpty()) return
         styleValue.changeListValues(capeCache.keys.toTypedArray())
     }
 
     val cape: ResourceLocation?
-        get() = capeCache[styleValue.get().lowercase()] ?: capeCache["minusbounce"]
+        get() = capeCache[styleValue.get()] ?: capeCache["MinusBounce"]
 
     override val tag: String
         get() = styleValue.get()

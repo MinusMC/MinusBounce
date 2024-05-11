@@ -15,6 +15,5 @@ class AntiBlind : Module() {
     val confusionEffect = BoolValue("Confusion", true)
     val pumpkinEffect = BoolValue("Pumpkin", true)
     val fireEffect = BoolValue("Fire", false)
-    val scoreBoard = BoolValue("Scoreboard", false)
     val bossHealth = BoolValue("Boss-Health", true)
 }

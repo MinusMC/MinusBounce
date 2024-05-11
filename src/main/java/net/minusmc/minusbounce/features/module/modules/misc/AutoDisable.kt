@@ -32,10 +32,14 @@ class AutoDisable : Module() {
         MinusBounce.moduleManager.modules.filter { it.autoDisables.contains(enumDisable) && it.state }.forEach { it.toggle(); moduleNames++ }
 
         if (moduleNames <= 0) return
-        MinusBounce.hud.addNotification(Notification("Disabled $moduleNames ${if (moduleNames > 1) "modules" else "module"} due to ${ when (enumDisable) {
-                DisableEvent.FLAG -> "unexpected teleport"
-                DisableEvent.WORLD_CHANGE -> "world change"
-                else -> "game ended"}}.", Notification.Type.INFO, 1000L))
+
+        val flagMessage = when (enumDisable) {
+            DisableEvent.FLAG -> "unexpected teleport"
+            DisableEvent.WORLD_CHANGE -> "world change"
+            else -> "game ended"
+        }
+
+        MinusBounce.hud.addNotification(Notification("AutoDisable", "Disabled $moduleNames ${if (moduleNames > 1) "modules" else "module"} due to $flagMessage.", Notification.Type.INFO, 1000L))
     }
 
     companion object {

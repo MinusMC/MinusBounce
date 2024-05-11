@@ -12,12 +12,12 @@ import java.util.jar.JarFile
 object ClassUtils {
 
     private val cachedClasses = mutableMapOf<String, Boolean>()
-    private val classCache = mutableMapOf<String, MutableList<String>>()
+    val classCache = mutableMapOf<String, MutableList<String>>()
     val killSultFiles = mutableListOf<String>()
     val capeFiles = mutableListOf<String>()
 
     fun initCacheClass() {
-        val files = Loader.instance().discoverer.getNonModLibs()
+        val files = File("mods").listFiles()
         val jarFiles = files.filter { it.extension.equals("jar", true) }
         jarFiles.forEach {
             val jarFile = JarFile(it)
@@ -41,11 +41,9 @@ object ClassUtils {
         } else try {
             Class.forName(className)
             cachedClasses[className] = true
-
             true
         } catch (e: ClassNotFoundException) {
             cachedClasses[className] = false
-
             false
         }
     }
@@ -123,5 +121,6 @@ object ClassUtils {
         }
         return pluginClass
     }
+
     fun hasForge() = hasClass("net.minecraftforge.common.MinecraftForge")
 }
