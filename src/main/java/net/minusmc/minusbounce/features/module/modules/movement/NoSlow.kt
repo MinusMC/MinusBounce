@@ -5,11 +5,17 @@
  */
 package net.minusmc.minusbounce.features.module.modules.movement
 
+import net.minecraft.client.renderer.GlStateManager
+import net.minecraft.client.renderer.block.model.ItemCameraTransforms
 import net.minecraft.item.*
 import net.minecraft.network.play.client.C03PacketPlayer.C06PacketPlayerPosLook
+import net.minecraft.network.play.client.C07PacketPlayerDigging
+import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement
 import net.minecraft.network.play.client.C09PacketHeldItemChange
 import net.minecraft.network.play.server.S08PacketPlayerPosLook
 import net.minecraft.network.play.server.S09PacketHeldItemChange
+import net.minecraft.util.BlockPos
+import net.minecraft.util.EnumFacing
 import net.minusmc.minusbounce.MinusBounce
 import net.minusmc.minusbounce.event.*
 import net.minusmc.minusbounce.features.module.Module
@@ -17,6 +23,7 @@ import net.minusmc.minusbounce.features.module.ModuleCategory
 import net.minusmc.minusbounce.features.module.ModuleInfo
 import net.minusmc.minusbounce.features.module.modules.combat.KillAura
 import net.minusmc.minusbounce.features.module.modules.movement.noslows.NoSlowMode
+import net.minusmc.minusbounce.utils.timer.MSTimer
 import net.minusmc.minusbounce.utils.ClassUtils
 import net.minusmc.minusbounce.utils.player.MovementUtils
 import net.minusmc.minusbounce.value.BoolValue
@@ -54,12 +61,18 @@ class NoSlow : Module() {
     val liquidPushValue = BoolValue("LiquidPush", true)
     private val antiSwitchItem = BoolValue("AntiSwitchItem", false)
 
+    // Bypass Intave ? @longathelstan
+    val interactionPacket = BoolValue("Interaction Packets", false)
+    var funnyBoolean = BoolValue("Funny", false)
+
     private val teleportValue = BoolValue("Teleport", false)
 
     private var pendingFlagApplyPacket = false
     private var lastMotionX = 0.0
     private var lastMotionY = 0.0
     private var lastMotionZ = 0.0
+    private val msTimer = MSTimer()
+    private var delay = 100L
 
     override fun onInitialize() {
         modes.map { mode -> mode.values.forEach { value -> value.name = "${mode.modeName}-${value.name}" } }
@@ -70,6 +83,7 @@ class NoSlow : Module() {
     }
 
     override fun onDisable() {
+        msTimer.reset()
         pendingFlagApplyPacket = false
         mode.onDisable()
     }
@@ -108,16 +122,37 @@ class NoSlow : Module() {
     fun onPreMotion(event: PreMotionEvent) {
         mc.thePlayer ?: return
         mc.theWorld ?: return
-        if (!MovementUtils.isMoving && !modeValue.get().equals("blink", true)) return
-        if (isBlocking || isEating || isBowing) mode.onPreMotion(event)
+
+        if (!MovementUtils.isMoving && !modeValue.get().equals("blink", true)) 
+            return
+
+        if (interactionPacket.get()) if (isBlocking || isEating || isBowing) 
+            mc.thePlayer.sendQueue.addToSendQueue(C07PacketPlayerDigging(C07PacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN))
+        
+        if (isBlocking || isEating || isBowing) 
+            mode.onPreMotion(event)
     }
 
     @EventTarget
     fun onPostMotion(event: PostMotionEvent) {
         mc.thePlayer ?: return
         mc.theWorld ?: return
-        if (!MovementUtils.isMoving && !modeValue.get().equals("blink", true)) return
-        if (isBlocking || isEating || isBowing) mode.onPostMotion(event)
+
+        if (!MovementUtils.isMoving && !modeValue.get().equals("blink", true)) 
+            return
+            
+        if (interactionPacket.get() && (isBlocking || isEating || isBowing) && msTimer.hasTimePassed(delay)) {
+            mc.thePlayer.sendQueue.addToSendQueue(C08PacketPlayerBlockPlacement(mc.thePlayer.inventory.getCurrentItem()))
+            delay = if (funnyBoolean.get()) {
+                100L
+            } else {
+                200L
+            }
+            msTimer.reset()
+        }
+
+        if (isBlocking || isEating || isBowing) 
+            mode.onPostMotion(event)
     }
 
     @EventTarget

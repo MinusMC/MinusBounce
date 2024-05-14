@@ -1,16 +1,34 @@
 package net.minusmc.minusbounce.features.module.modules.combat.velocitys.normal
 
-import net.minusmc.minusbounce.MinusBounce
-import net.minusmc.minusbounce.event.EventTarget
-import net.minusmc.minusbounce.event.UpdateEvent
+import net.minecraft.client.settings.GameSettings
 import net.minusmc.minusbounce.features.module.modules.combat.velocitys.VelocityMode
-import net.minusmc.minusbounce.value.BoolValue
+
 
 class JumpResetVelocity: VelocityMode("JumpReset") {
-    private val onMouse = BoolValue("OnMouseDown", false)
-    
+    private var start = 0
+
     override fun onUpdate() {
-        if (mc.thePlayer.hurtTime > 8 && mc.thePlayer.onGround && MinusBounce.combatManager.inCombat && (!onMouse.get() || mc.gameSettings.keyBindAttack.isKeyDown))
-            mc.thePlayer.jump()
+        while (mc.thePlayer.hurtTime >= 8) {
+            mc.gameSettings.keyBindJump.pressed = true
+            break
+        }
+
+        while (mc.thePlayer.hurtTime >= 7 && !mc.gameSettings.keyBindForward.pressed) {
+            mc.gameSettings.keyBindForward.pressed = true
+            start = 1
+            break
+        }
+
+        if (mc.thePlayer.hurtTime in 1..6) {
+            mc.gameSettings.keyBindJump.pressed = false
+            if (start == 1) {
+                mc.gameSettings.keyBindForward.pressed = false
+                start = 0
+            }
+        }
+
+        if (mc.thePlayer.hurtTime == 1) {
+            mc.gameSettings.keyBindForward.pressed = GameSettings.isKeyDown(mc.gameSettings.keyBindForward)
+        }
     }
 }

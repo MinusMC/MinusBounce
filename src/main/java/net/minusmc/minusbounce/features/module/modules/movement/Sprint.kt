@@ -12,6 +12,4 @@ import net.minusmc.minusbounce.features.module.ModuleInfo
 
 
 @ModuleInfo(name = "Sprint", description = "Automatically sprints all the time.", category = ModuleCategory.MOVEMENT)
-class Sprint : Module() {
-    val rotationOmmiSprint = BoolValue("Rotation-OmmiSprint", true)
-}
+class Sprint : Module()

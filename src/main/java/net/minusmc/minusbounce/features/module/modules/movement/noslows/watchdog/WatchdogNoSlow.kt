@@ -29,6 +29,7 @@ class WatchdogNoSlow: NoSlowMode("Watchdog") {
                 val position: MovingObjectPosition = mc.thePlayer.rayTraceCustom(
                     mc.playerController.blockReachDistance.toDouble(), mc.thePlayer.rotationYaw, 90f)
                     ?: return
+
                 val rot = Rotation(mc.thePlayer.rotationYaw, 90f)
                 RotationUtils.setTargetRotation(rot)
                 sendUseItem(position)

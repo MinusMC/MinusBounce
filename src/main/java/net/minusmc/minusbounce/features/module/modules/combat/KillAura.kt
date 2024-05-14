@@ -81,7 +81,7 @@ class KillAura : Module() {
         targetModeValue.get().equals("multi", true)
     }
 
-    private val swingValue = ListValue("Swing", arrayOf("Normal", "Packet", "None"), "Normal")
+    val swingValue = ListValue("Swing", arrayOf("Normal", "Packet", "None"), "Normal")
     private val hitableCheckValue = BoolValue("HitableCheck", false) { !rotationValue.get().equals("none", true) && !throughWallsValue.get()}
 
     val autoBlockModeValue: ListValue = object : ListValue("AutoBlock", blockingModes.map { it.modeName }.toTypedArray(), "None") {
@@ -379,41 +379,39 @@ class KillAura : Module() {
         if (rotationValue.get().equals("none", true) || turnSpeed.getMaxValue() <= 0.0f)
             return true
 
-        val rotation = getTargetRotation(entity) ?: return false
+        val rotation = RotationUtils.targetRotation ?: mc.thePlayer.rotation
 
         val raycastEntity = RaycastUtils.raycastEntity(reach, rotation.yaw, rotation.pitch, object: RaycastUtils.IEntityFilter {
             override fun canRaycast(entity: Entity?): Boolean {
                 return entity is EntityLivingBase && entity !is EntityArmorStand && isSelected(entity, true)
             }
-        }) ?: entity // if not found raycast entity, use entity to check
+        })
 
         target = if (raycastValue.get() && raycastEntity == entity) {
             raycastEntity as EntityLivingBase
         } else entity
 
-        RotationUtils.setTargetRotation(
-            rotation = getTargetRotation(target ?: return false) ?: return false,
-            keepLength = 0,
-            speed = RandomUtils.nextFloat(turnSpeed.getMinValue(), turnSpeed.getMaxValue()),
-            fixType = when (movementCorrection.get().lowercase()) {
-                "strict" -> MovementCorrection.Type.STRICT
-                "normal" -> MovementCorrection.Type.NORMAL
-                else -> MovementCorrection.Type.NONE
-            },
-            silent = silentRotationValue.get()
-        )
+        target?.let {
+            RotationUtils.setTargetRotation(
+                rotation = getTargetRotation(it) ?: return false,
+                keepLength = 0,
+                speed = RandomUtils.nextFloat(turnSpeed.getMinValue(), turnSpeed.getMaxValue()),
+                fixType = when (movementCorrection.get().lowercase()) {
+                    "strict" -> MovementCorrection.Type.STRICT
+                    "normal" -> MovementCorrection.Type.NORMAL
+                    else -> MovementCorrection.Type.NONE
+                },
+                silent = silentRotationValue.get()
+            )
 
-        if (hitableCheckValue.get() && mc.objectMouseOver != null)
-            hitable = (mc.objectMouseOver.typeOfHit == MovingObjectPosition.MovingObjectType.ENTITY && RotationUtils.isFaced(target!!, reach)) || throughWallsValue.get()
+            hitable = mc.thePlayer.canEntityBeSeen(it)
 
-        val eyes = mc.thePlayer.getPositionEyes(1F)
+            if (throughWallsValue.get())
+                hitable = mc.thePlayer.getDistanceToEntityBox(it) < throughWallsRangeValue.get()
 
-        val intercept = target?.let {it.hitBox.calculateIntercept(eyes,
-            eyes + RotationUtils.getVectorForRotation(rotation) * rangeValue.get().toDouble()
-        )} ?: return true
-
-        if (throughWallsValue.get())
-            hitable = RotationUtils.isVisible(intercept.hitVec) || mc.thePlayer.getDistanceToEntityBox(target!!) < throughWallsRangeValue.get()
+            if (hitableCheckValue.get() && mc.objectMouseOver != null)
+                hitable = mc.objectMouseOver.typeOfHit == MovingObjectPosition.MovingObjectType.ENTITY && RotationUtils.isFaced(it, reach)
+        } ?: return false
 
         return true
     }
