@@ -32,16 +32,20 @@ data class Rotation(var yaw: Float, var pitch: Float) {
         player.rotationPitch = pitch
     }
 
+    fun fixedSensitivity(sensitivity: Float) {
+        fixedSensitivity(sensitivity, RotationUtils.serverRotation)
+    }
+
     /**
      * Patch gcd exploit in aim
      *
      * @see net.minecraft.client.renderer.EntityRenderer.updateCameraAndRender
      */
     @JvmOverloads
-    fun fixedSensitivity(sensitivity: Float, rotation: Rotation? = RotationUtils.serverRotation) {
+    fun fixedSensitivity(sensitivity: Float, rotation: Rotation?) {
         rotation?.let{
-            val f = sensitivity * (1f + Math.random().toFloat() / 10000000f) * 0.6F + 0.2F
-            val m = f * f * f * 8.0F * 0.15f
+            val f = sensitivity * 0.6F + 0.2F
+            val m = f * f * f * 1.2f
             yaw = it.yaw + round((yaw - it.yaw) / m) * m
             pitch = (it.pitch + round((pitch - it.pitch) / m) * m).coerceIn(-90F, 90F)
         }

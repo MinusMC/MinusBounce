@@ -41,8 +41,8 @@ public class MixinModelBiped {
 
             if (spinBot.getState() && !spinBot.getPitchMode().get().equalsIgnoreCase("none"))
                 this.bipedHead.rotateAngleX = spinBot.getPitch() / (180F / (float) Math.PI);
-            else if (RotationUtils.targetRotation != null)
-                this.bipedHead.rotateAngleX = RotationUtils.targetRotation.getPitch() / (180F / (float) Math.PI);
+            else if (RotationUtils.currentRotation != null)
+                this.bipedHead.rotateAngleX = RotationUtils.currentRotation.getPitch() / (180F / (float) Math.PI);
         }
     }
 }

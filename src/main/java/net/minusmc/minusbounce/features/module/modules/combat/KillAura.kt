@@ -105,7 +105,7 @@ class KillAura : Module() {
     private val silentRotationValue = BoolValue("SilentRotation", true) { !rotationValue.get().equals("none", true) }
     private val movementCorrection = ListValue("MovementCorrection", arrayOf("None", "Normal", "Strict"), "Strict")
     private val predictValue = BoolValue("Predict", true)
-    private val predictSize = FloatRangeValue("PredictSize", 1f, 1f, 0.1f, 5f) {predictValue.get()}
+    private val predictSizeValue = FloatRangeValue("PredictSize", 1f, 1f, 0.1f, 5f) {predictValue.get()}
 
     private val espModes = ListValue("ESP", arrayOf("Jello", "Off"), "Jello")
     private val circleValue = BoolValue("Circle", true)
@@ -136,6 +136,7 @@ class KillAura : Module() {
         hitable = false
         attackTimer.reset()
         lastMovingObjectPosition = null
+        lastTimeAttack = 0L
         clicks = 0
         prevTargetEntities.clear()
         stopBlocking()
@@ -145,10 +146,15 @@ class KillAura : Module() {
     @EventTarget
     fun onWorld(event: WorldEvent) {
         lastMovingObjectPosition = null
+        lastTimeAttack = 0L
     }
 
     @EventTarget
-    fun onTick(event: TickEvent) {
+    fun onUpdate(event: PreUpdateEvent){
+        blockingMode.onPreUpdate()
+
+        updateTarget()
+
         target ?: run {
             stopBlocking()
             return
@@ -158,13 +164,6 @@ class KillAura : Module() {
             runAttack(it + 1 == clicks)
             clicks--
         }
-    }
-
-    @EventTarget
-    fun onUpdate(event: PreUpdateEvent){
-        blockingMode.onPreUpdate()
-
-        updateTarget()
     }
 
     @EventTarget
@@ -410,7 +409,7 @@ class KillAura : Module() {
     }
 
     private fun updateHitable() {
-        val rotation = RotationUtils.targetRotation ?: mc.thePlayer.rotation
+        val rotation = RotationUtils.currentRotation ?: mc.thePlayer.rotation
 
         val target = this.target ?: return
 
@@ -457,8 +456,7 @@ class KillAura : Module() {
                 "strict" -> MovementCorrection.Type.STRICT
                 "normal" -> MovementCorrection.Type.NORMAL
                 else -> MovementCorrection.Type.NONE
-            },
-            silent = silentRotationValue.get()
+            }
         )
 
         return true
@@ -488,18 +486,22 @@ class KillAura : Module() {
     private fun getTargetRotation(entity: Entity): Rotation? {
         var boundingBox = entity.entityBoundingBox
 
-        if (predictValue.get() && !rotationValue.get().equals("Grim", true) && !rotationValue.get().equals("Intave", true)) {
+        if (predictValue.get()) {
             boundingBox = boundingBox.offset(
-                (entity.posX - entity.prevPosX) * RandomUtils.nextFloat(predictSize.getMinValue(), predictSize.getMaxValue()),
-                (entity.posY - entity.prevPosY) * RandomUtils.nextFloat(predictSize.getMinValue(), predictSize.getMaxValue()),
-                (entity.posZ - entity.prevPosZ) * RandomUtils.nextFloat(predictSize.getMinValue(), predictSize.getMaxValue())
+                (entity.posX - entity.prevPosX) * predictSize,
+                (entity.posY - entity.prevPosY) * predictSize,
+                (entity.posZ - entity.prevPosZ) * predictSize
             )
         }
 
         return when (rotationValue.get().lowercase()) {
             "vanilla" -> {
                 val (_, rotation) = RotationUtils.searchCenter(
-                    boundingBox, false, predictValue.get(), throughWallsValue.get(), rangeValue.get()
+                    boundingBox, 
+                    false, 
+                    predictValue.get(), 
+                    throughWallsValue.get(), 
+                    rangeValue.get()
                 ) ?: return null
                 rotation
             }
@@ -539,6 +541,9 @@ class KillAura : Module() {
 
     val canBlock: Boolean
         get() = mc.thePlayer.heldItem != null && mc.thePlayer.heldItem.item is ItemSword
+
+    val predictSize: Float
+        get() = RandomUtils.nextFloat(predictSizeValue.getMinValue(), predictSizeValue.getMaxValue())
 
     override val tag: String
         get() = targetModeValue.get()

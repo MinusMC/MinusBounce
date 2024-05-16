@@ -22,7 +22,7 @@ object RaycastUtils : MinecraftInstance() {
      */
 
     fun runWithModifiedRaycastResult(range: Float, wallRange: Float, action: (MovingObjectPosition) -> Unit) {
-        val rotation = RotationUtils.targetRotation ?: RotationUtils.serverRotation
+        val rotation = RotationUtils.currentRotation ?: RotationUtils.serverRotation
         runWithModifiedRaycastResult(rotation, range, wallRange, action)
     }
 

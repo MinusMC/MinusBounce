@@ -277,9 +277,9 @@ public abstract class MixinMinecraft {
 
     @Inject(method = "getRenderViewEntity", at = @At("HEAD"))
     public void getRenderViewEntity(CallbackInfoReturnable<Entity> cir){
-        if(renderViewEntity instanceof EntityLivingBase && RotationUtils.targetRotation != null){
+        if(renderViewEntity instanceof EntityLivingBase && RotationUtils.currentRotation != null){
             final EntityLivingBase entityLivingBase = (EntityLivingBase) renderViewEntity;
-            final float yaw = RotationUtils.targetRotation.getYaw();
+            final float yaw = RotationUtils.currentRotation.getYaw();
             entityLivingBase.rotationYawHead = entityLivingBase.prevRotationYawHead = entityLivingBase.renderYawOffset = entityLivingBase.prevRenderYawOffset = yaw;
         }
     }
