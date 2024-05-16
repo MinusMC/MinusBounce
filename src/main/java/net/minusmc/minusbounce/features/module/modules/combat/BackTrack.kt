@@ -27,8 +27,6 @@ import org.lwjgl.opengl.GL11
 import org.lwjgl.opengl.GL11.*
 import java.util.*
 
-import java.lang.reflect.ParameterizedType
-
 @ModuleInfo(name = "BackTrack", spacedName = "Back Track", description = "Let you attack in their previous position", category = ModuleCategory.COMBAT)
 class BackTrack : Module() {
     private val modeValue = ListValue("TrackMode", arrayOf("PacketDelay", "Automatic", "Manual"), "Automatic")
@@ -45,10 +43,13 @@ class BackTrack : Module() {
     private var attacked: Entity? = null
 
     private val packetEvents = LinkedList<PacketEvent>()
-    private val entities = hashMapOf<Int, BackTrackData>()
+    private val entities = LinkedHashMap<Int, BackTrackData>()
+
+    private var releasingPacket = false
 
     override fun onDisable() {
         releasePackets()
+        releasingPacket = false
         clear()
     }
 
@@ -66,7 +67,7 @@ class BackTrack : Module() {
         
         if (modeValue.get().equals("automatic", true) || modeValue.get().equals("manual", true)) {
 
-            if (!state)
+            if (!state || releasingPacket)
                 return
 
             if (packet.javaClass.name.contains("play.server.", true)) {
@@ -220,7 +221,13 @@ class BackTrack : Module() {
 
         while (packetEvents.size > size) {
             val event = packetEvents.pollFirst() ?: continue
-            PacketUtils.handlePacketNoEvent(event.packet)
+            
+            try {
+                val packet = event.packet as Packet<INetHandlerPlayClient>
+                packet.processPacket(mc.netHandler)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
     }
 
@@ -348,26 +355,31 @@ class BackTrack : Module() {
         if (packets.isEmpty())
             return
 
-        packets.map {it}.forEach { 
-            val event = PacketEvent(it)
+        while (packets.isNotEmpty()) {
+            val packet = packets.removeAt(0)
 
-            if (!PacketUtils.packetList.contains(it))
+            val event = PacketEvent(packet)
+
+            if (!PacketUtils.packetList.contains(packet)) {
+                releasingPacket = true
                 MinusBounce.eventManager.callEvent(event)
+                releasingPacket = false
+            }
 
             if (!event.isCancelled)
-                it.processPacket(mc.netHandler)
+                packet.processPacket(mc.netHandler)
         }
-        packets.clear()
 
-        storageEntities.map {it}.forEach {
-            if (!it.isDead) {
-                val x = it.serverPosX.toDouble() / 32.0
-                val y = it.serverPosY.toDouble() / 32.0
-                val z = it.serverPosZ.toDouble() / 32.0
-                it.setPosition(x, y, z)
+        while (storageEntities.isNotEmpty()) {
+            val entity = storageEntities.removeAt(0)
+
+            if (!entity.isDead) {
+                val x = entity.serverPosX.toDouble() / 32.0
+                val y = entity.serverPosY.toDouble() / 32.0
+                val z = entity.serverPosZ.toDouble() / 32.0
+                entity.setPosition(x, y, z)
             }
         }
-        storageEntities.clear()
 
         needFreeze = false
     }

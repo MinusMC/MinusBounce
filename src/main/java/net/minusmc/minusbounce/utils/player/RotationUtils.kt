@@ -423,6 +423,18 @@ object RotationUtils : MinecraftInstance(), Listenable {
             }) != null
     }
 
+    fun isFaced(targetEntity: Entity, blockReachDistance: Double, rotation: Rotation): Boolean {
+        return raycastEntity(
+            blockReachDistance,
+            rotation,
+            object : IEntityFilter {
+                override fun canRaycast(entity: Entity?): Boolean {
+                    return entity === targetEntity
+                }
+            }) != null
+    }
+
+
     /**
      * Allows you to check if your enemy is behind a wall
      */

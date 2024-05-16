@@ -32,7 +32,7 @@ Do the above and share your source code with everyone; just like we do.
 1. Clone the repository:
 
     ```bash
-    git clone https://github.com/MinusMCNetwork/MinusBounce.git
+    git clone https://github.com/MinusMC/MinusBounce.git
     ```
    
 2. Navigate to the project directory:
