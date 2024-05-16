@@ -3,17 +3,15 @@ package net.minusmc.minusbounce.features.module.modules.combat
 import net.minecraft.client.entity.EntityOtherPlayerMP
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.network.Packet
-import net.minecraft.network.play.client.*
-import net.minecraft.network.play.server.*
 import net.minecraft.network.play.INetHandlerPlayClient
-import net.minecraft.world.WorldSettings
+import net.minecraft.network.play.server.S08PacketPlayerPosLook
+import net.minecraft.network.play.server.S12PacketEntityVelocity
 import net.minusmc.minusbounce.MinusBounce
 import net.minusmc.minusbounce.event.*
 import net.minusmc.minusbounce.features.module.Module
 import net.minusmc.minusbounce.features.module.ModuleCategory
 import net.minusmc.minusbounce.features.module.ModuleInfo
 import net.minusmc.minusbounce.utils.BlinkUtils
-import net.minusmc.minusbounce.utils.ClientUtils
 import net.minusmc.minusbounce.utils.EntityUtils
 import net.minusmc.minusbounce.utils.PacketUtils
 import net.minusmc.minusbounce.utils.extensions.getDistanceToEntityBox
@@ -272,7 +270,7 @@ class LagReach : Module() {
             return
         }
 
-        if (modeValue.get().equals("incomingblink") && packet.javaClass.name.contains("play.server.", true) && backtrack) {
+        if (modeValue.get().equals("incomingblink", true) && packet.javaClass.name.contains("play.server.", true) && backtrack) {
             if (mc.thePlayer.ticksExisted < 20) 
                 return
 

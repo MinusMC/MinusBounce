@@ -35,7 +35,6 @@ import net.minusmc.minusbounce.value.*
 import org.lwjgl.input.Keyboard
 import org.lwjgl.opengl.GL11
 import kotlin.math.cos
-import kotlin.math.min
 import kotlin.math.pow
 import kotlin.math.sin
 
@@ -81,7 +80,8 @@ class KillAura : Module() {
         targetModeValue.get().equals("multi", true)
     }
 
-    val swingValue = ListValue("Swing", arrayOf("Normal", "Packet", "None"), "Normal")
+    private val swingValue = ListValue("Swing", arrayOf("Normal", "Packet", "None"), "Normal")
+    private val failSwingValue = BoolValue("FailSwing", true)
     private val hitableCheckValue = BoolValue("HitableCheck", false) { !rotationValue.get().equals("none", true) && !throughWallsValue.get()}
     private val useHitDelay = BoolValue("UseHitDelay", true)
     private val hitDelay = IntegerValue("HitDelay", 100, 0, 1000) {useHitDelay.get()}
@@ -148,11 +148,7 @@ class KillAura : Module() {
     }
 
     @EventTarget
-    fun onUpdate(event: PreUpdateEvent){
-        blockingMode.onPreUpdate()
-
-        updateTarget()
-
+    fun onTick(event: TickEvent) {
         target ?: run {
             stopBlocking()
             return
@@ -162,6 +158,13 @@ class KillAura : Module() {
             runAttack(it + 1 == clicks)
             clicks--
         }
+    }
+
+    @EventTarget
+    fun onUpdate(event: PreUpdateEvent){
+        blockingMode.onPreUpdate()
+
+        updateTarget()
     }
 
     @EventTarget
@@ -215,7 +218,7 @@ class KillAura : Module() {
 
         target ?: return
 
-        if (attackTimer.hasTimePassed(attackDelay) && target!!.hurtTime <= hurtTimeValue.get()) {
+        if (attackTimer.hasTimePassed(attackDelay)) {
             clicks++
             attackTimer.reset()
             attackDelay = RandomUtils.randomClickDelay(cps.getMinValue(), cps.getMaxValue())
@@ -312,6 +315,12 @@ class KillAura : Module() {
         updateHitable()
 
         if (hitable) {
+
+            target?.let {
+                if (it.hurtTime > hurtTimeValue.get())
+                    return
+            } ?: return
+
             // Attack
             if (!targetModeValue.get().equals("Multi", true))
                 attackEntity(target!!)
@@ -322,22 +331,18 @@ class KillAura : Module() {
                     .forEach(this::attackEntity)
 
             prevTargetEntities.add(target!!.entityId)
-        } else runWithModifiedRaycastResult(rangeValue.get(), throughWallsRangeValue.get()) { obj ->
-            if (obj.typeOfHit != MovingObjectPosition.MovingObjectType.MISS)
-                return@runWithModifiedRaycastResult
+        } else if (swingValue.get().equals("none", true) && failSwingValue.get())
+            runWithModifiedRaycastResult(rangeValue.get(), throughWallsRangeValue.get()) { obj ->
 
-            lastMovingObjectPosition?.let {
-
-                if (shouldDelayClick(it.typeOfHit))
-                    return@runWithModifiedRaycastResult
-
+            if (shouldDelayClick(obj.typeOfHit)) {
                 if (obj.typeOfHit == MovingObjectPosition.MovingObjectType.ENTITY) {
                     val entity = obj.entityHit
 
                     if (entity is EntityLivingBase)
                         attackEntity(entity)
-                        
-                } else mc.clickMouse()
+
+                } else
+                    mc.clickMouse()
 
                 lastMovingObjectPosition = obj
                 lastTimeAttack = System.currentTimeMillis()
@@ -425,6 +430,14 @@ class KillAura : Module() {
         if (targetToCheck.hitBox.isVecInside(mc.thePlayer.getPositionEyes(1f)))
             return
 
+        val eyes = mc.thePlayer.getPositionEyes(1f)
+
+        val intercept = targetToCheck.hitBox.calculateIntercept(eyes,
+            eyes + RotationUtils.getVectorForRotation(rotation) * rangeValue.get().toDouble()
+        )
+
+        hitable = mc.theWorld.rayTraceBlocks(mc.thePlayer.eyes, intercept.hitVec) == null
+
         if (throughWallsValue.get())
             hitable = mc.thePlayer.getDistanceToEntityBox(targetToCheck) < throughWallsRangeValue.get()
 
@@ -438,7 +451,7 @@ class KillAura : Module() {
 
         RotationUtils.setTargetRotation(
             rotation = getTargetRotation(entity) ?: return false,
-            keepLength = 0,
+            keepLength = 5,
             speed = RandomUtils.nextFloat(turnSpeed.getMinValue(), turnSpeed.getMaxValue()),
             fixType = when (movementCorrection.get().lowercase()) {
                 "strict" -> MovementCorrection.Type.STRICT
