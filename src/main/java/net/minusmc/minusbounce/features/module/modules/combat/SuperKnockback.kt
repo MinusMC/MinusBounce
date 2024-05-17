@@ -36,7 +36,7 @@ class SuperKnockback : Module() {
         if (target !is EntityLivingBase)
             return
 
-        if (target.hurtTime != hurtTimeValue.get())
+        if (target.hurtTime > hurtTimeValue.get())
             return
 
         when (modeValue.get().lowercase()) {
@@ -47,12 +47,21 @@ class SuperKnockback : Module() {
                 mc.netHandler.addToSendQueue(C0BPacketEntityAction(mc.thePlayer, C0BPacketEntityAction.Action.START_SPRINTING))
                 mc.thePlayer.serverSprintState = true
             }
+
             "packet" -> {
                 mc.netHandler.addToSendQueue(C0BPacketEntityAction(mc.thePlayer, C0BPacketEntityAction.Action.STOP_SPRINTING))
                 mc.netHandler.addToSendQueue(C0BPacketEntityAction(mc.thePlayer, C0BPacketEntityAction.Action.START_SPRINTING))
                 mc.thePlayer.serverSprintState = true
             }
-            "wtap", "stap", "sprinttap", "sneaktap", "sprintsilenttap", "legitfast" -> ticks = ticksDelay.get() + 2
+
+            "legitfast" -> {
+                if (mc.thePlayer.isSprinting)
+                    mc.thePlayer.isSprinting = false
+                mc.netHandler.addToSendQueue(C0BPacketEntityAction(mc.thePlayer, C0BPacketEntityAction.Action.START_SPRINTING))
+                mc.thePlayer.serverSprintState = true
+            }
+            
+            "wtap", "stap", "sprinttap", "sneaktap", "sprintsilenttap" -> ticks = ticksDelay.get() + 2
         }
     }
 
@@ -63,30 +72,27 @@ class SuperKnockback : Module() {
         if (ticks == ticksDelay.get() + 1) {
             when (modeValue.get().lowercase()) {
                 "wtap" -> mc.gameSettings.keyBindForward.pressed = false
-                "stap" -> mc.gameSettings.keyBindBack.pressed = true
+                "stap" -> {
+                    mc.gameSettings.keyBindForward.pressed = false
+                    mc.gameSettings.keyBindBack.pressed = true
+                }
+                "sprinttap" -> mc.thePlayer.isSprinting = false
                 "sprintsilenttap" -> mc.netHandler.addToSendQueue(C0BPacketEntityAction(mc.thePlayer, C0BPacketEntityAction.Action.STOP_SPRINTING))
                 "sneaktap" -> mc.gameSettings.keyBindSneak.pressed = true
             }
         } else if (ticks == 1) {
             when (modeValue.get().lowercase()) {
                 "wtap" -> mc.gameSettings.keyBindForward.pressed = GameSettings.isKeyDown(mc.gameSettings.keyBindForward)
-                "stap" -> mc.gameSettings.keyBindBack.pressed = GameSettings.isKeyDown(mc.gameSettings.keyBindBack)
+                "stap" -> {
+                    mc.gameSettings.keyBindForward.pressed = GameSettings.isKeyDown(mc.gameSettings.keyBindForward)
+                    mc.gameSettings.keyBindBack.pressed = GameSettings.isKeyDown(mc.gameSettings.keyBindBack)
+                }
                 "sprinttap" -> mc.thePlayer.isSprinting = true
                 "sprintsilenttap" -> mc.netHandler.addToSendQueue(C0BPacketEntityAction(mc.thePlayer, C0BPacketEntityAction.Action.START_SPRINTING))
                 "sneaktap" -> mc.gameSettings.keyBindSneak.pressed = GameSettings.isKeyDown(mc.gameSettings.keyBindSneak)
-                "legitfast" -> {
-                    mc.netHandler.addToSendQueue(C0BPacketEntityAction(mc.thePlayer, C0BPacketEntityAction.Action.START_SPRINTING))
-                    mc.thePlayer.serverSprintState = true
-                }
             }
         }
     }
-
-    val canSprint: Boolean
-        get() = when (modeValue.get().lowercase()) {
-            "sprinttap", "legitfast" -> ticks > 1
-            else -> true
-        }
 
     override val tag: String
         get() = modeValue.get()

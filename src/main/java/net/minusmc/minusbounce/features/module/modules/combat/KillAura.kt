@@ -453,6 +453,8 @@ class KillAura : Module() {
 
         val rotation = getTargetRotation(entity) ?: return false
 
+        rotation.fixedSensitivity(mc.gameSettings.mouseSensitivity)
+
         if (silentRotationValue.get()) {
             val movementCorrectionType = when (movementCorrection.get().lowercase()) {
                 "strict" -> MovementCorrection.Type.STRICT

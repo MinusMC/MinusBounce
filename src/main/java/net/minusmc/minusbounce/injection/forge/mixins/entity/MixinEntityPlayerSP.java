@@ -27,7 +27,6 @@ import net.minusmc.minusbounce.MinusBounce;
 import net.minusmc.minusbounce.event.*;
 import net.minusmc.minusbounce.features.module.modules.combat.KillAura;
 import net.minusmc.minusbounce.features.module.modules.combat.Criticals;
-import net.minusmc.minusbounce.features.module.modules.combat.SuperKnockback;
 import net.minusmc.minusbounce.features.module.modules.misc.AntiDesync;
 import net.minusmc.minusbounce.features.module.modules.movement.Fly;
 import net.minusmc.minusbounce.features.module.modules.movement.InvMove;
@@ -319,7 +318,6 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer impl
         this.movementInput.updatePlayerMoveState();
         
         final NoSlow noSlow = MinusBounce.moduleManager.getModule(NoSlow.class);
-        final SuperKnockback superKB = MinusBounce.moduleManager.getModule(SuperKnockback.class);
         final KillAura killAura = MinusBounce.moduleManager.getModule(KillAura.class);
         final Sprint sprint = MinusBounce.moduleManager.getModule(Sprint.class);
 
@@ -356,9 +354,6 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer impl
             this.setSprinting(false);
         
         if (this.isSprinting() && noSlow.getState() && noSlow.getNoSprintValue().get() && noSlow.isSlowing())
-            this.setSprinting(false);
-
-        if (this.isSprinting() && superKB.getState() && !superKB.getCanSprint())
             this.setSprinting(false);
 
         if (this.capabilities.allowFlying) {
