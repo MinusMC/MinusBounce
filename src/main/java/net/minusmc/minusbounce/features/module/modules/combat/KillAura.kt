@@ -150,11 +150,12 @@ class KillAura : Module() {
     }
 
     @EventTarget
-    fun onUpdate(event: PreUpdateEvent){
+    fun onPreUpdate(event: PreUpdateEvent) {
         blockingMode.onPreUpdate()
+    }
 
-        updateTarget()
-
+    @EventTarget
+    fun onUpdate(event: UpdateEvent){
         target ?: run {
             stopBlocking()
             return
@@ -169,6 +170,8 @@ class KillAura : Module() {
     @EventTarget
     fun onPreMotion(event: PreMotionEvent) {
         blockingMode.onPreMotion()
+
+        updateTarget()
     }
 
     @EventTarget
@@ -448,16 +451,20 @@ class KillAura : Module() {
         if (rotationValue.get().equals("none", true) || turnSpeed.getMaxValue() <= 0.0f)
             return true
 
-        RotationUtils.setTargetRotation(
-            rotation = getTargetRotation(entity) ?: return false,
-            keepLength = 5,
-            speed = RandomUtils.nextFloat(turnSpeed.getMinValue(), turnSpeed.getMaxValue()),
-            fixType = when (movementCorrection.get().lowercase()) {
+        val rotation = getTargetRotation(entity) ?: return false
+
+        if (silentRotationValue.get()) {
+            val movementCorrectionType = when (movementCorrection.get().lowercase()) {
                 "strict" -> MovementCorrection.Type.STRICT
                 "normal" -> MovementCorrection.Type.NORMAL
                 else -> MovementCorrection.Type.NONE
             }
-        )
+
+            RotationUtils.setTargetRotation(rotation, 5, rotationSpeed, movementCorrectionType)
+        } else {
+            val limitRotation = RotationUtils.limitAngleChange(mc.thePlayer.rotation, rotation, rotationSpeed)
+            limitRotation.toPlayer(mc.thePlayer)
+        }
 
         return true
     }
@@ -542,8 +549,11 @@ class KillAura : Module() {
     val canBlock: Boolean
         get() = mc.thePlayer.heldItem != null && mc.thePlayer.heldItem.item is ItemSword
 
-    val predictSize: Float
+    private val predictSize: Float
         get() = RandomUtils.nextFloat(predictSizeValue.getMinValue(), predictSizeValue.getMaxValue())
+
+    private val rotationSpeed: Float
+        get() = RandomUtils.nextFloat(turnSpeed.getMinValue(), turnSpeed.getMaxValue())
 
     override val tag: String
         get() = targetModeValue.get()

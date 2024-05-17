@@ -5,7 +5,6 @@
  */
 package net.minusmc.minusbounce.utils.player
 
-import net.minecraft.client.Minecraft
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.util.*
@@ -22,8 +21,6 @@ import kotlin.math.*
 
 
 object RotationUtils : MinecraftInstance(), Listenable {
-    private val random = Random()
-
     // Rotation
     @JvmField
     var currentRotation: Rotation? = null
@@ -39,6 +36,13 @@ object RotationUtils : MinecraftInstance(), Listenable {
 
     @EventTarget(priority = 100)
     fun onTick(event: TickEvent) {
+
+        mc.thePlayer ?: return
+
+        currentRotation ?: run {
+            if (active) currentRotation = mc.thePlayer.rotation
+        }
+
         currentRotation?.let {
             if (keepLength > 0) {
                 keepLength--
@@ -65,7 +69,7 @@ object RotationUtils : MinecraftInstance(), Listenable {
             mc.thePlayer.renderYawOffset = it.yaw
             mc.thePlayer.rotationYawHead = it.yaw
 
-            if (active) currentRotation?.let {
+            if (active) {
                 val limitRotation = limitAngleChange(it, targetRotation ?: return, rotationSpeed)
                 currentRotation = limitRotation
                 keepLength++
@@ -73,8 +77,6 @@ object RotationUtils : MinecraftInstance(), Listenable {
                 if (getRotationDifference(limitRotation, it) < 1)
                     active = false
             }
-
-            
         }
     }
 
@@ -90,12 +92,10 @@ object RotationUtils : MinecraftInstance(), Listenable {
         this.rotationSpeed = speed
         this.targetRotation = rotation
         this.keepLength = keepLength
-
-        currentRotation = mc.thePlayer.rotation
         active = true
     }
 
-    fun resetRotation() {
+    private fun resetRotation() {
         keepLength = 0
 
         currentRotation?.let {
