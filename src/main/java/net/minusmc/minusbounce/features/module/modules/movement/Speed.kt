@@ -21,10 +21,10 @@ class Speed: Module() {
         get() = modes.find { modeValue.get().equals(it.modeName, true) } ?: throw NullPointerException()
 
 	private val typeValue: ListValue = object: ListValue("Type", SpeedType.values().map{it.typeName}.toTypedArray()) {
-		override fun onChanged(oldValue: String, newValue: String) {
+		override fun onPostChange(oldValue: String, newValue: String) {
 			modeValue.changeListValues(modes.filter{it.typeName.typeName == newValue}.map{it.modeName}.toTypedArray())
 		}
-		override fun onChange(oldValue: String, newValue: String) {
+		override fun onPreChange(oldValue: String, newValue: String) {
 			modeValue.changeListValues(modes.filter{it.typeName.typeName == newValue}.map{it.modeName}.toTypedArray())
 		}
 	}
@@ -33,10 +33,10 @@ class Speed: Module() {
 		get() = modes.filter{it.typeName.typeName == typeValue.get()}.map{it.modeName}.toTypedArray()
 
 	private var modeValue: ListValue = object: ListValue("Mode", modesForType) {
-		override fun onChange(oldValue: String, newValue: String) {
+		override fun onPreChange(oldValue: String, newValue: String) {
 			if (state) onDisable()
 		}
-		override fun onChanged(oldValue: String, newValue: String) {
+		override fun onPostChange(oldValue: String, newValue: String) {
 			if (state) onEnable()
 		}
 	}

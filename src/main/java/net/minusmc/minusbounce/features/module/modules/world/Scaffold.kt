@@ -57,14 +57,14 @@ class Scaffold: Module() {
 
     private val placeableDelay = ListValue("PlaceableDelay", arrayOf("Normal", "Smart", "Off"), "Normal")
     private val maxDelayValue: IntegerValue = object: IntegerValue("MaxDelay", 0, 0, 1000, "ms", {!placeableDelay.get().equals("off", true)}) {
-        override fun onChanged(oldValue: Int, newValue: Int) {
+        override fun onPostChange(oldValue: Int, newValue: Int) {
             val i = minDelayValue.get()
             if (i > newValue) {set(i)}
         }
     }
 
     private val minDelayValue: IntegerValue = object: IntegerValue("MinDelay", 0, 0, 1000, "ms", {!placeableDelay.get().equals("off", true)}) {
-        override fun onChanged(oldValue: Int, newValue: Int) {
+        override fun onPostChange(oldValue: Int, newValue: Int) {
             val i = maxDelayValue.get()
             if (i < newValue) {set(i)}
         }
@@ -89,14 +89,14 @@ class Scaffold: Module() {
     val rotationsValue = ListValue("Rotation", arrayOf("Normal", "Intave", "Backwards", "None"), "Normal")
 
     private val maxTurnSpeed: FloatValue = object: FloatValue("MaxTurnSpeed", 180F, 0F, 180F, "°", {!rotationsValue.get().equals("None", true)}) {
-        override fun onChanged(oldValue: Float, newValue: Float) {
+        override fun onPostChange(oldValue: Float, newValue: Float) {
             val i = minTurnSpeed.get()
             if (i > newValue) {set(i)}
         }
     }
 
     private val minTurnSpeed: FloatValue = object: FloatValue("MinTurnSpeed", 180F, 0F, 180F, "°", {!rotationsValue.get().equals("None", true)}) {
-        override fun onChanged(oldValue: Float, newValue: Float) {
+        override fun onPostChange(oldValue: Float, newValue: Float) {
             val i = maxTurnSpeed.get()
             if (i < newValue) {set(i)}
         }

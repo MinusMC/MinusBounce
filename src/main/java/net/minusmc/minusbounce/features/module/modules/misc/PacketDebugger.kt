@@ -37,13 +37,13 @@ object PacketDebugger : Module() {
                 object : BoolValue(it.simpleName, false) {
                     val clazz = it
 
-                    override fun onChange(oldValue: Boolean, newValue: Boolean) {
+                    override fun onPreChange(oldValue: Boolean, newValue: Boolean) {
                         packetDebugStates[clazz.name] = newValue
                     }
 
                     override fun fromJson(element: JsonElement) {
                         super.fromJson(element)
-                        onChange(value, value)
+                        onPreChange(value, value)
                     }
                 }
             )

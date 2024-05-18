@@ -36,7 +36,7 @@ class ChestStealer : Module() {
      */
 
     private val maxDelayValue: IntegerValue = object : IntegerValue("MaxDelay", 200, 0, 400, "ms") {
-        override fun onChanged(oldValue: Int, newValue: Int) {
+        override fun onPostChange(oldValue: Int, newValue: Int) {
             val i = minDelayValue.get()
             if (i > newValue)
                 set(i)
@@ -46,7 +46,7 @@ class ChestStealer : Module() {
     }
 
     private val minDelayValue: IntegerValue = object : IntegerValue("MinDelay", 150, 0, 400, "ms") {
-        override fun onChanged(oldValue: Int, newValue: Int) {
+        override fun onPostChange(oldValue: Int, newValue: Int) {
             val i = maxDelayValue.get()
 
             if (i < newValue)
@@ -66,7 +66,7 @@ class ChestStealer : Module() {
     val stillDisplayValue = BoolValue("Silent-StillDisplay", false) { silenceValue.get() }
 
     private val autoCloseMaxDelayValue: IntegerValue = object : IntegerValue("AutoCloseMaxDelay", 0, 0, 400, "ms") {
-        override fun onChanged(oldValue: Int, newValue: Int) {
+        override fun onPostChange(oldValue: Int, newValue: Int) {
             val i = autoCloseMinDelayValue.get()
             if (i > newValue) set(i)
             nextCloseDelay = RandomUtils.randomDelay(autoCloseMinDelayValue.get(), this.get())
@@ -74,7 +74,7 @@ class ChestStealer : Module() {
     }
 
     private val autoCloseMinDelayValue: IntegerValue = object : IntegerValue("AutoCloseMinDelay", 0, 0, 400, "ms") {
-        override fun onChanged(oldValue: Int, newValue: Int) {
+        override fun onPostChange(oldValue: Int, newValue: Int) {
             val i = autoCloseMaxDelayValue.get()
             if (i < newValue) set(i)
             nextCloseDelay = RandomUtils.randomDelay(this.get(), autoCloseMaxDelayValue.get())

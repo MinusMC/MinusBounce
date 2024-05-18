@@ -60,10 +60,10 @@ object PacketUtils : MinecraftInstance(), Listenable {
     fun receivePacketNoEvent(packet: Packet<INetHandlerPlayServer>) {
         val netManager = mc.netHandler?.networkManager ?: return
 
-        if (netManager.channel.isOpen()) {
+        if (netManager.channel.isOpen) {
             try {
                 packet.processPacket(netManager.packetListener as INetHandlerPlayServer)
-            } catch (e: Exception) {}
+            } catch (_: Exception) {}
         }
     }
 
@@ -82,7 +82,7 @@ object PacketUtils : MinecraftInstance(), Listenable {
             avgInBound = inBound
             avgOutBound = outBound
             outBound = 0
-            inBound = outBound
+            inBound = 0
             packetTimer.reset()
         }
         if (mc.thePlayer == null || mc.theWorld == null) {
@@ -98,7 +98,7 @@ object PacketUtils : MinecraftInstance(), Listenable {
         }
     }
 
-    private fun isInventoryAction(action: Short): Boolean = action > 0 && action < 100
+    private fun isInventoryAction(action: Short): Boolean = action in 1..99
 
     val isWatchdogActive: Boolean
         get() = wdVL >= 8

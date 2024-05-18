@@ -16,7 +16,6 @@ import net.minusmc.minusbounce.utils.Rotation
 import net.minusmc.minusbounce.utils.VecRotation
 import net.minusmc.minusbounce.utils.extensions.*
 import net.minusmc.minusbounce.utils.misc.MathUtils
-import java.util.*
 import kotlin.math.*
 
 
@@ -217,33 +216,16 @@ object RotationUtils : MinecraftInstance(), Listenable {
      * Search good center
      *
      * @param bb enemy box
-     * @param random random option
      * @param predict predict option
-     * @param throughWalls throughWalls option
      * @return center
      */
-    @JvmOverloads
-    fun searchCenter(
-        bb: AxisAlignedBB,
-        random: Boolean,
-        predict: Boolean,
-        throughWalls: Boolean,
-        distance: Float,
-        randomMultiply: Float = 0f,
-    ): VecRotation? {
-        val randomVec = Vec3(
-            bb.minX + (bb.maxX - bb.minX) * 0.5 * randomMultiply,
-            bb.minY + (bb.maxY - bb.minY) * 0.5 * randomMultiply,
-            bb.minZ + (bb.maxZ - bb.minZ) * 0.5 * randomMultiply
-        )
-
-        val randomRotation = toRotation(randomVec, predict)
+    fun searchCenter(bb: AxisAlignedBB, predict: Boolean, throughWallsRange: Float, lookRange: Float): VecRotation? {
         val eyes = mc.thePlayer.getPositionEyes(1f)
-        var vecRotation: VecRotation? = null
+        var attackRotation: VecRotation? = null
 
-        for (x in 0.15..0.85)
+        for (x in 0.0..1.0)
             for (y in 0.0..1.0)
-                for (z in 0.15..0.85) {
+                for (z in 0.0..1.0) {
                     val vec3 = Vec3(
                         bb.minX + (bb.maxX - bb.minX) * 0.5, 
                         bb.minY + (bb.maxY - bb.minY) * 0.5, 
@@ -251,18 +233,18 @@ object RotationUtils : MinecraftInstance(), Listenable {
                     )
 
                     val rotation = toRotation(vec3, predict)
+                    rotation.fixedSensitivity(mc.gameSettings.mouseSensitivity)
                     val vecDist = eyes.distanceTo(vec3)
-
-                    if (vecDist > distance)
+                    if (vecDist > lookRange)
                         continue
 
-                    if (throughWalls || isVisible(vec3)) {
-                        if (vecRotation == null || if (random) getRotationDifference(rotation, randomRotation) < getRotationDifference(vecRotation.rotation, randomRotation) else getRotationDifference(rotation) < getRotationDifference(vecRotation.rotation))
-                            vecRotation = VecRotation(vec3, rotation)
+                    if (vecDist > throughWallsRange || isVisible(vec3)) {
+                        if (attackRotation == null || getRotationDifference(rotation) < getRotationDifference(attackRotation.rotation))
+                            attackRotation = VecRotation(vec3, rotation)
                     }
                 }
 
-        return vecRotation
+        return attackRotation
     }
 
     fun limitAngleChange(fromRotation: Rotation, toRotation: Rotation, turnSpeed: Float): Rotation {

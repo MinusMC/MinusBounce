@@ -58,7 +58,7 @@ class Image : Element() {
             setImage(get())
         }
 
-        override fun onChanged(oldValue: String, newValue: String) {
+        override fun onPostChange(oldValue: String, newValue: String) {
             if (get().isEmpty())
                 return
 

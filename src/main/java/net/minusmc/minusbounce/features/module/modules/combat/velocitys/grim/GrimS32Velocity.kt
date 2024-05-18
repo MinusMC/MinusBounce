@@ -11,14 +11,14 @@ class GrimS32Velocity : VelocityMode("GrimS32") {
     private var resetPersec = IntegerValue("ResetPerMin", 10, 0, 30)
 
     private var maxMotionRangeValue: IntegerValue = object: IntegerValue("MaxMotionRange", -500, -1000, 1000) {
-        override fun onChanged(oldValue: Int, newValue: Int) {
+        override fun onPostChange(oldValue: Int, newValue: Int) {
             val v = minMotionRangeValue.get()
             if (v > newValue) set(v)
         }
     }
 
     private var minMotionRangeValue: IntegerValue = object: IntegerValue("MinMotionRange", -500, -1000, 1000) {
-        override fun onChanged(oldValue: Int, newValue: Int) {
+        override fun onPostChange(oldValue: Int, newValue: Int) {
             val v = maxMotionRangeValue.get()
             if (v < newValue) set(v)
         }

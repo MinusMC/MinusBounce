@@ -38,7 +38,7 @@ class AutoKit : Module() {
     // for easier selection
     private val kitTimeOutValue = IntegerValue("Timeout-After", 40, 40, 100, " tick")
     private val editMode: BoolValue = object : BoolValue("Edit-Mode", false) {
-        override fun onChanged(oldValue: Boolean, newValue: Boolean) {
+        override fun onPostChange(oldValue: Boolean, newValue: Boolean) {
             if (newValue)
                 MinusBounce.hud.addNotification(Notification("AutoKit", "Change default kit by right clicking the kit selector and select.", Notification.Type.INFO))
         }

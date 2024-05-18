@@ -5,14 +5,11 @@
  */
 package net.minusmc.minusbounce.features.module.modules.combat
 
-import net.minecraft.entity.EntityLivingBase
-import net.minecraft.network.play.client.C0BPacketEntityAction
 import net.minusmc.minusbounce.MinusBounce
 import net.minusmc.minusbounce.event.*
 import net.minusmc.minusbounce.features.module.Module
 import net.minusmc.minusbounce.features.module.ModuleCategory
 import net.minusmc.minusbounce.features.module.ModuleInfo
-import net.minusmc.minusbounce.utils.timer.MSTimer
 import net.minusmc.minusbounce.utils.extensions.*
 import net.minusmc.minusbounce.value.*
 

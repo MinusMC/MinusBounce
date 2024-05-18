@@ -51,21 +51,24 @@ class KillAura : Module() {
     private val cps = IntRangeValue("CPS", 5, 8, 1, 20)
     private val hurtTimeValue = IntegerValue("HurtTime", 10, 0, 10)
 
-    val rangeValue = FloatValue("Range", 3.7f, 1f, 8f, "m")
-    private val throughWallsValue = BoolValue("ThroughWalls", true)
-    private val throughWallsRangeValue = object: FloatValue("ThroughWallsRange", 2f, 1f, 8f, {throughWallsValue.get()}) {
-        override fun onChange(oldValue: Float, newValue: Float) {
-            val range = rangeValue.get()
-            if (newValue > range) set(range)
+    val rangeValue: FloatValue = object: FloatValue("Range", 3.7f, 1f, 8f, "m") {
+        override fun onPostChange(oldValue: Float, newValue: Float) {
+            set(newValue.coerceAtMost(rotationRangeValue.get()))
         }
-
-        override fun onChanged(oldValue: Float, newValue: Float) {
-            val range = rangeValue.get()
-            if (newValue > range) set(range)
+    }
+    private val throughWallsRangeValue = object: FloatValue("ThroughWallsRange", 2f, 1f, 8f, "m") {
+        override fun onPostChange(oldValue: Float, newValue: Float) {
+            set(newValue.coerceAtMost(rangeValue.get()))
         }
     }
 
-    private val rotationValue = ListValue("RotationMode", arrayOf("Vanilla", "BackTrack", "Grim", "Intave", "None"), "BackTrack")
+    private val rotationRangeValue: FloatValue = object: FloatValue("RotationRange", 5f, 1f, 8f, "m") {
+        override fun onPostChange(oldValue: Float, newValue: Float) {
+            set(newValue.coerceAtLeast(rangeValue.get()))
+        }
+    }
+
+    private val rotationValue = ListValue("RotationMode", arrayOf("Vanilla", "NCP", "Grim", "Intave", "None"), "BackTrack")
     private val intaveRandomAmount = FloatValue("Random", 4f, 0.25f, 10f) { rotationValue.get().equals("Intave", true) }
     private val turnSpeed = FloatRangeValue("TurnSpeed", 180f, 180f, 0f, 180f, "°") {
         !rotationValue.get().equals("None", true)
@@ -82,17 +85,16 @@ class KillAura : Module() {
 
     private val swingValue = ListValue("Swing", arrayOf("Normal", "Packet", "None"), "Normal")
     private val failSwingValue = BoolValue("FailSwing", true)
-    private val hitableCheckValue = BoolValue("HitableCheck", false) { !rotationValue.get().equals("none", true) && !throughWallsValue.get()}
+    private val hitableCheckValue = BoolValue("HitableCheck", false) { !rotationValue.get().equals("none", true) }
     private val useHitDelay = BoolValue("UseHitDelay", true)
     private val hitDelay = IntegerValue("HitDelay", 100, 0, 1000) {useHitDelay.get()}
 
-
     val autoBlockModeValue: ListValue = object : ListValue("AutoBlock", blockingModes.map { it.modeName }.toTypedArray(), "None") {
-        override fun onChange(oldValue: String, newValue: String) {
+        override fun onPreChange(oldValue: String, newValue: String) {
             if (state) onDisable()
         }
 
-        override fun onChanged(oldValue: String, newValue: String) {
+        override fun onPostChange(oldValue: String, newValue: String) {
             if (state) onEnable()
         }
     }
@@ -372,7 +374,7 @@ class KillAura : Module() {
             if (targetModeValue.get().equals("switch", true) && prevTargetEntities.contains(entity.entityId))
                 continue
 
-            if (mc.thePlayer.getDistanceToEntityBox(entity) <= rangeValue.get())
+            if (mc.thePlayer.getDistanceToEntityBox(entity) <= rotationRangeValue.get())
                 discoveredEntities.add(entity)
         }
 
@@ -438,10 +440,7 @@ class KillAura : Module() {
             eyes + RotationUtils.getVectorForRotation(rotation) * rangeValue.get().toDouble()
         )
 
-        hitable = mc.theWorld.rayTraceBlocks(mc.thePlayer.eyes, intercept.hitVec) == null
-
-        if (throughWallsValue.get())
-            hitable = mc.thePlayer.getDistanceToEntityBox(targetToCheck) < throughWallsRangeValue.get()
+        hitable = mc.theWorld.rayTraceBlocks(mc.thePlayer.eyes, intercept.hitVec) == null || mc.thePlayer.getDistanceToEntityBox(targetToCheck) < throughWallsRangeValue.get()
 
         if (hitableCheckValue.get() && mc.objectMouseOver != null)
             hitable = mc.objectMouseOver.typeOfHit == MovingObjectPosition.MovingObjectType.ENTITY
@@ -462,7 +461,7 @@ class KillAura : Module() {
                 else -> MovementCorrection.Type.NONE
             }
 
-            RotationUtils.setTargetRotation(rotation, 5, rotationSpeed, movementCorrectionType)
+            RotationUtils.setTargetRotation(rotation, 10, rotationSpeed, movementCorrectionType)
         } else {
             val limitRotation = RotationUtils.limitAngleChange(mc.thePlayer.rotation, rotation, rotationSpeed)
             limitRotation.toPlayer(mc.thePlayer)
@@ -506,22 +505,17 @@ class KillAura : Module() {
         return when (rotationValue.get().lowercase()) {
             "vanilla" -> {
                 val (_, rotation) = RotationUtils.searchCenter(
-                    boundingBox, 
-                    false, 
-                    predictValue.get(), 
-                    throughWallsValue.get(), 
-                    rangeValue.get()
-                ) ?: return null
+                    boundingBox, predictValue.get(), throughWallsRangeValue.get(), rotationRangeValue.get()) ?: return null
                 rotation
             }
-            "backtrack" -> RotationUtils.toRotation(RotationUtils.getCenter(entity.entityBoundingBox))
+            "ncp" -> RotationUtils.toRotation(RotationUtils.getCenter(entity.entityBoundingBox))
             "grim" -> RotationUtils.toRotation(getNearestPointBB(mc.thePlayer.getPositionEyes(1F), boundingBox))
             "intave" -> {
                 val rotation = RotationUtils.toRotation(
                     Vec3(0.0, 0.0, 0.0),
                     diff = Vec3(
                         entity.posX - mc.thePlayer.posX,
-                        entity.posY + entity.eyeHeight * 0.9 - (mc.thePlayer.posY + mc.thePlayer.getEyeHeight()),
+                        entity.posY + entity.eyeHeight * 0.9 - (mc.thePlayer.posY + mc.thePlayer.eyeHeight),
                         entity.posZ - mc.thePlayer.posZ
                     )
                 )

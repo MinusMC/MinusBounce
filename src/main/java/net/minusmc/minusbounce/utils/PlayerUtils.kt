@@ -43,7 +43,7 @@ object PlayerUtils: MinecraftInstance() {
     fun getHealPotion(): Int {
         for (i in 36..44) {
             val stack = mc.thePlayer.inventoryContainer.getSlot(i).stack
-            if(stack != null && stack.item is ItemPotion && isHealPotion(stack)) return i - 36
+            if (stack != null && stack.item is ItemPotion && isHealPotion(stack)) return i - 36
         }
         return -1
     }

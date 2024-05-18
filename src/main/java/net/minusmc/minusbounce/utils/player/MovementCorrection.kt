@@ -19,7 +19,7 @@ object MovementCorrection: MinecraftInstance(), Listenable {
     fun onMoveInput(event: MoveInputEvent) {
         val forward = event.forward
         val strafe = event.strafe
-        if (type == Type.STRICT && RotationUtils.active) {
+        if (type == Type.STRICT) {
 
             val rotation = RotationUtils.currentRotation ?: return
             val offset = MathUtils.toRadians(mc.thePlayer.rotationYaw - rotation.yaw)
@@ -41,7 +41,7 @@ object MovementCorrection: MinecraftInstance(), Listenable {
         if (type == Type.NONE)
             return
 
-        RotationUtils.currentRotation?.let {if (RotationUtils.active) event.yaw = it.yaw}
+        RotationUtils.currentRotation?.let {event.yaw = it.yaw}
     }
 
     @EventTarget(priority = -2)
@@ -49,7 +49,7 @@ object MovementCorrection: MinecraftInstance(), Listenable {
         if (type == Type.NONE)
             return
 
-        RotationUtils.currentRotation?.let {if (RotationUtils.active) event.yaw = it.yaw}
+        RotationUtils.currentRotation?.let {event.yaw = it.yaw}
     }
 
     override fun handleEvents() = true

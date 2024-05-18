@@ -16,7 +16,7 @@ import kotlin.random.Random
 class Spammer: Module() {
 
     private val maxDelayValue: IntegerValue = object: IntegerValue("MaxDelay", 1000, 0, 5000, "ms") {
-        override fun onChanged(oldValue: Int, newValue: Int) {
+        override fun onPostChange(oldValue: Int, newValue: Int) {
             val i = minDelayValue.get()
 
             if (i > newValue) set(i)
@@ -24,7 +24,7 @@ class Spammer: Module() {
     }
 
     private val minDelayValue: IntegerValue = object: IntegerValue("MinDelay", 500, 0, 5000, "ms") {
-        override fun onChanged(oldValue: Int, newValue: Int) {
+        override fun onPostChange(oldValue: Int, newValue: Int) {
             val i = maxDelayValue.get()
 
             if (i < newValue) set(i)

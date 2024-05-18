@@ -23,10 +23,10 @@ class Fly: Module() {
         get() = modes.find { modeValue.get().equals(it.modeName, true) } ?: throw NullPointerException()
 
 	private val typeValue: ListValue = object: ListValue("Type", FlyType.values().map{it.typeName}.toTypedArray(), "AAC") {
-		override fun onChanged(oldValue: String, newValue: String) {
+		override fun onPostChange(oldValue: String, newValue: String) {
 			modeValue.changeListValues(modes.filter{it.typeName.typeName == newValue}.map{it.modeName}.toTypedArray())
 		}
-		override fun onChange(oldValue: String, newValue: String) {
+		override fun onPreChange(oldValue: String, newValue: String) {
 			modeValue.changeListValues(modes.filter{it.typeName.typeName == newValue}.map{it.modeName}.toTypedArray())
 		}
 	}
@@ -35,10 +35,10 @@ class Fly: Module() {
 		get() = modes.filter{it.typeName.typeName == typeValue.get()}.map{it.modeName}.toTypedArray()
 
 	private val modeValue: ListValue = object: ListValue("Mode", modesForType) {
-		override fun onChange(oldValue: String, newValue: String) {
+		override fun onPreChange(oldValue: String, newValue: String) {
 			if (state) onDisable()
 		}
-		override fun onChanged(oldValue: String, newValue: String) {
+		override fun onPostChange(oldValue: String, newValue: String) {
 			if (state) onEnable()
 		}
 	}	

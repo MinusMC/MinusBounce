@@ -21,7 +21,7 @@ import kotlin.random.Random
 class AutoClicker : Module() {
     private val maxCPSValue: IntegerValue = object : IntegerValue("MaxCPS", 8, 1, 20) {
 
-        override fun onChanged(oldValue: Int, newValue: Int) {
+        override fun onPostChange(oldValue: Int, newValue: Int) {
             val minCPS = minCPSValue.get()
             if (minCPS > newValue)
                 set(minCPS)
@@ -31,7 +31,7 @@ class AutoClicker : Module() {
 
     private val minCPSValue: IntegerValue = object : IntegerValue("MinCPS", 5, 1, 20) {
 
-        override fun onChanged(oldValue: Int, newValue: Int) {
+        override fun onPostChange(oldValue: Int, newValue: Int) {
             val maxCPS = maxCPSValue.get()
             if (maxCPS < newValue)
                 set(maxCPS)

@@ -47,14 +47,14 @@ class InvManager : Module() {
 
     // Delay
     private val maxDelayValue: IntegerValue = object : IntegerValue("MaxDelay", 600, 0, 1000, "ms") {
-        override fun onChanged(oldValue: Int, newValue: Int) {
+        override fun onPostChange(oldValue: Int, newValue: Int) {
             val minCPS = minDelayValue.get()
             if (minCPS > newValue) set(minCPS)
         }
     }
 
     private val minDelayValue: IntegerValue = object : IntegerValue("MinDelay", 400, 0, 1000, "ms") {
-        override fun onChanged(oldValue: Int, newValue: Int) {
+        override fun onPostChange(oldValue: Int, newValue: Int) {
             val maxDelay = maxDelayValue.get()
             if (maxDelay < newValue) set(maxDelay)
         }

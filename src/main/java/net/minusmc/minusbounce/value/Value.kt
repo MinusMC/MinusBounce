@@ -6,16 +6,7 @@
 package net.minusmc.minusbounce.value
 
 import com.google.gson.JsonElement
-import com.google.gson.JsonObject
-import com.google.gson.Gson
-import net.minusmc.minusbounce.MinusBounce
-import net.minusmc.minusbounce.ui.font.Fonts
 import net.minusmc.minusbounce.utils.ClientUtils
-import net.minusmc.minusbounce.utils.extensions.setAlpha
-import net.minecraft.client.gui.FontRenderer
-import net.minusmc.minusbounce.utils.FontUtils
-import java.awt.Color
-import java.util.*
 
 abstract class Value<T>(var name: String, protected var value: T, var canDisplay: () -> Boolean) {
     val defaultValue = value
@@ -35,9 +26,9 @@ abstract class Value<T>(var name: String, protected var value: T, var canDisplay
         val oldValue = get()
 
         try {
-            onChange(oldValue, newValue)
+            onPreChange(oldValue, newValue)
             changeValue(newValue)
-            onChanged(oldValue, newValue)
+            onPostChange(oldValue, newValue)
         } catch (e: Exception) {
             ClientUtils.logger.error("[ValueSystem ($name)]: ${e.javaClass.name} (${e.message}) [$oldValue >> $newValue]")
         }
@@ -50,7 +41,7 @@ abstract class Value<T>(var name: String, protected var value: T, var canDisplay
     abstract fun toJson(): JsonElement?
     abstract fun fromJson(element: JsonElement)
 
-    protected open fun onChange(oldValue: T, newValue: T) {}
-    protected open fun onChanged(oldValue: T, newValue: T) {}
+    protected open fun onPreChange(oldValue: T, newValue: T) {}
+    protected open fun onPostChange(oldValue: T, newValue: T) {}
 
 }
