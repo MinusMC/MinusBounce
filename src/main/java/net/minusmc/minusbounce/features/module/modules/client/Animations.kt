@@ -60,6 +60,8 @@ object Animations : Module() {
     }
     val tabAnimations = ListValue("Tab-Animation", arrayOf("None", "Zoom", "Slide"), "Zoom")
 
+    val fakeBlocking = BoolValue("Fake-Blocking", true)
+
     // block crack
     val noBlockParticles = BoolValue("NoBlockParticles", false)
 }

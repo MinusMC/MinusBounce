@@ -56,7 +56,8 @@ class KillAura : Module() {
             set(newValue.coerceAtMost(rotationRangeValue.get()))
         }
     }
-    private val throughWallsRangeValue = object: FloatValue("ThroughWallsRange", 2f, 1f, 8f, "m") {
+
+    private val throughWallsRangeValue = object: FloatValue("ThroughWallsRange", 2f, 0f, 8f, "m") {
         override fun onPostChange(oldValue: Float, newValue: Float) {
             set(newValue.coerceAtMost(rangeValue.get()))
         }
@@ -67,6 +68,8 @@ class KillAura : Module() {
             set(newValue.coerceAtLeast(rangeValue.get()))
         }
     }
+
+    private val hitSelectRangeValue = FloatValue("HitSelectRange", 3f, 2f, 4f)
 
     private val rotationValue = ListValue("RotationMode", arrayOf("Vanilla", "NCP", "Grim", "Intave", "None"), "BackTrack")
     private val intaveRandomAmount = FloatValue("Random", 4f, 0.25f, 10f) { rotationValue.get().equals("Intave", true) }
@@ -130,12 +133,16 @@ class KillAura : Module() {
     private var attackDelay = 0L
     private var clicks = 0
 
+    private val hitSelectTimer = MSTimer()
+    private var canHitSelect = false
+
     // Fake block status
     var blockingStatus = false
 
     override fun onDisable() {
         target = null
         hitable = false
+        canHitSelect = false
         attackTimer.reset()
         lastMovingObjectPosition = null
         lastTimeAttack = 0L
@@ -154,10 +161,27 @@ class KillAura : Module() {
     @EventTarget
     fun onPreUpdate(event: PreUpdateEvent) {
         blockingMode.onPreUpdate()
+
+        updateTarget()
     }
 
     @EventTarget
-    fun onUpdate(event: UpdateEvent){
+    fun onUpdate(event: UpdateEvent) {
+        if (hitSelectRangeValue.get() > 0f) {
+            if (target == null && hitSelectTimer.hasTimePassed(900L))
+                canHitSelect = false
+            else if (mc.thePlayer.hurtTime > 7 || mc.thePlayer.getDistanceToEntityBox(target!!) < hitSelectRangeValue.get()) {
+                canHitSelect = true
+                hitSelectTimer.reset()
+            }
+
+            if (!canHitSelect) {
+                if (clicks > 0) clicks = 1
+                return
+            }
+        }
+
+
         target ?: run {
             stopBlocking()
             return
@@ -171,13 +195,15 @@ class KillAura : Module() {
 
     @EventTarget
     fun onPreMotion(event: PreMotionEvent) {
-        blockingMode.onPreMotion()
+        updateHitable()
 
-        updateTarget()
+        blockingMode.onPreMotion()
     }
 
     @EventTarget
     fun onPostMotion(event: PostMotionEvent) {
+        updateHitable()
+
         blockingMode.onPostMotion()
     }
 
@@ -316,10 +342,7 @@ class KillAura : Module() {
      */
 
     private fun runAttack(isLastClicks: Boolean) {
-        updateHitable()
-
         if (hitable) {
-
             target?.let {
                 if (it.hurtTime > hurtTimeValue.get())
                     return

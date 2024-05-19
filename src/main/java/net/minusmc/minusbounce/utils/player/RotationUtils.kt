@@ -38,10 +38,6 @@ object RotationUtils : MinecraftInstance(), Listenable {
 
         mc.thePlayer ?: return
 
-        currentRotation ?: run {
-            if (active) currentRotation = mc.thePlayer.rotation
-        }
-
         currentRotation?.let {
             if (keepLength > 0) {
                 keepLength--
@@ -55,7 +51,7 @@ object RotationUtils : MinecraftInstance(), Listenable {
                 backRotation.fixedSensitivity(mc.gameSettings.mouseSensitivity)
                 currentRotation = backRotation
             }
-        }
+        } ?: if (active) currentRotation = mc.thePlayer.rotation
     }
 
     @EventTarget(priority = 100)
@@ -79,11 +75,20 @@ object RotationUtils : MinecraftInstance(), Listenable {
         }
     }
 
-    @EventTarget(priority = 100)
-    fun onPostMotion(event: PostMotionEvent) {
-        currentRotation?.let {
-            serverRotation = it
+    @EventTarget
+    fun onPacket(event: PacketEvent) {
+        val packet = event.packet
+
+        if (packet !is C03PacketPlayer || !packet.rotating) {
+            return
         }
+
+        currentRotation?.let {
+            packet.yaw = it.yaw
+            packet.pitch = it.pitch
+        }
+
+        serverRotation = Rotation(packet.yaw, packet.pitch)
     }
 
     fun setTargetRotation(rotation: Rotation, keepLength: Int = 1, speed: Float = 180f, fixType: MovementCorrection.Type = MovementCorrection.Type.NONE) {
@@ -99,6 +104,12 @@ object RotationUtils : MinecraftInstance(), Listenable {
 
         currentRotation?.let {
             mc.thePlayer.rotationYaw = it.yaw + getAngleDifference(mc.thePlayer.rotationYaw, it.yaw)
+            mc.thePlayer.prevRotationYaw = mc.thePlayer.rotationYaw
+            mc.thePlayer.prevRotationPitch = mc.thePlayer.rotationPitch
+            mc.thePlayer.renderArmYaw = mc.thePlayer.rotationYaw
+            mc.thePlayer.renderArmPitch = mc.thePlayer.rotationPitch
+            mc.thePlayer.prevRenderArmYaw = mc.thePlayer.rotationYaw
+            mc.thePlayer.prevRotationPitch = mc.thePlayer.rotationPitch
         }
 
         currentRotation = null

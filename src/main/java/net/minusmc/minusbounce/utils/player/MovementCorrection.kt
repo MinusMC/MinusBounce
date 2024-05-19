@@ -29,7 +29,6 @@ object MovementCorrection: MinecraftInstance(), Listenable {
 
             val f = if (event.forward != 0f) event.forward else event.strafe
 
-            /* Handle NegativeZero */
             event.forward = round(calcForward * cos(offset) + calcStrafe * sin(offset)) * abs(f)
             event.strafe = round(calcStrafe * cos(offset) - calcForward * sin(offset)) * abs(f)
         }
@@ -37,7 +36,6 @@ object MovementCorrection: MinecraftInstance(), Listenable {
 
     @EventTarget(priority = -2)
     fun onStrafe(event: StrafeEvent){
-
         if (type == Type.NONE)
             return
 
