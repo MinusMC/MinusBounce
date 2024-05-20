@@ -29,4 +29,5 @@ abstract class VelocityMode(val modeName: String): MinecraftInstance() {
     open fun onJump(event: JumpEvent) {}
     open fun onPreMotion(event: PreMotionEvent) {}
 	open fun onTick() {}
+	open fun onEntityDamage(event: EntityDamageEvent)
 }

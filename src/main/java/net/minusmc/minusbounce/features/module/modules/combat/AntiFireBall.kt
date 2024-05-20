@@ -57,7 +57,8 @@ class AntiFireBall : Module() {
             RotationUtils.setTargetRotation(
                 RotationUtils.toRotation(nearestPoint, true),
                 keepLength = 2,
-                speed = nextFloat(turnSpeed.getMinValue(), turnSpeed.getMaxValue()),
+                minRotationSpeed = turnSpeed.getMinValue(),
+                maxRotationSpeed = turnSpeed.getMaxValue(),
                 fixType = MovementCorrection.Type.STRICT
             )
 

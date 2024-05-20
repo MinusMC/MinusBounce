@@ -60,6 +60,11 @@ class Speed: Module() {
 	override fun onDisable() {mode.onDisable()}
 
 	@EventTarget
+	fun onTick(event: TickEvent) {
+		mode.onTick()
+	}
+
+	@EventTarget
 	fun onUpdate(event: UpdateEvent) {
         if (mc.thePlayer.isSneaking || (noWater.get() && mc.thePlayer.isInWater)) return
 		if (MovementUtils.isMoving && alwaysSprint.get()) mc.thePlayer.isSprinting = true

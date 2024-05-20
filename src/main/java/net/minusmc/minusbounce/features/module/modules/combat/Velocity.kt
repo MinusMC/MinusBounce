@@ -54,6 +54,11 @@ class Velocity : Module() {
     }
 
     @EventTarget
+    fun onEntityDamage(event: EntityDamageEvent) {
+        mode.onEntityDamage()
+    }
+
+    @EventTarget
     fun onPacket(event: PacketEvent) {
         mode.onPacket(event)
         val packet = event.packet

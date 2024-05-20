@@ -340,7 +340,20 @@ class Scaffold: Module() {
 
 
 
-        //if (placeModeValue.equals("legit")) place()
+        lockRotation?.let {
+            RotationUtils.setTargetRotation(it, keepLengthValue.get(), minTurnSpeed.get(), maxTurnSpeed.get(), 
+                if (movementCorrection.get()) MovementCorrection.Type.STRICT else MovementCorrection.Type.NONE)
+        }
+
+        // raytrace check
+        runWithModifiedRaycastResult(mc.playerController.blockReachDistance, 0f) {obj ->
+            if (obj.typeOfHit != MovingObjectPosition.MovingObjectType.BLOCK) {
+                return@runWithModifiedRaycastResult
+            }
+
+            if (obj.blockPos == targetPlace!!.blockPos && obj.sideHit == targetPlace!!.enumFacing)
+                place()
+        }
     }
 
     @EventTarget
@@ -356,6 +369,8 @@ class Scaffold: Module() {
 
     @EventTarget
     fun onPreMotion(event: PreMotionEvent) {
+        findBlock(expandLengthValue.get() > 1 && !towerStatus)
+
         if (!placeCondition || if (!autoBlockMode.get().equals("off", true)) InventoryUtils.findAutoBlockBlock() == -1 else mc.thePlayer.heldItem == null || !(mc.thePlayer.heldItem.item is ItemBlock && isBlockToScaffold(mc.thePlayer.heldItem.item as ItemBlock))) {
             return
         }
@@ -396,27 +411,6 @@ class Scaffold: Module() {
         // Placeable delay
         if (targetPlace == null && !placeableDelay.get().equals("Off", true) && !towerStatus) {
             delayTimer.reset()
-        }
-    }
-
-    @EventTarget
-    fun onPreUpdate(event: PreUpdateEvent) {
-        findBlock(expandLengthValue.get() > 1 && !towerStatus)
-        
-        lockRotation?.let {
-            RotationUtils.setTargetRotation(it, keepLengthValue.get(), rotationSpeed, 
-                if (movementCorrection.get()) MovementCorrection.Type.STRICT else MovementCorrection.Type.NONE)
-        
-        }
-
-        // raytrace check
-        runWithModifiedRaycastResult(mc.playerController.blockReachDistance, 0f) {obj ->
-            if (obj.typeOfHit != MovingObjectPosition.MovingObjectType.BLOCK) {
-                return@runWithModifiedRaycastResult
-            }
-
-            if (obj.blockPos == targetPlace!!.blockPos && obj.sideHit == targetPlace!!.enumFacing)
-                place()
         }
     }
 
@@ -784,9 +778,6 @@ class Scaffold: Module() {
             "falldown" -> mc.thePlayer.fallDistance > 0f
             else -> false
         }
-
-    private val rotationSpeed: Float
-        get() = (Math.random() * (maxTurnSpeed.get() - minTurnSpeed.get()) + minTurnSpeed.get()).toFloat()
 
     override val tag: String
         get() = if (towerStatus) "Tower, ${towerModeValue.get()}" else placeModeValue.get()

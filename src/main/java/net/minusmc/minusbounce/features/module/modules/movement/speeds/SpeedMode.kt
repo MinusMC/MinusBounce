@@ -23,6 +23,7 @@ abstract class SpeedMode(val modeName: String, val typeName: SpeedType): Minecra
 	}
 
     open fun onUpdate() {}
+    open fun onTick() {}
 	open fun onPreMotion(event: PreMotionEvent) {}
 	open fun onPostMotion(event: PostMotionEvent) {}
     open fun onPacket(event: PacketEvent) {}

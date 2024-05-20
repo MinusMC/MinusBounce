@@ -24,13 +24,8 @@ object MovementCorrection: MinecraftInstance(), Listenable {
             val rotation = RotationUtils.currentRotation ?: return
             val offset = MathUtils.toRadians(mc.thePlayer.rotationYaw - rotation.yaw)
 
-            val calcForward = ceil(abs(forward)) * forward.sign
-            val calcStrafe = ceil(abs(strafe)) * strafe.sign
-
-            val f = if (event.forward != 0f) event.forward else event.strafe
-
-            event.forward = round(calcForward * cos(offset) + calcStrafe * sin(offset)) * abs(f)
-            event.strafe = round(calcStrafe * cos(offset) - calcForward * sin(offset)) * abs(f)
+            event.forward = round(forward * cos(offset) + strafe * sin(offset))
+            event.strafe = round(strafe * cos(offset) - forward * sin(offset))
         }
     }
 
