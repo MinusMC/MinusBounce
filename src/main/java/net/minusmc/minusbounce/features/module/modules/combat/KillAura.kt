@@ -69,7 +69,7 @@ class KillAura : Module() {
         }
     }
 
-    private val hitSelectRangeValue = FloatValue("HitSelectRange", 3f, 2f, 4f)
+    private val hitSelectRangeValue = FloatValue("HitSelectRange", 3f, 0f, 4f)
 
     private val rotationValue = ListValue("RotationMode", arrayOf("Vanilla", "NCP", "Grim", "Intave", "None"), "BackTrack")
     private val intaveRandomAmount = FloatValue("Random", 4f, 0.25f, 10f) { rotationValue.get().equals("Intave", true) }
@@ -112,7 +112,6 @@ class KillAura : Module() {
     private val predictValue = BoolValue("Predict", true)
     private val predictSizeValue = FloatRangeValue("PredictSize", 1f, 1f, 0.1f, 5f) {predictValue.get()}
 
-    private val espModes = ListValue("ESP", arrayOf("Jello", "Off"), "Jello")
     private val circleValue = BoolValue("Circle", true)
     private val accuracyValue = IntegerValue("Accuracy", 59, 0, 59) { circleValue.get() }
     private val red = IntegerValue("Red", 255, 0, 255) { circleValue.get() }
@@ -161,8 +160,6 @@ class KillAura : Module() {
     @EventTarget
     fun onPreUpdate(event: PreUpdateEvent) {
         blockingMode.onPreUpdate()
-
-        updateTarget()
     }
 
     @EventTarget
@@ -181,7 +178,6 @@ class KillAura : Module() {
             }
         }
 
-
         target ?: run {
             stopBlocking()
             return
@@ -195,16 +191,16 @@ class KillAura : Module() {
 
     @EventTarget
     fun onPreMotion(event: PreMotionEvent) {
-        updateHitable()
-
         blockingMode.onPreMotion()
+
+        updateTarget()
     }
 
     @EventTarget
     fun onPostMotion(event: PostMotionEvent) {
-        updateHitable()
-
         blockingMode.onPostMotion()
+
+        updateTarget()
     }
 
     @EventTarget
@@ -253,86 +249,6 @@ class KillAura : Module() {
             attackTimer.reset()
             attackDelay = RandomUtils.randomClickDelay(cps.getMinValue(), cps.getMaxValue())
         }
-
-        /* Draw ESP */
-        when(espModes.get().lowercase()) {
-            "jello" -> drawCircle(target!!)
-        }
-    }
-
-    /**
-     * Sigma Jello Mark
-     *
-     */
-    private fun drawCircle(it: EntityLivingBase) {
-        val drawTime = (System.currentTimeMillis() % 2000).toInt()
-        val drawMode=drawTime>1000
-        var drawPercent=drawTime/1000.0
-
-        if(!drawMode){
-            drawPercent = 1 -drawPercent
-        }else{
-            drawPercent-=1
-        }
-
-        drawPercent = if (drawPercent < 0.5) { 2 * drawPercent * drawPercent } else { 1 - (-2 * drawPercent + 2).pow(2) / 2 }
-        val points = mutableListOf<Vec3>()
-
-        val bb = it.entityBoundingBox
-        val radius = bb.maxX-bb.minX
-        val height = bb.maxY-bb.minY
-
-        val posX = it.lastTickPosX + (it.posX - it.lastTickPosX) * mc.timer.renderPartialTicks
-        var posY = it.lastTickPosY + (it.posY - it.lastTickPosY) * mc.timer.renderPartialTicks
-        if(drawMode){
-            posY -= 0.5
-        }else{
-            posY += 0.5
-        }
-        val posZ = it.lastTickPosZ + (it.posZ - it.lastTickPosZ) * mc.timer.renderPartialTicks
-
-        for(i in 0..360 step 7){
-            points.add(Vec3(posX - sin(i * Math.PI / 180F) * radius,posY+height*drawPercent,posZ + cos(i * Math.PI / 180F) * radius))
-        }
-        points.add(points[0])
-
-        mc.entityRenderer.disableLightmap()
-        GL11.glPushMatrix()
-        GL11.glDisable(GL11.GL_TEXTURE_2D)
-        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA)
-        GL11.glEnable(GL11.GL_LINE_SMOOTH)
-        GL11.glEnable(GL11.GL_BLEND)
-        GL11.glDisable(GL11.GL_DEPTH_TEST)
-        GL11.glBegin(GL11.GL_LINE_STRIP)
-
-        val baseMove = (if (drawPercent > 0.5) 1-drawPercent else drawPercent) * 2
-        val min=(height/60)*20*(1-baseMove)*(if(drawMode) -1 else 1)
-
-        for(i in 0..20) {
-            var moveFace=(height/60F)*i*baseMove
-            if(drawMode){
-                moveFace=-moveFace
-            }
-            val firstPoint=points[0]
-            GL11.glVertex3d(
-                firstPoint.xCoord - mc.renderManager.viewerPosX, firstPoint.yCoord - moveFace - min - mc.renderManager.viewerPosY,
-                firstPoint.zCoord - mc.renderManager.viewerPosZ
-            )
-            GL11.glColor4f(1F, 1F, 1F, 0.7F*(i/20F))
-            for (vec3 in points) {
-                GL11.glVertex3d(
-                    vec3.xCoord - mc.renderManager.viewerPosX, vec3.yCoord - moveFace - min - mc.renderManager.viewerPosY,
-                    vec3.zCoord - mc.renderManager.viewerPosZ
-                )
-            }
-            GL11.glColor4f(0F,0F,0F,0F)
-        }
-        GL11.glEnd()
-        GL11.glEnable(GL11.GL_DEPTH_TEST)
-        GL11.glDisable(GL11.GL_LINE_SMOOTH)
-        GL11.glDisable(GL11.GL_BLEND)
-        GL11.glEnable(GL11.GL_TEXTURE_2D)
-        GL11.glPopMatrix()
     }
 
     /**
@@ -342,6 +258,8 @@ class KillAura : Module() {
      */
 
     private fun runAttack(isLastClicks: Boolean) {
+        updateHitable()
+
         if (hitable) {
             target?.let {
                 if (it.hurtTime > hurtTimeValue.get())
@@ -360,24 +278,23 @@ class KillAura : Module() {
             prevTargetEntities.add(target!!.entityId)
         } else if (swingValue.get().equals("none", true) && failSwingValue.get())
             runWithModifiedRaycastResult(rangeValue.get(), throughWallsRangeValue.get()) { obj ->
+                if (shouldDelayClick(obj.typeOfHit)) {
+                    if (obj.typeOfHit == MovingObjectPosition.MovingObjectType.ENTITY) {
+                        val entity = obj.entityHit
 
-            if (shouldDelayClick(obj.typeOfHit)) {
-                if (obj.typeOfHit == MovingObjectPosition.MovingObjectType.ENTITY) {
-                    val entity = obj.entityHit
+                        if (entity is EntityLivingBase)
+                            attackEntity(entity)
 
-                    if (entity is EntityLivingBase)
-                        attackEntity(entity)
+                    } else
+                        mc.clickMouse()
 
-                } else
-                    mc.clickMouse()
+                    lastMovingObjectPosition = obj
+                    lastTimeAttack = System.currentTimeMillis()
+                }
 
-                lastMovingObjectPosition = obj
-                lastTimeAttack = System.currentTimeMillis()
+                if (isLastClicks)
+                    mc.sendClickBlockToController(false)
             }
-
-            if (isLastClicks)
-                mc.sendClickBlockToController(false)
-        }
 
         if (targetModeValue.get().equals("Switch", true)) {
             if (attackTimer.hasTimePassed(switchDelayValue.get().toLong())) {
@@ -474,7 +391,6 @@ class KillAura : Module() {
             return true
 
         val rotation = getTargetRotation(entity) ?: return false
-
         rotation.fixedSensitivity(mc.gameSettings.mouseSensitivity)
 
         if (silentRotationValue.get()) {
@@ -484,9 +400,9 @@ class KillAura : Module() {
                 else -> MovementCorrection.Type.NONE
             }
 
-            RotationUtils.setTargetRotation(rotation, 10, rotationSpeed, movementCorrectionType)
+            RotationUtils.setTargetRotation(rotation, 10, turnSpeed.getMinValue(), turnSpeed.getMaxValue(), movementCorrectionType)
         } else {
-            val limitRotation = RotationUtils.limitAngleChange(mc.thePlayer.rotation, rotation, rotationSpeed)
+            val limitRotation = RotationUtils.limitAngleChange(mc.thePlayer.rotation, rotation, RandomUtils.nextFloat(turnSpeed.getMinValue(), turnSpeed.getMaxValue()))
             limitRotation.toPlayer(mc.thePlayer)
         }
 
@@ -570,9 +486,6 @@ class KillAura : Module() {
 
     private val predictSize: Float
         get() = RandomUtils.nextFloat(predictSizeValue.getMinValue(), predictSizeValue.getMaxValue())
-
-    private val rotationSpeed: Float
-        get() = RandomUtils.nextFloat(turnSpeed.getMinValue(), turnSpeed.getMaxValue())
 
     override val tag: String
         get() = targetModeValue.get()

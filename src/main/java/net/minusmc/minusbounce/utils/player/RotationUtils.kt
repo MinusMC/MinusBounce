@@ -8,12 +8,14 @@ package net.minusmc.minusbounce.utils.player
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.util.*
+import net.minecraft.network.play.client.C03PacketPlayer
 import net.minusmc.minusbounce.event.*
 import net.minusmc.minusbounce.utils.MinecraftInstance
 import net.minusmc.minusbounce.utils.RaycastUtils.IEntityFilter
 import net.minusmc.minusbounce.utils.RaycastUtils.raycastEntity
 import net.minusmc.minusbounce.utils.Rotation
 import net.minusmc.minusbounce.utils.VecRotation
+import net.minusmc.minusbounce.utils.misc.RandomUtils
 import net.minusmc.minusbounce.utils.extensions.*
 import net.minusmc.minusbounce.utils.misc.MathUtils
 import kotlin.math.*
@@ -29,7 +31,11 @@ object RotationUtils : MinecraftInstance(), Listenable {
     var serverRotation = Rotation(0f, 0f)
 
     private var keepLength = 0
-    private var rotationSpeed = 180f
+    private var minRotationSpeed = 180f
+    private var maxRotationSpeed = 180f
+
+    private val rotationSpeed: Float
+        get() = RandomUtils.nextFloat(minRotationSpeed, maxRotationSpeed)
 
     var active = false
 
@@ -39,6 +45,21 @@ object RotationUtils : MinecraftInstance(), Listenable {
         mc.thePlayer ?: return
 
         currentRotation?.let {
+            if (active) {
+                val limitRotation = limitAngleChange(it, targetRotation ?: return, rotationSpeed)
+                limitRotation.fixedSensitivity(mc.gameSettings.mouseSensitivity)
+
+                if (getRotationDifference(limitRotation, it) < 1) {
+                    currentRotation = targetRotation
+                    active = false
+                } else {
+                    currentRotation = limitRotation
+                }
+
+                mc.entityRenderer.getMouseOver(1f)
+                return
+            }
+
             if (keepLength > 0) {
                 keepLength--
                 return
@@ -50,29 +71,10 @@ object RotationUtils : MinecraftInstance(), Listenable {
                 val backRotation = limitAngleChange(it, mc.thePlayer.rotation, rotationSpeed)
                 backRotation.fixedSensitivity(mc.gameSettings.mouseSensitivity)
                 currentRotation = backRotation
+
+                mc.entityRenderer.getMouseOver(1f)
             }
         } ?: if (active) currentRotation = mc.thePlayer.rotation
-    }
-
-    @EventTarget(priority = 100)
-    fun onPreMotion(event: PreMotionEvent) {
-        currentRotation?.let {
-
-            event.yaw = it.yaw
-            event.pitch = it.pitch
-
-            mc.thePlayer.renderYawOffset = it.yaw
-            mc.thePlayer.rotationYawHead = it.yaw
-
-            if (active) {
-                val limitRotation = limitAngleChange(it, targetRotation ?: return, rotationSpeed)
-                currentRotation = limitRotation
-                keepLength++
-
-                if (getRotationDifference(limitRotation, it) < 1)
-                    active = false
-            }
-        }
     }
 
     @EventTarget
@@ -91,9 +93,18 @@ object RotationUtils : MinecraftInstance(), Listenable {
         serverRotation = Rotation(packet.yaw, packet.pitch)
     }
 
-    fun setTargetRotation(rotation: Rotation, keepLength: Int = 1, speed: Float = 180f, fixType: MovementCorrection.Type = MovementCorrection.Type.NONE) {
+    @EventTarget
+    fun onLook(event: LookEvent) {
+        currentRotation?.let {
+            event.yaw = it.yaw
+            event.pitch = it.pitch
+        }
+    }
+
+    fun setTargetRotation(rotation: Rotation, keepLength: Int = 1, minRotationSpeed: Float = 180f, maxRotationSpeed: Float = 180f, fixType: MovementCorrection.Type = MovementCorrection.Type.NONE) {
         MovementCorrection.type = fixType
-        this.rotationSpeed = speed
+        this.minRotationSpeed = minRotationSpeed
+        this.maxRotationSpeed = maxRotationSpeed
         this.targetRotation = rotation
         this.keepLength = keepLength
         active = true

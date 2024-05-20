@@ -35,6 +35,7 @@ import net.minusmc.minusbounce.features.module.modules.movement.Sprint;
 import net.minusmc.minusbounce.features.module.modules.world.Scaffold;
 import net.minusmc.minusbounce.injection.implementations.IEntityPlayerSP;
 import net.minusmc.minusbounce.utils.player.RotationUtils;
+import net.minusmc.minusbounce.utils.Rotation;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -192,6 +193,12 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer impl
             if (this.isCurrentViewEntity()) {
                 float yaw = event.getYaw();
                 float pitch = event.getPitch();
+
+                final Rotation currentRotation = RotationUtils.currentRotation;
+                if (currentRotation != null) {
+                    yaw = currentRotation.getYaw();
+                    pitch = currentRotation.getPitch();
+                }
 
                 double xDiff = event.getX() - this.lastReportedPosX;
                 double yDiff = event.getY() - this.lastReportedPosY;
