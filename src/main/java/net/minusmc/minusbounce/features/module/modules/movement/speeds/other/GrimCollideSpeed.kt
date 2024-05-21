@@ -11,6 +11,9 @@ import net.minecraft.entity.item.EntityArmorStand
 import kotlin.math.*
 
 class GrimCollideSpeed: SpeedMode("GrimCollide", SpeedType.OTHER) {
+
+    private val boostSpeed = FloatValue("BoostSpeed", 0.01f, 0.01f, 0.08f)
+
     override fun onTick() {
         if (!MovementUtils.isMoving)
             return
@@ -23,7 +26,7 @@ class GrimCollideSpeed: SpeedMode("GrimCollide", SpeedType.OTHER) {
         }
 
         val yaw = MovementUtils.getRawDirection()
-        val boost = 0.01 * collisions
+        val boost = boostSpeed.get() * collisions
         mc.thePlayer.addVelocity(-sin(yaw) * boost, 0.0, cos(yaw) * boost)
     }
 }

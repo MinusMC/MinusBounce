@@ -55,7 +55,7 @@ class Velocity : Module() {
 
     @EventTarget
     fun onEntityDamage(event: EntityDamageEvent) {
-        mode.onEntityDamage()
+        mode.onEntityDamage(event)
     }
 
     @EventTarget
