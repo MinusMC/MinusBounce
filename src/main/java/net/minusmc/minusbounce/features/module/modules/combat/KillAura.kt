@@ -138,6 +138,10 @@ class KillAura : Module() {
     // Fake block status
     var blockingStatus = false
 
+    override fun onEnable() {
+        updateTarget()
+    }
+
     override fun onDisable() {
         target = null
         hitable = false
@@ -190,17 +194,18 @@ class KillAura : Module() {
     }
 
     @EventTarget
+    fun onStrafe(event: StrafeEvent) {
+        updateTarget()
+    }
+
+    @EventTarget
     fun onPreMotion(event: PreMotionEvent) {
         blockingMode.onPreMotion()
-
-        updateTarget()
     }
 
     @EventTarget
     fun onPostMotion(event: PostMotionEvent) {
         blockingMode.onPostMotion()
-
-        updateTarget()
     }
 
     @EventTarget

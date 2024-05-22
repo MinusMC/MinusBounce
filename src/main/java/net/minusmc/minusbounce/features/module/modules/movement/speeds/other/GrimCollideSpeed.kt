@@ -4,6 +4,7 @@ import net.minusmc.minusbounce.features.module.modules.movement.speeds.SpeedMode
 import net.minusmc.minusbounce.features.module.modules.movement.speeds.SpeedType
 import net.minusmc.minusbounce.utils.player.MovementUtils
 import net.minusmc.minusbounce.utils.misc.MathUtils
+import net.minusmc.minusbounce.value.FloatValue
 
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.item.EntityArmorStand
