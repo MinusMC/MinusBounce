@@ -42,7 +42,7 @@ configurations {
 }
 
 dependencies {
-    include("org.spongepowered:mixin:0.7.11-SNAPSHOT") {
+    include("org.spongepowered:mixin:0.8.7-SNAPSHOT") {
         transitive = false
         exclude module: "guava"
         exclude module: "commons-io"
@@ -52,7 +52,7 @@ dependencies {
         exclude module: "slf4j-api"
     }
 
-    annotationProcessor("org.spongepowered:mixin:0.7.11-SNAPSHOT")
+    annotationProcessor("org.spongepowered:mixin:0.8.7-SNAPSHOT")
 
     include "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     include("com.github.CCBlueX:Elixir:1.2.6") {
