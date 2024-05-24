@@ -1,22 +1,34 @@
 package net.minusmc.minusbounce.features.module.modules.world
 
+import net.minecraft.client.settings.GameSettings
+import net.minecraft.network.play.client.C09PacketHeldItemChange
 import net.minecraft.network.play.client.C0BPacketEntityAction
 import net.minecraft.util.BlockPos
 import net.minecraft.util.EnumFacing
+import net.minecraft.util.Vec3
 import net.minusmc.minusbounce.event.EventTarget
+import net.minusmc.minusbounce.event.MoveEvent
+import net.minusmc.minusbounce.event.PacketEvent
 import net.minusmc.minusbounce.event.UpdateEvent
 import net.minusmc.minusbounce.features.module.Module
 import net.minusmc.minusbounce.features.module.ModuleCategory
 import net.minusmc.minusbounce.features.module.ModuleInfo
 import net.minusmc.minusbounce.injection.access.StaticStorage
+import net.minusmc.minusbounce.utils.PlaceRotation
+import net.minusmc.minusbounce.utils.RaycastUtils
+import net.minusmc.minusbounce.utils.Rotation
 import net.minusmc.minusbounce.utils.block.BlockUtils
+import net.minusmc.minusbounce.utils.block.PlaceInfo
+import net.minusmc.minusbounce.utils.extensions.*
 import net.minusmc.minusbounce.utils.player.MovementUtils
+import net.minusmc.minusbounce.utils.player.RotationUtils
 import net.minusmc.minusbounce.value.BoolValue
 import net.minusmc.minusbounce.value.FloatValue
 import net.minusmc.minusbounce.value.IntegerValue
 import net.minusmc.minusbounce.value.ListValue
 import org.lwjgl.input.Keyboard
 import kotlin.math.abs
+import kotlin.math.round
 
 @ModuleInfo(name = "Scaffold", description = "Automatically places blocks beneath your feet.", category = ModuleCategory.WORLD, keyBind = Keyboard.KEY_I)
 class Scaffold: Module() {
@@ -88,6 +100,8 @@ class Scaffold: Module() {
     private var canSameY = false
     var towerStatus = false
 
+    private var lockRotation: Rotation? = null
+
     override fun onEnable() {
         mc.thePlayer ?: return
 
@@ -96,6 +110,25 @@ class Scaffold: Module() {
         slot = mc.thePlayer.inventory.currentItem
 
         lastMS = System.currentTimeMillis()
+    }
+
+    override fun onDisable() {
+        mc.thePlayer ?: return
+
+        if (!GameSettings.isKeyDown(mc.gameSettings.keyBindSneak)) {
+            mc.gameSettings.keyBindSneak.pressed = false
+            if (eagleSneaking)
+                mc.netHandler.addToSendQueue(C0BPacketEntityAction(mc.thePlayer, C0BPacketEntityAction.Action.STOP_SNEAKING))
+        }
+
+        if (!GameSettings.isKeyDown(mc.gameSettings.keyBindRight)) mc.gameSettings.keyBindRight.pressed = false
+        if (!GameSettings.isKeyDown(mc.gameSettings.keyBindLeft)) mc.gameSettings.keyBindLeft.pressed = false
+
+        lockRotation = null
+        mc.timer.timerSpeed = 1f
+
+        if (slot != mc.thePlayer.inventory.currentItem)
+            mc.netHandler.addToSendQueue(C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem))
     }
 
     @EventTarget
@@ -181,7 +214,149 @@ class Scaffold: Module() {
             } else
                 placedBlocksWithoutEagle++
         }
+
+//        if (zitterModeValue.get().equals("breeze", true) && MovementUtils.isMoving) {
+//            // calc tick movement
+//
+//        }
     }
+
+    @EventTarget
+    fun onPacket(event: PacketEvent) {
+        mc.thePlayer ?: return
+        val packet = event.packet
+
+        if (packet is C09PacketHeldItemChange) {
+            slot = packet.slotId
+        }
+    }
+
+    @EventTarget
+    fun onMove(event: MoveEvent) {
+        event.isSafeWalk = when (safeWalkValue.get()) {
+            "ground" -> mc.thePlayer.onGround
+            "air" -> true
+            else -> false
+        }
+    }
+
+    private fun findBlock() {
+
+        mc.thePlayer ?: return
+
+        val blockPosition = if (canSameY && launchY <= mc.thePlayer.posY)
+            BlockPos(mc.thePlayer.posX, launchY - 1.0, mc.thePlayer.posZ)
+        else if (mc.thePlayer.posY == mc.thePlayer.posY.toInt() + 0.5)
+            BlockPos(mc.thePlayer)
+        else
+            BlockPos(mc.thePlayer).down()
+
+        if (!BlockUtils.isReplaceable(blockPosition) || search(blockPosition, searchValue.get()))
+            return
+
+
+    }
+
+    private fun search(blockPosition: BlockPos, searchMode: String): Boolean {
+        mc.thePlayer ?: return false
+
+        val playerEye = mc.thePlayer.eyes
+        val maxReach = mc.playerController.blockReachDistance
+
+        var placeRotation: PlaceRotation? = null
+
+        for (side in StaticStorage.facings()) {
+            val neighborBlock = blockPosition.offset(side)
+
+            if (!BlockUtils.canBeClicked(neighborBlock))
+                continue
+
+            when (searchMode.lowercase()) {
+                "area" -> {
+                    for (x in 0.1..0.9) {
+                        for (y in 0.1..0.9) {
+                            for (z in 0.1..0.9) {
+                                val currentPlaceRotation = findTargetPlace(blockPosition, neighborBlock, Vec3(x, y, z), side, playerEye, maxReach) ?: continue
+
+                                if (placeRotation == null || RotationUtils.getRotationDifference(currentPlaceRotation.rotation, currentRotation) < RotationUtils.getRotationDifference(placeRotation.rotation, currentRotation))
+                                    placeRotation = currentPlaceRotation
+                            }
+                        }
+                    }
+                }
+
+                "center" -> {
+                    val currentPlaceRotation = findTargetPlace(blockPosition, neighborBlock, Vec3(0.5, 0.5, 0.5), side, playerEye, maxReach) ?: continue
+
+                    if (placeRotation == null || RotationUtils.getRotationDifference(currentPlaceRotation.rotation, currentRotation) < RotationUtils.getRotationDifference(placeRotation.rotation, currentRotation))
+                        placeRotation = currentPlaceRotation
+                }
+
+                "tryrotation" -> {
+                    val yawListPossible = arrayOf(-135f, -45f, 45f, 135f)
+
+                    
+                }
+            }
+        }
+
+
+        return true
+    }
+
+    private fun findTargetPlace(blockPosition: BlockPos, neighborBlock: BlockPos, vec3: Vec3, side: EnumFacing, eyes: Vec3, maxReach: Float): PlaceRotation? {
+        mc.theWorld ?: return null
+
+        val vec = (Vec3(blockPosition) + vec3).addVector(
+            side.directionVec.x * vec3.xCoord, side.directionVec.y  * vec3.yCoord, side.directionVec.z * vec3.zCoord
+        )
+
+        val distance = eyes.distanceTo(vec)
+
+        if (distance > maxReach || mc.theWorld.rayTraceBlocks(eyes, vec, false, true, false) != null)
+            return null
+
+        var rotation = RotationUtils.toRotation(vec, false)
+
+        rotation = when (rotationsValue.get().lowercase()) {
+            "bridge" -> Rotation(round(rotation.yaw / 45f) * 45f, rotation.pitch)
+            else -> rotation
+        }
+
+        rotation.fixedSensitivity(mc.gameSettings.mouseSensitivity)
+
+        // check raytrace
+        RaycastUtils.performBlockRaytrace(currentRotation, maxReach)?.let {
+            if (it.blockPos == neighborBlock && it.sideHit == side.opposite) {
+                val placeInfo = PlaceInfo(it.blockPos, side.opposite, modifyVec(it.hitVec, side, Vec3(neighborBlock)))
+
+                return PlaceRotation(placeInfo, currentRotation)
+            }
+        }
+
+        val raytrace = RaycastUtils.performBlockRaytrace(rotation, maxReach) ?: return null
+
+        return if (raytrace.blockPos == neighborBlock && raytrace.sideHit == side.opposite) {
+            val placeInfo = PlaceInfo(raytrace.blockPos, side.opposite, modifyVec(raytrace.hitVec, side, Vec3(neighborBlock)))
+            PlaceRotation(placeInfo, currentRotation)
+        } else null
+    }
+
+    private fun modifyVec(original: Vec3, direction: EnumFacing, pos: Vec3): Vec3 {
+        val x = original.xCoord
+        val y = original.yCoord
+        val z = original.zCoord
+
+        val side = direction.opposite
+
+        return when (side.axis ?: return original) {
+            EnumFacing.Axis.Y -> Vec3(x, pos.yCoord + side.directionVec.y.coerceAtLeast(0), z)
+            EnumFacing.Axis.X -> Vec3(pos.xCoord + side.directionVec.x.coerceAtLeast(0), y, z)
+            EnumFacing.Axis.Z -> Vec3(x, y, pos.zCoord + side.directionVec.z.coerceAtLeast(0))
+        }
+
+    }
+
 
     val canSprint: Boolean
         get() = MovementUtils.isMoving && when (sprintModeValue.get().lowercase()) {
@@ -191,4 +366,8 @@ class Scaffold: Module() {
             "offground" -> !mc.thePlayer.onGround
             else -> true
         }
+
+
+    val currentRotation: Rotation
+        get() = RotationUtils.currentRotation ?: mc.thePlayer.rotation
 }

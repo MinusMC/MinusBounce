@@ -304,7 +304,7 @@ object RotationUtils : MinecraftInstance(), Listenable {
      * @param b rotation
      * @return difference between rotation
      */
-    private fun getRotationDifference(a: Rotation, b: Rotation?): Double {
+    fun getRotationDifference(a: Rotation, b: Rotation?): Double {
         return hypot(getAngleDifference(a.yaw, b!!.yaw).toDouble(), (a.pitch - b.pitch).toDouble())
     }
 

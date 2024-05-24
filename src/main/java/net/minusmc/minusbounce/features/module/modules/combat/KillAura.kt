@@ -488,7 +488,7 @@ class KillAura : Module() {
     }
 
     val canSprint: Boolean
-        get() = !noSprintInRange.get() || target?.let {mc.thePlayer.getDistanceToEntityBox(it) <= rangeValue.get()} ?: true
+        get() = !noSprintInRange.get() || target?.let {mc.thePlayer.getDistanceToEntityBox(it) <= rotationRangeValue.get()} ?: true
 
     val canBlock: Boolean
         get() = mc.thePlayer.heldItem != null && mc.thePlayer.heldItem.item is ItemSword

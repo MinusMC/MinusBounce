@@ -12,9 +12,9 @@ import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.util.*
 import net.minusmc.minusbounce.utils.extensions.eyes
+import net.minusmc.minusbounce.utils.extensions.plus
+import net.minusmc.minusbounce.utils.extensions.times
 import net.minusmc.minusbounce.utils.player.RotationUtils
-import java.util.*
-import kotlin.collections.ArrayList
 
 object RaycastUtils : MinecraftInstance() {
     /**
@@ -67,7 +67,7 @@ object RaycastUtils : MinecraftInstance() {
 
             for (entity1 in list) {
                 val f1 = entity1.collisionBorderSize
-                val boxes = ArrayList<AxisAlignedBB>()
+                val boxes = mutableListOf<AxisAlignedBB>()
 
                 boxes.add(entity1.entityBoundingBox.expand(f1.toDouble(), f1.toDouble(), f1.toDouble()))
 
@@ -115,7 +115,7 @@ object RaycastUtils : MinecraftInstance() {
                 pointedEntity = null
                 mc.objectMouseOver = MovingObjectPosition(
                     MovingObjectPosition.MovingObjectType.MISS,
-                    Objects.requireNonNull(vec33),
+                    vec33,
                     null,
                     BlockPos(vec33)
                 )
@@ -196,6 +196,18 @@ object RaycastUtils : MinecraftInstance() {
             return pointedEntity
         }
         return null
+    }
+
+    fun performBlockRaytrace(rotation: Rotation, maxReach: Float): MovingObjectPosition? {
+        val player = mc.thePlayer ?: return null
+        val world = mc.theWorld ?: return null
+
+        val eyes = player.eyes
+        val rotationVec = RotationUtils.getVectorForRotation(rotation)
+
+        val reach = eyes + (rotationVec * maxReach.toDouble())
+
+        return world.rayTraceBlocks(eyes, reach, false, false, true)
     }
 
     interface IEntityFilter {
