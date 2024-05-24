@@ -35,7 +35,6 @@ import net.minusmc.minusbounce.value.*
 import org.lwjgl.input.Keyboard
 import org.lwjgl.opengl.GL11
 import kotlin.math.cos
-import kotlin.math.pow
 import kotlin.math.sin
 
 
@@ -71,6 +70,9 @@ class KillAura : Module() {
 
     private val hitSelectRangeValue = FloatValue("HitSelectRange", 3f, 0f, 4f)
 
+    private val swingValue = ListValue("Swing", arrayOf("Normal", "Packet", "None"), "Normal")
+    private val noSprintInRange = BoolValue("NoSprintInRange", true)
+
     private val rotationValue = ListValue("RotationMode", arrayOf("Vanilla", "NCP", "Grim", "Intave", "None"), "BackTrack")
     private val intaveRandomAmount = FloatValue("Random", 4f, 0.25f, 10f) { rotationValue.get().equals("Intave", true) }
     private val turnSpeed = FloatRangeValue("TurnSpeed", 180f, 180f, 0f, 180f, "°") {
@@ -86,7 +88,6 @@ class KillAura : Module() {
         targetModeValue.get().equals("multi", true)
     }
 
-    private val swingValue = ListValue("Swing", arrayOf("Normal", "Packet", "None"), "Normal")
     private val failSwingValue = BoolValue("FailSwing", true)
     private val hitableCheckValue = BoolValue("HitableCheck", false) { !rotationValue.get().equals("none", true) }
     private val useHitDelay = BoolValue("UseHitDelay", true)
@@ -485,6 +486,9 @@ class KillAura : Module() {
             blockingStatus = false
         }
     }
+
+    val canSprint: Boolean
+        get() = !noSprintInRange.get() || target?.let {mc.thePlayer.getDistanceToEntityBox(it) <= rangeValue.get()} ?: true
 
     val canBlock: Boolean
         get() = mc.thePlayer.heldItem != null && mc.thePlayer.heldItem.item is ItemSword

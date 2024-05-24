@@ -111,22 +111,22 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer impl
     }
 
     @Shadow
-    private double lastReportedPosX;
+    public double lastReportedPosX;
 
     @Shadow
-    private int positionUpdateTicks;
+    public int positionUpdateTicks;
 
     @Shadow
-    private double lastReportedPosY;
+    public double lastReportedPosY;
 
     @Shadow
-    private double lastReportedPosZ;
+    public double lastReportedPosZ;
 
     @Shadow
-    private float lastReportedYaw;
+    public float lastReportedYaw;
 
     @Shadow
-    private float lastReportedPitch;
+    public float lastReportedPitch;
 
     @Unique
     private boolean lastOnGround;
@@ -149,6 +149,7 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer impl
 
     /**
      * @author CCBlueX
+     * @reason Pre and Post Motion Event
      */
     @Overwrite
     public void onUpdateWalkingPlayer() {
@@ -362,6 +363,10 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer impl
         
         if (this.isSprinting() && noSlow.getState() && noSlow.getNoSprintValue().get() && noSlow.isSlowing())
             this.setSprinting(false);
+
+        if (this.isSprinting() && killAura.getState() && !killAura.getCanSprint()) {
+            this.setSprinting(false);
+        }
 
         if (this.capabilities.allowFlying) {
             if (this.mc.playerController.isSpectatorMode()) {
