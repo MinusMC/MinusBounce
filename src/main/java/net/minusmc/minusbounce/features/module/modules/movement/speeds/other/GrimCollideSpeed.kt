@@ -3,8 +3,10 @@ package net.minusmc.minusbounce.features.module.modules.movement.speeds.other
 import net.minusmc.minusbounce.features.module.modules.movement.speeds.SpeedMode
 import net.minusmc.minusbounce.features.module.modules.movement.speeds.SpeedType
 import net.minusmc.minusbounce.utils.player.MovementUtils
+import net.minusmc.minusbounce.utils.player.RotationUtils
 import net.minusmc.minusbounce.utils.misc.MathUtils
 import net.minusmc.minusbounce.value.FloatValue
+import net.minusmc.minusbounce.event.PreMotionEvent
 
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.item.EntityArmorStand
@@ -15,7 +17,12 @@ class GrimCollideSpeed: SpeedMode("GrimCollide", SpeedType.OTHER) {
 
     private val boostSpeed = FloatValue("BoostSpeed", 0.01f, 0.01f, 0.08f)
 
-    override fun onTick() {
+    override fun onUpdate() {
+        if (MovementUtils.isMoving && mc.thePlayer.onGround && !mc.gameSettings.keyBindJump.pressed) 
+            mc.thePlayer.jump()
+    }
+
+    override fun onPreMotion(event: PreMotionEvent) {
         if (!MovementUtils.isMoving)
             return
 
@@ -26,8 +33,10 @@ class GrimCollideSpeed: SpeedMode("GrimCollide", SpeedType.OTHER) {
             it !is EntityArmorStand && playerBox.intersectsWith(it.entityBoundingBox)
         }
 
-        val yaw = MovementUtils.getRawDirection()
-        val boost = boostSpeed.get() * collisions
+        val rotation = RotationUtils.currentRotation ?: mc.thePlayer.rotation
+
+        val yaw = MovementUtils.getRawDirection(rotation.yaw)
+        val boost = boostSpeed.get().toDouble() * collisions
         mc.thePlayer.addVelocity(-sin(yaw) * boost, 0.0, cos(yaw) * boost)
     }
 }

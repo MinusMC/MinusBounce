@@ -282,6 +282,23 @@ object MovementUtils : MinecraftInstance() {
         return floatArrayOf(forward, strafe)
     }
 
+    fun boost(yaw: Float, pForward: Float, pStrafe: Float, speed: Float) {
+        var f = pStrafe * pStrafe + pForward * pForward
+        if (f >= 1.0E-4F) {
+            f = sqrt(f).coerceAtLeast(1f)
+
+            f = speed / f
+
+            val strafe = pStrafe * f
+            val forward = pForward * f
+
+            val f1 = sin(MathUtils.toRadians(yaw))
+            val f2 = cos(MathUtils.toRadians(yaw))
+            mc.thePlayer.motionX += strafe * f2 - forward * f1
+            mc.thePlayer.motionZ += forward * f2 + strafe * f1
+        }
+    }
+
 
     fun resetMotion(y: Boolean = false) {
         if (y) mc.thePlayer.motionY = 0.0

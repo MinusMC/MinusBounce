@@ -71,6 +71,7 @@ class KillAura : Module() {
     private val hitSelectRangeValue = FloatValue("HitSelectRange", 3f, 0f, 4f)
 
     private val swingValue = ListValue("Swing", arrayOf("Normal", "Packet", "None"), "Normal")
+    private val swingAfterMode = ListValue("After-Swing", arrayOf("Normal", "Packet", "None"), "Normal") {swingValue.get().equals("None", true)}
     private val noSprintInRange = BoolValue("NoSprintInRange", true)
 
     private val rotationValue = ListValue("RotationMode", arrayOf("Vanilla", "NCP", "Grim", "Intave", "None"), "BackTrack")
@@ -264,24 +265,25 @@ class KillAura : Module() {
      */
 
     private fun runAttack(isLastClicks: Boolean) {
+
         updateHitable()
 
+        val target = this.target ?: return
+
         if (hitable) {
-            target?.let {
-                if (it.hurtTime > hurtTimeValue.get())
-                    return
-            } ?: return
+            if (target.hurtTime > hurtTimeValue.get())
+                return
 
             // Attack
             if (!targetModeValue.get().equals("Multi", true))
-                attackEntity(target!!)
+                attackEntity(target)
             else
                 discoveredEntities
                     .filter { mc.thePlayer.getDistanceToEntityBox(it) < rangeValue.get() }
                     .take(limitedMultiTargetsValue.get())
                     .forEach(this::attackEntity)
 
-            prevTargetEntities.add(target!!.entityId)
+            prevTargetEntities.add(target.entityId)
         } else if (swingValue.get().equals("none", true) && failSwingValue.get())
             runWithModifiedRaycastResult(rangeValue.get(), throughWallsRangeValue.get()) { obj ->
                 if (shouldDelayClick(obj.typeOfHit)) {
@@ -304,7 +306,7 @@ class KillAura : Module() {
 
         if (targetModeValue.get().equals("Switch", true)) {
             if (attackTimer.hasTimePassed(switchDelayValue.get().toLong())) {
-                prevTargetEntities.add(target!!.entityId)
+                prevTargetEntities.add(target.entityId)
                 attackTimer.reset()
             }
         }
@@ -406,7 +408,7 @@ class KillAura : Module() {
                 else -> MovementCorrection.Type.NONE
             }
 
-            RotationUtils.setTargetRotation(rotation, 10, turnSpeed.getMinValue(), turnSpeed.getMaxValue(), movementCorrectionType)
+            RotationUtils.setTargetRotation(rotation, 3, turnSpeed.getMinValue(), turnSpeed.getMaxValue(), movementCorrectionType)
         } else {
             val limitRotation = RotationUtils.limitAngleChange(mc.thePlayer.rotation, rotation, RandomUtils.nextFloat(turnSpeed.getMinValue(), turnSpeed.getMaxValue()))
             limitRotation.toPlayer(mc.thePlayer)
@@ -427,6 +429,13 @@ class KillAura : Module() {
         }
 
         mc.playerController.attackEntity(mc.thePlayer, entity)
+
+        if (swingValue.get().equals("none", true)) {
+            when (swingAfterMode.get().lowercase()) {
+                "normal" -> mc.thePlayer.swingItem()
+                "packet" -> mc.netHandler.addToSendQueue(C0APacketAnimation())
+            }
+        }
 
         if (interactValue.get()) {
             mc.playerController.isPlayerRightClickingOnEntity(mc.thePlayer, mc.objectMouseOver.entityHit, mc.objectMouseOver)
