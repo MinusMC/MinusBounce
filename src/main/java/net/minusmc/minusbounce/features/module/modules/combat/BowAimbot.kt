@@ -57,10 +57,12 @@ class BowAimbot : Module() {
             else -> null
         }
 
-        val entity = targets.first()
+        val entity = targets.firstOrNull() ?: return
 
         target = entity
-        RotationUtils.faceBow(entity, predictValue.get(), predictSizeValue.get())
+
+        if (entity != null)
+            RotationUtils.faceBow(entity, predictValue.get(), predictSizeValue.get())
     }
 
     @EventTarget

@@ -16,7 +16,6 @@ import net.minusmc.minusbounce.utils.player.RotationUtils
 import net.minusmc.minusbounce.utils.timer.MSTimer
 import net.minusmc.minusbounce.value.IntegerValue
 import net.minusmc.minusbounce.value.BoolValue
-import net.minusmc.minusbounce.value.ListValue
 import net.minecraft.item.ItemBow
 import net.minecraft.network.play.client.C03PacketPlayer.C05PacketPlayerLook
 import net.minecraft.network.play.client.C03PacketPlayer.C06PacketPlayerPosLook
@@ -28,12 +27,13 @@ import net.minecraft.util.EnumFacing
 @ModuleInfo(name = "FastBow", spacedName = "Fast Bow", description = "Turns your bow into a machine gun.", category = ModuleCategory.COMBAT)
 class FastBow : Module() {
 
-    private val modeValue = ListValue("Mode", arrayOf("Normal", "1.17"), "Normal")
     private val packetsValue = IntegerValue("Packets", 3, 3, 20)
     private val delay = IntegerValue("Delay", 0, 0, 500, "ms")
+    private val grim = BoolValue("Grim", false)
 
 
-    private val timer = MSTimer()
+    val timer = MSTimer()
+
     private var packetCount = 0
 
     @EventTarget
@@ -43,57 +43,52 @@ class FastBow : Module() {
             return
         }
 
-        val itemStack = mc.thePlayer.inventory.getCurrentItem() ?: return
-
-        if (itemStack.item is ItemBow) {
+        if (mc.thePlayer.inventory.getCurrentItem() != null && mc.thePlayer.inventory.getCurrentItem().item is ItemBow) {
             if (packetCount == 0)
                 PacketUtils.sendPacketNoEvent(C08PacketPlayerBlockPlacement(BlockPos.ORIGIN, 255, mc.thePlayer.currentEquippedItem, 0F, 0F, 0F))
 
-            val rotation = RotationUtils.currentRotation ?: mc.thePlayer.rotation
+            val yaw = if (RotationUtils.targetRotation != null)
+                RotationUtils.targetRotation!!.yaw
+            else
+                mc.thePlayer.rotationYaw
 
-            when (modeValue.get().lowercase()) {
-                "normal" -> {
-                    if (delay.get() == 0) {
-                        repeat (packetsValue.get()) {
-                            PacketUtils.sendPacketNoEvent(C05PacketPlayerLook(rotation.yaw, rotation.pitch, true))
-                        }
-                        PacketUtils.sendPacketNoEvent(C07PacketPlayerDigging(C07PacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN))
-                    } else {
-                        if (timer.hasTimePassed(delay.get().toLong())) {
-                            packetCount++
-                            PacketUtils.sendPacketNoEvent(C05PacketPlayerLook(rotation.yaw, rotation.pitch, true))
-                            timer.reset()
-                        }
-                        if (packetCount == packetsValue.get())
-                            PacketUtils.sendPacketNoEvent(C07PacketPlayerDigging(C07PacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN))
-                    }
-                    mc.thePlayer.itemInUseCount = itemStack.maxItemUseDuration - 1
-                }
+            val pitch = if (RotationUtils.targetRotation != null)
+                RotationUtils.targetRotation!!.pitch
+            else
+                mc.thePlayer.rotationPitch
 
-                "1.17" -> {
-                    mc.rightClickDelayTimer = 0
+            if (delay.get() == 0) {
+                if (grim.get()) {
                     repeat(packetsValue.get()) {
-                        PacketUtils.sendPacketNoEvent(C06PacketPlayerPosLook(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ, rotation.yaw, rotation.pitch, mc.thePlayer.onGround))
+                        PacketUtils.sendPacketNoEvent(C06PacketPlayerPosLook(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ, yaw, pitch, true))
+                    }
+                } else {
+                    repeat (packetsValue.get()) {
+                        mc.netHandler.addToSendQueue(C05PacketPlayerLook(yaw, pitch, true))
                     }
                 }
+                PacketUtils.sendPacketNoEvent(C07PacketPlayerDigging(C07PacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN))
+            } else {
+                if (timer.hasTimePassed(delay.get().toLong())) {
+                    packetCount++
+                    PacketUtils.sendPacketNoEvent(C06PacketPlayerPosLook(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ, yaw, pitch, true))
+                    timer.reset()
+                }
+                if (packetCount == packetsValue.get())
+                    PacketUtils.sendPacketNoEvent(C07PacketPlayerDigging(C07PacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN))
             }
-
-            
+            mc.thePlayer.itemInUseCount = mc.thePlayer.inventory.getCurrentItem().maxItemUseDuration - 1
         }
     }
 
     @EventTarget
     fun onPacket(event: PacketEvent) {
-        if (modeValue.get().equals("1.17", true))
-            return
-
         mc.thePlayer ?: return
-
+        mc.thePlayer.inventory ?: return
         val packet = event.packet
-        val itemStack = mc.thePlayer.inventory.getCurrentItem() ?: return
-
-
-        if ((packet is C08PacketPlayerBlockPlacement || (packet is C07PacketPlayerDigging && packet.status == C07PacketPlayerDigging.Action.RELEASE_USE_ITEM)) && itemStack.item is ItemBow)
-            event.cancelEvent()
+        if (mc.thePlayer.inventory.getCurrentItem() != null && mc.thePlayer.inventory.getCurrentItem().item is ItemBow) {
+            if (packet is C08PacketPlayerBlockPlacement || (packet is C07PacketPlayerDigging && packet.status == C07PacketPlayerDigging.Action.RELEASE_USE_ITEM))
+                event.cancelEvent()
+        }
     }
 }
