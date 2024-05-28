@@ -17,6 +17,7 @@ import net.minusmc.minusbounce.utils.render.RenderUtils
 import net.minusmc.minusbounce.value.BoolValue
 import net.minusmc.minusbounce.value.FloatValue
 import net.minusmc.minusbounce.value.ListValue
+import net.minusmc.minusbounce.utils.player.MovementCorrection
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.item.ItemBow
@@ -26,6 +27,7 @@ import java.awt.Color
 class BowAimbot : Module() {
 
     private val silentValue = BoolValue("Silent", true)
+    private val movementCorrection = ListValue("MovementCorrection", arrayOf("None", "Normal", "Strict"), "Strict")
     private val predictValue = BoolValue("Predict", true)
     private val throughWallsValue = BoolValue("ThroughWalls", false)
     private val predictSizeValue = FloatValue("PredictSize", 2F, 0.1F, 5F, "m")
@@ -50,19 +52,30 @@ class BowAimbot : Module() {
                     (throughWallsValue.get() || mc.thePlayer.canEntityBeSeen(it))
         }.toMutableList()
 
-        when (priorityValue.get().lowercase()) {
-            "distance" -> targets.sortBy { mc.thePlayer.getDistanceToEntity(it) }
-            "direction" -> targets.sortBy { RotationUtils.getRotationDifference(it) }
-            "health" -> targets.sortBy { (it as EntityLivingBase).health }
+        val entity = when (priorityValue.get().lowercase()) {
+            "distance" -> targets.minByOrNull { mc.thePlayer.getDistanceToEntity(it) }
+            "direction" -> targets.minByOrNull { RotationUtils.getRotationDifference(it) }
+            "health" -> targets.minByOrNull { (it as EntityLivingBase).health }
             else -> null
         }
 
-        val entity = targets.firstOrNull() ?: return
-
         target = entity
 
-        if (entity != null)
-            RotationUtils.faceBow(entity, predictValue.get(), predictSizeValue.get())
+        if (entity != null) {
+            val rotation = RotationUtils.faceBow(entity, predictValue.get(), predictSizeValue.get())
+
+            if (silentValue.get()) {
+                val movementCorrectionType = when (movementCorrection.get().lowercase()) {
+                    "strict" -> MovementCorrection.Type.STRICT
+                    "normal" -> MovementCorrection.Type.NORMAL
+                    else -> MovementCorrection.Type.NONE
+                }
+
+                RotationUtils.setTargetRotation(rotation, 3, fixType = movementCorrectionType)
+            } else {
+                rotation.toPlayer(mc.thePlayer)
+            }
+        }
     }
 
     @EventTarget
