@@ -34,8 +34,10 @@ object RotationUtils : MinecraftInstance(), Listenable {
     private var minRotationSpeed = 180f
     private var maxRotationSpeed = 180f
 
+    private var lastRotationSpeed = 180f
+
     private val rotationSpeed: Float
-        get() = RandomUtils.nextFloat(minRotationSpeed, maxRotationSpeed)
+        get() = RandomUtils.nextFloat(lastRotationSpeed, maxRotationSpeed)
 
     var active = false
 
@@ -107,6 +109,7 @@ object RotationUtils : MinecraftInstance(), Listenable {
         this.maxRotationSpeed = maxRotationSpeed
         this.targetRotation = rotation
         this.keepLength = keepLength
+        this.lastRotationSpeed = minRotationSpeed
         active = true
     }
 
@@ -263,9 +266,9 @@ object RotationUtils : MinecraftInstance(), Listenable {
             for (y in 0.0..1.0)
                 for (z in 0.0..1.0) {
                     val vec3 = Vec3(
-                        bb.minX + (bb.maxX - bb.minX) * 0.5, 
-                        bb.minY + (bb.maxY - bb.minY) * 0.5, 
-                        bb.minZ + (bb.maxZ - bb.minZ) * 0.5
+                        bb.minX + (bb.maxX - bb.minX) * x, 
+                        bb.minY + (bb.maxY - bb.minY) * y, 
+                        bb.minZ + (bb.maxZ - bb.minZ) * z
                     )
 
                     val rotation = toRotation(vec3, predict)

@@ -68,8 +68,6 @@ class KillAura : Module() {
         }
     }
 
-    private val hitSelectRangeValue = FloatValue("HitSelectRange", 3f, 0f, 4f)
-
     private val swingValue = ListValue("Swing", arrayOf("Normal", "Packet", "None"), "Normal")
     private val swingAfterMode = ListValue("After-Swing", arrayOf("Normal", "Packet", "None"), "Normal") {swingValue.get().equals("None", true)}
     private val noSprintInRange = BoolValue("NoSprintInRange", true)
@@ -91,8 +89,6 @@ class KillAura : Module() {
 
     private val failSwingValue = BoolValue("FailSwing", true)
     private val hitableCheckValue = BoolValue("HitableCheck", false) { !rotationValue.get().equals("none", true) }
-    private val useHitDelay = BoolValue("UseHitDelay", true)
-    private val hitDelay = IntegerValue("HitDelay", 100, 0, 1000) {useHitDelay.get()}
 
     val autoBlockModeValue: ListValue = object : ListValue("AutoBlock", blockingModes.map { it.modeName }.toTypedArray(), "None") {
         override fun onPreChange(oldValue: String, newValue: String) {
@@ -141,6 +137,8 @@ class KillAura : Module() {
     var blockingStatus = false
 
     override fun onEnable() {
+        mc.theWorld ?: return
+
         updateTarget()
     }
 
@@ -170,20 +168,6 @@ class KillAura : Module() {
 
     @EventTarget
     fun onUpdate(event: UpdateEvent) {
-        if (hitSelectRangeValue.get() > 0f) {
-            if (target == null && hitSelectTimer.hasTimePassed(900L))
-                canHitSelect = false
-            else if (mc.thePlayer.hurtTime > 7 || mc.thePlayer.getDistanceToEntityBox(target!!) < hitSelectRangeValue.get()) {
-                canHitSelect = true
-                hitSelectTimer.reset()
-            }
-
-            if (!canHitSelect) {
-                if (clicks > 0) clicks = 1
-                return
-            }
-        }
-
         target ?: run {
             stopBlocking()
             return
@@ -197,6 +181,8 @@ class KillAura : Module() {
 
     @EventTarget
     fun onStrafe(event: StrafeEvent) {
+        mc.theWorld ?: return
+
         updateTarget()
     }
 
@@ -284,9 +270,9 @@ class KillAura : Module() {
                     .forEach(this::attackEntity)
 
             prevTargetEntities.add(target.entityId)
-        } else if (swingValue.get().equals("none", true) && failSwingValue.get())
+        } else if (!swingValue.get().equals("none", true) && failSwingValue.get())
             runWithModifiedRaycastResult(rangeValue.get(), throughWallsRangeValue.get()) { obj ->
-                if (shouldDelayClick(obj.typeOfHit)) {
+                if (lastMovingObjectPosition?.typeOfHit == obj.typeOfHit) {
                     if (obj.typeOfHit == MovingObjectPosition.MovingObjectType.ENTITY) {
                         val entity = obj.entityHit
 
@@ -350,17 +336,6 @@ class KillAura : Module() {
         }
     }
 
-    private fun shouldDelayClick(typeOfHit: MovingObjectPosition.MovingObjectType): Boolean {
-
-        if (!useHitDelay.get())
-            return false
-
-        return lastMovingObjectPosition?.let {
-            it.typeOfHit != typeOfHit && 
-            System.currentTimeMillis() - lastTimeAttack <= hitDelay.get()
-        } ?: false
-    }
-
     private fun updateHitable() {
         val rotation = RotationUtils.currentRotation ?: mc.thePlayer.rotation
 
@@ -419,9 +394,6 @@ class KillAura : Module() {
 
     private fun attackEntity(entity: EntityLivingBase) {
         blockingMode.onPreAttack()
-
-        if (shouldDelayClick(MovingObjectPosition.MovingObjectType.ENTITY))
-            return
 
         when (swingValue.get().lowercase()) {
             "normal" -> mc.thePlayer.swingItem()

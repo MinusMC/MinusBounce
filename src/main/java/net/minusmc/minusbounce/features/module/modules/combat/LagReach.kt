@@ -99,7 +99,7 @@ class LagReach : Module() {
 
         val target = event.targetEntity as EntityLivingBase
         val targetId = target.uniqueID ?: return
-        val gameProfile = mc.netHandler.getPlayerInfo(targetId).gameProfile ?: return
+        val gameProfile = mc.netHandler.getPlayerInfo(targetId)?.gameProfile ?: return
 
         comboCounter++
         if (modeValue.get().equals("fakeplayer", true) || modeValue.get().equals("intave", true)) {
