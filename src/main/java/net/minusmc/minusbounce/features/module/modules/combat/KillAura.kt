@@ -27,6 +27,7 @@ import net.minusmc.minusbounce.utils.RaycastUtils
 import net.minusmc.minusbounce.utils.RaycastUtils.runWithModifiedRaycastResult
 import net.minusmc.minusbounce.utils.Rotation
 import net.minusmc.minusbounce.utils.extensions.*
+import net.minusmc.minusbounce.utils.ClientUtils
 import net.minusmc.minusbounce.utils.misc.RandomUtils
 import net.minusmc.minusbounce.utils.player.MovementCorrection
 import net.minusmc.minusbounce.utils.player.RotationUtils
@@ -89,6 +90,7 @@ class KillAura : Module() {
 
     private val failSwingValue = BoolValue("FailSwing", true)
     private val hitableCheckValue = BoolValue("HitableCheck", false) { !rotationValue.get().equals("none", true) }
+    private val rayTraceBeforeAttack = BoolValue("RayTraceBeforeAttack", true)
 
     val autoBlockModeValue: ListValue = object : ListValue("AutoBlock", blockingModes.map { it.modeName }.toTypedArray(), "None") {
         override fun onPreChange(oldValue: String, newValue: String) {
@@ -246,8 +248,7 @@ class KillAura : Module() {
 
     /**
      * Run attack with raycast check entity
-     * Author: CCBluex, fmcpe
-     * Refactor: toidicakhia
+     * Author: CCBluex, fmcpe, toidicakhia
      */
 
     private fun runAttack(isLastClicks: Boolean) {
@@ -257,12 +258,20 @@ class KillAura : Module() {
         val target = this.target ?: return
 
         if (hitable) {
-            if (target.hurtTime > hurtTimeValue.get())
+            if (target.hurtTime > hurtTimeValue.get()) {
+                swing()
                 return
+            }
 
             // Attack
-            if (!targetModeValue.get().equals("Multi", true))
-                attackEntity(target)
+            if (!targetModeValue.get().equals("Multi", true)) {
+
+                if (rayTraceBeforeAttack.get()) runWithModifiedRaycastResult(rangeValue.get(), throughWallsRangeValue.get()) {
+                    if (it.typeOfHit == MovingObjectPosition.MovingObjectType.ENTITY)
+                        attackEntity(target)
+                    else swing()
+                } else attackEntity(target)
+            }
             else
                 discoveredEntities
                     .filter { mc.thePlayer.getDistanceToEntityBox(it) < rangeValue.get() }
@@ -395,10 +404,7 @@ class KillAura : Module() {
     private fun attackEntity(entity: EntityLivingBase) {
         blockingMode.onPreAttack()
 
-        when (swingValue.get().lowercase()) {
-            "normal" -> mc.thePlayer.swingItem()
-            "packet" -> mc.netHandler.addToSendQueue(C0APacketAnimation())
-        }
+        swing()
 
         mc.playerController.attackEntity(mc.thePlayer, entity)
 
@@ -415,6 +421,13 @@ class KillAura : Module() {
         }
 
         blockingMode.onPostAttack()
+    }
+
+    private fun swing() {
+        when (swingValue.get().lowercase()) {
+            "normal" -> mc.thePlayer.swingItem()
+            "packet" -> mc.netHandler.addToSendQueue(C0APacketAnimation())
+        }
     }
 
     private fun getTargetRotation(entity: Entity): Rotation? {

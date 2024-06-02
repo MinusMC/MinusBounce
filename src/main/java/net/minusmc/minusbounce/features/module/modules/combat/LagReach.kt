@@ -26,7 +26,7 @@ class LagReach : Module() {
     private val pulseDelayValue = IntegerValue("Pulse", 200, 50, 1000)
     private val maxDelayValue = IntegerValue("Delay", 500, 50, 2000)
     private val spoof = BoolValue("Spoof", false)
-    private val spoofDelay = IntegerValue("SpoofDelay", 50, 0, 500) {spoof.get()}
+    private val spoofDelay = IntegerValue("SpoofDelay", 50, 0, 500) { spoof.get() }
     private val incomingBlink = BoolValue("IncomingBlink", true) { modeValue.get().equals("IncomingBlink", true) }
     private val velocityValue = BoolValue("PauseOnVelocity", true) { modeValue.get().equals("IncomingBlink", true) }
     private val outgoingBlink = BoolValue("OutgoingBlink", true) { modeValue.get().equals("IncomingBlink", true) }

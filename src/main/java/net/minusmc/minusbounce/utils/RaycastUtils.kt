@@ -210,6 +210,8 @@ object RaycastUtils : MinecraftInstance() {
         return world.rayTraceBlocks(eyes, reach, false, false, true)
     }
 
+    fun performBlockRaytrace(maxReach: Float) = performBlockRaytrace(RotationUtils.currentRotation ?: mc.thePlayer.rotation, maxReach)
+
     interface IEntityFilter {
         fun canRaycast(entity: Entity?): Boolean
     }

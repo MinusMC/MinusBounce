@@ -44,7 +44,9 @@ class FastBow : Module() {
             return
         }
 
-        if (mc.thePlayer.inventory.getCurrentItem() != null && mc.thePlayer.inventory.getCurrentItem().item is ItemBow) {
+        val itemStack = mc.thePlayer.inventory.getCurrentItem() ?: return
+
+        if (itemStack.item is ItemBow) {
             if (packetCount == 0)
                 PacketUtils.sendPacketNoEvent(C08PacketPlayerBlockPlacement(BlockPos.ORIGIN, 255, mc.thePlayer.currentEquippedItem, 0F, 0F, 0F))
 
@@ -72,16 +74,18 @@ class FastBow : Module() {
                 if (packetCount == packetsValue.get())
                     PacketUtils.sendPacketNoEvent(C07PacketPlayerDigging(C07PacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN))
             }
-            mc.thePlayer.itemInUseCount = mc.thePlayer.inventory.getCurrentItem().maxItemUseDuration - 1
+            mc.thePlayer.itemInUseCount = itemStack.maxItemUseDuration - 1
         }
     }
 
     @EventTarget
     fun onPacket(event: PacketEvent) {
         mc.thePlayer ?: return
-        mc.thePlayer.inventory ?: return
+
         val packet = event.packet
-        if (mc.thePlayer.inventory.getCurrentItem() != null && mc.thePlayer.inventory.getCurrentItem().item is ItemBow) {
+        val itemStack = mc.thePlayer.inventory?.getCurrentItem() ?: return
+
+        if (itemStack.item is ItemBow) {
             if (packet is C08PacketPlayerBlockPlacement || (packet is C07PacketPlayerDigging && packet.status == C07PacketPlayerDigging.Action.RELEASE_USE_ITEM))
                 event.cancelEvent()
         }

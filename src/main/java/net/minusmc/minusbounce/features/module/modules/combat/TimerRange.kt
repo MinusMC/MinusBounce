@@ -147,14 +147,12 @@ class TimerRange : Module() {
     fun onPacket(event: PacketEvent) {
         val packet = event.packet
 
-        if (isPlayerMoving() && !shouldResetTimer()
-            && mc.timer.timerSpeed > 1.0 || mc.timer.timerSpeed < 1.0
-        ) {
+        if (isPlayerMoving() && !shouldResetTimer() && mc.timer.timerSpeed > 1.0 || mc.timer.timerSpeed < 1.0) {
 
             // Check for knockback
             if (confirmKnockback) {
                 if (packet is S12PacketEntityVelocity && mc.thePlayer.entityId == packet.entityID
-                    && packet.motionY > 0 && (packet.motionX.toDouble() != 0.0 || packet.motionZ.toDouble() != 0.0)
+                    && packet.motionY > 0 && (packet.motionX != 0 || packet.motionZ != 0)
                 ) {
                     confirmKnockback = false
                     timerReset()

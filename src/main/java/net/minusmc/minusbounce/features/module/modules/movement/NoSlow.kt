@@ -114,7 +114,7 @@ class NoSlow : Module() {
     }
 
     @EventTarget
-    fun onInput(event: MoveInputEvent){
+    fun onInput(event: MoveInputEvent) {
         event.sneakMultiplier = sneakMultiplier.get().toDouble()
     }
 

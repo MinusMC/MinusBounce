@@ -88,7 +88,7 @@ class Criticals : Module() {
         modes.map {
             mode -> mode.values.forEach { value ->
                 val displayableFunction = value.displayableFunction
-            it.add(value.displayable { displayableFunction.invoke() && modeValue.get().equals(mode.modeName, true) })
+                it.add(value.displayable { displayableFunction.invoke() && modeValue.get().equals(mode.modeName, true) })
             }
         }
     }
