@@ -5,12 +5,10 @@ import net.minusmc.minusbounce.features.module.modules.misc.autoplays.AutoPlayMo
 import net.minusmc.minusbounce.event.PacketEvent
 import net.minecraft.network.play.client.*
 import net.minecraft.network.play.server.S02PacketChat
-import net.minecraft.network.play.server.S2DPacketOpenWindow
-import net.minecraft.network.play.server.S2FPacketSetSlot
 
 /**
- * Auto join to other match in minigames in Universocraft
- * @author toidicakhia, cranci1
+ * Auto join to other match in minigames in MineManClub
+ * Method is same as Universocraft (autoplays/other/UniversocraftAutoPlay.kt)
  */
 
 class MMCAutoPlay: AutoPlayMode("MMC") {
