@@ -364,10 +364,6 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer impl
         if (this.isSprinting() && noSlow.getState() && noSlow.getNoSprintValue().get() && noSlow.isSlowing())
             this.setSprinting(false);
 
-        if (this.isSprinting() && killAura.getState() && !killAura.getCanSprint()) {
-            this.setSprinting(false);
-        }
-
         if (this.capabilities.allowFlying) {
             if (this.mc.playerController.isSpectatorMode()) {
                 if (!this.capabilities.isFlying) {

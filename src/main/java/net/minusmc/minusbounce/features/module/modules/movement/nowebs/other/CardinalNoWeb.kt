@@ -5,7 +5,7 @@ import net.minusmc.minusbounce.utils.player.MovementUtils
 
 class CardinalNoWeb: NoWebMode("Cardinal") {
     override fun onUpdate() {
-        if (mc.thePlayer.onGround) MovementUtils.strafe(0.262F)
-        else MovementUtils.strafe(0.366F)
+        val strafeMultiplier = if (mc.thePlayer.onGround) 0.262f else 0.366f
+        MovementUtils.strafe(strafeMultiplier)
     }
 }

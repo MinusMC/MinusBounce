@@ -1,8 +1,8 @@
-package net.minusmc.minusbounce.features.module.modules.movement.noslows.matrix
+package net.minusmc.minusbounce.features.module.modules.movement.noslows.sword
 
 import net.minusmc.minusbounce.features.module.modules.movement.noslows.NoSlowMode
 
-class MatrixSlowNoSlow : NoSlowMode("MatrixSlow") {
+class MatrixSwordNoSlow : NoSlowMode("Matrix") {
     override fun onUpdate() {
         if (mc.thePlayer.onGround && !mc.gameSettings.keyBindJump.isKeyDown()) {
             if (mc.thePlayer.ticksExisted % 2 == 0) {

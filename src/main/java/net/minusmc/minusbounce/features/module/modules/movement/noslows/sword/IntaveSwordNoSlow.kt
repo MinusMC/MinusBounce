@@ -1,4 +1,4 @@
-package net.minusmc.minusbounce.features.module.modules.movement.noslows.switchitem
+package net.minusmc.minusbounce.features.module.modules.movement.noslows.sword
 
 import net.minecraft.network.Packet
 import net.minecraft.network.play.client.C07PacketPlayerDigging
@@ -12,7 +12,7 @@ import net.minusmc.minusbounce.features.module.modules.movement.noslows.NoSlowMo
 import net.minusmc.minusbounce.utils.PacketUtils
 
 
-class IntaveNoSlow : NoSlowMode("Intave") {
+class IntaveSwordNoSlow : NoSlowMode("Intave") {
     override fun onPreMotion(event: PreMotionEvent) {
         PacketUtils.sendPacketNoEvent(C07PacketPlayerDigging(C07PacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN))
     }

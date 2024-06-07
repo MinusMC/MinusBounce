@@ -104,6 +104,10 @@ object RotationUtils : MinecraftInstance(), Listenable {
     }
 
     fun setTargetRotation(rotation: Rotation, keepLength: Int = 1, minRotationSpeed: Float = 180f, maxRotationSpeed: Float = 180f, fixType: MovementCorrection.Type = MovementCorrection.Type.NONE) {
+        if (rotation.yaw.isNaN() || rotation.pitch.isNaN() || rotation.pitch > 90 || rotation.pitch < -90)
+            return
+        
+
         MovementCorrection.type = fixType
         this.minRotationSpeed = minRotationSpeed
         this.maxRotationSpeed = maxRotationSpeed
@@ -206,11 +210,12 @@ object RotationUtils : MinecraftInstance(), Listenable {
 
         var velocity = mc.thePlayer.itemInUseDuration / 20f
         velocity = (velocity * velocity + velocity * 2) / 3
+
         if (velocity > 1) 
             velocity = 1f
 
         val yaw = MathUtils.toDegrees(atan2(posZ, posX)).toFloat() - 90
-        val pitch = MathUtils.toDegrees(atan((velocity * velocity - sqrt(velocity * velocity * velocity * velocity - 0.006f * (0.006f * (distance * distance) + 2 * posY * (velocity * velocity)))) / (0.006f * distance))).toFloat()
+        val pitch = MathUtils.toDegrees(-atan((velocity * velocity - sqrt(velocity * velocity * velocity * velocity - 0.006f * 0.006f * distance * distance + 0.003f * posY * velocity * velocity)) / 0.006f / distance)).toFloat()
 
         return Rotation(yaw, pitch)
     }

@@ -47,7 +47,7 @@ class LongJump: Module() {
     @EventTarget
     fun onUpdate(event: UpdateEvent) {
         mode.onUpdateSpecial()
-        if(jumped) {
+        if (jumped) {
             if (mc.thePlayer.onGround || mc.thePlayer.capabilities.isFlying) {
                 jumped = false
                 return

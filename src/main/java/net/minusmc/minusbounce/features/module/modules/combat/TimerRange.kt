@@ -7,6 +7,7 @@ import net.minusmc.minusbounce.features.module.Module
 import net.minusmc.minusbounce.features.module.ModuleCategory
 import net.minusmc.minusbounce.features.module.ModuleInfo
 import net.minusmc.minusbounce.utils.extensions.getDistanceToEntityBox
+import net.minusmc.minusbounce.utils.player.MovementUtils
 import net.minusmc.minusbounce.value.FloatValue
 import net.minusmc.minusbounce.value.IntegerValue
 import kotlin.random.Random
@@ -68,9 +69,10 @@ class TimerRange : Module() {
         if (event.targetEntity !is EntityLivingBase || shouldResetTimer()) {
             timerReset()
             return
-        } else {
-            confirmAttack = true
-        }
+        } 
+        
+        confirmAttack = true
+
 
         val targetEntity = event.targetEntity
         val entityDistance = mc.thePlayer.getDistanceToEntityBox(targetEntity)
@@ -122,22 +124,11 @@ class TimerRange : Module() {
     }
 
     /**
-     * Check if player is moving
-     */
-    private fun isPlayerMoving(): Boolean {
-        return mc.thePlayer.moveForward != 0f || mc.thePlayer.moveStrafing != 0f
-    }
-
-    /**
      * Separate condition to make it cleaner
      */
-    private fun shouldResetTimer(): Boolean {
-        return (playerTicks >= 1
-                || mc.thePlayer.isSpectator || mc.thePlayer.isDead
-                || mc.thePlayer.isInWater || mc.thePlayer.isInLava
-                || mc.thePlayer.isInWeb || mc.thePlayer.isOnLadder
-                || mc.thePlayer.isRiding)
-    }
+    private fun shouldResetTimer() = playerTicks >= 1 || mc.thePlayer.isSpectator 
+        || mc.thePlayer.isDead || mc.thePlayer.isInWater || mc.thePlayer.isInLava 
+        || mc.thePlayer.isInWeb || mc.thePlayer.isOnLadder || mc.thePlayer.isRiding
 
     /**
      * Lagback Reset is Inspired from Nextgen TimerRange
@@ -147,7 +138,7 @@ class TimerRange : Module() {
     fun onPacket(event: PacketEvent) {
         val packet = event.packet
 
-        if (isPlayerMoving() && !shouldResetTimer() && mc.timer.timerSpeed > 1.0 || mc.timer.timerSpeed < 1.0) {
+        if (MovementUtils.isMoving && !shouldResetTimer() && mc.timer.timerSpeed > 1.0 || mc.timer.timerSpeed < 1.0) {
 
             // Check for knockback
             if (confirmKnockback) {

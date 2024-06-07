@@ -1,4 +1,4 @@
-package net.minusmc.minusbounce.features.module.modules.movement.noslows.other
+package net.minusmc.minusbounce.features.module.modules.movement.noslows.sword
 
 import net.minusmc.minusbounce.features.module.modules.movement.noslows.NoSlowMode
 import net.minusmc.minusbounce.event.PreMotionEvent
@@ -8,7 +8,7 @@ import net.minecraft.network.play.client.C09PacketHeldItemChange
 import net.minecraft.network.play.client.C07PacketPlayerDigging
 import net.minecraft.item.ItemSword
 
-class SpoofItemNoSlow : NoSlowMode("SpoofItem") {
+class SpoofItemSwordNoSlow : NoSlowMode("SpoofItem") {
     override fun onPreMotion(event: PreMotionEvent) {
         val slot = mc.thePlayer.inventory.currentItem
 
@@ -18,12 +18,7 @@ class SpoofItemNoSlow : NoSlowMode("SpoofItem") {
 
     override fun onPacket(event: PacketEvent) {
         val packet = event.packet
-        if (packet is C07PacketPlayerDigging && packet.status == C07PacketPlayerDigging.Action.RELEASE_USE_ITEM && mc.thePlayer.heldItem != null && mc.thePlayer.heldItem.item is ItemSword) {
+        if (packet is C07PacketPlayerDigging && packet.status == C07PacketPlayerDigging.Action.RELEASE_USE_ITEM)
             event.cancelEvent()
-            val slot = mc.thePlayer.inventory.currentItem
-
-            mc.netHandler.networkManager.sendPacket(C09PacketHeldItemChange(if (slot < 8) slot + 1 else 0))
-            mc.netHandler.networkManager.sendPacket(C09PacketHeldItemChange(slot))
-        }
     }
 }

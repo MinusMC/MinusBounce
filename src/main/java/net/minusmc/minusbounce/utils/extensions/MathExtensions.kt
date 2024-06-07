@@ -14,6 +14,8 @@ import net.minecraft.util.BlockPos
 import net.minecraft.util.Vec3
 import net.minecraft.util.Vec3i
 
+import kotlin.math.*
+
 /**
  * Provides:
  * ```

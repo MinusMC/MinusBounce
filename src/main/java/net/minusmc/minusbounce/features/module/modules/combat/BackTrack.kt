@@ -34,7 +34,7 @@ class BackTrack : Module() {
     private val modeValue = ListValue("TrackMode", arrayOf("PacketDelay", "Automatic", "Manual"), "Automatic")
     private val esp = BoolValue("ESP", true)
     private val delayValue = IntegerValue("Delay", 200, 0, 2000) { modeValue.get().equals("automatic", true) }
-    private val onlyPlayer = BoolValue("OnlyƠlayer", true) { modeValue.get().equals("automatic", true) }
+    private val onlyPlayer = BoolValue("OnlyPlayer", true) { modeValue.get().equals("automatic", true) }
     private val packetSize = IntegerValue("LimitPacketSize", 100, 0, 1000) { modeValue.get().equals("packetdelay", true) }
 
     private var needFreeze = false
@@ -50,6 +50,10 @@ class BackTrack : Module() {
     override fun onDisable() {
         releasePackets()
         clear()
+    }
+
+    fun backTrackPacket(event: PacketEvent) {
+
     }
 
 
@@ -69,11 +73,11 @@ class BackTrack : Module() {
             if (!state)
                 return
 
-            if (packet.javaClass.name.contains("play.server.", true)) {
+            if (packet.javaClass.name.startsWith("net.minecraft.network.play.server.")) {
                 if (packet is S14PacketEntity) {
-                    val entity = packet.getEntity(mc.theWorld)
+                    val entity = packet.getEntity(mc.theWorld) ?: return
 
-                    if (entity == null && entity !is EntityLivingBase || (onlyPlayer.get() && entity !is EntityPlayer)) 
+                    if (entity !is EntityLivingBase || (onlyPlayer.get() && entity !is EntityPlayer)) 
                         return
 
                     entity.serverPosX += packet.func_149062_c().toInt()
@@ -92,7 +96,7 @@ class BackTrack : Module() {
 
 
                         if (beforeRange <= 6) {
-                            if (afterRange > beforeRange + 0.02 && afterRange < 6f) {
+                            if (afterRange > beforeRange + 0.02 && afterRange <= 6f) {
                                 if (!needFreeze) {
                                     timer.reset()
                                     needFreeze = true
@@ -117,7 +121,7 @@ class BackTrack : Module() {
                         return
                     }
 
-                    if (!needFreeze) {
+                    if (!event.isCancelled && !needFreeze) {
                         MinusBounce.eventManager.callEvent(EntityMovementEvent(entity))
                         val yaw = if (packet.func_149060_h()) packet.func_149066_f().toFloat() * 360 / 256.0f else entity.rotationYaw
                         val pitch = if (packet.func_149060_h()) packet.func_149063_g().toFloat() * 360 / 256.0f else entity.rotationPitch
@@ -126,7 +130,7 @@ class BackTrack : Module() {
                     }
 
                     event.cancelEvent()
-                } else if (needFreeze) {
+                } else if (needFreeze && !event.isCancelled) {
                     if (packet is S19PacketEntityStatus && packet.opCode == 2.toByte())
                         return
 
@@ -135,6 +139,9 @@ class BackTrack : Module() {
                 }
             }
         } else {
+            if (event.isCancelled)
+                return
+
             if (packet is S03PacketTimeUpdate)
                 return
 
@@ -143,70 +150,70 @@ class BackTrack : Module() {
                 return
             }
 
-            if (packet.javaClass.name.contains("play.server.", true)) {
+            if (packet.javaClass.name.startsWith("net.minecraft.network.play.server.")) {
                 packetEvents.add(event)
                 event.cancelEvent()
-            }
 
-            if (packet is S0CPacketSpawnPlayer) {
-                if (entities[packet.entityID] == null)
-                    return
-                val backTrackData = BackTrackData()
-
-                backTrackData.x = packet.x
-                backTrackData.y = packet.y
-                backTrackData.z = packet.z
-                backTrackData.prevX = packet.z / 32.0
-                backTrackData.prevY = packet.y / 32.0
-                backTrackData.prevZ = packet.z / 32.0
-
-                entities[packet.entityID] = backTrackData
-            }
-
-            if (packet is S14PacketEntity) {
-                val entity = packet.getEntity(mc.theWorld) ?: return
-                val backTrackData = entities[entity.entityId] ?: run {
-                    if (entity is EntityArmorStand)
+                if (packet is S0CPacketSpawnPlayer) {
+                    if (entities[packet.entityID] == null)
                         return
+                    val backTrackData = BackTrackData()
 
-                    val entityBackTrackData = BackTrackData()
-                    entityBackTrackData.x = entity.serverPosX
-                    entityBackTrackData.y = entity.serverPosY
-                    entityBackTrackData.z = entity.serverPosZ
+                    backTrackData.x = packet.x
+                    backTrackData.y = packet.y
+                    backTrackData.z = packet.z
+                    backTrackData.prevX = packet.z / 32.0
+                    backTrackData.prevY = packet.y / 32.0
+                    backTrackData.prevZ = packet.z / 32.0
 
-                    val borderSize = entity.collisionBorderSize
-                    entityBackTrackData.width = entity.width / 2 + borderSize
-                    entityBackTrackData.height = entity.height + borderSize
-
-                    entityBackTrackData
+                    entities[packet.entityID] = backTrackData
                 }
 
-                entities[entity.entityId] = backTrackData
-                backTrackData.updateMotionX(packet.func_149062_c())
-                backTrackData.updateMotionY(packet.func_149061_d())
-                backTrackData.updateMotionZ(packet.func_149064_e())
-            }
+                if (packet is S14PacketEntity) {
+                    val entity = packet.getEntity(mc.theWorld) ?: return
+                    val backTrackData = entities[entity.entityId] ?: run {
+                        if (entity is EntityArmorStand)
+                            return
 
-            if (packet is S18PacketEntityTeleport) {
+                        val entityBackTrackData = BackTrackData()
+                        entityBackTrackData.x = entity.serverPosX
+                        entityBackTrackData.y = entity.serverPosY
+                        entityBackTrackData.z = entity.serverPosZ
 
-                val backTrackData = entities[packet.entityId] ?: run {
-                    val entity = mc.theWorld.getEntityByID(packet.entityId)
-                    val entityBackTrackData = BackTrackData()
-
-                    if (entity != null) {
                         val borderSize = entity.collisionBorderSize
                         entityBackTrackData.width = entity.width / 2 + borderSize
                         entityBackTrackData.height = entity.height + borderSize
+
+                        entityBackTrackData
                     }
 
-                    entityBackTrackData
+                    entities[entity.entityId] = backTrackData
+                    backTrackData.updateMotionX(packet.func_149062_c())
+                    backTrackData.updateMotionY(packet.func_149061_d())
+                    backTrackData.updateMotionZ(packet.func_149064_e())
                 }
 
-                backTrackData.x = packet.x
-                backTrackData.y = packet.y
-                backTrackData.z = packet.z
+                if (packet is S18PacketEntityTeleport) {
 
-                entities[packet.entityId] = backTrackData
+                    val backTrackData = entities[packet.entityId] ?: run {
+                        val entity = mc.theWorld.getEntityByID(packet.entityId)
+                        val entityBackTrackData = BackTrackData()
+
+                        if (entity != null) {
+                            val borderSize = entity.collisionBorderSize
+                            entityBackTrackData.width = entity.width / 2 + borderSize
+                            entityBackTrackData.height = entity.height + borderSize
+                        }
+
+                        entityBackTrackData
+                    }
+
+                    backTrackData.x = packet.x
+                    backTrackData.y = packet.y
+                    backTrackData.z = packet.z
+
+                    entities[packet.entityId] = backTrackData
+                }
             }
 
             if (packet is C08PacketPlayerBlockPlacement && packet.placedBlockDirection == 255)
@@ -236,10 +243,11 @@ class BackTrack : Module() {
         if (!needFreeze)
             return
 
-        if (!modeValue.get().equals("manual", true) && timer.hasTimePassed(delayValue.get())) {
-            releasePackets()
-            return
-        }
+        if (!modeValue.get().equals("manual", true))
+            if (timer.hasTimePassed(delayValue.get())) {
+                releasePackets()
+                return
+            }
 
         if (storageEntities.isEmpty())
             return
@@ -266,7 +274,7 @@ class BackTrack : Module() {
             if (attacked != entity) 
                 continue
 
-            if (!modeValue.get().equals("manual", true) && timer.hasTimePassed(delayValue.get()) || range >= 6)
+            if (!modeValue.get().equals("manual", true) && timer.hasTimePassed(delayValue.get()) && range >= 6)
                 break
         }
 

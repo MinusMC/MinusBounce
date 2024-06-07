@@ -10,9 +10,9 @@ class AACv4NoWeb: NoWebMode("AACv4") {
         mc.gameSettings.keyBindBack.pressed = false
         mc.gameSettings.keyBindLeft.pressed = false
 
-        if(mc.thePlayer.onGround){
+        if (mc.thePlayer.onGround){
             MovementUtils.strafe(0.25F)
-        }else{
+        } else {
             MovementUtils.strafe(0.12F)
             mc.thePlayer.motionY = 0.0
         }
