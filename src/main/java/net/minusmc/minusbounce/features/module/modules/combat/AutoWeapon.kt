@@ -18,6 +18,7 @@ import net.minusmc.minusbounce.features.module.Module
 import net.minusmc.minusbounce.features.module.ModuleCategory
 import net.minusmc.minusbounce.features.module.ModuleInfo
 import net.minusmc.minusbounce.utils.timer.MSTimer
+import net.minusmc.minusbounce.utils.PacketUtils
 import net.minusmc.minusbounce.utils.item.ItemUtils
 import net.minusmc.minusbounce.value.BoolValue
 import net.minusmc.minusbounce.value.IntegerValue
@@ -42,8 +43,7 @@ class AutoWeapon : Module() {
             attackEnemy = false
 
             // Find the best weapon in hotbar (#Kotlin Style)
-            val (slot, _) = (0..8)
-                .map { Pair(it, mc.thePlayer.inventory.getStackInSlot(it)) }
+            val (slot, _) = (0..8).map { Pair(it, mc.thePlayer.inventory.getStackInSlot(it)) }
                 .filter { it.second != null && (it.second.item is ItemSword || it.second.item is ItemTool) }
                 .maxByOrNull {
                     (it.second.attributeModifiers["generic.attackDamage"].first()?.amount ?: 0.0) + 1.25 * ItemUtils.getEnchantment(it.second, Enchantment.sharpness)
@@ -53,14 +53,14 @@ class AutoWeapon : Module() {
                 return
 
             if (silentValue.get()) {
-                mc.netHandler.addToSendQueue(C09PacketHeldItemChange(slot))
+                PacketUtils.sendPacketNoEvent(C09PacketHeldItemChange(slot))
                 spoofedSlot = ticksValue.get()
             } else {
                 mc.thePlayer.inventory.currentItem = slot
                 mc.playerController.updateController()
             }
 
-            mc.netHandler.addToSendQueue(event.packet)
+            PacketUtils.sendPacketNoEvent(event.packet)
             event.cancelEvent()
         }
     }
@@ -70,7 +70,7 @@ class AutoWeapon : Module() {
         // Switch back to old item after some time
         if (spoofedSlot > 0) {
             if (spoofedSlot == 1)
-                mc.netHandler.addToSendQueue(C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem))
+                PacketUtils.sendPacketNoEvent(C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem))
             spoofedSlot--
         }
     }

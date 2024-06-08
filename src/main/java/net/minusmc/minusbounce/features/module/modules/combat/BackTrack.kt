@@ -29,9 +29,13 @@ import java.util.*
 
 import java.lang.reflect.ParameterizedType
 
+/**
+ * @author shxp3
+ */
+
 @ModuleInfo(name = "BackTrack", spacedName = "Back Track", description = "Let you attack in their previous position", category = ModuleCategory.COMBAT)
 class BackTrack : Module() {
-    private val modeValue = ListValue("TrackMode", arrayOf("PacketDelay", "Automatic", "Manual"), "Automatic")
+    val modeValue = ListValue("TrackMode", arrayOf("PacketDelay", "Automatic", "Manual"), "Automatic")
     private val esp = BoolValue("ESP", true)
     private val delayValue = IntegerValue("Delay", 200, 0, 2000) { modeValue.get().equals("automatic", true) }
     private val onlyPlayer = BoolValue("OnlyPlayer", true) { modeValue.get().equals("automatic", true) }
@@ -52,8 +56,77 @@ class BackTrack : Module() {
         clear()
     }
 
-    fun backTrackPacket(event: PacketEvent) {
 
+    // todo: no external calling packet
+    fun backTrackPacket(event: PacketEvent) {
+        val packet = event.packet
+
+        if (packet.javaClass.name.startsWith("net.minecraft.network.play.server.")) {
+            if (packet is S14PacketEntity) {
+                val entity = packet.getEntity(mc.theWorld) ?: return
+
+                if (entity !is EntityLivingBase || (onlyPlayer.get() && entity !is EntityPlayer)) 
+                    return
+
+                entity.serverPosX += packet.func_149062_c().toInt()
+                entity.serverPosY += packet.func_149061_d().toInt()
+                entity.serverPosZ += packet.func_149064_e().toInt()
+
+                val x = entity.serverPosX.toDouble() / 32.0
+                val y = entity.serverPosY.toDouble() / 32.0
+                val z = entity.serverPosZ.toDouble() / 32.0
+
+                if (EntityUtils.isSelected(entity, true)) {
+                    val afterBB = AxisAlignedBB(x - 0.4F, y - 0.1F, z - 0.4F, x + 0.4F, y + 1.9F, z + 0.4F)
+
+                    val eyes = mc.thePlayer.getPositionEyes(1F)
+                    val afterRange = getNearestPointBB(eyes, afterBB).distanceTo(eyes)
+                    val beforeRange = mc.thePlayer.getDistanceToEntityBox(entity)
+
+
+                    if (beforeRange <= 6) {
+                        if (afterRange > beforeRange + 0.02 && afterRange <= 6f) {
+                            if (!needFreeze) {
+                                timer.reset()
+                                needFreeze = true
+                            }
+
+                            if (!storageEntities.contains(entity)) 
+                                storageEntities.add(entity)
+
+                            event.cancelEvent()
+                            return
+                        }
+                    } else if (modeValue.get().equals("automatic", true) && afterRange < beforeRange && needFreeze) {
+                        releasePackets()
+                    }
+                }
+
+                if (needFreeze) {
+                    if (!storageEntities.contains(entity))
+                        storageEntities.add(entity)
+
+                    event.cancelEvent()
+                    return
+                }
+
+                if (!event.isCancelled && !needFreeze) {
+                    MinusBounce.eventManager.callEvent(EntityMovementEvent(entity))
+                    val yaw = if (packet.func_149060_h()) packet.func_149066_f().toFloat() * 360 / 256.0f else entity.rotationYaw
+                    val pitch = if (packet.func_149060_h()) packet.func_149063_g().toFloat() * 360 / 256.0f else entity.rotationPitch
+                    entity.setPositionAndRotation2(x, y, z, yaw, pitch, 3, false)
+                    entity.onGround = packet.onGround
+                }
+
+                event.cancelEvent()
+            } else if (needFreeze && !event.isCancelled) {
+                if (packet is S19PacketEntityStatus && packet.opCode == 2.toByte())
+                    return
+
+                packets.add(packet as Packet<INetHandlerPlayClient>)
+                event.cancelEvent()
+            }
+        }
     }
 
 
@@ -63,162 +136,94 @@ class BackTrack : Module() {
             entities.forEach {_, entity -> entity.update()}
     }
 
-    @EventTarget(priority = 1000)
+    @EventTarget
     fun onPacket(event: PacketEvent) {
         mc.thePlayer ?: return
         val packet = event.packet
         
-        if (modeValue.get().equals("automatic", true) || modeValue.get().equals("manual", true)) {
+        if (!modeValue.get().equals("packetdelay", true))
+            return
 
-            if (!state)
-                return
+        if (event.isCancelled)
+            return
 
-            if (packet.javaClass.name.startsWith("net.minecraft.network.play.server.")) {
-                if (packet is S14PacketEntity) {
-                    val entity = packet.getEntity(mc.theWorld) ?: return
+        if (packet is S03PacketTimeUpdate)
+            return
 
-                    if (entity !is EntityLivingBase || (onlyPlayer.get() && entity !is EntityPlayer)) 
-                        return
+        if (packet is S01PacketJoinGame || packet is S07PacketRespawn) {
+            clear()
+            return
+        }
 
-                    entity.serverPosX += packet.func_149062_c().toInt()
-                    entity.serverPosY += packet.func_149061_d().toInt()
-                    entity.serverPosZ += packet.func_149064_e().toInt()
+        if (packet.javaClass.name.startsWith("net.minecraft.network.play.server.")) {
+            packetEvents.add(event)
+            event.cancelEvent()
 
-                    val x = entity.serverPosX.toDouble() / 32.0
-                    val y = entity.serverPosY.toDouble() / 32.0
-                    val z = entity.serverPosZ.toDouble() / 32.0
-                    if (EntityUtils.isSelected(entity, true)) {
-                        val afterBB = AxisAlignedBB(x - 0.4F, y - 0.1F, z - 0.4F, x + 0.4F, y + 1.9F, z + 0.4F)
+            if (packet is S0CPacketSpawnPlayer) {
+                if (entities[packet.entityID] != null)
+                    return
 
-                        val eyes = mc.thePlayer.getPositionEyes(1F)
-                        val afterRange = getNearestPointBB(eyes, afterBB).distanceTo(eyes)
-                        val beforeRange = mc.thePlayer.getDistanceToEntityBox(entity)
+                val backTrackData = BackTrackData()
 
+                backTrackData.x = packet.x
+                backTrackData.y = packet.y
+                backTrackData.z = packet.z
+                backTrackData.prevX = packet.z / 32.0
+                backTrackData.prevY = packet.y / 32.0
+                backTrackData.prevZ = packet.z / 32.0
 
-                        if (beforeRange <= 6) {
-                            if (afterRange > beforeRange + 0.02 && afterRange <= 6f) {
-                                if (!needFreeze) {
-                                    timer.reset()
-                                    needFreeze = true
-                                }
-
-                                if (!storageEntities.contains(entity)) 
-                                    storageEntities.add(entity)
-
-                                event.cancelEvent()
-                                return
-                            }
-                        } else if (modeValue.get().equals("automatic", true) && afterRange < beforeRange && needFreeze) {
-                            releasePackets()
-                        }
-                    }
-
-                    if (needFreeze) {
-                        if (!storageEntities.contains(entity))
-                            storageEntities.add(entity)
-
-                        event.cancelEvent()
-                        return
-                    }
-
-                    if (!event.isCancelled && !needFreeze) {
-                        MinusBounce.eventManager.callEvent(EntityMovementEvent(entity))
-                        val yaw = if (packet.func_149060_h()) packet.func_149066_f().toFloat() * 360 / 256.0f else entity.rotationYaw
-                        val pitch = if (packet.func_149060_h()) packet.func_149063_g().toFloat() * 360 / 256.0f else entity.rotationPitch
-                        entity.setPositionAndRotation2(x, y, z, yaw, pitch, 3, false)
-                        entity.onGround = packet.onGround
-                    }
-
-                    event.cancelEvent()
-                } else if (needFreeze && !event.isCancelled) {
-                    if (packet is S19PacketEntityStatus && packet.opCode == 2.toByte())
-                        return
-
-                    packets.add(packet as Packet<INetHandlerPlayClient>)
-                    event.cancelEvent()
-                }
-            }
-        } else {
-            if (event.isCancelled)
-                return
-
-            if (packet is S03PacketTimeUpdate)
-                return
-
-            if (packet is S01PacketJoinGame || packet is S07PacketRespawn) {
-                clear()
-                return
+                entities[packet.entityID] = backTrackData
             }
 
-            if (packet.javaClass.name.startsWith("net.minecraft.network.play.server.")) {
-                packetEvents.add(event)
-                event.cancelEvent()
-
-                if (packet is S0CPacketSpawnPlayer) {
-                    if (entities[packet.entityID] == null)
+            if (packet is S14PacketEntity) {
+                val entity = packet.getEntity(mc.theWorld) ?: return
+                val backTrackData = entities[entity.entityId] ?: run {
+                    if (entity is EntityArmorStand)
                         return
-                    val backTrackData = BackTrackData()
 
-                    backTrackData.x = packet.x
-                    backTrackData.y = packet.y
-                    backTrackData.z = packet.z
-                    backTrackData.prevX = packet.z / 32.0
-                    backTrackData.prevY = packet.y / 32.0
-                    backTrackData.prevZ = packet.z / 32.0
+                    val entityBackTrackData = BackTrackData()
+                    entityBackTrackData.x = entity.serverPosX
+                    entityBackTrackData.y = entity.serverPosY
+                    entityBackTrackData.z = entity.serverPosZ
 
-                    entities[packet.entityID] = backTrackData
+                    val borderSize = entity.collisionBorderSize
+                    entityBackTrackData.width = entity.width / 2 + borderSize
+                    entityBackTrackData.height = entity.height + borderSize
+
+                    entityBackTrackData
                 }
 
-                if (packet is S14PacketEntity) {
-                    val entity = packet.getEntity(mc.theWorld) ?: return
-                    val backTrackData = entities[entity.entityId] ?: run {
-                        if (entity is EntityArmorStand)
-                            return
+                entities[entity.entityId] = backTrackData
+                backTrackData.updateMotionX(packet.func_149062_c())
+                backTrackData.updateMotionY(packet.func_149061_d())
+                backTrackData.updateMotionZ(packet.func_149064_e())
+            }
 
-                        val entityBackTrackData = BackTrackData()
-                        entityBackTrackData.x = entity.serverPosX
-                        entityBackTrackData.y = entity.serverPosY
-                        entityBackTrackData.z = entity.serverPosZ
+            if (packet is S18PacketEntityTeleport) {
 
+                val backTrackData = entities[packet.entityId] ?: run {
+                    val entity = mc.theWorld.getEntityByID(packet.entityId)
+                    val entityBackTrackData = BackTrackData()
+
+                    if (entity != null) {
                         val borderSize = entity.collisionBorderSize
                         entityBackTrackData.width = entity.width / 2 + borderSize
                         entityBackTrackData.height = entity.height + borderSize
-
-                        entityBackTrackData
                     }
 
-                    entities[entity.entityId] = backTrackData
-                    backTrackData.updateMotionX(packet.func_149062_c())
-                    backTrackData.updateMotionY(packet.func_149061_d())
-                    backTrackData.updateMotionZ(packet.func_149064_e())
+                    entityBackTrackData
                 }
 
-                if (packet is S18PacketEntityTeleport) {
+                backTrackData.x = packet.x
+                backTrackData.y = packet.y
+                backTrackData.z = packet.z
 
-                    val backTrackData = entities[packet.entityId] ?: run {
-                        val entity = mc.theWorld.getEntityByID(packet.entityId)
-                        val entityBackTrackData = BackTrackData()
-
-                        if (entity != null) {
-                            val borderSize = entity.collisionBorderSize
-                            entityBackTrackData.width = entity.width / 2 + borderSize
-                            entityBackTrackData.height = entity.height + borderSize
-                        }
-
-                        entityBackTrackData
-                    }
-
-                    backTrackData.x = packet.x
-                    backTrackData.y = packet.y
-                    backTrackData.z = packet.z
-
-                    entities[packet.entityId] = backTrackData
-                }
+                entities[packet.entityId] = backTrackData
             }
-
-            if (packet is C08PacketPlayerBlockPlacement && packet.placedBlockDirection == 255)
-                return
         }
+
+        if (packet is C08PacketPlayerBlockPlacement && packet.placedBlockDirection == 255)
+            return
     }
 
     private fun clear(size: Int) {
@@ -284,15 +289,13 @@ class BackTrack : Module() {
 
     @EventTarget
     fun onWorld(event: WorldEvent) {
-
         if (modeValue.get().equals("packetdelay", true)) {
             clear()
             return
         }
 
         attacked = null
-        storageEntities.clear()
-        event.worldClient ?: packets.clear()
+        releasePackets()
     }
 
     @EventTarget
@@ -356,25 +359,29 @@ class BackTrack : Module() {
         if (packets.isEmpty())
             return
 
-        packets.map {it}.forEach { 
-            val event = PacketEvent(it)
+        while (packets.isNotEmpty()) {
+            val packet = packets.removeAt(0)
 
-            if (!PacketUtils.packetList.contains(it))
+            val event = PacketEvent(packet)
+
+            if (!PacketUtils.packetList.contains(packet))
                 MinusBounce.eventManager.callEvent(event)
 
             if (!event.isCancelled)
-                it.processPacket(mc.netHandler)
+                packet.processPacket(mc.netHandler)
         }
-        packets.clear()
 
-        storageEntities.map {it}.forEach {
-            if (!it.isDead) {
-                val x = it.serverPosX.toDouble() / 32.0
-                val y = it.serverPosY.toDouble() / 32.0
-                val z = it.serverPosZ.toDouble() / 32.0
-                it.setPosition(x, y, z)
+        while (storageEntities.isNotEmpty()) {
+            val entity = storageEntities.removeAt(0)
+
+            if (!entity.isDead) {
+                val x = entity.serverPosX.toDouble() / 32.0
+                val y = entity.serverPosY.toDouble() / 32.0
+                val z = entity.serverPosZ.toDouble() / 32.0
+                entity.setPosition(x, y, z)
             }
         }
+
         storageEntities.clear()
 
         needFreeze = false

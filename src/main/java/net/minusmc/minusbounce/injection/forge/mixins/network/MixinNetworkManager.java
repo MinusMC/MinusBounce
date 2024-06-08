@@ -34,6 +34,16 @@ public class MixinNetworkManager {
     @Inject(method = "sendPacket(Lnet/minecraft/network/Packet;)V", at = @At("HEAD"), cancellable = true)
     private void send(Packet<?> packet, CallbackInfo callback) {
         final PacketEvent event = new PacketEvent(packet);
+
+        final BackTrack backTrack = MinusBounce.moduleManager.getModule(BackTrack.class);
+
+        if (backTrack.getState() && (backTrack.getModeValue().equals("Automatic") || backTrack.getModeValue().equals("Manual"))) {
+            try {
+                backTrack.backTrackPacket(event);
+            } catch (Exception ignored) {}
+        }
+
+
         MinusBounce.eventManager.callEvent(event);
 
         if(event.isCancelled())

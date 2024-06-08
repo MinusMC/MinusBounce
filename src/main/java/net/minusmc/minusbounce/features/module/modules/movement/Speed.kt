@@ -67,7 +67,9 @@ class Speed: Module() {
 	@EventTarget
 	fun onUpdate(event: UpdateEvent) {
         if (mc.thePlayer.isSneaking || (noWater.get() && mc.thePlayer.isInWater)) return
-		if (MovementUtils.isMoving && alwaysSprint.get()) mc.thePlayer.isSprinting = true
+
+		if (MovementUtils.isMoving && alwaysSprint.get()) 
+			mc.thePlayer.isSprinting = true
 		mode.onUpdate()
 	}
 
@@ -79,14 +81,20 @@ class Speed: Module() {
 	@EventTarget
 	fun onPreMotion(event: PreMotionEvent) {
         if (mc.thePlayer.isSneaking) return
-		if (MovementUtils.isMoving && alwaysSprint.get()) mc.thePlayer.isSprinting = true
+
+		if (MovementUtils.isMoving && alwaysSprint.get())
+			mc.thePlayer.isSprinting = true
+
 		mode.onPreMotion(event)
 	}
 
 	@EventTarget
 	fun onPostMotion(event: PostMotionEvent) {
         if (mc.thePlayer.isSneaking) return
-		if (MovementUtils.isMoving && alwaysSprint.get()) mc.thePlayer.isSprinting = true
+
+		if (MovementUtils.isMoving && alwaysSprint.get())
+			mc.thePlayer.isSprinting = true
+
 		mode.onPostMotion(event)
 	}
 
@@ -108,7 +116,7 @@ class Speed: Module() {
         modes.map {
             mode -> mode.values.forEach { value ->
                 val displayableFunction = value.displayableFunction
-            it.add(value.displayable { displayableFunction.invoke() && modeValue.get().equals(mode.modeName, true) })
+            	it.add(value.displayable { displayableFunction.invoke() && modeValue.get().equals(mode.modeName, true) })
             }
         }
     }

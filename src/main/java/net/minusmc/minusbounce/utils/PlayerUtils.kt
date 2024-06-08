@@ -8,8 +8,14 @@ import net.minecraft.item.ItemEnderPearl
 import net.minecraft.item.ItemPotion
 import net.minecraft.item.ItemStack
 import net.minecraft.util.BlockPos
+import net.minusmc.minusbounce.utils.extensions.*
+
+/**
+ * Utils for player
+ */
 
 object PlayerUtils: MinecraftInstance() {
+
 	fun getSlimeSlot(): Int {
         for(i in 36..44) {
             val stack = mc.thePlayer.inventoryContainer.getSlot(i).stack
@@ -43,7 +49,8 @@ object PlayerUtils: MinecraftInstance() {
     fun getHealPotion(): Int {
         for (i in 36..44) {
             val stack = mc.thePlayer.inventoryContainer.getSlot(i).stack
-            if (stack != null && stack.item is ItemPotion && isHealPotion(stack)) return i - 36
+            if (stack != null && stack.item is ItemPotion && isHealPotion(stack))
+                return i - 36
         }
         return -1
     }
@@ -52,22 +59,19 @@ object PlayerUtils: MinecraftInstance() {
         get() = mc.thePlayer.onGround && !mc.thePlayer.isSneaking && !mc.gameSettings.keyBindSneak.isKeyDown && !mc.gameSettings.keyBindJump.isKeyDown && mc.theWorld.getCollidingBoundingBoxes(mc.thePlayer, mc.thePlayer.entityBoundingBox.offset(0.0, -0.5, 0.0).expand(-0.001, 0.0, -0.001)).isEmpty()
 
     val isOnIce: Boolean
-        get() {
-            val player = mc.thePlayer
-            val blockUnder = mc.theWorld.getBlockState(BlockPos(player.posX, player.posY - 1.0, player.posZ)).block
-            return blockUnder is BlockIce || blockUnder is BlockPackedIce
-        }
+        get() = mc.theWorld.getBlockState(BlockPos(mc.thePlayer).down()).block.let {it is BlockIce || it is BlockPackedIce}
 
     val isBlockUnder: Boolean
         get() {
-            if (mc.thePlayer == null && mc.thePlayer.posY < 0.0) return false
-            var off = 0
+            if (mc.thePlayer == null && mc.thePlayer.posY < 0.0) 
+                return false
 
-            for (i in 0 until mc.thePlayer.posY.toInt() + 2 step 2) {
-                val bb = mc.thePlayer.entityBoundingBox.offset(0.0, (-off).toDouble(), 0.0)
-                if (!mc.theWorld.getCollidingBoundingBoxes(mc.thePlayer, bb).isEmpty())
+            for (off in 0 until mc.thePlayer.posY.toInt() + 2 step 2) {
+                val bb = mc.thePlayer.entityBoundingBox.offset(0.0, -off.toDouble(), 0.0)
+                if (mc.theWorld.getCollidingBoundingBoxes(mc.thePlayer, bb).isNotEmpty())
                     return true
             }
+
             return false
         }
 }

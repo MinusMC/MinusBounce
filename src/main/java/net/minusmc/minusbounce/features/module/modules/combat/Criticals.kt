@@ -46,7 +46,6 @@ class Criticals : Module() {
     private val onlyAuraValue = BoolValue("OnlyAura", false)
 
     val msTimer = MSTimer()
-    var antiDesync = false
     var entity: EntityLivingBase? = null
 
     @EventTarget
@@ -61,7 +60,6 @@ class Criticals : Module() {
                     MinusBounce.moduleManager[Fly::class.java]!!.state || !msTimer.hasTimePassed(delayValue.get()))
                 return
 
-            antiDesync = true
             mode.onAttack(event)
             msTimer.reset()
         }
@@ -70,13 +68,8 @@ class Criticals : Module() {
     @EventTarget
     fun onPacket(event: PacketEvent) {
         val packet = event.packet
-        if (onlyAuraValue.get() && !MinusBounce.moduleManager[KillAura::class.java]!!.state) return
-        
-        if (packet is S08PacketPlayerPosLook)
-            antiDesync = false
 
-        if (packet is C03PacketPlayer && (MovementUtils.isMoving || msTimer.hasTimePassed(delayValue.get() / 5 + 75)))
-            antiDesync = false
+        if (onlyAuraValue.get() && !MinusBounce.moduleManager[KillAura::class.java]!!.state) return
 
         mode.onPacket(event)
     }

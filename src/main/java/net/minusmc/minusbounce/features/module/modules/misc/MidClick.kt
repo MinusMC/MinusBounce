@@ -25,7 +25,6 @@ class MidClick : Module() {
         if (mc.currentScreen != null) return
 
         if (!wasDown && Mouse.isButtonDown(2)) {
-            println("Clicked middle mouse button.")
             val entity = mc.objectMouseOver.entityHit
             if (entity != null && entity is EntityPlayer) {
                 val playerName = ColorUtils.stripColor(entity.name) ?: return

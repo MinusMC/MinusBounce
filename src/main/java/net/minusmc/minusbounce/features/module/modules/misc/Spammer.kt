@@ -35,7 +35,7 @@ class Spammer: Module() {
     private val customValue = BoolValue("Custom", false)
 
     private val msTimer = MSTimer()
-    private var delay: Long = 0
+    private var delay = 0L
 
     override fun onEnable() {
         delay = RandomUtils.randomDelay(minDelayValue.get(), maxDelayValue.get())

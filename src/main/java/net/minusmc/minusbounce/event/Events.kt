@@ -20,21 +20,11 @@ import net.minecraft.util.EnumFacing
 
 /**
  * Called when player attacks other entity
- *
- * @param targetEntity Attacked entity
  */
 class AttackEvent(val targetEntity: Entity?) : CancellableEvent()
 
-class PreAttackEvent(val targetEntity: Entity?) : CancellableEvent()
-
-class PostAttackEvent(val targetEntity: Entity?) : Event()
-
 /**
  * Called when minecraft get bounding box of block
- *
- * @param blockPos block position of block
- * @param block block itself
- * @param boundingBox vanilla bounding box
  */
 class BlockBBEvent(blockPos: BlockPos, val block: Block, var boundingBox: AxisAlignedBB?) : Event() {
     val x = blockPos.x
@@ -46,8 +36,6 @@ class BlockBBEvent(blockPos: BlockPos, val block: Block, var boundingBox: AxisAl
  * Called when player clicks a block
  */
 class ClickBlockEvent(val clickedBlock: BlockPos?, val enumFacing: EnumFacing?) : Event()
-
-class ClickEvent : CancellableEvent()
 
 /**
  * Called when client is shutting down

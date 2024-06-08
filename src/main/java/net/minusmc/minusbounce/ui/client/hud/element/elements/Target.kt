@@ -9,6 +9,7 @@ import net.minecraft.client.gui.GuiChat
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.entity.player.EntityPlayer
 import net.minusmc.minusbounce.MinusBounce
+import net.minusmc.minusbounce.features.module.modules.combat.KillAura
 import net.minusmc.minusbounce.ui.client.hud.designer.GuiHudDesigner
 import net.minusmc.minusbounce.ui.client.hud.element.Border
 import net.minusmc.minusbounce.ui.client.hud.element.Element
@@ -28,6 +29,7 @@ import kotlin.math.pow
 /**
  * A target hud
  */
+
 @ElementInfo(name = "Target", disableScale = true, retrieveDamage = true)
 class Target : Element() {
     val backgroundAlpha = IntegerValue("Background-Alpha", 255, 0, 255)
@@ -35,7 +37,7 @@ class Target : Element() {
 
 
     override fun drawElement(): Border? {
-        val kaTarget = MinusBounce.combatManager.target
+        val kaTarget = MinusBounce.moduleManager[KillAura::class.java]!!.target
 
         val target = if (kaTarget != null && kaTarget is EntityPlayer && mc.thePlayer.getDistanceToEntityBox(kaTarget) <= 8.0) kaTarget
             else if (mc.currentScreen is GuiChat || mc.currentScreen is GuiHudDesigner) mc.thePlayer

@@ -31,6 +31,7 @@ class TickBase : Module() {
     fun getExtraTicks(): Int {
         if(counter-- > 0)
             return -1
+            
         freezing = false
 
         val isInRange = 

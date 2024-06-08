@@ -68,6 +68,9 @@ class AutoLogin : Module() {
 
     @EventTarget
     fun onPacket(event: PacketEvent) {
+
+    	mc.thePlayer ?: return
+
 		if (mc.thePlayer == null)
 			return
 
