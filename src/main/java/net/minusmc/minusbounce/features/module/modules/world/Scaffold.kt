@@ -32,6 +32,7 @@ import net.minusmc.minusbounce.utils.RaycastUtils.runWithModifiedRaycastResult
 import net.minusmc.minusbounce.utils.render.BlurUtils
 import net.minusmc.minusbounce.utils.render.RenderUtils
 import net.minusmc.minusbounce.utils.timer.MSTimer
+import net.minusmc.minusbounce.utils.misc.MathUtils
 import net.minusmc.minusbounce.utils.misc.RandomUtils
 import net.minusmc.minusbounce.utils.player.MovementCorrection
 import net.minusmc.minusbounce.utils.player.MovementUtils
@@ -76,7 +77,7 @@ class Scaffold: Module() {
     private val swingValue = ListValue("Swing", arrayOf("Normal", "Packet", "Off"), "Normal")
     private val downValue = BoolValue("Down", false)
     private val searchValue = BoolValue("Search", true)
-    private val searchModeValue = ListValue("SearchMode", arrayOf("Area", "Center"), "Center")
+    private val searchModeValue = ListValue("SearchMode", arrayOf("Area", "Center", "TryRotation"), "Center")
     private val placeModeValue = ListValue("PlaceTiming", arrayOf("Pre", "Post", "Legit"), "Post")
 
     private val eagleValue = ListValue("Eagle", arrayOf("Normal", "Slient", "Off"), "Off")
@@ -670,6 +671,7 @@ class Scaffold: Module() {
         val maxReach = mc.playerController.blockReachDistance
 
         var placeRotation: PlaceRotation? = null
+        var considerablePlaceRotation: PlaceRotation? = null
 
         for (side in StaticStorage.facings()) {
             val neighborBlock = blockPosition.offset(side)
@@ -695,11 +697,47 @@ class Scaffold: Module() {
                     if (placeRotation == null || RotationUtils.getRotationDifference(currentPlaceRotation.rotation, currentRotation) < RotationUtils.getRotationDifference(placeRotation.rotation, currentRotation))
                         placeRotation = currentPlaceRotation
                 }
+
+                "tryrotation" -> {
+                    val list = floatArrayOf(-135f, -45f, 45f, 135f)
+
+                    val pitchList = 75.0..80.0 + if (isLookingDiagonally) 1.0 else 0.0
+
+                    for (yaw in list) {
+                        for (pitch in pitchList step 0.1) {
+                            val rotation = Rotation(yaw, pitch.toFloat())
+                            val raytrace = RaycastUtils.performBlockRaytrace(rotation, maxReach) ?: continue
+
+                            val currentPlaceRotation =
+                                PlaceRotation(PlaceInfo(raytrace.blockPos, raytrace.sideHit, raytrace.hitVec), rotation)
+
+                            if (raytrace.blockPos == neighborBlock && raytrace.sideHit == side.opposite) {
+                                val isInStablePitchRange = if (isLookingDiagonally) {
+                                    pitch >= 75.6
+                                } else {
+                                    pitch in 73.5..75.7
+                                }
+
+                                // The module should be looking to aim at (nearly) the upper face of the block. Provides stable bridging most of the time.
+                                if (isInStablePitchRange) {
+                                    if (considerablePlaceRotation == null || RotationUtils.getRotationDifference(rotation, currentRotation) < RotationUtils.getRotationDifference(considerablePlaceRotation.rotation, currentRotation))
+                                        considerablePlaceRotation = currentPlaceRotation
+                                }
+
+                                if (placeRotation == null || RotationUtils.getRotationDifference(currentPlaceRotation.rotation, currentRotation) < RotationUtils.getRotationDifference(placeRotation.rotation, currentRotation))
+                                        placeRotation = currentPlaceRotation
+                            }
+                        }
+                    }
+                }
             }
         }
         
+        placeRotation = considerablePlaceRotation ?: placeRotation
+
         placeRotation ?: return false
         placeRotation.rotation.fixedSensitivity(mc.gameSettings.mouseSensitivity)
+
 
         lockRotation = placeRotation.rotation
         targetPlace = placeRotation.placeInfo
@@ -802,6 +840,13 @@ class Scaffold: Module() {
             "air" -> !mc.thePlayer.onGround
             "falldown" -> mc.thePlayer.fallDistance > 0f
             else -> false
+        }
+
+    private val isLookingDiagonally: Boolean
+        get() {
+            // Round the rotation to the nearest multiple of 45 degrees so that way we check if the player faces diagonally
+            val yaw = round(abs(MathUtils.wrapAngleTo180(mc.thePlayer.rotationYaw)).roundToInt() / 45f) * 45f
+            return (yaw == 45f || yaw == 135f) && MovementUtils.isMoving
         }
 
     private val currentRotation: Rotation

@@ -396,7 +396,7 @@ public abstract class MixinMinecraft {
                     }
                 }
 
-                if(!skip) {
+                if (!skip) {
                     this.runTick();
                 }
             } else {

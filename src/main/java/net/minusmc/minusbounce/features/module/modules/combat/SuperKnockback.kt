@@ -21,6 +21,7 @@ import net.minusmc.minusbounce.value.ListValue
 class SuperKnockback : Module() {
     private val modeValue = ListValue("Mode", arrayOf("DoublePacket", "Packet", "LegitFast", "WTap", "STap", "SprintTap", "SneakTap", "SprintSilentTap"), "DoublePacket")
     private val hurtTimeValue = IntegerValue("HurtTime", 10, 0, 10)
+    private val hurtTimeComparator = ListValue("HurtTimeComparator", arrayOf("Greater", "Equals"), "Greater")
     private val ticksDelay = IntegerValue("TicksDelay", 1, 1, 10)
     private var ticks = 0
 
@@ -36,9 +37,12 @@ class SuperKnockback : Module() {
         if (target !is EntityLivingBase)
             return
 
-        if (target.hurtTime > hurtTimeValue.get())
-            return
+        when (hurtTimeComparator.get().lowercase()) {
+            "greater" -> if (target.hurtTime > hurtTimeValue.get()) return
+            "equals" -> if (target.hurtTime != hurtTimeValue.get()) return
+        }
 
+        
         when (modeValue.get().lowercase()) {
             "doublepacket" -> {
                 mc.netHandler.addToSendQueue(C0BPacketEntityAction(mc.thePlayer, C0BPacketEntityAction.Action.STOP_SPRINTING))

@@ -142,9 +142,7 @@ class TimerRange : Module() {
 
             // Check for knockback
             if (confirmKnockback) {
-                if (packet is S12PacketEntityVelocity && mc.thePlayer.entityId == packet.entityID
-                    && packet.motionY > 0 && (packet.motionX != 0 || packet.motionZ != 0)
-                ) {
+                if (packet is S12PacketEntityVelocity && mc.thePlayer.entityId == packet.entityID && packet.motionY > 0 && (packet.motionX != 0 || packet.motionZ != 0)) {
                     confirmKnockback = false
                     timerReset()
                 }

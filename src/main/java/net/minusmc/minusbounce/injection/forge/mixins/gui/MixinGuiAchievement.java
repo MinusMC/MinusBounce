@@ -17,9 +17,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class MixinGuiAchievement {
     @Inject(method = "updateAchievementWindow", at = @At("HEAD"), cancellable = true)
     private void injectAchievements(CallbackInfo ci) {
-        if (MinusBounce.moduleManager != null 
-            && MinusBounce.moduleManager.getModule(NoAchievements.class) != null 
-            && MinusBounce.moduleManager.getModule(NoAchievements.class).getState()) 
+        final NoAchievements noAchievements = MinusBounce.moduleManager.getModule(NoAchievements.class);
+
+        if (noAchievements != null && noAchievements.getState()) 
             ci.cancel();
     }
 }
