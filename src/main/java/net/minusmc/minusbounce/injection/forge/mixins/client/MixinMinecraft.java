@@ -5,6 +5,31 @@
  */
 package net.minusmc.minusbounce.injection.forge.mixins.client;
 
+import net.minecraft.block.material.Material;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.audio.SoundHandler;
+import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.ScaledResolution;
+import net.minecraft.client.gui.achievement.GuiAchievement;
+import net.minecraft.client.multiplayer.PlayerControllerMP;
+import net.minecraft.client.multiplayer.WorldClient;
+import net.minecraft.client.network.NetHandlerPlayClient;
+import net.minecraft.client.particle.EffectRenderer;
+import net.minecraft.client.renderer.EntityRenderer;
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.OpenGlHelper;
+import net.minecraft.client.renderer.chunk.RenderChunk;
+import net.minecraft.client.settings.GameSettings;
+import net.minecraft.client.shader.Framebuffer;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.profiler.PlayerUsageSnooper;
+import net.minecraft.profiler.Profiler;
+import net.minecraft.server.integrated.IntegratedServer;
+import net.minecraft.util.*;
+import net.minecraftforge.client.MinecraftForgeClient;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minusmc.minusbounce.MinusBounce;
 import net.minusmc.minusbounce.event.*;
 import net.minusmc.minusbounce.features.module.modules.combat.AutoClicker;
@@ -18,48 +43,10 @@ import net.minusmc.minusbounce.utils.CPSCounter;
 import net.minusmc.minusbounce.utils.player.RotationUtils;
 import net.minusmc.minusbounce.utils.render.IconUtils;
 import net.minusmc.minusbounce.utils.render.RenderUtils;
-import net.minecraft.block.material.Material;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.audio.MusicTicker;
-import net.minecraft.client.audio.SoundHandler;
-import net.minecraft.client.entity.EntityPlayerSP;
-import net.minecraft.client.gui.*;
-import net.minecraft.client.gui.achievement.GuiAchievement;
-import net.minecraft.client.gui.inventory.GuiInventory;
-import net.minecraft.client.multiplayer.PlayerControllerMP;
-import net.minecraft.client.multiplayer.WorldClient;
-import net.minecraft.client.network.NetHandlerPlayClient;
-import net.minecraft.client.particle.EffectRenderer;
-import net.minecraft.client.renderer.EntityRenderer;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.OpenGlHelper;
-import net.minecraft.client.renderer.RenderGlobal;
-import net.minecraft.client.renderer.chunk.RenderChunk;
-import net.minecraft.client.renderer.entity.RenderManager;
-import net.minecraft.client.renderer.texture.TextureManager;
-import net.minecraft.client.resources.IResourceManager;
-import net.minecraft.client.settings.GameSettings;
-import net.minecraft.client.settings.KeyBinding;
-import net.minecraft.client.shader.Framebuffer;
-import net.minecraft.client.stream.IStream;
-import net.minecraft.crash.CrashReport;
-import net.minecraft.crash.CrashReportCategory;
-import net.minecraft.entity.*;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.network.NetworkManager;
-import net.minecraft.network.play.client.C16PacketClientStatus;
-import net.minecraft.profiler.PlayerUsageSnooper;
-import net.minecraft.profiler.Profiler;
-import net.minecraft.server.integrated.IntegratedServer;
-import net.minecraft.util.*;
-import net.minecraft.world.EnumDifficulty;
-import net.minecraftforge.client.MinecraftForgeClient;
-import net.minecraftforge.fml.common.FMLCommonHandler;
 import org.apache.commons.lang3.SystemUtils;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.Sys;
 import org.lwjgl.input.Keyboard;
-import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.*;
@@ -70,10 +57,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Queue;
-import java.util.concurrent.Callable;
 import java.util.concurrent.FutureTask;
-
-import static net.minecraft.client.Minecraft.getSystemTime;
 
 @Mixin(Minecraft.class)
 public abstract class MixinMinecraft {
@@ -91,7 +75,7 @@ public abstract class MixinMinecraft {
     public boolean skipRenderWorld;
 
     @Shadow
-    private int leftClickCounter;
+    public int leftClickCounter;
 
     @Shadow
     public MovingObjectPosition objectMouseOver;
@@ -122,40 +106,26 @@ public abstract class MixinMinecraft {
     @Shadow
     public GameSettings gameSettings;
 
+    @Final
     @Shadow
-    private Profiler mcProfiler;
+    public Profiler mcProfiler;
 
     @Shadow
     private boolean isGamePaused;
 
     @Shadow
-    @Final
     public Timer timer;
 
     @Shadow
-    private void rightClickMouse() {}
+    public void runTick() {}
 
     @Shadow
-    private void clickMouse() {}
-
-    @Shadow
-    private void runTick() {}
-
-    @Shadow
-    private void middleClickMouse() {}
-
-    @Shadow
-    public long startNanoTime;
-
-    @Shadow
-    public boolean inGameHasFocus;
-
-    @Shadow
-    public abstract IResourceManager getResourceManager();
+    long startNanoTime;
 
     @Shadow
     private PlayerUsageSnooper usageSnooper;
 
+    @Final
     @Shadow
     private Queue<FutureTask<?>> scheduledTasks;
 
@@ -166,22 +136,19 @@ public abstract class MixinMinecraft {
     public GuiAchievement guiAchievement;
 
     @Shadow
-    public int fpsCounter;
+    int fpsCounter;
 
     @Shadow
-    public long prevFrameTime;
+    long prevFrameTime;
 
     @Shadow
     private Framebuffer framebufferMc;
 
     @Shadow
-    public abstract void checkGLError(String message);
+    protected abstract void checkGLError(String message);
 
     @Shadow
-    public long debugUpdateTime;
-
-    @Shadow
-    private IStream stream;
+    long debugUpdateTime;
 
     @Shadow
     @Final
@@ -213,55 +180,11 @@ public abstract class MixinMinecraft {
     private void displayDebugInfo(long elapsedTicksTime) {}
 
     @Shadow
-    private long debugCrashKeyPressTime;
-
-    @Shadow
-    public GuiIngame ingameGUI;
-
-    @Shadow
-    public TextureManager renderEngine;
-
-    @Shadow
-    public abstract void refreshResources();
-
-    @Shadow
-    private int joinPlayerCounter;
-
-    @Shadow
-    public abstract void dispatchKeypresses();
-
-    @Shadow
-    public RenderGlobal renderGlobal;
-
-    @Shadow
-    private RenderManager renderManager;
-
-    @Shadow
-    private NetworkManager myNetworkManager;
-
-    @Shadow
-    public long systemTime;
-
-    @Shadow
-    public abstract Entity getRenderViewEntity();
-
-    @Shadow
     private SoundHandler mcSoundHandler;
 
-    @Shadow
-    private MusicTicker mcMusicTicker;
 
     @Shadow
     public abstract NetHandlerPlayClient getNetHandler();
-
-    @Shadow
-    public abstract void setIngameFocus();
-
-    @Shadow
-    private void updateDebugProfilerName(int p_updateDebugProfilerName_1_) {}
-
-    @Shadow
-    public abstract void displayInGameMenu();
 
     @Shadow
     public void displayGuiScreen(GuiScreen p_displayGuiScreen_1_) {}
@@ -328,8 +251,13 @@ public abstract class MixinMinecraft {
         MinusBounce.eventManager.callEvent(new ScreenEvent(currentScreen));
     }
 
+    @Unique
     private long lastFrame = getTime();
 
+    /**
+     * @author toidicakhia, CCBluex
+     * @reason RenderUtils and TickBase
+     */
     @Overwrite
     private void runGameLoop() throws IOException {
         final long currentTime = getTime();
@@ -379,6 +307,7 @@ public abstract class MixinMinecraft {
                 if(j == 0) {
                     TickBase tickBase = MinusBounce.moduleManager.getModule(TickBase.class);
 
+                    assert tickBase != null;
                     if(tickBase.getState()) {
                         int extraTicks = tickBase.getExtraTicks();
 
@@ -476,8 +405,8 @@ public abstract class MixinMinecraft {
 
         while (Minecraft.getSystemTime() >= this.debugUpdateTime + 1000L)
         {
-            this.debugFPS = this.fpsCounter;
-            this.debug = String.format("%d fps (%d chunk update%s) T: %s%s%s%s%s", new Object[] {Integer.valueOf(debugFPS), Integer.valueOf(RenderChunk.renderChunksUpdated), RenderChunk.renderChunksUpdated != 1 ? "s" : "", (float)this.gameSettings.limitFramerate == GameSettings.Options.FRAMERATE_LIMIT.getValueMax() ? "inf" : Integer.valueOf(this.gameSettings.limitFramerate), this.gameSettings.enableVsync ? " vsync" : "", this.gameSettings.fancyGraphics ? "" : " fast", this.gameSettings.clouds == 0 ? "" : (this.gameSettings.clouds == 1 ? " fast-clouds" : " fancy-clouds"), OpenGlHelper.useVbo() ? " vbo" : ""});
+            debugFPS = this.fpsCounter;
+            this.debug = String.format("%d fps (%d chunk update%s) T: %s%s%s%s%s", debugFPS, RenderChunk.renderChunksUpdated, RenderChunk.renderChunksUpdated != 1 ? "s" : "", (float)this.gameSettings.limitFramerate == GameSettings.Options.FRAMERATE_LIMIT.getValueMax() ? "inf" : Integer.valueOf(this.gameSettings.limitFramerate), this.gameSettings.enableVsync ? " vsync" : "", this.gameSettings.fancyGraphics ? "" : " fast", this.gameSettings.clouds == 0 ? "" : (this.gameSettings.clouds == 1 ? " fast-clouds" : " fancy-clouds"), OpenGlHelper.useVbo() ? " vbo" : "");
             RenderChunk.renderChunksUpdated = 0;
             this.debugUpdateTime += 1000L;
             this.fpsCounter = 0;
@@ -547,8 +476,9 @@ public abstract class MixinMinecraft {
     private void rightClickMouse(final CallbackInfo callbackInfo) {
         CPSCounter.INSTANCE.registerClick(CPSCounter.MouseButton.RIGHT);
 
-        final FastPlace fastPlace = (FastPlace) MinusBounce.moduleManager.getModule(FastPlace.class);
+        final FastPlace fastPlace = MinusBounce.moduleManager.getModule(FastPlace.class);
 
+        assert fastPlace != null;
         if (fastPlace.getState())
             rightClickDelayTimer = fastPlace.getSpeedValue().get();
     }
@@ -578,6 +508,7 @@ public abstract class MixinMinecraft {
 
     /**
      * @author CCBlueX
+     * @reason event and hit delay fix
      */
     @Overwrite
     public void sendClickBlockToController(boolean leftClick) {

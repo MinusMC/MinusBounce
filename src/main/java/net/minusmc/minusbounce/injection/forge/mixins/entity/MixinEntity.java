@@ -6,7 +6,6 @@
 package net.minusmc.minusbounce.injection.forge.mixins.entity;
 
 import net.minecraft.block.Block;
-import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
 import net.minecraft.crash.CrashReportCategory;
 import net.minecraft.entity.Entity;
@@ -128,9 +127,6 @@ public abstract class MixinEntity {
     public float width;
 
     @Shadow
-    public abstract Vec3 getPositionEyes(float partialTicks);
-
-    @Shadow
     public abstract boolean isRiding();
 
     @Shadow
@@ -161,13 +157,7 @@ public abstract class MixinEntity {
     private int fire;
 
     @Shadow
-    public float prevRotationPitch;
-
-    @Shadow
-    public float prevRotationYaw;
-
-    @Shadow
-    protected abstract Vec3 getVectorForRotation(float pitch, float yaw);
+    public abstract Vec3 getVectorForRotation(float pitch, float yaw);
 
     @Shadow
     public abstract UUID getUniqueID();
@@ -175,10 +165,7 @@ public abstract class MixinEntity {
     @Shadow
     public abstract boolean isSneaking();
 
-    @Shadow
-    public abstract boolean isInsideOfMaterial(Material materialIn);
-
-    @Shadow(remap = false) 
+    @Shadow(remap = false)
     private CapabilityDispatcher capabilities;
 
     public int getNextStepDistance() {
@@ -218,6 +205,7 @@ public abstract class MixinEntity {
 
     /**
      * @author fmcpe
+     * @reason Strafe event
      */
     @Overwrite
     public void moveFlying(float strafe, float forward, float friction){

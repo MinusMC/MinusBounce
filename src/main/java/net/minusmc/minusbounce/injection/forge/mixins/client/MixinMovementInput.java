@@ -6,10 +6,8 @@
 package net.minusmc.minusbounce.injection.forge.mixins.client;
 
 import net.minecraft.util.MovementInput;
-import net.minusmc.minusbounce.event.*;
-import org.spongepowered.asm.mixin.*;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 
 @Mixin(MovementInput.class)
 public class MixinMovementInput {
@@ -27,7 +25,6 @@ public class MixinMovementInput {
     public boolean sneak;
 
     @Shadow
-    public void updatePlayerMoveState() {
-    }
+    public void updatePlayerMoveState() {}
 
 }
