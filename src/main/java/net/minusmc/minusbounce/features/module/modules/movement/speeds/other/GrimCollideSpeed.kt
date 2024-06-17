@@ -35,7 +35,7 @@ class GrimCollideSpeed: SpeedMode("GrimCollide", SpeedType.OTHER) {
 
         val rotation = RotationUtils.currentRotation ?: mc.thePlayer.rotation
 
-        val yaw = MovementUtils.getRawDirection(rotation.yaw)
+        val yaw = MovementUtils.getDirection(rotation.yaw)
         val boost = boostSpeed.get().toDouble() * collisions
         mc.thePlayer.addVelocity(-sin(yaw) * boost, 0.0, cos(yaw) * boost)
     }

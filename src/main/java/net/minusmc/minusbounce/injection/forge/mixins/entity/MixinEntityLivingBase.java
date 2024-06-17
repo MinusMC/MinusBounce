@@ -10,8 +10,6 @@ import net.minusmc.minusbounce.MinusBounce;
 import net.minusmc.minusbounce.event.JumpEvent;
 import net.minusmc.minusbounce.event.LookEvent;
 import net.minusmc.minusbounce.features.module.modules.movement.NoJumpDelay;
-import net.minusmc.minusbounce.features.module.modules.movement.Sprint;
-import net.minusmc.minusbounce.features.module.modules.movement.TargetStrafe;
 import net.minusmc.minusbounce.features.module.modules.client.Animations;
 import net.minusmc.minusbounce.features.module.modules.render.AntiBlind;
 import net.minecraft.block.Block;
@@ -89,12 +87,6 @@ public abstract class MixinEntityLivingBase extends MixinEntity {
 
         if (this.isSprinting()) {
             float yaw = jumpEvent.getYaw();
-
-            final TargetStrafe tsMod = MinusBounce.moduleManager.getModule(TargetStrafe.class);
-            final Sprint sprintMod = MinusBounce.moduleManager.getModule(Sprint.class);
-            
-            if (tsMod.getCanStrafe()) 
-                yaw = tsMod.getMovingYaw();
 
             final float f = yaw * 0.017453292F;
             this.motionX -= MathHelper.sin(f) * 0.2F;

@@ -240,7 +240,7 @@ public abstract class MixinMinecraft {
 
     @Inject(method = "displayGuiScreen", at = @At(value = "FIELD", target = "Lnet/minecraft/client/Minecraft;currentScreen:Lnet/minecraft/client/gui/GuiScreen;", shift = At.Shift.AFTER))
     private void displayGuiScreen1(CallbackInfo callbackInfo) {
-        if(currentScreen instanceof net.minecraft.client.gui.GuiMainMenu || (currentScreen != null && currentScreen.getClass().getName().startsWith("net.labymod") && currentScreen.getClass().getSimpleName().equals("ModGuiMainMenu"))) {
+        if (currentScreen instanceof net.minecraft.client.gui.GuiMainMenu || (currentScreen != null && currentScreen.getClass().getName().startsWith("net.labymod") && currentScreen.getClass().getSimpleName().equals("ModGuiMainMenu"))) {
             currentScreen = new GuiMainMenu();
 
             ScaledResolution scaledResolution = new ScaledResolution(Minecraft.getMinecraft());
@@ -251,8 +251,10 @@ public abstract class MixinMinecraft {
         MinusBounce.eventManager.callEvent(new ScreenEvent(currentScreen));
     }
 
-    @Unique
-    private long lastFrame = getTime();
+    @Inject(method = "runGameLoop", at = @At("HEAD"))
+    private void injectGameLoop(CallbackInfo callbackInfo) {
+        MinusBounce.eventManager.callEvent(new GameLoopEvent());
+    }
 
     /**
      * @author toidicakhia, CCBluex
@@ -260,12 +262,6 @@ public abstract class MixinMinecraft {
      */
     @Overwrite
     private void runGameLoop() throws IOException {
-        final long currentTime = getTime();
-        final int deltaTime = (int) (currentTime - lastFrame);
-        lastFrame = currentTime;
-
-        RenderUtils.INSTANCE.setDeltaTime(deltaTime);
-
         long i = System.nanoTime();
         this.mcProfiler.startSection("root");
 
@@ -299,10 +295,8 @@ public abstract class MixinMinecraft {
         long l = System.nanoTime();
         this.mcProfiler.startSection("tick");
 
-        for (int j = 0; j < this.timer.elapsedTicks; ++j)
-        {
-            if(Minecraft.getMinecraft().thePlayer != null) {
-                boolean skip = false;
+        for (int j = 0; j < this.timer.elapsedTicks; ++j) {
+            if (Minecraft.getMinecraft().thePlayer != null) {
 
                 if(j == 0) {
                     TickBase tickBase = MinusBounce.moduleManager.getModule(TickBase.class);
@@ -311,23 +305,18 @@ public abstract class MixinMinecraft {
                     if(tickBase.getState()) {
                         int extraTicks = tickBase.getExtraTicks();
 
-                        if(extraTicks == -1) {
-                            skip = true;
-                        } else {
-                            if(extraTicks > 0) {
-                                for(int aa = 0; aa < extraTicks; aa++) {
-                                    this.runTick();
-                                }
-
-                                tickBase.setFreezing(true);
+                        if (extraTicks == -1) {
+                            this.runTick();
+                        } else if(extraTicks > 0) {
+                            for(int aa = 0; aa < extraTicks; aa++) {
+                                this.runTick();
                             }
+
+                            tickBase.setFreezing(true);
                         }
                     }
                 }
 
-                if (!skip) {
-                    this.runTick();
-                }
             } else {
                 this.runTick();
             }
@@ -428,10 +417,6 @@ public abstract class MixinMinecraft {
         this.mcProfiler.endSection();
     }
 
-    public long getTime() {
-        return (Sys.getTime() * 1000) / Sys.getTimerResolution();
-    }
-
     @Inject(method = "runTick", at = @At("HEAD"))
     private void injectTickEvent(CallbackInfo callbackInfo) {
         MinusBounce.eventManager.callEvent(new TickEvent());
@@ -516,14 +501,14 @@ public abstract class MixinMinecraft {
             this.leftClickCounter = 0;
 
         if (this.leftClickCounter <= 0 && (!this.thePlayer.isUsingItem() || MinusBounce.moduleManager.getModule(MultiActions.class).getState())) {
-            if(leftClick && this.objectMouseOver != null && this.objectMouseOver.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK) {
+            if (leftClick && this.objectMouseOver != null && this.objectMouseOver.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK) {
                 BlockPos blockPos = this.objectMouseOver.getBlockPos();
 
-                if(this.leftClickCounter == 0)
+                if (this.leftClickCounter == 0)
                     MinusBounce.eventManager.callEvent(new ClickBlockEvent(blockPos, this.objectMouseOver.sideHit));
 
 
-                if(this.theWorld.getBlockState(blockPos).getBlock().getMaterial() != Material.air && this.playerController.onPlayerDamageBlock(blockPos, this.objectMouseOver.sideHit)) {
+                if (this.theWorld.getBlockState(blockPos).getBlock().getMaterial() != Material.air && this.playerController.onPlayerDamageBlock(blockPos, this.objectMouseOver.sideHit)) {
                     this.effectRenderer.addBlockHitEffects(blockPos, this.objectMouseOver.sideHit);
                     this.thePlayer.swingItem();
                 }

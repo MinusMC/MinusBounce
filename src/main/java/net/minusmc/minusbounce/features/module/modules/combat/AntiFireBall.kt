@@ -59,7 +59,7 @@ class AntiFireBall : Module() {
                 keepLength = 2,
                 minRotationSpeed = turnSpeed.getMinValue(),
                 maxRotationSpeed = turnSpeed.getMaxValue(),
-                fixType = MovementCorrection.Type.STRICT
+                fixType = MovementCorrection.Type.LIQUID_BOUNCE
             )
 
             target = entity

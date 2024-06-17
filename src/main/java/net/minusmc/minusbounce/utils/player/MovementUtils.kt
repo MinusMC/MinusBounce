@@ -8,7 +8,6 @@ package net.minusmc.minusbounce.utils.player
 import net.minecraft.potion.Potion
 import net.minusmc.minusbounce.MinusBounce
 import net.minusmc.minusbounce.event.MoveEvent
-import net.minusmc.minusbounce.features.module.modules.movement.TargetStrafe
 import net.minusmc.minusbounce.utils.misc.MathUtils
 import net.minusmc.minusbounce.utils.MinecraftInstance
 import net.minusmc.minusbounce.utils.PlayerUtils
@@ -18,22 +17,13 @@ import kotlin.math.sin
 import kotlin.math.sqrt
 
 object MovementUtils : MinecraftInstance() {
-    private var lastX = -999999.0
-    private var lastZ = -999999.0
-
     val speed: Float
         get() = getSpeed(mc.thePlayer.motionX, mc.thePlayer.motionZ).toFloat()
 
     val isMoving: Boolean
         get() = mc.thePlayer != null && (mc.thePlayer.movementInput.moveForward != 0f || mc.thePlayer.movementInput.moveStrafe != 0f)
 
-    fun getSpeed(motionX: Double, motionZ: Double): Double {
-        return sqrt(motionX * motionX + motionZ * motionZ)
-    }
-
-    fun accelerate() {
-        accelerate(speed)
-    }
+    fun getSpeed(motionX: Double, motionZ: Double) = sqrt(motionX * motionX + motionZ * motionZ)
 
     fun accelerate(speed: Float) {
         if (!isMoving) return
@@ -42,13 +32,7 @@ object MovementUtils : MinecraftInstance() {
         mc.thePlayer.motionZ += cos(yaw) * speed
     }
 
-    fun hasMotion(): Boolean {
-        return mc.thePlayer.motionX != 0.0 && mc.thePlayer.motionZ != 0.0 && mc.thePlayer.motionY != 0.0
-    }
-
-    fun strafe() {
-        strafe(speed)
-    }
+    fun strafe() = strafe(speed)
 
     fun strafe(speed: Float) {
         if (!isMoving) return
@@ -64,43 +48,30 @@ object MovementUtils : MinecraftInstance() {
         mc.thePlayer.motionZ = cos(yaw) * speed
     }
 
-    fun forward(length: Double) {
-        val yaw = MathUtils.toRadians(mc.thePlayer.rotationYaw)
-        mc.thePlayer.setPosition(
-            mc.thePlayer.posX + -sin(yaw) * length, mc.thePlayer.posY,
-            mc.thePlayer.posZ + cos(yaw) * length
-        )
-    }
-
     fun getDirection(): Double {
-        val ts = MinusBounce.moduleManager[TargetStrafe::class.java]!!
-        return if (ts.canStrafe) 
-            ts.getMovingDir()
-        else
-            getRawDirection()
-    }
-
-    fun getRawDirection(): Double {
         return getDirectionRotation(mc.thePlayer.rotationYaw, mc.thePlayer.moveStrafing, mc.thePlayer.moveForward).toDouble()
     }
 
-    fun getRawDirection(yaw: Float): Float {
+    fun getDirection(yaw: Float): Float {
         return getDirectionRotation(yaw, mc.thePlayer.moveStrafing, mc.thePlayer.moveForward).toFloat()
     }
 
-    fun getRawDirection(yaw: Float, strafe: Float, forward: Float): Float {
-        var rotationYaw = yaw
-        if (forward < 0f) rotationYaw += 180f
-        var forward = 1f
-        if (forward < 0f) forward = -0.5f
-        else if (forward > 0f) forward = 0.5f
-        if (strafe > 0f) rotationYaw -= 90f * forward
-        if (strafe < 0f) rotationYaw += 90f * forward
+    fun getDirection(pYaw: Float, pStrafe: Float, pForward: Float): Float {
+        var rotationYaw = pYaw
+        
+        if (pForward < 0f) 
+            rotationYaw += 180f
+
+        val forward = if (pForward < 0f) -0.5f else if (pForward > 0f) 0.5f else 1f
+
+        val f = if (pStrafe > 0f) -90f else if (pStrafe < 0f) 90f else 0f
+
+        rotationYaw += f * forward
         return rotationYaw
     }
 
     fun getDirectionRotation(yaw: Float, strafe: Float, forward: Float): Double {
-        return MathUtils.toRadians(getRawDirection(yaw, strafe, forward)).toDouble()
+        return MathUtils.toRadians(getDirection(yaw, strafe, forward)).toDouble()
     }
 
     fun getXZDist(speed: Float, cYaw: Float): DoubleArray {
@@ -109,20 +80,6 @@ object MovementUtils : MinecraftInstance() {
         arr[0] = -sin(yaw) * speed
         arr[1] = cos(yaw) * speed
         return arr
-    }
-
-    fun getPredictionYaw(x: Double, z: Double): Float {
-        if (mc.thePlayer == null) {
-            lastX = -999999.0
-            lastZ = -999999.0
-            return 0f
-        }
-        if (lastX == -999999.0) lastX = mc.thePlayer.prevPosX
-        if (lastZ == -999999.0) lastZ = mc.thePlayer.prevPosZ
-        val returnValue = (atan2(z - lastZ, x - lastX) * 180f / Math.PI).toFloat()
-        lastX = x
-        lastZ = z
-        return returnValue
     }
 
     val jumpEffect: Int
@@ -157,149 +114,6 @@ object MovementUtils : MinecraftInstance() {
         return baseJumpHeight.toDouble()
     }
 
-    fun setMotion(event: MoveEvent, speed: Double, motion: Double, smoothStrafe: Boolean) {
-        var forward = mc.thePlayer.movementInput.moveForward.toDouble()
-        var strafe = mc.thePlayer.movementInput.moveStrafe.toDouble()
-        var yaw = mc.thePlayer.rotationYaw.toDouble()
-        val direction = if (smoothStrafe) 45 else 90
-        if (forward == 0.0 && strafe == 0.0) {
-            event.x = 0.0
-            event.z = 0.0
-        } else {
-            if (forward != 0.0) {
-                if (strafe > 0.0) {
-                    yaw += (if (forward > 0.0) -direction else direction).toDouble()
-                } else if (strafe < 0.0) {
-                    yaw += (if (forward > 0.0) direction else -direction).toDouble()
-                }
-                strafe = 0.0
-                if (forward > 0.0) {
-                    forward = 1.0
-                } else if (forward < 0.0) {
-                    forward = -1.0
-                }
-            }
-            val cos = cos(MathUtils.toRadians(yaw + 90.0f))
-            val sin = sin(MathUtils.toRadians(yaw + 90.0f))
-            event.x = (forward * speed * cos + strafe * speed * sin) * motion
-            event.z = (forward * speed * sin - strafe * speed * cos) * motion
-        }
-    }
-
-    fun setMotion(speed: Double, smoothStrafe: Boolean) {
-        var forward = mc.thePlayer.movementInput.moveForward.toDouble()
-        var strafe = mc.thePlayer.movementInput.moveStrafe.toDouble()
-        var yaw = mc.thePlayer.rotationYaw
-        val direction = if (smoothStrafe) 45 else 90
-        if (forward == 0.0 && strafe == 0.0) {
-            mc.thePlayer.motionX = 0.0
-            mc.thePlayer.motionZ = 0.0
-        } else {
-            if (forward != 0.0) {
-                if (strafe > 0.0) {
-                    yaw += (if (forward > 0.0) -direction else direction).toFloat()
-                } else if (strafe < 0.0) {
-                    yaw += (if (forward > 0.0) direction else -direction).toFloat()
-                }
-                strafe = 0.0
-                if (forward > 0.0) {
-                    forward = 1.0
-                } else if (forward < 0.0) {
-                    forward = -1.0
-                }
-            }
-            val cos = cos(MathUtils.toRadians(yaw + 90.0f))
-            val sin = sin(MathUtils.toRadians(yaw + 90.0f))
-            mc.thePlayer.motionX = forward * speed * -sin + strafe * speed * cos
-            mc.thePlayer.motionZ = forward * speed * cos - strafe * speed * -sin
-        }
-    }
-
-    fun setSpeed(event: MoveEvent, speed: Double) {
-        setSpeed(event, speed, mc.thePlayer.rotationYaw, mc.thePlayer.movementInput.moveStrafe.toDouble(), mc.thePlayer.movementInput.moveForward.toDouble())
-    }
-
-    fun setSpeed(event: MoveEvent, speed: Double, yaw: Float, forward: Double, strafe: Double) {
-        var forward = forward
-        var strafe = strafe
-        var yaw = yaw
-        if (forward == 0.0 && strafe == 0.0) {
-            event.z = 0.0
-            event.x = 0.0
-        } else {
-            if (forward != 0.0) {
-                if (strafe > 0.0) {
-                    yaw += (if (forward > 0.0) -45 else 45).toFloat()
-                } else if (strafe < 0.0) {
-                    yaw += (if (forward > 0.0) 45 else -45).toFloat()
-                }
-                strafe = 0.0
-                if (forward > 0.0) {
-                    forward = 1.0
-                } else if (forward < 0.0) {
-                    forward = -1.0
-                }
-            }
-            if (strafe > 0.0) {
-                strafe = 1.0
-            } else if (strafe < 0.0) {
-                strafe = -1.0
-            }
-            val cos = cos(MathUtils.toRadians(yaw + 90.0f))
-            val sin = sin(MathUtils.toRadians(yaw + 90.0f))
-            event.x = forward * speed * cos + strafe * speed * sin
-            event.z = forward * speed * sin - strafe * speed * cos
-        }
-    }
-
-    fun incrementMoveDirection(forward: Float, strafe: Float): FloatArray {
-        if (forward != 0f || strafe != 0f) {
-            val value = if (forward != 0f) Math.abs(forward) else Math.abs(strafe)
-            if (forward > 0) {
-                if (strafe > 0) {
-                    return floatArrayOf(0f, 0f)
-                } else if (strafe == 0f) {
-                    return floatArrayOf(-value, 0f)
-                } else if (strafe < 0) {
-                    return floatArrayOf(0f, 0f)
-                }
-            } else if (forward == 0f) {
-                if (strafe > 0) {
-                    return floatArrayOf(value, 0f)
-                } else {
-                    return floatArrayOf(-value, 0f)
-                }
-            } else {
-                if (strafe < 0) {
-                    return floatArrayOf(0f, 0f)
-                } else if (strafe == 0f) {
-                    return floatArrayOf(0f, value)
-                } else if (strafe > 0) {
-                    return floatArrayOf(0f, 0f)
-                }
-            }
-        }
-        return floatArrayOf(forward, strafe)
-    }
-
-    fun boost(yaw: Float, pForward: Float, pStrafe: Float, speed: Float) {
-        var f = pStrafe * pStrafe + pForward * pForward
-        if (f >= 1.0E-4F) {
-            f = sqrt(f).coerceAtLeast(1f)
-
-            f = speed / f
-
-            val strafe = pStrafe * f
-            val forward = pForward * f
-
-            val f1 = sin(MathUtils.toRadians(yaw))
-            val f2 = cos(MathUtils.toRadians(yaw))
-            mc.thePlayer.motionX += strafe * f2 - forward * f1
-            mc.thePlayer.motionZ += forward * f2 + strafe * f1
-        }
-    }
-
-
     fun resetMotion(y: Boolean = false) {
         if (y) mc.thePlayer.motionY = 0.0
         mc.thePlayer.motionX = 0.0
@@ -308,9 +122,4 @@ object MovementUtils : MinecraftInstance() {
 
     val movingYaw: Float
         get() = (getDirection() * 180f / Math.PI).toFloat()
-
-    fun setMotion2(multiplier: Double, forward: Float) {
-        mc.thePlayer.motionX = -sin(MathUtils.toRadians(forward)) * multiplier
-        mc.thePlayer.motionZ = cos(MathUtils.toRadians(forward)) * multiplier
-    }
 }

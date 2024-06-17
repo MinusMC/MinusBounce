@@ -102,7 +102,7 @@ class KillAura : Module() {
 
     private val raycastValue = BoolValue("RayCast", true)
     private val silentRotationValue = BoolValue("SilentRotation", true) { !rotationValue.get().equals("none", true) }
-    private val movementCorrection = ListValue("MovementCorrection", arrayOf("None", "Normal", "Strict"), "Strict")
+    private val movementCorrection = ListValue("MovementCorrection", arrayOf("None", "Normal", "LiquidBounce", "Rise"), "Strict")
     private val predictValue = BoolValue("Predict", true)
     private val predictSizeValue = FloatRangeValue("PredictSize", 1f, 1f, 0.1f, 5f) {predictValue.get()}
 
@@ -378,7 +378,8 @@ class KillAura : Module() {
 
         if (silentRotationValue.get()) {
             val movementCorrectionType = when (movementCorrection.get().lowercase()) {
-                "strict" -> MovementCorrection.Type.STRICT
+                "liquidbounce" -> MovementCorrection.Type.LIQUID_BOUNCE
+                "rise" -> MovementCorrection.Type.RISE
                 "normal" -> MovementCorrection.Type.NORMAL
                 else -> MovementCorrection.Type.NONE
             }

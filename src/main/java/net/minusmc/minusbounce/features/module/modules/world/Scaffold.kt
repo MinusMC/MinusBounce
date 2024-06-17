@@ -72,7 +72,7 @@ class Scaffold: Module() {
     }
 
     private val autoBlockMode = ListValue("AutoBlock", arrayOf("Spoof", "LiteSpoof", "Switch", "Off"), "Spoof")
-    private val sprintModeValue = ListValue("SprintMode", arrayOf("Always", "OnGround", "OffGround", "Legit", "Matrix", "Watchdog", "BlocksMC", "LuckyVN", "Off"), "Off")
+    private val sprintModeValue = ListValue("SprintMode", arrayOf("Always", "OnGround", "OffGround", "Legit", "Watchdog", "BlocksMC", "LuckyVN", "Off"), "Off")
 
     private val swingValue = ListValue("Swing", arrayOf("Normal", "Packet", "Off"), "Normal")
     private val downValue = BoolValue("Down", false)
@@ -243,7 +243,6 @@ class Scaffold: Module() {
         mc.thePlayer.isSprinting = canSprint
 
         when (sprintModeValue.get().lowercase()) {
-            "matrix" -> if (mc.thePlayer.onGround) MovementUtils.setMotion(0.18, false)
             "watchdog" -> {
                 mc.thePlayer.motionX *= 0.8
                 mc.thePlayer.motionZ *= 0.8
@@ -364,7 +363,7 @@ class Scaffold: Module() {
 
         lockRotation?.let {
             RotationUtils.setTargetRotation(it, keepLengthValue.get(), minTurnSpeed.get(), maxTurnSpeed.get(), 
-                if (movementCorrection.get()) MovementCorrection.Type.STRICT else MovementCorrection.Type.NONE)
+                if (movementCorrection.get()) MovementCorrection.Type.LIQUID_BOUNCE else MovementCorrection.Type.NONE)
         }
 
         if (placeModeValue.get().equals("pre", true)) place()
@@ -400,7 +399,7 @@ class Scaffold: Module() {
 
         lockRotation?.let {
             RotationUtils.setTargetRotation(it, keepLengthValue.get(), minTurnSpeed.get(), maxTurnSpeed.get(), 
-                if (movementCorrection.get()) MovementCorrection.Type.STRICT else MovementCorrection.Type.NONE)
+                if (movementCorrection.get()) MovementCorrection.Type.LIQUID_BOUNCE else MovementCorrection.Type.NONE)
         }
 
         if (placeModeValue.get().equals("post", true)) place()

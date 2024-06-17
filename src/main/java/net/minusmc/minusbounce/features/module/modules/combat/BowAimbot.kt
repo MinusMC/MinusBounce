@@ -27,7 +27,7 @@ import java.awt.Color
 class BowAimbot : Module() {
 
     private val silentValue = BoolValue("Silent", true)
-    private val movementCorrection = ListValue("MovementCorrection", arrayOf("None", "Normal", "Strict"), "Strict")
+    private val movementCorrection = ListValue("MovementCorrection", arrayOf("None", "Normal", "LiquidBounce", "Rise"), "Strict")
     private val predictValue = BoolValue("Predict", true)
     private val throughWallsValue = BoolValue("ThroughWalls", false)
     private val predictSizeValue = FloatValue("PredictSize", 2F, 0.1F, 5F, "m")
@@ -66,7 +66,8 @@ class BowAimbot : Module() {
 
             if (silentValue.get()) {
                 val movementCorrectionType = when (movementCorrection.get().lowercase()) {
-                    "strict" -> MovementCorrection.Type.STRICT
+                    "liquidbounce" -> MovementCorrection.Type.LIQUID_BOUNCE
+                    "rise" -> MovementCorrection.Type.RISE
                     "normal" -> MovementCorrection.Type.NORMAL
                     else -> MovementCorrection.Type.NONE
                 }

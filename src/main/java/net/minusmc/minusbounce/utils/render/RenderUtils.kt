@@ -29,6 +29,7 @@ import net.minecraft.util.AxisAlignedBB
 import net.minecraft.util.BlockPos
 import net.minecraft.util.MathHelper
 import net.minecraft.util.ResourceLocation
+import net.minusmc.minusbounce.event.*
 import net.minusmc.minusbounce.MinusBounce
 import net.minusmc.minusbounce.features.module.modules.render.TargetMark
 import net.minusmc.minusbounce.ui.font.Fonts
@@ -39,13 +40,19 @@ import org.lwjgl.opengl.GL11.*
 import java.awt.Color
 import kotlin.math.*
 
+import org.lwjgl.Sys
 
-object RenderUtils : MinecraftInstance() {
+
+object RenderUtils : MinecraftInstance(), Listenable {
     private val glCapMap: MutableMap<Int, Boolean> = HashMap()
-    var deltaTime = 0
+    
     private val DISPLAY_LISTS_2D = IntArray(4)
-    private var startTime: Long = 0
+    
     private const val ANIMATION_DURATION = 500
+
+    private var startTime = 0L
+    private var lastTime = 0L
+    var deltaTime = 0
 
     init {
         for (i in DISPLAY_LISTS_2D.indices) {
@@ -76,6 +83,18 @@ object RenderUtils : MinecraftInstance() {
         quickDrawRect(-7.3f, -20.3f, -4f, -20f)
         glEndList()
     }
+
+
+    @EventTarget
+    fun onGameLoop(event: GameLoopEvent) {
+        deltaTime = (currentTime - lastTime).toInt()
+        lastTime = currentTime
+    }
+
+    private val currentTime: Long
+        get() = Sys.getTime() * 1000 / Sys.getTimerResolution()
+    
+    override fun handleEvents() = true
 
     fun drawFilledCircleNoGL(x: Int, y: Int, r: Double, c: Int, quality: Int) {
         val f = (c shr 24 and 0xff) / 255f
