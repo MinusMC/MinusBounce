@@ -25,58 +25,56 @@ object MovementUtils : MinecraftInstance() {
 
     fun getSpeed(motionX: Double, motionZ: Double) = sqrt(motionX * motionX + motionZ * motionZ)
 
-    fun accelerate(speed: Float) {
+    fun boost(speed: Float) = boost(speed, mc.thePlayer.rotationYaw, mc.thePlayer.moveForward, mc.thePlayer.moveStrafing)
+
+    fun boost(speed: Float, yaw: Float, forward: Float, strafe: Float) {
         if (!isMoving) return
-        val yaw = getDirection()
+        val yaw = getDirectionToRadian(yaw, strafe, forward)
         mc.thePlayer.motionX += -sin(yaw) * speed
         mc.thePlayer.motionZ += cos(yaw) * speed
     }
 
     fun strafe() = strafe(speed)
 
-    fun strafe(speed: Float) {
-        if (!isMoving) return
-        val yaw = getDirection()
-        mc.thePlayer.motionX = -sin(yaw) * speed
-        mc.thePlayer.motionZ = cos(yaw) * speed
-    }
+    fun strafe(speed: Float) = strafe(speed, mc.thePlayer.rotationYaw, mc.thePlayer.moveForward, mc.thePlayer.moveStrafing)
 
     fun strafe(speed: Float, yaw: Float, forward: Float, strafe: Float) {
         if (!isMoving) return
-        val yaw = getDirectionRotation(yaw, strafe, forward)
+        val yaw = getDirectionToRadian(yaw, forward, strafe)
         mc.thePlayer.motionX = -sin(yaw) * speed
         mc.thePlayer.motionZ = cos(yaw) * speed
     }
 
-    fun getDirection(): Double {
-        return getDirectionRotation(mc.thePlayer.rotationYaw, mc.thePlayer.moveStrafing, mc.thePlayer.moveForward).toDouble()
-    }
+    val direction: Float
+        get() = getDirection(mc.thePlayer.rotationYaw, mc.thePlayer.moveForward, mc.thePlayer.moveStrafing)
 
-    fun getDirection(yaw: Float): Float {
-        return getDirectionRotation(yaw, mc.thePlayer.moveStrafing, mc.thePlayer.moveForward).toFloat()
-    }
+    val directionToRadian: Double
+        get() = MathUtils.toRadians(direction).toDouble()
 
-    fun getDirection(pYaw: Float, pStrafe: Float, pForward: Float): Float {
+    fun getDirection(pYaw: Float) = getDirection(pYaw, mc.thePlayer.moveForward, mc.thePlayer.moveStrafing)
+
+    fun getDirection(pYaw: Float, pForward: Float, pStrafe: Float): Float {
         var rotationYaw = pYaw
         
         if (pForward < 0f) 
             rotationYaw += 180f
 
         val forward = if (pForward < 0f) -0.5f else if (pForward > 0f) 0.5f else 1f
-
         val f = if (pStrafe > 0f) -90f else if (pStrafe < 0f) 90f else 0f
 
         rotationYaw += f * forward
         return rotationYaw
     }
 
-    fun getDirectionRotation(yaw: Float, strafe: Float, forward: Float): Double {
-        return MathUtils.toRadians(getDirection(yaw, strafe, forward)).toDouble()
-    }
+    fun getDirectionToRadian(pYaw: Float) = MathUtils.toRadians(getDirection(pYaw)).toDouble()
 
-    fun getXZDist(speed: Float, cYaw: Float): DoubleArray {
+    fun getDirectionToRadian(pYaw: Float, pForward: Float, pStrafe: Float) = MathUtils.toRadians(getDirection(pYaw, pStrafe, pForward)).toDouble()
+
+    fun getDistanceMotion(speed: Float, pYaw: Float): DoubleArray {
         val arr = DoubleArray(2)
-        val yaw = getDirectionRotation(cYaw, mc.thePlayer.moveStrafing, mc.thePlayer.moveForward)
+
+        val yaw = getDirectionToRadian(pYaw)
+
         arr[0] = -sin(yaw) * speed
         arr[1] = cos(yaw) * speed
         return arr
@@ -88,9 +86,7 @@ object MovementUtils : MinecraftInstance() {
     val speedEffect: Int
         get() = if (mc.thePlayer.isPotionActive(Potion.moveSpeed)) mc.thePlayer.getActivePotionEffect(Potion.moveSpeed).amplifier + 1 else 0
 
-    fun getBaseMoveSpeed(): Double {
-        return getBaseMoveSpeed(0.2873)
-    }
+    fun getBaseMoveSpeed() = getBaseMoveSpeed(0.2873)
 
     fun getBaseMoveSpeed(customSpeed: Double): Double {
         var baseSpeed = if (PlayerUtils.isOnIce) 0.258977700006 else customSpeed
@@ -101,9 +97,7 @@ object MovementUtils : MinecraftInstance() {
         return baseSpeed
     }
 
-    fun getJumpBoostModifier(baseJumpHeight: Float): Double {
-        return getJumpBoostModifier(baseJumpHeight, true)
-    }
+    fun getJumpBoostModifier(baseJumpHeight: Float) = getJumpBoostModifier(baseJumpHeight, true)
 
     fun getJumpBoostModifier(baseJumpHeight: Float, potionJump: Boolean): Double {
         var baseJumpHeight = baseJumpHeight
@@ -119,7 +113,4 @@ object MovementUtils : MinecraftInstance() {
         mc.thePlayer.motionX = 0.0
         mc.thePlayer.motionZ = 0.0
     }
-
-    val movingYaw: Float
-        get() = (getDirection() * 180f / Math.PI).toFloat()
 }

@@ -43,7 +43,7 @@ import kotlin.math.*
 import org.lwjgl.Sys
 
 
-object RenderUtils : MinecraftInstance(), Listenable {
+object RenderUtils : MinecraftInstance() {
     private val glCapMap: MutableMap<Int, Boolean> = HashMap()
     
     private val DISPLAY_LISTS_2D = IntArray(4)
@@ -51,7 +51,6 @@ object RenderUtils : MinecraftInstance(), Listenable {
     private const val ANIMATION_DURATION = 500
 
     private var startTime = 0L
-    private var lastTime = 0L
     var deltaTime = 0
 
     init {
@@ -83,18 +82,6 @@ object RenderUtils : MinecraftInstance(), Listenable {
         quickDrawRect(-7.3f, -20.3f, -4f, -20f)
         glEndList()
     }
-
-
-    @EventTarget
-    fun onGameLoop(event: GameLoopEvent) {
-        deltaTime = (currentTime - lastTime).toInt()
-        lastTime = currentTime
-    }
-
-    private val currentTime: Long
-        get() = Sys.getTime() * 1000 / Sys.getTimerResolution()
-    
-    override fun handleEvents() = true
 
     fun drawFilledCircleNoGL(x: Int, y: Int, r: Double, c: Int, quality: Int) {
         val f = (c shr 24 and 0xff) / 255f

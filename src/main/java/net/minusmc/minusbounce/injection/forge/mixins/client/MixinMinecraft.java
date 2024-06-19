@@ -251,9 +251,10 @@ public abstract class MixinMinecraft {
         MinusBounce.eventManager.callEvent(new ScreenEvent(currentScreen));
     }
 
-    @Inject(method = "runGameLoop", at = @At("HEAD"))
-    private void injectGameLoop(CallbackInfo callbackInfo) {
-        MinusBounce.eventManager.callEvent(new GameLoopEvent());
+    private long lastFrame = getTime();
+
+    public long getTime() {
+        return (Sys.getTime() * 1000) / Sys.getTimerResolution();
     }
 
     /**
@@ -262,6 +263,12 @@ public abstract class MixinMinecraft {
      */
     @Overwrite
     private void runGameLoop() throws IOException {
+        final long currentTime = getTime();
+        final int deltaTime = (int) (currentTime - lastFrame);
+        lastFrame = currentTime;
+
+        RenderUtils.INSTANCE.setDeltaTime(deltaTime);
+
         long i = System.nanoTime();
         this.mcProfiler.startSection("root");
 
@@ -298,6 +305,8 @@ public abstract class MixinMinecraft {
         for (int j = 0; j < this.timer.elapsedTicks; ++j) {
             if (Minecraft.getMinecraft().thePlayer != null) {
 
+                boolean skip = false;
+
                 if(j == 0) {
                     TickBase tickBase = MinusBounce.moduleManager.getModule(TickBase.class);
 
@@ -306,7 +315,7 @@ public abstract class MixinMinecraft {
                         int extraTicks = tickBase.getExtraTicks();
 
                         if (extraTicks == -1) {
-                            this.runTick();
+                            skip = true;
                         } else if(extraTicks > 0) {
                             for(int aa = 0; aa < extraTicks; aa++) {
                                 this.runTick();
@@ -315,7 +324,10 @@ public abstract class MixinMinecraft {
                             tickBase.setFreezing(true);
                         }
                     }
-                }
+                } 
+
+                if (!skip)
+                    this.runTick();
 
             } else {
                 this.runTick();

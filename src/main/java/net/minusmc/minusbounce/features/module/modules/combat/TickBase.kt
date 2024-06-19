@@ -20,9 +20,12 @@ class TickBase : Module() {
     private var counter = -1
     var freezing = false
 
+    private var canTickBase = true
+
     override fun onEnable() {
         counter = -1
         freezing = false
+        canTickBase = true
     }
 
     fun getExtraTicks(): Int {
@@ -37,10 +40,14 @@ class TickBase : Module() {
 
         killAura.target?.let {
             targetDistance = mc.thePlayer.getDistanceToEntityBox(it)
+        } ?: run {
+            canTickBase = true
         }
 
         if (killAura.state && targetDistance > killAura.rangeValue.get()) {
-            if (targetDistance <= killAura.rotationRangeValue.get() && mc.thePlayer.hurtTime <= 2) {
+            if (targetDistance <= killAura.rotationRangeValue.get() && mc.thePlayer.hurtTime <= 2 && canTickBase) {
+                canTickBase = false
+
                 counter = ticks.get()
                 return counter
             }
