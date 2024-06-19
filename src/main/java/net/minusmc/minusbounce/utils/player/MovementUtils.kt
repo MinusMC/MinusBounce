@@ -68,7 +68,7 @@ object MovementUtils : MinecraftInstance() {
 
     fun getDirectionToRadian(pYaw: Float) = MathUtils.toRadians(getDirection(pYaw)).toDouble()
 
-    fun getDirectionToRadian(pYaw: Float, pForward: Float, pStrafe: Float) = MathUtils.toRadians(getDirection(pYaw, pStrafe, pForward)).toDouble()
+    fun getDirectionToRadian(pYaw: Float, pForward: Float, pStrafe: Float) = MathUtils.toRadians(getDirection(pYaw, pForward, pStrafe)).toDouble()
 
     fun getDistanceMotion(speed: Float, pYaw: Float): DoubleArray {
         val arr = DoubleArray(2)
