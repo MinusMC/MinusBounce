@@ -86,10 +86,9 @@ object MovementUtils : MinecraftInstance() {
     val speedEffect: Int
         get() = if (mc.thePlayer.isPotionActive(Potion.moveSpeed)) mc.thePlayer.getActivePotionEffect(Potion.moveSpeed).amplifier + 1 else 0
 
-    fun getBaseMoveSpeed() = getBaseMoveSpeed(0.2873)
 
-    fun getBaseMoveSpeed(customSpeed: Double): Double {
-        var baseSpeed = if (PlayerUtils.isOnIce) 0.258977700006 else customSpeed
+    fun getBaseMoveSpeed(): Double {
+        var baseSpeed = if (PlayerUtils.isOnIce) 0.258977700006 else 0.2873
         if (mc.thePlayer.isPotionActive(Potion.moveSpeed)) {
             val amplifier = mc.thePlayer.getActivePotionEffect(Potion.moveSpeed).amplifier
             baseSpeed *= 1.0 + 0.2 * (amplifier + 1)
@@ -99,14 +98,7 @@ object MovementUtils : MinecraftInstance() {
 
     fun getJumpBoostModifier(baseJumpHeight: Float) = getJumpBoostModifier(baseJumpHeight, true)
 
-    fun getJumpBoostModifier(baseJumpHeight: Float, potionJump: Boolean): Double {
-        var baseJumpHeight = baseJumpHeight
-        if (mc.thePlayer.isPotionActive(Potion.jump) && potionJump) {
-            val amplifier = mc.thePlayer.getActivePotionEffect(Potion.jump).amplifier
-            baseJumpHeight += (amplifier + 1) * 0.1f
-        }
-        return baseJumpHeight.toDouble()
-    }
+    fun getJumpBoostModifier(baseJumpHeight: Float, potionJump: Boolean) = baseJumpHeight + jumpEffect * 0.1f
 
     fun resetMotion(y: Boolean = false) {
         if (y) mc.thePlayer.motionY = 0.0

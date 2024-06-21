@@ -13,9 +13,9 @@ import net.minusmc.minusbounce.ui.client.GuiMainMenu
 object ServerUtils : MinecraftInstance() {
     var serverData: ServerData? = null
     
+    @JvmStatic
     fun connectToLastServer() {
-        if (serverData == null) return
-        mc.displayGuiScreen(GuiConnecting(GuiMultiplayer(GuiMainMenu()), mc, serverData))
+        mc.displayGuiScreen(GuiConnecting(GuiMultiplayer(GuiMainMenu()), mc, serverData ?: return))
     }
 
     val remoteIp: String
@@ -28,27 +28,4 @@ object ServerUtils : MinecraftInstance() {
             }
             return serverIp
         }
-
-    val isHypixelLobby: Boolean
-        get() {
-            if (mc.theWorld == null) return false
-            val target = "CLICK TO PLAY"
-            for (entity in mc.theWorld.loadedEntityList) {
-                if (entity.name.startsWith("§e§l")) {
-                    if (entity.name == "§e§l$target") {
-                        return true
-                    }
-                }
-            }
-            return false
-        }
-
-    fun isHypixelDomain(s1: String): Boolean {
-        var chars = 0
-        val str = "www.hypixel.net"
-        for (c in str.toCharArray()) {
-            if (s1.contains(c.toString())) chars++
-        }
-        return chars == str.length
-    }
 }
