@@ -14,6 +14,7 @@ import net.minecraft.network.play.client.C07PacketPlayerDigging
 import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement
 import net.minecraft.network.play.client.C09PacketHeldItemChange
 import net.minecraft.network.play.client.C0APacketAnimation
+import net.minecraft.network.play.client.C02PacketUseEntity
 import net.minecraft.util.BlockPos
 import net.minecraft.util.EnumFacing
 import net.minecraft.util.MovingObjectPosition
@@ -66,8 +67,8 @@ class KillAura : Module() {
     private val swingValue = ListValue("Swing", arrayOf("Normal", "Packet", "None"), "Normal")
     private val swingTimingValue = ListValue("SwingTiming", arrayOf("BeforeAttack", "AfterAttack"), "BeforeAttack")
 
-    private val rotationValue = ListValue("RotationMode", arrayOf("Vanilla", "NCP", "Grim", "Intave", "None"), "BackTrack")
-    private val intaveRandomAmount = FloatValue("Random", 4f, 0.25f, 10f) { rotationValue.get().equals("Intave", true) }
+    private val rotationValue = ListValue("Rotation", arrayOf("Vanilla", "NCP", "Grim", "Intave", "None"), "BackTrack")
+    private val intaveRandomAmount = FloatValue("Intave-RandomAmount", 4f, 0.25f, 10f) { rotationValue.get().equals("Intave", true) }
     private val turnSpeed = FloatRangeValue("TurnSpeed", 180f, 180f, 0f, 180f, "°") {
         !rotationValue.get().equals("None", true)
     }
@@ -84,7 +85,7 @@ class KillAura : Module() {
     }
 
     private val failSwingValue = BoolValue("FailSwing", true)
-    private val hitableCheckValue = BoolValue("HitableCheck", false) { !rotationValue.get().equals("none", true) }
+    private val onlyHitOnMouseToTarget = BoolValue("OnlyHitOnMouseToTarget", false) { !rotationValue.get().equals("none", true) }
 
     val autoBlockModeValue: ListValue = object : ListValue("AutoBlock", arrayOf("None", "AfterTick", "Vanilla", "NewNCP", "RightHold", "Swing"), "None") {
         override fun onPreChange(oldValue: String, newValue: String) {
@@ -154,21 +155,24 @@ class KillAura : Module() {
 
     @EventTarget
     fun onPreUpdate(event: PreUpdateEvent) {
-        if (autoBlockModeValue.get().equals("righthold", true))
-            target?.let {
-                if (canBlock && mc.thePlayer.getDistanceToEntityBox(it) < rangeValue.get())
-                    mc.gameSettings.keyBindUseItem.pressed = true
-                else
-                    mc.gameSettings.keyBindUseItem.pressed = GameSettings.isKeyDown(mc.gameSettings.keyBindUseItem)
+        if (autoBlockModeValue.get().equals("righthold", true)) {
+            val target = this.target ?: run {
+                mc.gameSettings.keyBindUseItem.pressed = GameSettings.isKeyDown(mc.gameSettings.keyBindUseItem)
+                return
             }
+
+            if (canBlock && mc.thePlayer.getDistanceToEntityBox(target) < autoBlockRangeValue.get())
+                mc.gameSettings.keyBindUseItem.pressed = true
+            else
+                mc.gameSettings.keyBindUseItem.pressed = GameSettings.isKeyDown(mc.gameSettings.keyBindUseItem)
+        }
+            
     }
 
     @EventTarget
     fun onTick(event: TickEvent) {
         target ?: run {
-            stopBlocking {
-                mc.netHandler.addToSendQueue(C07PacketPlayerDigging(C07PacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN))
-            }
+            stopBlocking { mc.netHandler.addToSendQueue(C07PacketPlayerDigging(C07PacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN)) }
             return
         }
 
@@ -192,12 +196,8 @@ class KillAura : Module() {
                     mc.netHandler.addToSendQueue(C08PacketPlayerBlockPlacement(mc.thePlayer.inventory.getCurrentItem()))
                 }
                 "swing" -> when (mc.thePlayer.swingProgressInt) {
-                    1 -> startBlocking {
-                        mc.netHandler.addToSendQueue(C08PacketPlayerBlockPlacement(mc.thePlayer.inventory.getCurrentItem()))
-                    }
-                    2 -> stopBlocking {
-                        mc.netHandler.addToSendQueue(C07PacketPlayerDigging(C07PacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN))
-                    }
+                    1 -> startBlocking { mc.netHandler.addToSendQueue(C08PacketPlayerBlockPlacement(mc.thePlayer.inventory.getCurrentItem())) }
+                    2 -> stopBlocking { mc.netHandler.addToSendQueue(C07PacketPlayerDigging(C07PacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN)) }
                 }
             }
         }
@@ -365,7 +365,7 @@ class KillAura : Module() {
 
         hitable = mc.theWorld.rayTraceBlocks(mc.thePlayer.eyes, intercept.hitVec) == null || mc.thePlayer.getDistanceToEntityBox(targetToCheck) < throughWallsRangeValue.get()
 
-        if (hitableCheckValue.get() && mc.objectMouseOver != null)
+        if (onlyHitOnMouseToTarget.get() && mc.objectMouseOver != null)
             hitable = mc.objectMouseOver.typeOfHit == MovingObjectPosition.MovingObjectType.ENTITY
     }
 
@@ -477,17 +477,28 @@ class KillAura : Module() {
     }
 
     fun startBlocking(sendPacketBlocking: () -> Unit) {
-        target?.let {
-            if (mc.thePlayer.getDistanceToEntityBox(it) > autoBlockRangeValue.get())
-                return
-        } ?: return
+        val target = this.target ?: return
+
+        if (mc.thePlayer.getDistanceToEntityBox(target) > autoBlockRangeValue.get())
+            return
 
         if (blockingStatus)
             return
 
-        if (interactValue.get()) {
-            mc.playerController.isPlayerRightClickingOnEntity(mc.thePlayer, mc.objectMouseOver.entityHit, mc.objectMouseOver)
-            mc.playerController.interactWithEntitySendPacket(mc.thePlayer, mc.objectMouseOver.entityHit)
+        if (interactValue.get()) { // From CCBluex
+            val positionEye = mc.thePlayer.eyes
+            val boundingBox = target.hitBox
+            val rotation = RotationUtils.currentRotation ?: mc.thePlayer.rotation
+
+            val vec = RotationUtils.getVectorForRotation(rotation)
+
+            val lookAt = positionEye.add(vec * rangeValue.get().toDouble())
+
+            val movingObject = boundingBox.calculateIntercept(positionEye, lookAt) ?: return
+            val hitVec = movingObject.hitVec
+
+            mc.netHandler.addToSendQueue(C02PacketUseEntity(target, hitVec - target.positionVector))
+            mc.netHandler.addToSendQueue(C02PacketUseEntity(target, C02PacketUseEntity.Action.INTERACT))
         }
 
         sendPacketBlocking()
