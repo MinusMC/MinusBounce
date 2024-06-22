@@ -15,7 +15,7 @@ class WatchdogSpeed: SpeedMode("Watchdog", SpeedType.WATCHDOG) {
             } else {
                 MovementUtils.strafe(0.44f)
             }
-            mc.thePlayer.motionY = MovementUtils.getJumpBoostModifier(0.42F, true)
+            mc.thePlayer.motionY = MovementUtils.getJumpBoostModifier(0.42F, true).toDouble()
         }
     }
 

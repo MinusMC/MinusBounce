@@ -29,6 +29,7 @@ import net.minusmc.minusbounce.ui.client.hud.HUD.Companion.createDefault
 import net.minusmc.minusbounce.utils.*
 import net.minusmc.minusbounce.utils.misc.sound.TipSoundManager
 import net.minusmc.minusbounce.utils.player.RotationUtils
+import net.minusmc.minusbounce.utils.render.RenderUtils
 
 object MinusBounce {
 
@@ -82,7 +83,6 @@ object MinusBounce {
         sessionManager = SessionManager()
         eventManager.registerListener(RotationUtils)
         eventManager.registerListener(MovementCorrection)
-        eventManager.registerListener(BlinkUtils)
         eventManager.registerListener(AntiForge())
         eventManager.registerListener(BungeeCordSpoof())
         eventManager.registerListener(InventoryUtils)

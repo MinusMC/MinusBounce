@@ -51,9 +51,6 @@ public abstract class MixinEntityPlayer extends MixinEntityLivingBase {
     @Shadow
     public abstract boolean isUsingItem();
 
-    @Shadow
-    public abstract boolean isPlayerSleeping();
-
     @Inject(method = "attackTargetEntityWithCurrentItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/EntityPlayer;setSprinting(Z)V", shift = At.Shift.AFTER))
     public void onAttackTargetEntityWithCurrentItem(CallbackInfo callbackInfo) {
         final KeepSprint keep = MinusBounce.moduleManager.getModule(KeepSprint.class);

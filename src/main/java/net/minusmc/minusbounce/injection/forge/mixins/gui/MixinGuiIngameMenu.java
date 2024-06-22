@@ -26,7 +26,7 @@ public abstract class MixinGuiIngameMenu extends MixinGuiScreen {
     private void actionPerformed(GuiButton button, CallbackInfo callbackInfo) {
         if(button.id == 1337) {
             mc.theWorld.sendQuittingDisconnectingPacket();
-            ServerUtils.INSTANCE.connectToLastServer();
+            ServerUtils.connectToLastServer();
         }
     }
 }

@@ -76,7 +76,7 @@ public abstract class MixinGuiDisconnected extends MixinGuiScreen {
     private void actionPerformed(GuiButton button, CallbackInfo callbackInfo) {
         switch (button.id) {
             case 1:
-                ServerUtils.INSTANCE.connectToLastServer();
+                ServerUtils.connectToLastServer();
                 break;
             case 3:
                 if (!GuiTheAltening.Companion.getApiKey().isEmpty()) {
@@ -94,7 +94,7 @@ public abstract class MixinGuiDisconnected extends MixinGuiScreen {
 
                         mc.session = new Session(yggdrasilUserAuthentication.getSelectedProfile().getName(), yggdrasilUserAuthentication.getSelectedProfile().getId().toString(), yggdrasilUserAuthentication.getAuthenticatedToken(), "mojang");
                         MinusBounce.eventManager.callEvent(new SessionEvent());
-                        ServerUtils.INSTANCE.connectToLastServer();
+                        ServerUtils.connectToLastServer();
                         break;
                     } catch (final Throwable throwable) {
                         ClientUtils.INSTANCE.getLogger().error("Failed to login into random account from TheAltening.", throwable);
@@ -109,7 +109,7 @@ public abstract class MixinGuiDisconnected extends MixinGuiScreen {
                 mc.displayGuiScreen(new GuiLoginProgress(minecraftAccount, () -> {
                     mc.addScheduledTask(() -> {
                         MinusBounce.eventManager.callEvent(new SessionEvent());
-                        ServerUtils.INSTANCE.connectToLastServer();
+                        ServerUtils.connectToLastServer();
                     });
                     return null;
                 }, e -> {
@@ -131,7 +131,7 @@ public abstract class MixinGuiDisconnected extends MixinGuiScreen {
                 mc.session = new Session(crackedAccount.getSession().getUsername(), crackedAccount.getSession().getUuid(),
                         crackedAccount.getSession().getToken(), crackedAccount.getSession().getType());
                 MinusBounce.eventManager.callEvent(new SessionEvent());
-                ServerUtils.INSTANCE.connectToLastServer();
+                ServerUtils.connectToLastServer();
                 break;
             case 5:
                 AntiForge.enabled = !AntiForge.enabled;
@@ -146,7 +146,7 @@ public abstract class MixinGuiDisconnected extends MixinGuiScreen {
         if (AutoReconnect.INSTANCE.isEnabled()) {
             reconnectTimer++;
             if (reconnectTimer > AutoReconnect.INSTANCE.getDelay() / 50)
-                ServerUtils.INSTANCE.connectToLastServer();
+                ServerUtils.connectToLastServer();
         }
     }
 

@@ -17,7 +17,7 @@ class VulcanHopSpeed: SpeedMode("VulcanHop", SpeedType.VULCAN) {
             wasTimer = false
         }
         if ((RotationUtils.targetRotation == null && abs(mc.thePlayer.moveStrafing) < 0.1) || (RotationUtils.targetRotation != null && abs(
-                RotationUtils.getAngleDifference(MovementUtils.movingYaw, RotationUtils.targetRotation!!.yaw)
+                RotationUtils.getAngleDifference(MovementUtils.direction, RotationUtils.targetRotation!!.yaw)
             ) < 45.0f)
         ) {
             mc.thePlayer.jumpMovementFactor = 0.026499f

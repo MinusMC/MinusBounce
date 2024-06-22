@@ -10,8 +10,6 @@ import net.minusmc.minusbounce.MinusBounce;
 import net.minusmc.minusbounce.event.JumpEvent;
 import net.minusmc.minusbounce.event.LookEvent;
 import net.minusmc.minusbounce.features.module.modules.movement.NoJumpDelay;
-import net.minusmc.minusbounce.features.module.modules.movement.Sprint;
-import net.minusmc.minusbounce.features.module.modules.movement.TargetStrafe;
 import net.minusmc.minusbounce.features.module.modules.client.Animations;
 import net.minusmc.minusbounce.features.module.modules.render.AntiBlind;
 import net.minecraft.block.Block;
@@ -47,10 +45,7 @@ public abstract class MixinEntityLivingBase extends MixinEntity {
     public abstract boolean isPotionActive(Potion potionIn);
 
     @Shadow
-    private int jumpTicks;
-
-    @Shadow
-    protected boolean isJumping;
+    public int jumpTicks;
 
     @Shadow
     public void onLivingUpdate() {
@@ -65,18 +60,6 @@ public abstract class MixinEntityLivingBase extends MixinEntity {
     @Shadow
     public abstract ItemStack getHeldItem();
 
-    @Shadow
-    protected abstract void updateAITick();
-
-    @Shadow
-    public int swingProgressInt;
-
-    @Shadow
-    public boolean isSwingInProgress;
-    
-    @Shadow
-    public float swingProgress;
-
     @Inject(method = "updatePotionEffects", at = @At(value = "INVOKE", target = "Lnet/minecraft/potion/PotionEffect;onUpdate(Lnet/minecraft/entity/EntityLivingBase;)Z"),
         locals = LocalCapture.CAPTURE_FAILSOFT, cancellable = true)
     private void checkPotionEffect(CallbackInfo ci, Iterator<Integer> iterator, Integer integer, PotionEffect potioneffect) {
@@ -86,6 +69,7 @@ public abstract class MixinEntityLivingBase extends MixinEntity {
 
     /**
      * @author fmcpe
+     * @reason Jump event
      */
     @Overwrite
     protected void jump() {
@@ -99,16 +83,10 @@ public abstract class MixinEntityLivingBase extends MixinEntity {
         this.motionY = jumpEvent.getMotion();
 
         if (this.isPotionActive(Potion.jump))
-            this.motionY += (double) ((float) (this.getActivePotionEffect(Potion.jump).getAmplifier() + 1) * 0.1F);
+            this.motionY += (float) (this.getActivePotionEffect(Potion.jump).getAmplifier() + 1) * 0.1F;
 
         if (this.isSprinting()) {
             float yaw = jumpEvent.getYaw();
-
-            final TargetStrafe tsMod = MinusBounce.moduleManager.getModule(TargetStrafe.class);
-            final Sprint sprintMod = MinusBounce.moduleManager.getModule(Sprint.class);
-            
-            if (tsMod.getCanStrafe()) 
-                yaw = tsMod.getMovingYaw();
 
             final float f = yaw * 0.017453292F;
             this.motionX -= MathHelper.sin(f) * 0.2F;
@@ -132,13 +110,20 @@ public abstract class MixinEntityLivingBase extends MixinEntity {
             callbackInfoReturnable.setReturnValue(false);
     }
 
-    //visionfx sucks
+    /**
+     * @author CCBluex
+     * @reason Swing arm speed
+     */
     @Overwrite
     private int getArmSwingAnimationEnd() {
         int speed = MinusBounce.moduleManager.getModule(Animations.class).getState() ? 2 + (20 - Animations.INSTANCE.getSpeedSwing().get()) : 6;
-        return this.isPotionActive(Potion.digSpeed) ? speed - (1 + this.getActivePotionEffect(Potion.digSpeed).getAmplifier()) * 1 : (this.isPotionActive(Potion.digSlowdown) ? speed + (1 + this.getActivePotionEffect(Potion.digSlowdown).getAmplifier()) * 2 : speed);
+        return this.isPotionActive(Potion.digSpeed) ? speed - (1 + this.getActivePotionEffect(Potion.digSpeed).getAmplifier()) : (this.isPotionActive(Potion.digSlowdown) ? speed + (1 + this.getActivePotionEffect(Potion.digSlowdown).getAmplifier()) * 2 : speed);
     }
 
+    /**
+     * @author fmcpe
+     * @reason Look Event
+     */
     @Overwrite
     public Vec3 getLook(float partialTicks)
     {

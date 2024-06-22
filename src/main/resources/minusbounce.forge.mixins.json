@@ -8,8 +8,8 @@
     "accessors.MinecraftForgeClientAccessor",
     "block.MixinBlock",
     "block.MixinBlockAnvil",
-    "block.MixinBlockLiquid",
     "block.MixinBlockGlass",
+    "block.MixinBlockLiquid",
     "block.MixinBlockSoulSand",
     "client.MixinGameSettings",
     "client.MixinMinecraft",
@@ -88,10 +88,10 @@
     "render.MixinModelSkeleton",
     "render.MixinModelVillager",
     "render.MixinRender",
-    "render.MixinRenderItem",
-    "render.MixinRenderPlayer",
     "render.MixinRenderEntityItem",
     "render.MixinRendererLivingEntity",
+    "render.MixinRenderItem",
+    "render.MixinRenderPlayer",
     "render.MixinTileEntityBannerRenderer",
     "render.MixinTileEntityChestRenderer",
     "render.MixinTileEntityItemStackRenderer",
@@ -103,5 +103,8 @@
     "resources.MixinSkinManager",
     "world.MixinWorld",
     "world.MixinWorldClient"
+  ],
+  "client": [
+    "entity.MixinEntityOtherPlayerMP"
   ]
 }

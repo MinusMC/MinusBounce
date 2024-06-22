@@ -225,3 +225,7 @@ class ReloadClientEvent : Event()
  */
 class EntityKilledEvent(val targetEntity: EntityLivingBase): Event()
 
+/**
+ *
+ */
+class GameLoopEvent: Event()

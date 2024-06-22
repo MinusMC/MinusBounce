@@ -55,9 +55,9 @@ class CustomSpeed: SpeedMode("Custom", SpeedType.NORMAL) {
                 when (strafeValue.get().lowercase(Locale.getDefault())) {
                     "strafe" -> MovementUtils.strafe(speedValue.get())
                     "boost" -> MovementUtils.strafe()
-                    "plus" -> MovementUtils.accelerate(speedValue.get() * 0.1f)
+                    "plus" -> MovementUtils.boost(speedValue.get() * 0.1f)
                     "plusonlyup" -> if (mc.thePlayer.motionY > 0) {
-                        MovementUtils.accelerate(speedValue.get() * 0.1f)
+                        MovementUtils.boost(speedValue.get() * 0.1f)
                     } else {
                         MovementUtils.strafe()
                     }
