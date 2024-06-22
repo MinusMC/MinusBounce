@@ -147,11 +147,9 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1F,
             "date" -> DATE_FORMAT.format(System.currentTimeMillis())
             "time" -> HOUR_FORMAT.format(System.currentTimeMillis())
             "serverIp" -> ServerUtils.remoteIp
-            "cps", "lcps" -> return CPSCounter.getCPS(CPSCounter.MouseButton.LEFT).toString()
-            "mcps" -> return CPSCounter.getCPS(CPSCounter.MouseButton.MIDDLE).toString()
-            "rcps" -> return CPSCounter.getCPS(CPSCounter.MouseButton.RIGHT).toString()
-            "wdStatus" -> return if (PacketUtils.isWatchdogActive) "Active" else "Inactive"
-            "sessionTime" -> return SessionUtils.formatSessionTime
+            "cps", "lcps" -> CPSCounter.getCPS(CPSCounter.MouseButton.LEFT).toString()
+            "rcps" -> CPSCounter.getCPS(CPSCounter.MouseButton.RIGHT).toString()
+            "sessionTime" -> SessionUtils.formatSessionTime
             else -> null // Null = don't replace
         }
     }

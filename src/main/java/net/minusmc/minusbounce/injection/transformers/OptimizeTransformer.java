@@ -5,7 +5,7 @@
  */
 package net.minusmc.minusbounce.injection.transformers;
 
-import net.minusmc.minusbounce.utils.asm.ASMUtils;
+import net.minusmc.minusbounce.utils.asm.TransformersUtils;
 import net.minecraft.launchwrapper.IClassTransformer;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.AbstractInsnNode;
@@ -41,7 +41,7 @@ public class OptimizeTransformer implements IClassTransformer {
     public byte[] transform(String name, String transformedName, byte[] basicClass) {
         if(!(name.startsWith("net.minusmc") || name.startsWith("kotlin")) && basicClass != null && !transformMap.containsKey(transformedName)) {
             try {
-                final ClassNode classNode = ASMUtils.INSTANCE.toClassNode(basicClass);
+                final ClassNode classNode = TransformersUtils.INSTANCE.toClassNode(basicClass);
                 AtomicBoolean changed = new AtomicBoolean(false);
 
                 classNode.methods.forEach(methodNode -> {
@@ -62,7 +62,7 @@ public class OptimizeTransformer implements IClassTransformer {
                 });
 
                 if (changed.get()) {
-                    return ASMUtils.INSTANCE.toBytes(classNode);
+                    return TransformersUtils.INSTANCE.toBytes(classNode);
                 }
             }catch(final Throwable throwable) {
                 throwable.printStackTrace();

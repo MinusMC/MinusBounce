@@ -22,8 +22,6 @@ object PacketUtils : MinecraftInstance(), Listenable {
 
     private val packetTimer = MSTimer()
     private val wdTimer = MSTimer()
-    private var transCount = 0
-    private var wdVL = 0
 
     @EventTarget
     fun onPacket(event: PacketEvent) {
@@ -33,13 +31,8 @@ object PacketUtils : MinecraftInstance(), Listenable {
             outBound++ 
         else if (packet.javaClass.getSimpleName().startsWith("S"))
             inBound++
-
-        if (packet is S32PacketConfirmTransaction && !isInventoryAction(packet.actionNumber)) {
-            transCount++
-        }
     }
 
-    @JvmStatic
     fun sendPacketNoEvent(packet: Packet<*>) {
         packetList.add(packet)
 
@@ -67,10 +60,6 @@ object PacketUtils : MinecraftInstance(), Listenable {
         }
     }
 
-    fun handlePacketNoEvent(packet: Packet<*>) {
-        (packet as Packet<INetHandlerPlayClient>).processPacket(mc.netHandler)
-    }
-
     @EventTarget
     fun onWorld(event: WorldEvent) {
         packetList.clear()
@@ -85,23 +74,9 @@ object PacketUtils : MinecraftInstance(), Listenable {
             inBound = 0
             packetTimer.reset()
         }
-        if (mc.thePlayer == null || mc.theWorld == null) {
-            wdVL = 0
-            transCount = 0
-            wdTimer.reset()
-        } else if (wdTimer.hasTimePassed(100L)) {
-            wdVL += if (transCount > 0) 1 else -1
-            transCount = 0
-            if (wdVL > 10) wdVL = 10
-            if (wdVL < 0) wdVL = 0
-            wdTimer.reset()
-        }
     }
 
     private fun isInventoryAction(action: Short): Boolean = action in 1..99
-
-    val isWatchdogActive: Boolean
-        get() = wdVL >= 8
 
     override fun handleEvents() = true
 }
