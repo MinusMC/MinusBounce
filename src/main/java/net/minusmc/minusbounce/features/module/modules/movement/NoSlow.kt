@@ -100,10 +100,6 @@ class NoSlow : Module() {
     val liquidPushValue = BoolValue("LiquidPush", true)
     private val antiSwitchItem = BoolValue("AntiSwitchItem", false)
 
-    // override fun onInitialize() {
-    //     modes.map { mode -> mode.values.forEach { value -> value.name = "${mode.modeName}-${value.name}" } }
-    // }
-
     override fun onEnable() {
         swordMode.onEnable()
         bowMode.onEnable()
