@@ -111,7 +111,7 @@ object AntiBot : Module() {
                     if (!wasAdded)
                         wasAdded = dataent.profile.name.equals(mc.thePlayer.name)
                     else if (!mc.thePlayer.isSpectator && !mc.thePlayer.capabilities.allowFlying && (!czechHekPingCheckValue.get() || dataent.ping != 0) && (!czechHekGMCheckValue.get() || dataent.gameMode != WorldSettings.GameType.NOT_SET)) {
-                        event.cancelEvent()
+                        event.isCancelled = true
                         if (debugValue.get()) ClientUtils.displayChatMessage("§7[§a§lAnti Bot/§6Matrix§7] §fPrevented §r${dataent.profile.name} §ffrom spawning.")
                     }
                 }
@@ -160,7 +160,7 @@ object AntiBot : Module() {
 
         if (packet is S0CPacketSpawnPlayer) {
             if (spawnInCombatValue.get() && MinusBounce.combatManager.target != null)
-                event.cancelEvent()
+                event.isCancelled = true
         }
 
         if (packet is S13PacketDestroyEntities) {

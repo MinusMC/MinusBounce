@@ -63,7 +63,7 @@ class GrimSmartVelocity: VelocityMode("GrimSmart") {
             if (grimDisable > 0) {
                 return
             }
-            event.cancelEvent()
+            event.isCancelled = true
             grimTicks = grimACTicks.get()
 
 
@@ -71,11 +71,11 @@ class GrimSmartVelocity: VelocityMode("GrimSmart") {
             if (packet.func_149149_c() != 0F ||
                 packet.func_149144_d() != 0F ||
                 packet.func_149147_e() != 0F) explosion = true
-            if (cancelExplosionPacket.get()) event.cancelEvent()
+            if (cancelExplosionPacket.get()) event.isCancelled = true
         } else if (packet is C0FPacketConfirmTransaction) {
             if (transactionCancelCount > 0) {
                 --transactionCancelCount
-                event.cancelEvent()
+                event.isCancelled = true
             }
         } else if (packet is S08PacketPlayerPosLook) {
             grimDisable = 10

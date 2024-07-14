@@ -6,6 +6,6 @@ import net.minecraft.network.play.server.S12PacketEntityVelocity
 
 class CancelVelocity : VelocityMode("Cancel") {
     override fun onPacket(event: PacketEvent) {
-        if (event.packet is S12PacketEntityVelocity) event.cancelEvent()
+        if (event.packet is S12PacketEntityVelocity) event.isCancelled = true
     }
 }

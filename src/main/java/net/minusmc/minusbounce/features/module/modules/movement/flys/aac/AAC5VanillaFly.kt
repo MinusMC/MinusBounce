@@ -94,7 +94,7 @@ class AAC5VanillaFly: FlyMode("AAC5-Vanilla", FlyType.AAC) {
             if (!mc.isIntegratedServerRunning) {
 	            if (aac5NofallValue.get()) packet.onGround = true
 	            aac5C03List.add(packet)
-	            event.cancelEvent()
+	            event.isCancelled = true
 	            if(aac5C03List.size > aac5PursePacketsValue.get())
 	                sendAAC5Packets()
 	        }

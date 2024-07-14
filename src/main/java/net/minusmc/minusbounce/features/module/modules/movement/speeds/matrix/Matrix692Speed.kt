@@ -7,7 +7,7 @@ import net.minusmc.minusbounce.event.PostMotionEvent
 import net.minusmc.minusbounce.event.PreMotionEvent
 import net.minecraft.client.settings.GameSettings
 
-class Matrix692Speed: SpeedMode("Matrix 6.9.2", SpeedType.MATRIX) {
+class Matrix692Speed: SpeedMode("Matrix6.9.2", SpeedType.MATRIX) {
 	private var wasTimer = false
 
 	override fun onDisable() {

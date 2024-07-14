@@ -19,6 +19,6 @@ class AACv4NoWeb: NoWebMode("AACv4") {
     }
 
     override fun onJump(event: JumpEvent) {
-        event.cancelEvent()
+        event.isCancelled = true
     }
 }

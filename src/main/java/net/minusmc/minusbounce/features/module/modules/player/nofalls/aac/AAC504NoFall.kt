@@ -5,7 +5,7 @@ import net.minusmc.minusbounce.event.PacketEvent
 import net.minecraft.network.play.client.C03PacketPlayer
 import net.minecraft.network.play.client.C03PacketPlayer.C04PacketPlayerPosition
 
-class AAC504NoFall: NoFallMode("AAC 5.0.4") {
+class AAC504NoFall: NoFallMode("AAC5.0.4") {
     private var isDmgFalling = false
 
     override fun onEnable() {

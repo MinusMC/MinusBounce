@@ -109,6 +109,9 @@ public abstract class MixinEntity {
     public float distanceWalkedOnStepModified;
 
     @Shadow
+    public float fallDistance;
+
+    @Shadow
     public abstract boolean isInWater();
 
     @Shadow

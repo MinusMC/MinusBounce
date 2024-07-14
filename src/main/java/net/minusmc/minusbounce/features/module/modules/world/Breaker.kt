@@ -23,7 +23,6 @@ import net.minusmc.minusbounce.utils.block.BlockUtils.getBlock
 import net.minusmc.minusbounce.utils.block.BlockUtils.getBlockName
 import net.minusmc.minusbounce.utils.block.BlockUtils.getCenterDistance
 import net.minusmc.minusbounce.utils.block.BlockUtils.isFullBlock
-import net.minusmc.minusbounce.utils.extensions.getBlock
 import net.minusmc.minusbounce.utils.render.RenderUtils
 import net.minusmc.minusbounce.utils.timer.MSTimer
 import net.minusmc.minusbounce.value.*
@@ -121,7 +120,7 @@ object Breaker : Module() {
             val blockPos = mc.theWorld.rayTraceBlocks(eyes, rotations.vec, false,
                     false, true).blockPos
 
-            if (blockPos != null && blockPos.getBlock() !is BlockAir) {
+            if (blockPos != null && getBlock(blockPos) !is BlockAir) {
                 if (currentPos.x != blockPos.x || currentPos.y != blockPos.y || currentPos.z != blockPos.z)
                     surroundings = true
 
@@ -192,7 +191,7 @@ object Breaker : Module() {
                 }
 
                 // Minecraft block breaking
-                val block = currentPos.getBlock() ?: return
+                val block = getBlock(currentPos) ?: return
 
                 if (currentDamage == 0F) {
                     mc.netHandler.addToSendQueue(C07PacketPlayerDigging(C07PacketPlayerDigging.Action.START_DESTROY_BLOCK,

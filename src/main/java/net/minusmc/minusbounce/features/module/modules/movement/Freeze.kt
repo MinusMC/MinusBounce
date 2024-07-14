@@ -47,7 +47,7 @@ class Freeze : Module() {
     @EventTarget
     fun onPacket(event: PacketEvent) {
         if (event.packet is C03PacketPlayer) {
-            event.cancelEvent()
+            event.isCancelled = true
         }
         if (event.packet is S08PacketPlayerPosLook) {
             x = event.packet.x

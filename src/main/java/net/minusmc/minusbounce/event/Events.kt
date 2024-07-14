@@ -24,6 +24,11 @@ import net.minecraft.util.EnumFacing
 class AttackEvent(val targetEntity: Entity?) : CancellableEvent()
 
 /**
+ * Called when player received knockback from target
+ */
+class KnockbackEvent(var full: Boolean, var reduceY: Boolean) : CancellableEvent()
+
+/**
  * Called when minecraft get bounding box of block
  */
 class BlockBBEvent(blockPos: BlockPos, val block: Block, var boundingBox: AxisAlignedBB?) : Event() {

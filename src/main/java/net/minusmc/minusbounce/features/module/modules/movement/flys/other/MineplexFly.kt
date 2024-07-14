@@ -59,7 +59,7 @@ class MineplexFly: FlyMode("Mineplex", FlyType.OTHER) {
     }
 
     override fun onJump(event: JumpEvent) {
-        if (mc.thePlayer.inventory.getCurrentItem() != null) event.cancelEvent()
+        if (mc.thePlayer.inventory.getCurrentItem() != null) event.isCancelled = true
     }
 
     override fun onStep(event: StepEvent) {

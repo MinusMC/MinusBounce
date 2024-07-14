@@ -62,16 +62,16 @@ class InvMove : Module() {
     @EventTarget
     fun onClick(event: ClickWindowEvent) {
         if (noMoveClicksValue.get() && MovementUtils.isMoving)
-            event.cancelEvent()
+            event.isCancelled = true
     }
 
     @EventTarget
     fun onPacket(event: PacketEvent) {
         val packet = event.packet
         when (modeValue.get().lowercase()) {
-            "silent" -> if (packet is C16PacketClientStatus && packet.status == C16PacketClientStatus.EnumState.OPEN_INVENTORY_ACHIEVEMENT) event.cancelEvent()
+            "silent" -> if (packet is C16PacketClientStatus && packet.status == C16PacketClientStatus.EnumState.OPEN_INVENTORY_ACHIEVEMENT) event.isCancelled = true
             "blink" -> if (mc.currentScreen != null && mc.currentScreen !is GuiChat && mc.currentScreen !is GuiIngameMenu && (!noDetectableValue.get() || mc.currentScreen !is GuiContainer) && packet is C03PacketPlayer) {
-                event.cancelEvent()
+                event.isCancelled = true
                 playerPackets.add(packet)
             }
         }

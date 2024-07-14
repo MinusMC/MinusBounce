@@ -16,14 +16,12 @@ class NCPYPort2Speed: SpeedMode("NCPYPort2", SpeedType.NCP) {
 
 
     override fun onEnable() {
-        super.onEnable()
         mc.thePlayer.speedInAir = 0.0213f
     }
 
     override fun onDisable() {
         mc.thePlayer.speedInAir = 0.02f
         mc.timer.timerSpeed = 1f
-        super.onDisable()
     }
 
     override fun onUpdate() {

@@ -18,11 +18,11 @@ class RedeskyAutoPlay: AutoPlayMode("Redesky") {
 		val packet = event.packet
 
 		if (clicking && (packet is C0EPacketClickWindow || packet is C07PacketPlayerDigging)) {
-            event.cancelEvent()
+            event.isCancelled = true
             return
         }
         if (clickState == 2 && packet is S2DPacketOpenWindow)
-            event.cancelEvent()
+            event.isCancelled = true
         
         if (packet is S2FPacketSetSlot) {
             val item = packet.func_149174_e() ?: return

@@ -55,13 +55,13 @@ class GrimC07Velocity : VelocityMode("GrimC07") {
         if (packet is S12PacketEntityVelocity && packet.entityID == mc.thePlayer.entityId) {
             canSpoof = true
             canCancel = false
-            event.cancelEvent()
+            event.isCancelled = true
         }
 
         if (packet is S27PacketExplosion) {
             canSpoof = true
             canCancel = false
-            event.cancelEvent()
+            event.isCancelled = true
         }
     }
 }

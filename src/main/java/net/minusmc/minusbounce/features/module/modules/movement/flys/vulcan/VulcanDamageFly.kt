@@ -176,7 +176,7 @@ class VulcanDamageFly: FlyMode("VulcanDamage", FlyType.VULCAN) {
     override fun onPacket(event: PacketEvent) {
         val packet = event.packet
         if (packet is C03PacketPlayer && waitFlag) {
-            event.cancelEvent()
+            event.isCancelled = true
         }
         if (packet is C03PacketPlayer && (dmgJumpCount < 4 && ( bypassMode.equals("SelfDamage") || bypassMode.equals("InstantDamage") ) )) {
             packet.onGround = false
@@ -197,14 +197,14 @@ class VulcanDamageFly: FlyMode("VulcanDamage", FlyType.VULCAN) {
                 lastTickX = packet.x
                 lastTickY = packet.y
                 lastTickZ = packet.z
-                event.cancelEvent()
+                event.isCancelled = true
             }else if(packet is C03PacketPlayer) {
-                event.cancelEvent()
+                event.isCancelled = true
             }
         }
         
         if (packet is C03PacketPlayer && flyMode.equals("clip") && isStarted) {
-            event.cancelEvent()
+            event.isCancelled = true
         }
         
         if (packet is S08PacketPlayerPosLook) {
@@ -222,7 +222,7 @@ class VulcanDamageFly: FlyMode("VulcanDamage", FlyType.VULCAN) {
             lastSentY = packet.y
             lastSentZ = packet.z
             
-            if (!bypassMode.equals("InstantDamage")) event.cancelEvent()
+            if (!bypassMode.equals("InstantDamage")) event.isCancelled = true
             
             mc.thePlayer.motionX = 0.0
             PacketUtils.sendPacketNoEvent(C06PacketPlayerPosLook(packet.x, packet.y, packet.z, packet.yaw, packet.pitch, false))
@@ -231,7 +231,7 @@ class VulcanDamageFly: FlyMode("VulcanDamage", FlyType.VULCAN) {
         if (packet is C0FPacketConfirmTransaction) { //Make sure it works with Vulcan Velocity
             val transUID = (packet.uid).toInt()
             if (transUID >= -31767 && transUID <= -30769) {
-                event.cancelEvent()
+                event.isCancelled = true
                 PacketUtils.sendPacketNoEvent(packet)
             }
         }

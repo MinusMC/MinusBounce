@@ -200,7 +200,7 @@ class VerusFly: FlyMode("Verus", FlyType.VERUS) {
             if (verusDmgModeValue.get().equals("Jump", true))
                 event.zeroXZ()
             else
-                event.cancelEvent()
+                event.isCancelled = true
     }
 
     override fun onBlockBB(event: BlockBBEvent) {

@@ -25,7 +25,7 @@ class AACZeroVelocity : VelocityMode("AACZero") {
 	}
 
 	override fun onJump(event: JumpEvent) {
-		if (mc.thePlayer.hurtTime > 0) event.cancelEvent()
+		if (mc.thePlayer.hurtTime > 0) event.isCancelled = true
 	}
 
 }

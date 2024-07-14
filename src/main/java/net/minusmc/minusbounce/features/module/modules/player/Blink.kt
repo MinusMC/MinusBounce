@@ -77,19 +77,19 @@ class Blink : Module() {
         val packet = event.packet
         if (mc.thePlayer == null || disableLogger || !(Ground.get() || !mc.thePlayer.onGround)) return
         if (packet is C03PacketPlayer) // Cancel all player stuff
-            event.cancelEvent()
+            event.isCancelled = true
         if (disableSPacket.get() && packet.javaClass.simpleName.startsWith("S", ignoreCase = true)) { // Lol this bypass intave
             if (mc.thePlayer.ticksExisted < 20) return
-            event.cancelEvent()
+            event.isCancelled = true
             packets.add(packet as Packet<INetHandlerPlayClient>)
         }
         if (S12.get() && packet is S12PacketEntityVelocity) // Lol this bypass outtave 
-            event.cancelEvent()
+            event.isCancelled = true
         if (packet is C04PacketPlayerPosition || packet is C06PacketPlayerPosLook ||
                 packet is C08PacketPlayerBlockPlacement ||
                 packet is C0APacketAnimation ||
                 packet is C0BPacketEntityAction || packet is C02PacketUseEntity || C0F.get() && packet is C0FPacketConfirmTransaction || C00.get() && packet is C00PacketKeepAlive) {
-            event.cancelEvent()
+            event.isCancelled = true
             packets.add(packet)
         }
     }

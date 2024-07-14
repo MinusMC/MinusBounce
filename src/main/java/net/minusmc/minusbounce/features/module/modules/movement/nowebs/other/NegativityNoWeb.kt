@@ -15,6 +15,6 @@ class NegativityNoWeb: NoWebMode("Negativity") {
     }
 
     override fun onJump(event: JumpEvent) {
-        event.cancelEvent()
+        event.isCancelled = true
     }
 }

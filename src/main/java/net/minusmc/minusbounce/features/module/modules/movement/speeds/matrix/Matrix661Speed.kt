@@ -7,7 +7,7 @@ import net.minusmc.minusbounce.event.PostMotionEvent
 import net.minusmc.minusbounce.event.PreMotionEvent
 
 
-class Matrix661Speed: SpeedMode("Matrix 6.6.1", SpeedType.MATRIX) {
+class Matrix661Speed: SpeedMode("Matrix6.6.1", SpeedType.MATRIX) {
 	override fun onEnable() {
 		mc.thePlayer.jumpMovementFactor = 0.02f
 		mc.timer.timerSpeed = 1f

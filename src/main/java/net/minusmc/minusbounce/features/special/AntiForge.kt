@@ -20,9 +20,9 @@ class AntiForge : MinecraftInstance(), Listenable {
         val packet = event.packet
         if (enabled && !mc.isIntegratedServerRunning) {
             try {
-                if (blockProxyPacket && packet.javaClass.getName() == "net.minecraftforge.fml.common.network.internal.FMLProxyPacket") event.cancelEvent()
+                if (blockProxyPacket && packet.javaClass.getName() == "net.minecraftforge.fml.common.network.internal.FMLProxyPacket") event.isCancelled = true
                 if (blockPayloadPackets && packet is C17PacketCustomPayload) {
-                    if (!packet.channelName.startsWith("MC|")) event.cancelEvent() else if (packet.channelName.equals(
+                    if (!packet.channelName.startsWith("MC|")) event.isCancelled = true else if (packet.channelName.equals(
                             "MC|Brand",
                             ignoreCase = true
                         )

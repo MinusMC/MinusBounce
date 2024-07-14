@@ -5,7 +5,6 @@
  */
 package net.minusmc.minusbounce.features.module.modules.world
 
-import net.minusmc.minusbounce.event.EventState
 import net.minusmc.minusbounce.event.EventTarget
 import net.minusmc.minusbounce.event.PreMotionEvent
 import net.minusmc.minusbounce.event.PacketEvent

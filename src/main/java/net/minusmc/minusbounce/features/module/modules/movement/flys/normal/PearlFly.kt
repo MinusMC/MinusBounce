@@ -88,6 +88,6 @@ class PearlFly: FlyMode("Pearl", FlyType.NORMAL) {
     }
 
     override fun onMove(event: MoveEvent) {
-        if (pearlState != 2 && pearlState != -1) event.cancelEvent()
+        if (pearlState != 2 && pearlState != -1) event.isCancelled = true
     }
 }

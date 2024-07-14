@@ -44,7 +44,7 @@ class OldCubeCraftAntiVoid: AntiVoidMode("OldCubeCraft") {
     override fun onPacket(event: PacketEvent) {
         val packet = event.packet
         if (canSpoof && (packet is C03PacketPlayer)) {
-            if (packet.y < 1145.141919810) event.cancelEvent()
+            if (packet.y < 1145.141919810) event.isCancelled = true
         }
         if (canSpoof && (packet is S08PacketPlayerPosLook)) {
             flagged = true

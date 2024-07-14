@@ -4,7 +4,7 @@ import net.minecraft.network.play.client.C03PacketPlayer
 import net.minusmc.minusbounce.event.PacketEvent
 import net.minusmc.minusbounce.features.module.modules.player.nofalls.NoFallMode
 
-class Matrix62xNoFall: NoFallMode("Matrix 6.2.x") {
+class Matrix62xNoFall: NoFallMode("Matrix6.2.x") {
 	private var matrixFalling = false
 	private var matrixFallTicks = 0
 	private var matrixLastMotionY = 0.0

@@ -76,7 +76,7 @@ class Gapple : Module() {
         val packet = event.packet
         if (!mc.isSingleplayer && matrixInvalidSlotFixer.get() && packet is C09PacketHeldItemChange) {
             if (packet.slotId == prevSlot)
-                event.cancelEvent()
+                event.isCancelled = true
             else
                 prevSlot = packet.slotId
         }

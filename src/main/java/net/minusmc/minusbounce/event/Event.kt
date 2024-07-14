@@ -15,17 +15,4 @@ open class CancellableEvent : Event() {
      * @return state of cancel
      */
     var isCancelled: Boolean = false
-        private set
-
-    /**
-     * Allows you to cancel a event
-     */
-    fun cancelEvent() {
-        isCancelled = true
-    }
-
-}
-
-enum class EventState(val stateName: String) {
-    PRE("PRE"), POST("POST")
 }

@@ -337,6 +337,13 @@ class KillAura : Module() {
     }
 
     private fun updateHitable() {
+        var canHitable = false
+
+        if (rotationValue.get().equals("None", true)) {
+            this.hitable = true
+            return
+        }
+
         val rotation = RotationUtils.currentRotation ?: mc.thePlayer.rotation
 
         val target = this.target ?: return
@@ -347,10 +354,12 @@ class KillAura : Module() {
             }
         })
 
-        hitable = if (raycastValue.get()) raycastEntity == this.target else RotationUtils.isFaced(target, rangeValue.get().toDouble(), rotation)
+        canHitable = if (raycastValue.get()) raycastEntity == this.target else RotationUtils.isFaced(target, rangeValue.get().toDouble(), rotation)
 
-        if (!hitable)
+        if (!canHitable) {
+            this.hitable = false
             return
+        }
 
         val targetToCheck = raycastEntity ?: this.target ?: return
 
@@ -363,10 +372,12 @@ class KillAura : Module() {
             eyes + RotationUtils.getVectorForRotation(rotation) * rangeValue.get().toDouble()
         )
 
-        hitable = mc.theWorld.rayTraceBlocks(mc.thePlayer.eyes, intercept.hitVec) == null || mc.thePlayer.getDistanceToEntityBox(targetToCheck) < throughWallsRangeValue.get()
+        canHitable = mc.theWorld.rayTraceBlocks(mc.thePlayer.eyes, intercept.hitVec) == null || mc.thePlayer.getDistanceToEntityBox(targetToCheck) < throughWallsRangeValue.get()
 
         if (onlyHitOnMouseToTarget.get() && mc.objectMouseOver != null)
-            hitable = mc.objectMouseOver.typeOfHit == MovingObjectPosition.MovingObjectType.ENTITY
+            canHitable = mc.objectMouseOver.typeOfHit == MovingObjectPosition.MovingObjectType.ENTITY
+    
+        this.hitable = canHitable
     }
 
     private fun updateRotations(entity: EntityLivingBase): Boolean {

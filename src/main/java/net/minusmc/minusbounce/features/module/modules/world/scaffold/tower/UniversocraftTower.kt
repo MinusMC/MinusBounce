@@ -1,7 +1,6 @@
 package net.minusmc.minusbounce.features.module.modules.world.scaffold.tower
 
 import net.minusmc.minusbounce.features.module.modules.world.scaffold.TowerScaffold
-import net.minusmc.minusbounce.injection.implementations.IEntityPlayerSP;
 
 class UniversocraftTower: TowerScaffold("Universocraft") {
 	override fun onPostMotion() {

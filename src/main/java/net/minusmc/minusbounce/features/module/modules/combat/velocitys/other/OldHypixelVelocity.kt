@@ -8,7 +8,7 @@ class OldHypixelVelocity : VelocityMode("OldHypixel") {
     override fun onPacket(event: PacketEvent) {
         val packet = event.packet
         if (packet is S12PacketEntityVelocity) {
-              event.cancelEvent()
+              event.isCancelled = true
               mc.thePlayer.motionY = packet.getMotionY().toDouble() / 8000.0
         }
     }

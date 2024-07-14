@@ -1,4 +1,4 @@
-package net.minusmc.minusbounce.features.module.modules.movement.speeds.legit
+package net.minusmc.minusbounce.features.module.modules.movement.speeds.normal
 
 import net.minusmc.minusbounce.features.module.modules.movement.speeds.SpeedType
 import net.minusmc.minusbounce.features.module.modules.movement.speeds.SpeedMode

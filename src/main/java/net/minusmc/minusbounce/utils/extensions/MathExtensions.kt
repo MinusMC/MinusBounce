@@ -61,10 +61,7 @@ operator fun Vec3.minus(vec: Vec3): Vec3 = subtract(vec)
 operator fun Vec3.times(number: Double) = Vec3(xCoord * number, yCoord * number, zCoord * number)
 operator fun Vec3.div(number: Double) = times(1 / number)
 
-fun Vec3.toFloatTriple() = Triple(xCoord.toFloat(), yCoord.toFloat(), zCoord.toFloat())
-
 fun BlockPos.equals(blockPos: BlockPos) = x == blockPos.x && y == blockPos.y && z == blockPos.z
-
 
 fun Float.toRadians() = this * 0.017453292f
 fun Float.toRadiansD() = toRadians().toDouble()

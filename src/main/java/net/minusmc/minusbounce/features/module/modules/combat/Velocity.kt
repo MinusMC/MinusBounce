@@ -66,7 +66,7 @@ class Velocity : Module() {
             mc.thePlayer.motionX += packet.func_149149_c() * horizontalExplosionValue.get()
             mc.thePlayer.motionY += packet.func_149144_d() * verticalExplosionValue.get()
             mc.thePlayer.motionZ += packet.func_149147_e() * horizontalExplosionValue.get()
-            event.cancelEvent()
+            event.isCancelled = true
         }
     }
 
@@ -93,6 +93,21 @@ class Velocity : Module() {
     @EventTarget
     fun onTick(event: TickEvent) {
         mode.onTick()
+    }
+
+    @EventTarget
+    fun onAttack(event: AttackEvent) {
+        mode.onAttack(event)
+    }
+
+    @EventTarget
+    fun onKnockback(event: KnockbackEvent) {
+        mode.onKnockback(event)
+    }
+
+    @EventTarget
+    fun onMoveInput(event: MoveInputEvent) {
+        mode.onMoveInput(event)
     }
     
     override val tag: String

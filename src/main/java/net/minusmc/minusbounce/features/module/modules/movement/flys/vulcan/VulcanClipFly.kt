@@ -1,6 +1,5 @@
 package net.minusmc.minusbounce.features.module.modules.movement.flys.vulcan
 
-import net.minusmc.minusbounce.event.EventState
 import net.minusmc.minusbounce.event.PreMotionEvent
 import net.minusmc.minusbounce.event.PacketEvent
 import net.minusmc.minusbounce.features.module.modules.movement.flys.FlyMode
@@ -53,7 +52,7 @@ class VulcanClipFly: FlyMode("VulcanClip", FlyType.VULCAN) {
             waitFlag = false
             mc.thePlayer.setPosition(packet.x, packet.y, packet.z)
             mc.netHandler.addToSendQueue(C06PacketPlayerPosLook(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ, mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch, false))
-            event.cancelEvent()
+            event.isCancelled = true
             mc.thePlayer.jump()
             clip(0.127318f, 0f)
             clip(3.425559f, 3.7f)

@@ -7,7 +7,7 @@ import net.minecraft.network.play.server.S08PacketPlayerPosLook
 import net.minusmc.minusbounce.utils.timer.MSTimer
 import net.minusmc.minusbounce.event.PacketEvent
 
-class AAC442LoyisaNoFall: NoFallMode("AAC 4.4.2 Loyisa") {
+class AAC442LoyisaNoFall: NoFallMode("AAC4.4.2Loyisa") {
     private var isDmgFalling = false
     private var modifiedTimer = false
     private var matrixFlagWait = 0
@@ -56,14 +56,14 @@ class AAC442LoyisaNoFall: NoFallMode("AAC 4.4.2 Loyisa") {
             if(matrixFlagWait > 0) {
                 aac4FlagCooldown.reset()
                 aac4FlagCount = 1
-                event.cancelEvent()
+                event.isCancelled = true
             }
         }
 
         if (isDmgFalling && packet is C03PacketPlayer && packet.onGround && mc.thePlayer.onGround) {
             matrixFlagWait = 2
             isDmgFalling = false
-            event.cancelEvent()
+            event.isCancelled = true
             mc.thePlayer.onGround = false
             mc.netHandler.addToSendQueue(C04PacketPlayerPosition(packet.x, packet.y - 256, packet.z, false))
             mc.netHandler.addToSendQueue(C04PacketPlayerPosition(packet.x, -10.0, packet.z, true))

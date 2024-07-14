@@ -18,7 +18,7 @@ class GlitchVelocity : VelocityMode("Glitch") {
         if (event.packet is S12PacketEntityVelocity) {
             if (!mc.thePlayer.onGround) return
             velocityInput = true
-            event.cancelEvent()
+            event.isCancelled = true
         }
     }
 }

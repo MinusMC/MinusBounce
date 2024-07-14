@@ -8,7 +8,7 @@ import net.minusmc.minusbounce.utils.PacketUtils
 class MedusaNoFall: NoFallMode("Medusa") {
     override fun onPacket(event: PacketEvent) {
         if (mc.thePlayer.fallDistance > 2.3F) {
-            event.cancelEvent()
+            event.isCancelled = true
             PacketUtils.sendPacketNoEvent(C03PacketPlayer(true))
             mc.thePlayer.fallDistance = 0F
         }

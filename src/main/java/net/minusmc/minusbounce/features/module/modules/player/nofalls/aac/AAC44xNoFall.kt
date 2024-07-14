@@ -5,7 +5,7 @@ import net.minecraft.network.play.client.C03PacketPlayer
 import net.minecraft.network.play.server.S12PacketEntityVelocity
 import net.minusmc.minusbounce.event.PacketEvent
 
-class AAC44xNoFall: NoFallMode("AAC 4.4.x") {
+class AAC44xNoFall: NoFallMode("AAC4.4.x") {
     override fun onPacket(event: PacketEvent) {
         val packet = event.packet
 

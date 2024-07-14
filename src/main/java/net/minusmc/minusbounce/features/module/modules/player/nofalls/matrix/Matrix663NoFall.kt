@@ -6,7 +6,7 @@ import net.minecraft.network.play.client.C03PacketPlayer.C04PacketPlayerPosition
 import net.minusmc.minusbounce.event.PacketEvent
 import net.minusmc.minusbounce.utils.PacketUtils
 
-class Matrix663NoFall: NoFallMode("Matrix 6.6.3") {
+class Matrix663NoFall: NoFallMode("Matrix6.6.3") {
 	private var matrixSend = false
 	private var modifiedTimer = false
 
@@ -33,7 +33,7 @@ class Matrix663NoFall: NoFallMode("Matrix 6.6.3") {
 
 		if (matrixSend && packet is C03PacketPlayer) {
             matrixSend = false
-            event.cancelEvent()
+            event.isCancelled = true
             PacketUtils.sendPacketNoEvent(C04PacketPlayerPosition(packet.x, packet.y, packet.z, true))
             PacketUtils.sendPacketNoEvent(C04PacketPlayerPosition(packet.x, packet.y, packet.z, false))
         }

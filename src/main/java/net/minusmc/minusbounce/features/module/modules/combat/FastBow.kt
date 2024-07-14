@@ -87,7 +87,7 @@ class FastBow : Module() {
 
         if (itemStack.item is ItemBow) {
             if (packet is C08PacketPlayerBlockPlacement || (packet is C07PacketPlayerDigging && packet.status == C07PacketPlayerDigging.Action.RELEASE_USE_ITEM))
-                event.cancelEvent()
+                event.isCancelled = true
         }
     }
 }

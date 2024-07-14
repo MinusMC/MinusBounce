@@ -123,6 +123,6 @@ class MatrixFlagLongJump : LongJumpMode("MatrixFlag") {
 	}
 
 	override fun onMove(event: MoveEvent) {
-		if (matrixSilentValue.get() && hasFell && !flagged) event.cancelEvent()
+		if (matrixSilentValue.get() && hasFell && !flagged) event.isCancelled = true
 	}
 }

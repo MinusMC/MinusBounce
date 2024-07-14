@@ -25,7 +25,7 @@ class RewinsideFly: FlyMode("Rewinside", FlyType.OTHER) {
     }
 
     override fun onJump(event: JumpEvent) {
-        event.cancelEvent()
+        event.isCancelled = true
     }
 
     override fun onStep(event: StepEvent) {

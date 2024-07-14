@@ -1,10 +1,10 @@
-package net.minusmc.minusbounce.features.module.modules.combat.velocitys.other
+package net.minusmc.minusbounce.features.module.modules.combat.velocitys.intave
 
 import net.minusmc.minusbounce.features.module.modules.combat.velocitys.VelocityMode
 import net.minusmc.minusbounce.value.BoolValue
 import net.minecraft.client.settings.GameSettings
 
-class IntaveVelocity : VelocityMode("Intave") {
+class OldIntaveVelocity : VelocityMode("OldIntave") {
     private var counter = 0
 
     override fun onUpdate() {

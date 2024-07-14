@@ -1,6 +1,5 @@
 package net.minusmc.minusbounce.features.module.modules.movement.flys.other
 
-import net.minusmc.minusbounce.event.EventState
 import net.minusmc.minusbounce.event.PacketEvent
 import net.minusmc.minusbounce.event.PreMotionEvent
 import net.minusmc.minusbounce.features.module.modules.movement.flys.FlyType
@@ -48,7 +47,7 @@ class IntaveFly: FlyMode("Intave", FlyType.OTHER) {
         val packet = event.packet
 
         if (packet is S08PacketPlayerPosLook && !teleported) {
-            event.cancelEvent()
+            event.isCancelled = true
         } else if (packet is S12PacketEntityVelocity) {
             if (packet.entityID == mc.thePlayer.entityId && packet.motionY / 8000.0 > 0.5) {
                 teleported = true

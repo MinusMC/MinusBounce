@@ -13,7 +13,7 @@ class AAC520Velocity : VelocityMode("AAC 5.2.0") {
 
 	override fun onPacket(event: PacketEvent) {
 		if (event.packet is S12PacketEntityVelocity) {
-			event.cancelEvent()
+			event.isCancelled = true
             if (!mc.isIntegratedServerRunning && (!aac5KillAuraValue.get() || MinusBounce.combatManager.target != null)) mc.netHandler.addToSendQueue(
                 C04PacketPlayerPosition(mc.thePlayer.posX, 1.7976931348623157E+308, mc.thePlayer.posZ, true)
             )

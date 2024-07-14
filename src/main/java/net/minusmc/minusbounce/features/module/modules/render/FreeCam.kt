@@ -98,7 +98,7 @@ class FreeCam : Module() {
         val packet = event.packet
         if (undetectableValue.get()) {
             if (packet is C04PacketPlayerPosition || packet is C05PacketPlayerLook) {
-                event.cancelEvent()
+                event.isCancelled = true
                 mc.netHandler.addToSendQueue(C03PacketPlayer(lastOnGround))
             } else if (packet is C06PacketPlayerPosLook) {
                 if (posLook.equalFlag(packet)) {
@@ -117,19 +117,19 @@ class FreeCam : Module() {
                     packet.yaw = fakePlayer!!.rotationYaw
                     packet.pitch = fakePlayer!!.rotationPitch
                 } else {
-                    event.cancelEvent()
+                    event.isCancelled = true
                     mc.netHandler.addToSendQueue(C03PacketPlayer(lastOnGround))
                 }
             }
         }
         if (packet is C03PacketPlayer)
-            event.cancelEvent()
+            event.isCancelled = true
 
         if (packet is C0BPacketEntityAction)
-            event.cancelEvent()
+            event.isCancelled = true
 
         if (packet is S08PacketPlayerPosLook) {
-            event.cancelEvent()
+            event.isCancelled = true
             posLook.set(packet)
         }
     }

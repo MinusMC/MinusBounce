@@ -85,7 +85,7 @@ class BlinkAntiVoid: AntiVoidMode("Blink") {
     	val packet = event.packet
     	if (blink && (packet is C03PacketPlayer)) {
             packetCache.add(packet)
-            event.cancelEvent()
+            event.isCancelled = true
         }
     }
 }

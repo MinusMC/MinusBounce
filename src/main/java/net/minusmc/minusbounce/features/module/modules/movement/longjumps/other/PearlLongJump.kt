@@ -62,6 +62,6 @@ class PearlLongJump : LongJumpMode("Pearl") {
 	}
 
 	override fun onMove(event: MoveEvent) {
-		if (pearlState != 2) event.cancelEvent()
+		if (pearlState != 2) event.isCancelled = true
 	}
 }

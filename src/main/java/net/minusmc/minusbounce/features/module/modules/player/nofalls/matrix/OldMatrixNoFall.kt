@@ -40,13 +40,13 @@ class OldMatrixNoFall: NoFallMode("OldMatrix") {
 		if (packet is S08PacketPlayerPosLook && matrixFlagWait > 0) {
             matrixFlagWait = 0
             mc.timer.timerSpeed = 1.0F
-            event.cancelEvent()
+            event.isCancelled = true
         }
 
 		if (isDmgFalling && packet is C03PacketPlayer && packet.onGround && mc.thePlayer.onGround) {
             matrixFlagWait = 2
             isDmgFalling = false
-            event.cancelEvent()
+            event.isCancelled = true
             mc.thePlayer.onGround = false
             mc.netHandler.addToSendQueue(C04PacketPlayerPosition(packet.x, packet.y - 256, packet.z, false))
             mc.netHandler.addToSendQueue(C04PacketPlayerPosition(packet.x, -10.0 , packet.z, true))

@@ -61,7 +61,7 @@ class AutoWeapon : Module() {
             }
 
             PacketUtils.sendPacketNoEvent(event.packet)
-            event.cancelEvent()
+            event.isCancelled = true
         }
     }
 

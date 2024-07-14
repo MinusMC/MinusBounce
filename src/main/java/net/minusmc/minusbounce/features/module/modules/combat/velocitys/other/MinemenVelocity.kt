@@ -31,7 +31,7 @@ class MinemenVelocity : VelocityMode("Minemen") {
             if (mc.thePlayer == null || (mc.theWorld?.getEntityByID(packet.entityID) ?: return) != mc.thePlayer) return
             ticks = 0
             if (canCancel) {
-                event.cancelEvent()
+                event.isCancelled = true
                 lastCancel = true
                 canCancel = false
             } else {

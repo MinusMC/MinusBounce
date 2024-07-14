@@ -42,7 +42,7 @@ class PackSpoofer : Module() {
 
                     if (!file2.isFile() || url.contains("minusbounce", true)) {
                         mc.netHandler.addToSendQueue(C19PacketResourcePackStatus(hash, C19PacketResourcePackStatus.Action.FAILED_DOWNLOAD))
-                        event.cancelEvent()
+                        event.isCancelled = true
                         return
                     }
                 }
@@ -56,7 +56,7 @@ class PackSpoofer : Module() {
                 mc.netHandler.addToSendQueue(C19PacketResourcePackStatus(hash, C19PacketResourcePackStatus.Action.FAILED_DOWNLOAD))
             }
 
-            event.cancelEvent()
+            event.isCancelled = true
         }
     }
 

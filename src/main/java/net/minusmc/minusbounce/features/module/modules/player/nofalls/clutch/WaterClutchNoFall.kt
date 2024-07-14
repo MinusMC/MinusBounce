@@ -27,7 +27,7 @@ class WaterClutchNoFall: NoFallMode("WaterClutch") {
     private var currentMlgItemIndex = 0
     private var currentMlgBlock: BlockPos? = null
 
-	override fun onPreMotion(event: PreMotionEvent) {
+	override fun onUpdate() {
         currentMlgRotation = null
         mlgTimer.update()
 

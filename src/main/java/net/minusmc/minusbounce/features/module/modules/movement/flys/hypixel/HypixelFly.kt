@@ -53,7 +53,7 @@ class HypixelFly: FlyMode("Hypixel", FlyType.HYPIXEL) {
     }
 
     override fun onJump(event: JumpEvent) {
-        event.cancelEvent()
+        event.isCancelled = true
     }
 
     override fun onStep(event: StepEvent) {

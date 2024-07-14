@@ -7,8 +7,9 @@ package net.minusmc.minusbounce.utils
 
 import net.minecraft.client.Minecraft
 import net.minecraft.client.entity.EntityPlayerSP
+import net.minusmc.minusbounce.utils.extensions.*
 
-open class MinecraftInstance {
+open class MinecraftInstance: BlockExtension {
     companion object {
         @JvmField
         val mc: Minecraft = Minecraft.getMinecraft()

@@ -44,12 +44,12 @@ class GrimS32Velocity : VelocityMode("GrimS32") {
         val packet = event.packet
         if (packet is S12PacketEntityVelocity && packet.entityID == mc.thePlayer.entityId) {
             if (packet.motionX < minMotionRangeValue.get() || packet.motionX > maxMotionRangeValue.get() || packet.motionZ < minMotionRangeValue.get() || packet.motionZ > maxMotionRangeValue.get()) {
-                event.cancelEvent()
+                event.isCancelled = true
                 grimTCancel = cancelPacket.get()
             }
         }
         if (packet is S32PacketConfirmTransaction && grimTCancel > 0) {
-            event.cancelEvent()
+            event.isCancelled = true
             grimTCancel--
         }
     }

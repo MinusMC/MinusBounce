@@ -14,7 +14,7 @@ class WatchdogGround : SpeedMode("Hypixel", SpeedType.WATCHDOG) {
 
     override fun onJump(event: JumpEvent) {
         if (mc.thePlayer != null && MovementUtils.isMoving)
-            event.cancelEvent()
+            event.isCancelled = true
     }
 
     override fun onPreMotion(event: PreMotionEvent) {

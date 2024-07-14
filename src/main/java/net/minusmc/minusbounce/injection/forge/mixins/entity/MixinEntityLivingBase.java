@@ -12,7 +12,10 @@ import net.minusmc.minusbounce.event.LookEvent;
 import net.minusmc.minusbounce.features.module.modules.movement.NoJumpDelay;
 import net.minusmc.minusbounce.features.module.modules.client.Animations;
 import net.minusmc.minusbounce.features.module.modules.render.AntiBlind;
+import net.minecraft.entity.ai.attributes.IAttribute;
+import net.minecraft.entity.ai.attributes.IAttributeInstance;
 import net.minecraft.block.Block;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.Potion;
@@ -33,10 +36,11 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 @Mixin(EntityLivingBase.class)
 public abstract class MixinEntityLivingBase extends MixinEntity {
-
-
     @Shadow
     protected abstract float getJumpUpwardsMotion();
+
+    @Shadow
+    public abstract IAttributeInstance getEntityAttribute(IAttribute attribute);
 
     @Shadow
     public abstract PotionEffect getActivePotionEffect(Potion potionIn);
@@ -48,8 +52,10 @@ public abstract class MixinEntityLivingBase extends MixinEntity {
     public int jumpTicks;
 
     @Shadow
-    public void onLivingUpdate() {
-    }
+    public abstract boolean isOnLadder();
+
+    @Shadow
+    public void onLivingUpdate() {}
 
     @Shadow
     protected abstract void updateFallState(double y, boolean onGroundIn, Block blockIn, BlockPos pos);
@@ -59,6 +65,9 @@ public abstract class MixinEntityLivingBase extends MixinEntity {
 
     @Shadow
     public abstract ItemStack getHeldItem();
+
+    @Shadow
+    public abstract void setLastAttacker(Entity entityIn);
 
     @Inject(method = "updatePotionEffects", at = @At(value = "INVOKE", target = "Lnet/minecraft/potion/PotionEffect;onUpdate(Lnet/minecraft/entity/EntityLivingBase;)Z"),
         locals = LocalCapture.CAPTURE_FAILSOFT, cancellable = true)

@@ -11,10 +11,10 @@ class VulcanVelocity : VelocityMode("Vulcan") {
         if (packet is C0FPacketConfirmTransaction) {
             val transUID = (packet.uid).toInt()
             if (transUID >= -31767 && transUID <= -30769) {
-                event.cancelEvent()
+                event.isCancelled = true
             }
         }
         if (packet is S12PacketEntityVelocity && packet.entityID == mc.thePlayer.entityId)
-            event.cancelEvent()
+            event.isCancelled = true
     }
 }

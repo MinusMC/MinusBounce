@@ -522,7 +522,7 @@ class Scaffold: Module() {
 
     @EventTarget
     fun onJump(event: JumpEvent) {
-        if (towerStatus) event.cancelEvent()
+        if (towerStatus) event.isCancelled = true
     }
 
     @EventTarget

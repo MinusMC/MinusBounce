@@ -89,7 +89,7 @@ class WatchdogFly: FlyMode("Watchdog", FlyType.OTHER) {
 
 	override fun onPacket(event: PacketEvent) {
 		val packet = event.packet
-		if (packet is C09PacketHeldItemChange && wdState < 4) event.cancelEvent()
+		if (packet is C09PacketHeldItemChange && wdState < 4) event.isCancelled = true
 		if (packet is S08PacketPlayerPosLook) {
 			if (wdState == 3) {
 				wdState = 4
@@ -104,7 +104,7 @@ class WatchdogFly: FlyMode("Watchdog", FlyType.OTHER) {
 	}
 
 	override fun onJump(event: JumpEvent) {
-		if (wdState >= 1) event.cancelEvent()
+		if (wdState >= 1) event.isCancelled = true
 	}
 
 	override fun onStep(event: StepEvent) {

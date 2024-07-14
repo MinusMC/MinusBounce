@@ -19,6 +19,6 @@ class SpoofItemSwordNoSlow : NoSlowMode("SpoofItem") {
     override fun onPacket(event: PacketEvent) {
         val packet = event.packet
         if (packet is C07PacketPlayerDigging && packet.status == C07PacketPlayerDigging.Action.RELEASE_USE_ITEM)
-            event.cancelEvent()
+            event.isCancelled = true
     }
 }

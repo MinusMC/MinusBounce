@@ -20,11 +20,11 @@ class MMCVelocity : VelocityMode("MMC") {
         if (counter > 20) {
             if (packet is S12PacketEntityVelocity) {
                 if (packet.entityID == mc.thePlayer.entityId) {
-                    event.cancelEvent()
+                    event.isCancelled = true
                     counter = 0
                 }
             } else if (packet is S27PacketExplosion) {
-                event.cancelEvent()
+                event.isCancelled = true
                 counter = 0
             }
         }

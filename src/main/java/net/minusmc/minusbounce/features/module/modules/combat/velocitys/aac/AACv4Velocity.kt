@@ -33,6 +33,6 @@ class AACv4Velocity : VelocityMode("AACv4") {
 	}
 
 	override fun onJump(event: JumpEvent) {
-		if (mc.thePlayer.hurtTime > 0) event.cancelEvent()
+		if (mc.thePlayer.hurtTime > 0) event.isCancelled = true
 	}
 }

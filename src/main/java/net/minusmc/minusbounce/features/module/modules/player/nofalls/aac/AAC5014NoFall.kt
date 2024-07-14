@@ -5,7 +5,7 @@ import net.minecraft.util.BlockPos
 import net.minusmc.minusbounce.features.module.modules.player.nofalls.NoFallMode
 import net.minusmc.minusbounce.utils.block.BlockUtils
 
-class AAC5014NoFall: NoFallMode("AAC 5.0.14") {
+class AAC5014NoFall: NoFallMode("AAC5.0.14") {
     private var aac5doFlag = false
     private var aac5Timer = 0
     private var aac5Check = false

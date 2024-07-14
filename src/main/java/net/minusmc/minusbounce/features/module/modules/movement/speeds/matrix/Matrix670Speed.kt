@@ -9,7 +9,7 @@ import net.minecraft.network.play.server.S12PacketEntityVelocity
 import kotlin.math.abs
 
 
-class Matrix670Speed: SpeedMode("Matrix 6.7.0", SpeedType.MATRIX) {
+class Matrix670Speed: SpeedMode("Matrix6.7.0", SpeedType.MATRIX) {
 	private var noVelocityY = 0
 
     override fun onUpdate() {

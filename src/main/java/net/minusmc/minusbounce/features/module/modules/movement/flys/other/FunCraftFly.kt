@@ -42,7 +42,7 @@ class FunCraftFly: FlyMode("FunCraft", FlyType.OTHER) {
     }
 
     override fun onJump(event: JumpEvent) {
-        if (moveSpeed > 0) event.cancelEvent()
+        if (moveSpeed > 0) event.isCancelled = true
     }
 
     override fun onStep(event: StepEvent) {

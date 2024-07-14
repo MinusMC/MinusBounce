@@ -66,8 +66,8 @@ class NoSlow : Module() {
         }
     }
 
-    private val blockForwardMultiplier = FloatValue("BlockForwardMultiplier", 1.0F, 0.2F, 1.0F, "x")
-    private val blockStrafeMultiplier = FloatValue("BlockStrafeMultiplier", 1.0F, 0.2F, 1.0F, "x")
+    private val swordForwardMultiplier = FloatValue("SwordForwardMultiplier", 1.0F, 0.2F, 1.0F, "x")
+    private val swordStrafeMultiplier = FloatValue("SwordStrafeMultiplier", 1.0F, 0.2F, 1.0F, "x")
 
     private val foodModeValue: ListValue = object: ListValue("FoodMode", foodModes.map{ it.modeName }.toTypedArray(), "Vanilla") {
         override fun onPreChange(oldValue: String, newValue: String) {
@@ -117,7 +117,7 @@ class NoSlow : Module() {
         mc.thePlayer ?: return
         val packet = event.packet
         if (antiSwitchItem.get() && packet is S09PacketHeldItemChange && (mc.thePlayer.isUsingItem || mc.thePlayer.isBlocking)) {
-            event.cancelEvent()
+            event.isCancelled = true
             mc.netHandler.addToSendQueue(C09PacketHeldItemChange(packet.heldItemHotbarIndex))
             mc.netHandler.addToSendQueue(C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem))
         }
@@ -167,7 +167,7 @@ class NoSlow : Module() {
 
     private fun getMultiplier(item: Item?, isForward: Boolean) = when (item) {
         is ItemFood, is ItemPotion, is ItemBucketMilk -> if (isForward) foodForwardMultiplier.get() else foodStrafeMultiplier.get()
-        is ItemSword -> if (isForward) blockForwardMultiplier.get() else blockStrafeMultiplier.get()
+        is ItemSword -> if (isForward) swordForwardMultiplier.get() else swordStrafeMultiplier.get()
         is ItemBow -> if (isForward) bowForwardMultiplier.get() else bowStrafeMultiplier.get()
         else -> 0.2F
     }

@@ -17,7 +17,7 @@ class HypixelAutoPlay: AutoPlayMode("Hypixel") {
 		val packet = event.packet
         
         if (clickState == 1 && packet is S2DPacketOpenWindow) {
-            event.cancelEvent()
+            event.isCancelled = true
         }
 
         if (packet is S2FPacketSetSlot) {

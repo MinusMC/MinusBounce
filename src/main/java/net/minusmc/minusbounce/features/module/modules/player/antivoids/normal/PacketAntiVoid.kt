@@ -34,7 +34,7 @@ class PacketAntiVoid: AntiVoidMode("Packet") {
     	val packet = event.packet
     	if (canCancel && packet is C03PacketPlayer) {
             packetCache.add(packet)
-            event.cancelEvent()
+            event.isCancelled = true
         }
 
         if (packet is S08PacketPlayerPosLook) {
