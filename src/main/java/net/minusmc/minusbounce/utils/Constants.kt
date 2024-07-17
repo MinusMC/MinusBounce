@@ -67,13 +67,16 @@ object Constants {
 		S48PacketResourcePackSend::class.java, S49PacketUpdateEntityNBT::class.java
 	)
 
-	val otherPacketClasses = arrayOf(
+	val clientOtherPacketClasses = arrayOf(
 		C00Handshake::class.java,
 		C00PacketLoginStart::class.java, C00PacketServerQuery::class.java, 
-		C01PacketEncryptionResponse::class.java, C01PacketPing::class.java, 
+		C01PacketEncryptionResponse::class.java, C01PacketPing::class.java
+	)
+
+	val serverOtherPacketClasses = arrayOf(
 		S00PacketDisconnect::class.java, S01PacketEncryptionRequest::class.java, 
 		S02PacketLoginSuccess::class.java, S03PacketEnableCompression::class.java, 
-		S00PacketServerInfo::class.java, S01PacketPong::class.java, 
+		S00PacketServerInfo::class.java, S01PacketPong::class.java,
 	)
 
 }

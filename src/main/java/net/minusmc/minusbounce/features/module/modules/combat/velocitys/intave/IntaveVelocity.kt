@@ -9,11 +9,13 @@ import net.minusmc.minusbounce.event.EntityDamageEvent
 import net.minusmc.minusbounce.features.module.modules.combat.velocitys.VelocityMode
 import net.minusmc.minusbounce.utils.RaycastUtils
 import net.minusmc.minusbounce.value.FloatValue
+import net.minusmc.minusbounce.value.BoolValue
 import net.minecraft.util.MovingObjectPosition
 
 
 class IntaveVelocity : VelocityMode("Intave") {
     private val targetRange = FloatValue("TargetRange", 3f, 0f, 5f)
+    private val hurtTime = BoolValue("KeepSprintOnlyHurtTime", false)
     private var blockVelocity = false
     private var isRaytracedToEntity = false
 
@@ -60,7 +62,12 @@ class IntaveVelocity : VelocityMode("Intave") {
     }
 
     override fun onKnockback(event: KnockbackEvent) {
-        event.full = false
+        if (mc.thePlayer.hurtTime <= 0)
+            event.isCancelled = true
+
+        if (hurtTime.get() && mc.thePlayer.hurtTime == 0)
+            event.isCancelled = false
+
         event.reduceY = true
     }
 }

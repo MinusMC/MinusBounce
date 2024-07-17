@@ -2309,4 +2309,71 @@ object RenderUtils : MinecraftInstance() {
         if (state) glEnable(cap) else glDisable(cap)
     }
 
+    fun stop3D() {
+        GlStateManager.enableCull()
+        glEnable(GL_TEXTURE_2D)
+        glEnable(GL_DEPTH_TEST)
+        glDepthMask(true)
+        glDisable(GL_BLEND)
+    }
+
+    fun start3D() {
+        glDisable(GL_TEXTURE_2D)
+        glDisable(GL_DEPTH_TEST)
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+        glDepthMask(false)
+        GlStateManager.disableCull()
+    }
+
+    fun renderHitbox(bb: AxisAlignedBB, type: Int) {
+        glBegin(type)
+
+        glVertex3d(bb.minX, bb.minY, bb.maxZ)
+        glVertex3d(bb.maxX, bb.minY, bb.maxZ)
+        glVertex3d(bb.maxX, bb.minY, bb.minZ)
+        glVertex3d(bb.minX, bb.minY, bb.minZ)
+
+        glEnd()
+
+        glBegin(type)
+
+        glVertex3d(bb.minX, bb.maxY, bb.maxZ)
+        glVertex3d(bb.maxX, bb.maxY, bb.maxZ)
+        glVertex3d(bb.maxX, bb.maxY, bb.minZ)
+        glVertex3d(bb.minX, bb.maxY, bb.minZ)
+
+        glEnd()
+
+        glBegin(type)
+
+        glVertex3d(bb.minX, bb.minY, bb.minZ)
+        glVertex3d(bb.minX, bb.minY, bb.maxZ)
+        glVertex3d(bb.minX, bb.maxY, bb.maxZ)
+        glVertex3d(bb.minX, bb.maxY, bb.minZ)
+
+        glEnd()
+        glBegin(type)
+
+        glVertex3d(bb.maxX, bb.minY, bb.minZ)
+        glVertex3d(bb.maxX, bb.minY, bb.maxZ)
+        glVertex3d(bb.maxX, bb.maxY, bb.maxZ)
+        glVertex3d(bb.maxX, bb.maxY, bb.minZ)
+
+        glEnd()
+        glBegin(type)
+        glVertex3d(bb.minX, bb.minY, bb.minZ)
+        glVertex3d(bb.maxX, bb.minY, bb.minZ)
+        glVertex3d(bb.maxX, bb.maxY, bb.minZ)
+        glVertex3d(bb.minX, bb.maxY, bb.minZ)
+
+        glEnd()
+        glBegin(type)
+        glVertex3d(bb.minX, bb.minY, bb.maxZ)
+        glVertex3d(bb.maxX, bb.minY, bb.maxZ)
+        glVertex3d(bb.maxX, bb.maxY, bb.maxZ)
+        glVertex3d(bb.minX, bb.maxY, bb.maxZ)
+
+        glEnd()
+    }
+
 }

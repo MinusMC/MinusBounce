@@ -12,6 +12,7 @@ import net.minusmc.minusbounce.event.LookEvent;
 import net.minusmc.minusbounce.features.module.modules.movement.NoJumpDelay;
 import net.minusmc.minusbounce.features.module.modules.client.Animations;
 import net.minusmc.minusbounce.features.module.modules.render.AntiBlind;
+import net.minusmc.minusbounce.injection.implementations.IEntityLivingBase;
 import net.minecraft.entity.ai.attributes.IAttribute;
 import net.minecraft.entity.ai.attributes.IAttributeInstance;
 import net.minecraft.block.Block;
@@ -35,7 +36,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 @Mixin(EntityLivingBase.class)
-public abstract class MixinEntityLivingBase extends MixinEntity {
+public abstract class MixinEntityLivingBase extends MixinEntity implements IEntityLivingBase {
     @Shadow
     protected abstract float getJumpUpwardsMotion();
 
@@ -68,6 +69,37 @@ public abstract class MixinEntityLivingBase extends MixinEntity {
 
     @Shadow
     public abstract void setLastAttacker(Entity entityIn);
+
+    private double realPosX;
+    
+    public double getRealPosX() {
+        return realPosX;
+    }
+
+    public void setRealPosX(double x) {
+        realPosX = x;
+    }
+
+    private double realPosY;
+
+    public double getRealPosY() {
+        return realPosY;
+    }
+
+    public void setRealPosY(double y) {
+        realPosY = y;
+    }
+
+    private double realPosZ;
+
+    public double getRealPosZ() {
+        return realPosZ;
+    }
+
+    public void setRealPosZ(double z) {
+        realPosZ = z;
+    }
+
 
     @Inject(method = "updatePotionEffects", at = @At(value = "INVOKE", target = "Lnet/minecraft/potion/PotionEffect;onUpdate(Lnet/minecraft/entity/EntityLivingBase;)Z"),
         locals = LocalCapture.CAPTURE_FAILSOFT, cancellable = true)

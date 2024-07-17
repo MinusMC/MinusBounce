@@ -7,7 +7,9 @@ package net.minusmc.minusbounce.utils
 
 import net.minecraft.client.Minecraft
 import net.minecraft.client.entity.EntityPlayerSP
+import net.minecraft.entity.EntityLivingBase
 import net.minusmc.minusbounce.utils.extensions.*
+import net.minusmc.minusbounce.injection.implementations.IEntityLivingBase
 
 open class MinecraftInstance: BlockExtension {
     companion object {
@@ -20,4 +22,22 @@ open class MinecraftInstance: BlockExtension {
 
     val EntityPlayerSP.prevRotation: Rotation
         get() = Rotation(mc.thePlayer.prevRotationYaw, mc.thePlayer.prevRotationPitch)
+
+    var EntityLivingBase.realPosX: Double
+        get() = (this as IEntityLivingBase).realPosX
+        set(value) {
+            (this as IEntityLivingBase).realPosX = value
+        }
+
+    var EntityLivingBase.realPosY: Double
+        get() = (this as IEntityLivingBase).realPosY
+        set(value) {
+            (this as IEntityLivingBase).realPosY = value
+        }
+
+    var EntityLivingBase.realPosZ: Double
+        get() = (this as IEntityLivingBase).realPosZ
+        set(value) {
+            (this as IEntityLivingBase).realPosZ = value
+        }
 }

@@ -220,6 +220,11 @@ public abstract class MixinMinecraft {
         Display.setTitle(MinusBounce.CLIENT_NAME + " build " + MinusBounce.CLIENT_VERSION);
     }
 
+    @Inject(method = "runGameLoop", at = @At(value = "INVOKE", target = "Lnet/minecraft/profiler/Profiler;startSection(Ljava/lang/String;)V", ordinal = 1))
+    private void hookGameLoop(CallbackInfo ci) {
+        MinusBounce.eventManager.callEvent(new GameLoopEvent());
+    }
+
     @Inject(method = "loadWorld(Lnet/minecraft/client/multiplayer/WorldClient;Ljava/lang/String;)V", at = @At("HEAD"))
     private void clearLoadedMaps(WorldClient worldClientIn, String loadingMessage, CallbackInfo ci) {
         if (worldClientIn != this.theWorld) {

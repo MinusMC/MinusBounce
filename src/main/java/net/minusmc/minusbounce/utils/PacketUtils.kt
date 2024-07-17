@@ -5,6 +5,7 @@
  */
 package net.minusmc.minusbounce.utils
 
+import net.minecraft.network.INetHandler
 import net.minecraft.network.NetworkManager
 import net.minecraft.network.Packet
 import net.minecraft.network.play.INetHandlerPlayServer
@@ -58,6 +59,14 @@ object PacketUtils : MinecraftInstance(), Listenable {
                 packet.processPacket(netManager.packetListener as INetHandlerPlayServer)
             } catch (_: Exception) {}
         }
+    }
+
+    fun processPacket(packet: Packet<*>) {
+        val netManager = mc.netHandler?.networkManager ?: return
+
+        try {
+            (packet as Packet<INetHandler>).processPacket(netManager.netHandler)
+        } catch (_: Exception) {}
     }
 
     @EventTarget

@@ -61,6 +61,9 @@ class EventManager {
             } catch (throwable: Throwable) {
                 throwable.printStackTrace()
             }
+
+            if (event.stopRunEvent)
+                return
         }
     }
 }

@@ -19,5 +19,6 @@ internal class EventHook(val eventClass: Listenable, val method: Method, val pri
     val isIgnoreCondition = eventTarget.ignoreCondition
 
     constructor(eventClass: Listenable, method: Method, eventTarget: EventTarget): this(eventClass, method, 0, eventTarget)
+    constructor(eventClass: Listenable, method: Method, priority: EventPriority, eventTarget: EventTarget): this(eventClass, method, priority.priority, eventTarget)
 }
 

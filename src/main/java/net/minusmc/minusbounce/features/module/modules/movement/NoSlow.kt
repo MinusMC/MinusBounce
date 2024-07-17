@@ -92,10 +92,8 @@ class NoSlow : Module() {
 
     private val bowForwardMultiplier = FloatValue("BowForwardMultiplier", 1.0F, 0.2F, 1.0F, "x")
     private val bowStrafeMultiplier = FloatValue("BowStrafeMultiplier", 1.0F, 0.2F, 1.0F, "x")
-
     private val sneakMultiplier = FloatValue("SneakMultiplier", 1.0F, 0.3F, 1.0F, "x")
 
-    val noSprintValue = BoolValue("NoSprint", false)
     val soulsandValue = BoolValue("Soulsand", true)
     val liquidPushValue = BoolValue("LiquidPush", true)
     private val antiSwitchItem = BoolValue("AntiSwitchItem", false)

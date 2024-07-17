@@ -127,21 +127,14 @@ public abstract class MixinEntityPlayer extends MixinEntityLivingBase {
                 boolean flag2 = targetEntity.attackEntityFrom(DamageSource.causePlayerDamage((EntityPlayer) (Object) this), f);
 
                 if (flag2) {
-                    KnockbackEvent event = new KnockbackEvent(false, false);
+                    KnockbackEvent event = new KnockbackEvent(false);
                     MinusBounce.eventManager.callEvent(event);
-                    if (i > 0 || !event.isCancelled()) {
+                    
+                    if (i > 0 && !event.isCancelled()) {
                         targetEntity.addVelocity(-MathHelper.sin(this.rotationYaw * (float)Math.PI / 180.0F) * (float)i * 0.5F, event.getReduceY() ? 0.0D : 0.1D, MathHelper.cos(this.rotationYaw * (float)Math.PI / 180.0F) * (float)i * 0.5F);
                         this.motionX *= 0.6;
                         this.motionZ *= 0.6;
                         this.setSprinting(false);
-                    } else if (event.getFull() && Minecraft.getMinecraft().thePlayer.hurtTime > 0) {
-                        targetEntity.addVelocity(-MathHelper.sin(this.rotationYaw * (float)Math.PI / 180.0F) * (float)i * 0.5F, event.getReduceY() ? 0.0D : 0.1D, MathHelper.cos(this.rotationYaw * (float)Math.PI / 180.0F) * (float)i * 0.5F);
-
-                        if (!event.isCancelled()) {
-                            this.motionX *= 0.6;
-                            this.motionZ *= 0.6;
-                            this.setSprinting(false);
-                        }
                     }
 
                     if (targetEntity instanceof EntityPlayerMP && targetEntity.velocityChanged) {
