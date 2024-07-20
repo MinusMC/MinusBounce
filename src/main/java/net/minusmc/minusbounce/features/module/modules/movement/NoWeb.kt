@@ -7,6 +7,7 @@ package net.minusmc.minusbounce.features.module.modules.movement
 
 import net.minusmc.minusbounce.event.EventTarget
 import net.minusmc.minusbounce.event.UpdateEvent
+import net.minusmc.minusbounce.event.MoveInputEvent
 import net.minusmc.minusbounce.event.JumpEvent
 import net.minusmc.minusbounce.event.TickEvent
 import net.minusmc.minusbounce.features.module.modules.movement.nowebs.NoWebMode
@@ -41,7 +42,6 @@ class NoWeb : Module() {
 
     @EventTarget
     fun onUpdate(event: UpdateEvent) {
-        if (!mc.thePlayer.isInWeb) return
         mode.onUpdate()
     }
 
@@ -53,10 +53,13 @@ class NoWeb : Module() {
         mode.onTick()
     }
 
+    fun onMoveInput(event: MoveInputEvent) {
+        mode.onMoveInput(event)
+    }
+
     override fun onDisable() {
         mc.timer.timerSpeed = 1.0F
     }
-
 
     override val tag: String
         get() = modeValue.get()

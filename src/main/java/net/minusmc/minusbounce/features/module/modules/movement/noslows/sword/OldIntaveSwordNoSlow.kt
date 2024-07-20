@@ -12,7 +12,7 @@ import net.minusmc.minusbounce.features.module.modules.movement.noslows.NoSlowMo
 import net.minusmc.minusbounce.utils.PacketUtils
 
 
-class IntaveSwordNoSlow : NoSlowMode("Intave") {
+class OldIntaveSwordNoSlow : NoSlowMode("OldIntave") {
     override fun onPreMotion(event: PreMotionEvent) {
         PacketUtils.sendPacketNoEvent(C07PacketPlayerDigging(C07PacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN))
     }
