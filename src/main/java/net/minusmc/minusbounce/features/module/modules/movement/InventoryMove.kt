@@ -24,8 +24,8 @@ import net.minecraft.network.play.client.C03PacketPlayer
 import net.minecraft.network.play.client.C16PacketClientStatus
 import net.minecraft.client.settings.GameSettings
 
-@ModuleInfo(name = "InvMove", spacedName = "Inv Move", description = "Allows you to walk while an inventory is opened.", category = ModuleCategory.MOVEMENT)
-class InvMove : Module() {
+@ModuleInfo(name = "InventoryMove", spacedName = "Inventory Move", description = "Allows you to walk while an inventory is opened.", category = ModuleCategory.MOVEMENT)
+class InventoryMove : Module() {
 
     val modeValue = ListValue("Mode", arrayOf("Vanilla", "Silent", "Blink"), "Vanilla")
     private val sprintModeValue = ListValue("InvSprint", arrayOf("AACAP", "Stop", "Keep"), "Keep")

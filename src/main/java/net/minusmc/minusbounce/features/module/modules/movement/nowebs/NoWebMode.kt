@@ -12,4 +12,5 @@ abstract class NoWebMode(val modeName: String): MinecraftInstance() {
 
     open fun onUpdate() {}
     open fun onJump(event: JumpEvent) {}
+    open fun onTick() {}
 }

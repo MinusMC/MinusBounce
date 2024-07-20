@@ -5,9 +5,7 @@
  */
 package net.minusmc.minusbounce.features.module.modules.movement.speeds.normal
 
-import net.minusmc.minusbounce.MinusBounce
-import net.minusmc.minusbounce.event.PostMotionEvent
-import net.minusmc.minusbounce.features.module.modules.movement.Speed
+import net.minusmc.minusbounce.event.StrafeEvent
 import net.minusmc.minusbounce.features.module.modules.movement.speeds.SpeedMode
 import net.minusmc.minusbounce.features.module.modules.movement.speeds.SpeedType
 import net.minusmc.minusbounce.value.FloatValue
@@ -33,56 +31,58 @@ class CustomSpeed: SpeedMode("Custom", SpeedType.NORMAL) {
 
     private var groundTick = 0
 
-    override fun onPostMotion(event: PostMotionEvent) {
-        val speed = MinusBounce.moduleManager[Speed::class.java]!!
-        if (MovementUtils.isMoving) {
-            mc.timer.timerSpeed = if (mc.thePlayer.motionY > 0) upTimerValue.get() else downTimerValue.get()
-            if (mc.thePlayer.onGround) {
-                if (groundTick >= groundStay.get()) {
-                    if (doLaunchSpeedValue.get()) {
-                        MovementUtils.strafe(launchSpeedValue.get())
-                    }
-                    if (yValue.get() != 0f) {
-                        mc.thePlayer.motionY = yValue.get().toDouble()
-                    }
-                } else if (groundResetXZValue.get()) {
-                    mc.thePlayer.motionX = 0.0
-                    mc.thePlayer.motionZ = 0.0
-                }
-                groundTick++
-            } else {
-                groundTick = 0
-                when (strafeValue.get().lowercase(Locale.getDefault())) {
-                    "strafe" -> MovementUtils.strafe(speedValue.get())
-                    "boost" -> MovementUtils.strafe()
-                    "plus" -> MovementUtils.boost(speedValue.get() * 0.1f)
-                    "plusonlyup" -> if (mc.thePlayer.motionY > 0) {
-                        MovementUtils.boost(speedValue.get() * 0.1f)
-                    } else {
-                        MovementUtils.strafe()
-                    }
-                }
-                mc.thePlayer.motionY += addYMotionValue.get() * 0.03
+    override fun onStrafe(event: StrafeEvent) {
+        
+        if (!MovementUtils.isMoving) {
+            if (resetXZValue.get()) {
+                mc.thePlayer.motionX = 0.0
+                mc.thePlayer.motionZ = 0.0
             }
-        } else if (resetXZValue.get()) {
-            mc.thePlayer.motionX = 0.0
-            mc.thePlayer.motionZ = 0.0
+
+            return
+        }
+
+        mc.timer.timerSpeed = if (mc.thePlayer.motionY > 0) upTimerValue.get() else downTimerValue.get()
+        if (mc.thePlayer.onGround) {
+            if (groundTick >= groundStay.get()) {
+                if (doLaunchSpeedValue.get())
+                    MovementUtils.strafe(launchSpeedValue.get())
+
+                if (yValue.get() != 0f)
+                    mc.thePlayer.motionY = yValue.get().toDouble()
+
+            } else if (groundResetXZValue.get()) {
+                mc.thePlayer.motionX = 0.0
+                mc.thePlayer.motionZ = 0.0
+            }
+            groundTick++
+        } else {
+            groundTick = 0
+            when (strafeValue.get().lowercase()) {
+                "strafe" -> MovementUtils.strafe(speedValue.get())
+                "boost" -> MovementUtils.strafe()
+                "plus" -> MovementUtils.boost(speedValue.get() * 0.1f)
+                "plusonlyup" -> if (mc.thePlayer.motionY > 0)
+                    MovementUtils.boost(speedValue.get() * 0.1f)
+                else MovementUtils.strafe()
+            }
+            mc.thePlayer.motionY += addYMotionValue.get() * 0.03
         }
     }
 
     override fun onEnable() {
-        val speed = MinusBounce.moduleManager[Speed::class.java]!!
         if (resetXZValue.get()) {
             mc.thePlayer.motionZ = 0.0
-            mc.thePlayer.motionX = mc.thePlayer.motionZ
+            mc.thePlayer.motionX = 0.0
         }
-        if (resetYValue.get()) mc.thePlayer.motionY = 0.0
-        super.onEnable()
+
+        if (resetYValue.get())
+            mc.thePlayer.motionY = 0.0
     }
 
     override fun onDisable() {
         mc.timer.timerSpeed = 1f
-        super.onDisable()
+        mc.thePlayer.speedInAir = 0.02f
     }
 
 }

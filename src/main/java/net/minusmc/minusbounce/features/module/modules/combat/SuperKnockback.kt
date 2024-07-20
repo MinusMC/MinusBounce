@@ -21,7 +21,6 @@ import net.minusmc.minusbounce.value.ListValue
 class SuperKnockback : Module() {
     private val modeValue = ListValue("Mode", arrayOf("DoublePacket", "Packet", "LegitFast", "WTap", "STap", "SprintTap", "SneakTap", "SprintSilentTap"), "DoublePacket")
     private val hurtTimeValue = IntegerValue("HurtTime", 10, 0, 10)
-    private val hurtTimeComparator = ListValue("HurtTimeComparator", arrayOf("Greater", "Equals"), "Greater")
     private val ticksDelay = IntegerValue("TicksDelay", 1, 1, 10)
     private var ticks = 0
 
@@ -37,10 +36,8 @@ class SuperKnockback : Module() {
         if (target !is EntityLivingBase)
             return
 
-        when (hurtTimeComparator.get().lowercase()) {
-            "greater" -> if (target.hurtTime > hurtTimeValue.get()) return
-            "equals" -> if (target.hurtTime != hurtTimeValue.get()) return
-        }
+        if (target.hurtTime >= hurtTimeValue.get())
+            return
 
         
         when (modeValue.get().lowercase()) {
@@ -65,7 +62,8 @@ class SuperKnockback : Module() {
                 mc.thePlayer.serverSprintState = true
             }
             
-            "wtap", "stap", "sprinttap", "sneaktap", "sprintsilenttap" -> ticks = ticksDelay.get() + 2
+            "wtap", "stap", "sneaktap", "sprintsilenttap" -> ticks = ticksDelay.get() + 2
+            "sprinttap" -> mc.thePlayer.sprintState = 2
         }
     }
 
@@ -77,7 +75,7 @@ class SuperKnockback : Module() {
             when (modeValue.get().lowercase()) {
                 "wtap" -> mc.gameSettings.keyBindForward.pressed = false
                 "stap" -> {
-                    mc.gameSettings.keyBindForward.pressed = false
+                    mc.gameSettings.keyBindForward.pressed = true
                     mc.gameSettings.keyBindBack.pressed = true
                 }
                 "sprinttap" -> mc.thePlayer.isSprinting = false

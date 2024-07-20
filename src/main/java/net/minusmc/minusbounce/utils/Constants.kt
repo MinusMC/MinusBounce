@@ -10,9 +10,9 @@ import net.minecraft.network.play.server.S14PacketEntity.*
 import net.minecraft.network.status.client.*
 import net.minecraft.network.status.server.*
 
-object Constants {
+object Constants: MinecraftInstance() {
 
-	val clientPacketClasses = arrayOf(
+	val clientPacketClasses = listOf(
 		C00PacketKeepAlive::class.java, C01PacketChatMessage::class.java, 
 		C02PacketUseEntity::class.java, C03PacketPlayer::class.java, 
 		C03PacketPlayer.C04PacketPlayerPosition::class.java, C03PacketPlayer.C05PacketPlayerLook::class.java, 
@@ -27,7 +27,7 @@ object Constants {
 		C16PacketClientStatus::class.java, C17PacketCustomPayload::class.java, 
 		C18PacketSpectate::class.java, C19PacketResourcePackStatus::class.java)
 
-	val serverPacketClasses = arrayOf(
+	val serverPacketClasses = listOf(
 		S00PacketKeepAlive::class.java, S01PacketJoinGame::class.java, 
 		S02PacketChat::class.java, S03PacketTimeUpdate::class.java, 
 		S04PacketEntityEquipment::class.java, S05PacketSpawnPosition::class.java, 
@@ -67,16 +67,22 @@ object Constants {
 		S48PacketResourcePackSend::class.java, S49PacketUpdateEntityNBT::class.java
 	)
 
-	val clientOtherPacketClasses = arrayOf(
+	val clientOtherPacketClasses = listOf(
 		C00Handshake::class.java,
 		C00PacketLoginStart::class.java, C00PacketServerQuery::class.java, 
 		C01PacketEncryptionResponse::class.java, C01PacketPing::class.java
 	)
 
-	val serverOtherPacketClasses = arrayOf(
+	val serverOtherPacketClasses = listOf(
 		S00PacketDisconnect::class.java, S01PacketEncryptionRequest::class.java, 
 		S02PacketLoginSuccess::class.java, S03PacketEnableCompression::class.java, 
 		S00PacketServerInfo::class.java, S01PacketPong::class.java,
 	)
+
+	val moveKeys = listOf(mc.gameSettings.keyBindForward, mc.gameSettings.keyBindRight, 
+		mc.gameSettings.keyBindBack, mc.gameSettings.keyBindLeft)
+
+	const val GROUND_ACCELERATION = 0.1299999676734952 - 0.12739998266255503 + 1E-7 - 1E-8
+    const val AIR_ACCELERATION = 0.025999999334873708 - 0.025479999685988748 - 1E-8
 
 }

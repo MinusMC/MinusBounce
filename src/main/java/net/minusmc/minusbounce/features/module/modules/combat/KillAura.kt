@@ -189,7 +189,6 @@ class KillAura : Module() {
 
     @EventTarget
     fun onPostMotion(event: PostMotionEvent) {
-
         if (mc.thePlayer.isBlocking || canBlock) {
             when (autoBlockModeValue.get().lowercase()) {
                 "aftertick" -> startBlocking {

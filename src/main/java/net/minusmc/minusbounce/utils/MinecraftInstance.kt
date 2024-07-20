@@ -10,6 +10,7 @@ import net.minecraft.client.entity.EntityPlayerSP
 import net.minecraft.entity.EntityLivingBase
 import net.minusmc.minusbounce.utils.extensions.*
 import net.minusmc.minusbounce.injection.implementations.IEntityLivingBase
+import net.minusmc.minusbounce.injection.implementations.IEntityPlayerSP
 
 open class MinecraftInstance: BlockExtension {
     companion object {
@@ -39,5 +40,11 @@ open class MinecraftInstance: BlockExtension {
         get() = (this as IEntityLivingBase).realPosZ
         set(value) {
             (this as IEntityLivingBase).realPosZ = value
+        }
+
+    var EntityPlayerSP.sprintState: Int
+        get() = (this as IEntityPlayerSP).sprintState
+        set(value) {
+            (this as IEntityPlayerSP).sprintState = value
         }
 }

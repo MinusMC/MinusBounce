@@ -8,6 +8,7 @@ package net.minusmc.minusbounce.features.module.modules.movement
 import net.minusmc.minusbounce.event.EventTarget
 import net.minusmc.minusbounce.event.UpdateEvent
 import net.minusmc.minusbounce.event.JumpEvent
+import net.minusmc.minusbounce.event.TickEvent
 import net.minusmc.minusbounce.features.module.modules.movement.nowebs.NoWebMode
 import net.minusmc.minusbounce.utils.ClassUtils
 import net.minusmc.minusbounce.features.module.Module
@@ -44,8 +45,12 @@ class NoWeb : Module() {
         mode.onUpdate()
     }
 
-    fun onJump(event: JumpEvent){
+    fun onJump(event: JumpEvent) {
         mode.onJump(event)
+    }
+
+    fun onTick(event: TickEvent) {
+        mode.onTick()
     }
 
     override fun onDisable() {

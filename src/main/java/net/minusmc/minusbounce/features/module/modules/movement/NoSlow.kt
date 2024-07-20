@@ -96,7 +96,6 @@ class NoSlow : Module() {
 
     val soulsandValue = BoolValue("Soulsand", true)
     val liquidPushValue = BoolValue("LiquidPush", true)
-    private val antiSwitchItem = BoolValue("AntiSwitchItem", false)
 
     override fun onEnable() {
         swordMode.onEnable()
@@ -114,11 +113,6 @@ class NoSlow : Module() {
     fun onPacket(event: PacketEvent) {
         mc.thePlayer ?: return
         val packet = event.packet
-        if (antiSwitchItem.get() && packet is S09PacketHeldItemChange && (mc.thePlayer.isUsingItem || mc.thePlayer.isBlocking)) {
-            event.isCancelled = true
-            mc.netHandler.addToSendQueue(C09PacketHeldItemChange(packet.heldItemHotbarIndex))
-            mc.netHandler.addToSendQueue(C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem))
-        }
 
         if (isEating) foodMode.onPacket(event)
 
@@ -181,15 +175,4 @@ class NoSlow : Module() {
     val isBowing: Boolean
         get() = mc.thePlayer.isUsingItem && mc.thePlayer.heldItem.item is ItemBow
 
-    val isSlowing: Boolean
-        get() = isBowing || isEating || isBlocking
-
-    // override val values = super.values.toMutableList().also {
-    //     modes.map {
-    //         mode -> mode.values.forEach { value ->
-    //             val displayableFunction = value.displayableFunction
-    //             it.add(value.displayable { displayableFunction.invoke() && modeValue.get() == mode.modeName })
-    //         }
-    //     }
-    // }
 }

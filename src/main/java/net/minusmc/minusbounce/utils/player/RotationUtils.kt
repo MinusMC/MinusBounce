@@ -106,7 +106,6 @@ object RotationUtils : MinecraftInstance(), Listenable {
     fun setTargetRotation(rotation: Rotation, keepLength: Int = 1, minRotationSpeed: Float = 180f, maxRotationSpeed: Float = 180f, fixType: MovementCorrection.Type = MovementCorrection.Type.NONE) {
         if (rotation.yaw.isNaN() || rotation.pitch.isNaN() || rotation.pitch > 90 || rotation.pitch < -90)
             return
-        
 
         MovementCorrection.type = fixType
         this.minRotationSpeed = minRotationSpeed

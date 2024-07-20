@@ -12,10 +12,13 @@ import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import net.minusmc.minusbounce.MinusBounce;
+import net.minusmc.minusbounce.utils.player.RotationUtils;
+import net.minusmc.minusbounce.utils.player.MovementCorrection;
+import net.minusmc.minusbounce.utils.Rotation;
 import net.minusmc.minusbounce.event.EntityDamageEvent;
 import net.minusmc.minusbounce.event.EntityMovementEvent;
-import net.minusmc.minusbounce.features.module.modules.misc.Patcher;
 import net.minusmc.minusbounce.features.special.AntiForge;
+import net.minusmc.minusbounce.features.module.modules.misc.NoRotateSet;
 import net.minusmc.minusbounce.ui.client.clickgui.dropdown.DropDownClickGui;
 import net.minusmc.minusbounce.ui.client.hud.designer.GuiHudDesigner;
 import net.minusmc.minusbounce.utils.ClientUtils;
@@ -38,6 +41,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.PacketThreadUtil;
+import net.minecraft.network.play.client.C03PacketPlayer.C06PacketPlayerPosLook;
 import net.minecraft.network.play.client.C17PacketCustomPayload;
 import net.minecraft.network.play.client.C19PacketResourcePackStatus;
 import net.minecraft.network.play.server.*;
@@ -46,6 +50,7 @@ import net.minecraft.world.WorldSettings;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
@@ -70,50 +75,64 @@ public abstract class MixinNetHandlerPlayClient {
     public int currentServerMaxPlayers;
 
     @Shadow
-    public abstract NetworkPlayerInfo getPlayerInfo(UUID p_175102_1_);
+    private boolean doneLoadingTerrain;
 
-    @Inject(method = "handleSpawnPlayer", at = @At("HEAD"), cancellable = true)
-    private void handleSpawnPlayer(S0CPacketSpawnPlayer packetIn, CallbackInfo callbackInfo) {
-        if (Patcher.INSTANCE.getSilentNPESP().get()) {
-            try {
-                PacketThreadUtil.checkThreadAndEnqueue(packetIn, (NetHandlerPlayClient) (Object) this, gameController);
-                double d0 = (double)packetIn.getX() / 32.0D;
-                double d1 = (double)packetIn.getY() / 32.0D;
-                double d2 = (double)packetIn.getZ() / 32.0D;
-                float f = (float)(packetIn.getYaw() * 360) / 256.0F;
-                float f1 = (float)(packetIn.getPitch() * 360) / 256.0F;
-                EntityOtherPlayerMP entityotherplayermp = new EntityOtherPlayerMP(gameController.theWorld, getPlayerInfo(packetIn.getPlayer()).getGameProfile());
-                entityotherplayermp.prevPosX = entityotherplayermp.lastTickPosX = (double)(entityotherplayermp.serverPosX = packetIn.getX());
-                entityotherplayermp.prevPosY = entityotherplayermp.lastTickPosY = (double)(entityotherplayermp.serverPosY = packetIn.getY());
-                entityotherplayermp.prevPosZ = entityotherplayermp.lastTickPosZ = (double)(entityotherplayermp.serverPosZ = packetIn.getZ());
-                int i = packetIn.getCurrentItemID();
+    @Overwrite
+    public void handlePlayerPosLook(S08PacketPlayerPosLook packetIn) {
+        PacketThreadUtil.checkThreadAndEnqueue(packetIn, (NetHandlerPlayClient) (Object) this, this.gameController);
+        EntityPlayer entityplayer = this.gameController.thePlayer;
+        double x = packetIn.getX();
+        double y = packetIn.getY();
+        double z = packetIn.getZ();
+        float yaw = packetIn.getYaw();
+        float pitch = packetIn.getPitch();
 
-                if (i == 0)
-                {
-                    entityotherplayermp.inventory.mainInventory[entityotherplayermp.inventory.currentItem] = null;
-                }
-                else
-                {
-                    entityotherplayermp.inventory.mainInventory[entityotherplayermp.inventory.currentItem] = new ItemStack(Item.getItemById(i), 1, 0);
-                }
+        if (packetIn.func_179834_f().contains(S08PacketPlayerPosLook.EnumFlags.X))
+            x += entityplayer.posX;
+        else
+            entityplayer.motionX = 0.0D;
 
-                entityotherplayermp.setPositionAndRotation(d0, d1, d2, f, f1);
-                clientWorldController.addEntityToWorld(packetIn.getEntityID(), entityotherplayermp);
-                List<DataWatcher.WatchableObject> list = packetIn.func_148944_c();
+        if (packetIn.func_179834_f().contains(S08PacketPlayerPosLook.EnumFlags.Y))
+            y += entityplayer.posY;
+        else
+            entityplayer.motionY = 0.0D;
 
-                if (list != null)
-                {
-                    entityotherplayermp.getDataWatcher().updateWatchedObjectsFromList(list);
-                }
-            } catch (Exception e) {
-                // ignore
+        if (packetIn.func_179834_f().contains(S08PacketPlayerPosLook.EnumFlags.Z)) {
+            z += entityplayer.posZ;
+        } else {
+            entityplayer.motionZ = 0.0D;
+        }
+
+        if (packetIn.func_179834_f().contains(S08PacketPlayerPosLook.EnumFlags.X_ROT))
+            pitch += entityplayer.rotationPitch;
+
+        if (packetIn.func_179834_f().contains(S08PacketPlayerPosLook.EnumFlags.Y_ROT))
+            yaw += entityplayer.rotationYaw;
+
+        final float prevYaw = entityplayer.rotationYaw;
+        final float prevPitch = entityplayer.rotationPitch;
+
+        entityplayer.setPositionAndRotation(x, y, z, yaw, pitch);
+        this.netManager.sendPacket(new C06PacketPlayerPosLook(entityplayer.posX, entityplayer.getEntityBoundingBox().minY, entityplayer.posZ, entityplayer.rotationYaw, entityplayer.rotationPitch, false));
+
+        if (!this.doneLoadingTerrain) {
+            this.gameController.thePlayer.prevPosX = this.gameController.thePlayer.posX;
+            this.gameController.thePlayer.prevPosY = this.gameController.thePlayer.posY;
+            this.gameController.thePlayer.prevPosZ = this.gameController.thePlayer.posZ;
+            this.doneLoadingTerrain = true;
+            this.gameController.displayGuiScreen(null);
+        } else {
+            NoRotateSet noRotateSet = MinusBounce.moduleManager.getModule(NoRotateSet.class);
+            if (noRotateSet != null && noRotateSet.getState()) {
+                entityplayer.setPositionAndRotation(x, y, z, yaw, pitch);
+                RotationUtils.INSTANCE.setTargetRotation(new Rotation(yaw, pitch), 2, 180f, 180f, MovementCorrection.Type.NORMAL);
             }
-            callbackInfo.cancel();
         }
     }
 
+
     @Inject(method = "handleCloseWindow", at = @At("HEAD"), cancellable = true)
-    private void handleCloseWindow(final S2EPacketCloseWindow packetIn, final CallbackInfo callbackInfo) {
+    private void handleCloseWindow(S2EPacketCloseWindow packetIn, CallbackInfo callbackInfo) {
         if (this.gameController.currentScreen instanceof DropDownClickGui
             || this.gameController.currentScreen instanceof GuiHudDesigner 
             || this.gameController.currentScreen instanceof GuiChat)
@@ -121,7 +140,7 @@ public abstract class MixinNetHandlerPlayClient {
     }
 
     @Inject(method = "handleResourcePack", at = @At("HEAD"), cancellable = true)
-    private void handleResourcePack(final S48PacketResourcePackSend p_handleResourcePack_1_, final CallbackInfo callbackInfo) {
+    private void handleResourcePack(S48PacketResourcePackSend p_handleResourcePack_1_, CallbackInfo callbackInfo) {
         final String url = p_handleResourcePack_1_.getURL();
         final String hash = p_handleResourcePack_1_.getHash();
 
@@ -158,7 +177,7 @@ public abstract class MixinNetHandlerPlayClient {
     }
 
     @Inject(method = "handleJoinGame", at = @At("HEAD"), cancellable = true)
-    private void handleJoinGameWithAntiForge(S01PacketJoinGame packetIn, final CallbackInfo callbackInfo) {
+    private void handleJoinGameWithAntiForge(S01PacketJoinGame packetIn, CallbackInfo callbackInfo) {
         if(!AntiForge.enabled || !AntiForge.blockFML || Minecraft.getMinecraft().isIntegratedServerRunning())
             return;
 
@@ -179,7 +198,7 @@ public abstract class MixinNetHandlerPlayClient {
     }
 
     @Inject(method = "handleEntityMovement", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/Entity;onGround:Z"))
-    private void handleEntityMovementEvent(S14PacketEntity packetIn, final CallbackInfo callbackInfo) {
+    private void handleEntityMovementEvent(S14PacketEntity packetIn, CallbackInfo callbackInfo) {
         final Entity entity = packetIn.getEntity(this.clientWorldController);
 
         if(entity != null)
@@ -198,70 +217,69 @@ public abstract class MixinNetHandlerPlayClient {
         }
     }
 
-    @Inject(method="handleAnimation", at=@At(value="INVOKE", target="Lnet/minecraft/network/PacketThreadUtil;checkThreadAndEnqueue(Lnet/minecraft/network/Packet;Lnet/minecraft/network/INetHandler;Lnet/minecraft/util/IThreadListener;)V", shift=At.Shift.AFTER), cancellable=true)
+    @Inject(method = "handleAnimation", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/PacketThreadUtil;checkThreadAndEnqueue(Lnet/minecraft/network/Packet;Lnet/minecraft/network/INetHandler;Lnet/minecraft/util/IThreadListener;)V", shift = At.Shift.AFTER), cancellable = true)
     private void handleAnimation(S0BPacketAnimation s0BPacketAnimation, CallbackInfo callbackInfo) {
         this.cancelIfNull(this.clientWorldController, callbackInfo);
     }
 
-    @Inject(method="handleEntityTeleport", at=@At(value="INVOKE", target="Lnet/minecraft/network/PacketThreadUtil;checkThreadAndEnqueue(Lnet/minecraft/network/Packet;Lnet/minecraft/network/INetHandler;Lnet/minecraft/util/IThreadListener;)V", shift=At.Shift.AFTER), cancellable=true)
+    @Inject(method = "handleEntityTeleport", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/PacketThreadUtil;checkThreadAndEnqueue(Lnet/minecraft/network/Packet;Lnet/minecraft/network/INetHandler;Lnet/minecraft/util/IThreadListener;)V", shift = At.Shift.AFTER), cancellable = true)
     private void handleEntityTeleport(S18PacketEntityTeleport s18PacketEntityTeleport, CallbackInfo callbackInfo) {
         this.cancelIfNull(this.clientWorldController, callbackInfo);
     }
 
-    @Inject(method="handleEntityMovement", at=@At(value="INVOKE", target="Lnet/minecraft/network/PacketThreadUtil;checkThreadAndEnqueue(Lnet/minecraft/network/Packet;Lnet/minecraft/network/INetHandler;Lnet/minecraft/util/IThreadListener;)V", shift=At.Shift.AFTER), cancellable=true)
+    @Inject(method = "handleEntityMovement", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/PacketThreadUtil;checkThreadAndEnqueue(Lnet/minecraft/network/Packet;Lnet/minecraft/network/INetHandler;Lnet/minecraft/util/IThreadListener;)V", shift = At.Shift.AFTER), cancellable = true)
     private void handleEntityMovement(S14PacketEntity s14PacketEntity, CallbackInfo callbackInfo) {
         this.cancelIfNull(this.clientWorldController, callbackInfo);
     }
 
-    @Inject(method="handleEntityHeadLook", at=@At(value="INVOKE", target="Lnet/minecraft/network/PacketThreadUtil;checkThreadAndEnqueue(Lnet/minecraft/network/Packet;Lnet/minecraft/network/INetHandler;Lnet/minecraft/util/IThreadListener;)V", shift=At.Shift.AFTER), cancellable=true)
+    @Inject(method = "handleEntityHeadLook", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/PacketThreadUtil;checkThreadAndEnqueue(Lnet/minecraft/network/Packet;Lnet/minecraft/network/INetHandler;Lnet/minecraft/util/IThreadListener;)V", shift = At.Shift.AFTER), cancellable = true)
     private void handleEntityHeadLook(S19PacketEntityHeadLook s19PacketEntityHeadLook, CallbackInfo callbackInfo) {
         this.cancelIfNull(this.clientWorldController, callbackInfo);
     }
 
-    @Inject(method="handleEntityProperties", at=@At(value="INVOKE", target="Lnet/minecraft/network/PacketThreadUtil;checkThreadAndEnqueue(Lnet/minecraft/network/Packet;Lnet/minecraft/network/INetHandler;Lnet/minecraft/util/IThreadListener;)V", shift=At.Shift.AFTER), cancellable=true)
+    @Inject(method = "handleEntityProperties", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/PacketThreadUtil;checkThreadAndEnqueue(Lnet/minecraft/network/Packet;Lnet/minecraft/network/INetHandler;Lnet/minecraft/util/IThreadListener;)V", shift = At.Shift.AFTER), cancellable = true)
     private void handleEntityProperties(S20PacketEntityProperties s20PacketEntityProperties, CallbackInfo callbackInfo) {
         this.cancelIfNull(this.clientWorldController, callbackInfo);
     }
 
-    @Inject(method="handleEntityMetadata", at=@At(value="INVOKE", target="Lnet/minecraft/network/PacketThreadUtil;checkThreadAndEnqueue(Lnet/minecraft/network/Packet;Lnet/minecraft/network/INetHandler;Lnet/minecraft/util/IThreadListener;)V", shift=At.Shift.AFTER), cancellable=true)
+    @Inject(method = "handleEntityMetadata", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/PacketThreadUtil;checkThreadAndEnqueue(Lnet/minecraft/network/Packet;Lnet/minecraft/network/INetHandler;Lnet/minecraft/util/IThreadListener;)V", shift = At.Shift.AFTER), cancellable = true)
     private void handleEntityMetadata(S1CPacketEntityMetadata s1CPacketEntityMetadata, CallbackInfo callbackInfo) {
         this.cancelIfNull(this.clientWorldController, callbackInfo);
     }
 
-    @Inject(method="handleEntityEquipment", at=@At(value="INVOKE", target="Lnet/minecraft/network/PacketThreadUtil;checkThreadAndEnqueue(Lnet/minecraft/network/Packet;Lnet/minecraft/network/INetHandler;Lnet/minecraft/util/IThreadListener;)V", shift=At.Shift.AFTER), cancellable=true)
+    @Inject(method = "handleEntityEquipment", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/PacketThreadUtil;checkThreadAndEnqueue(Lnet/minecraft/network/Packet;Lnet/minecraft/network/INetHandler;Lnet/minecraft/util/IThreadListener;)V", shift = At.Shift.AFTER), cancellable = true)
     private void handleEntityEquipment(S04PacketEntityEquipment s04PacketEntityEquipment, CallbackInfo callbackInfo) {
         this.cancelIfNull(this.clientWorldController, callbackInfo);
     }
 
-    @Inject(method="handleDestroyEntities", at=@At(value="INVOKE", target="Lnet/minecraft/network/PacketThreadUtil;checkThreadAndEnqueue(Lnet/minecraft/network/Packet;Lnet/minecraft/network/INetHandler;Lnet/minecraft/util/IThreadListener;)V", shift=At.Shift.AFTER), cancellable=true)
+    @Inject(method = "handleDestroyEntities", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/PacketThreadUtil;checkThreadAndEnqueue(Lnet/minecraft/network/Packet;Lnet/minecraft/network/INetHandler;Lnet/minecraft/util/IThreadListener;)V", shift = At.Shift.AFTER), cancellable = true)
     private void handleDestroyEntities(S13PacketDestroyEntities s13PacketDestroyEntities, CallbackInfo callbackInfo) {
         this.cancelIfNull(this.clientWorldController, callbackInfo);
     }
 
-    @Inject(method="handleScoreboardObjective", at=@At(value="INVOKE", target="Lnet/minecraft/network/PacketThreadUtil;checkThreadAndEnqueue(Lnet/minecraft/network/Packet;Lnet/minecraft/network/INetHandler;Lnet/minecraft/util/IThreadListener;)V", shift=At.Shift.AFTER), cancellable=true)
+    @Inject(method = "handleScoreboardObjective", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/PacketThreadUtil;checkThreadAndEnqueue(Lnet/minecraft/network/Packet;Lnet/minecraft/network/INetHandler;Lnet/minecraft/util/IThreadListener;)V", shift = At.Shift.AFTER), cancellable = true)
     private void handleScoreboardObjective(S3BPacketScoreboardObjective s3BPacketScoreboardObjective, CallbackInfo callbackInfo) {
         this.cancelIfNull(this.clientWorldController, callbackInfo);
     }
 
-    @Inject(method="handleConfirmTransaction", at=@At(value="INVOKE", target="Lnet/minecraft/network/play/server/S32PacketConfirmTransaction;getWindowId()I", ordinal=0), cancellable=true, locals=LocalCapture.CAPTURE_FAILEXCEPTION)
+    @Inject(method = "handleConfirmTransaction", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/play/server/S32PacketConfirmTransaction;getWindowId()I", ordinal=0), cancellable = true, locals = LocalCapture.CAPTURE_FAILEXCEPTION)
     private void handleConfirmTransaction(S32PacketConfirmTransaction s32PacketConfirmTransaction, CallbackInfo callbackInfo, Container container, EntityPlayer entityPlayer) {
         this.cancelIfNull(entityPlayer, callbackInfo);
     }
 
-    @Inject(method="handleSoundEffect", at=@At(value="INVOKE", target="Lnet/minecraft/network/PacketThreadUtil;checkThreadAndEnqueue(Lnet/minecraft/network/Packet;Lnet/minecraft/network/INetHandler;Lnet/minecraft/util/IThreadListener;)V"), cancellable=true)
+    @Inject(method = "handleSoundEffect", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/PacketThreadUtil;checkThreadAndEnqueue(Lnet/minecraft/network/Packet;Lnet/minecraft/network/INetHandler;Lnet/minecraft/util/IThreadListener;)V"), cancellable = true)
     private void handleSoundEffect(S29PacketSoundEffect s29PacketSoundEffect, CallbackInfo callbackInfo) {
         this.cancelIfNull(this.gameController.theWorld, callbackInfo);
     }
 
-    @Inject(method="handleTimeUpdate", at=@At(value="INVOKE", target="Lnet/minecraft/network/PacketThreadUtil;checkThreadAndEnqueue(Lnet/minecraft/network/Packet;Lnet/minecraft/network/INetHandler;Lnet/minecraft/util/IThreadListener;)V"), cancellable=true)
+    @Inject(method = "handleTimeUpdate", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/PacketThreadUtil;checkThreadAndEnqueue(Lnet/minecraft/network/Packet;Lnet/minecraft/network/INetHandler;Lnet/minecraft/util/IThreadListener;)V"), cancellable = true)
     private void handleTimeUpdate(S03PacketTimeUpdate s03PacketTimeUpdate, CallbackInfo callbackInfo) {
         this.cancelIfNull(this.gameController.theWorld, callbackInfo);
     }
 
     private <T> void cancelIfNull(T t, CallbackInfo callbackInfo) {
-        if (t == null) {
+        if (t == null)
             callbackInfo.cancel();
-        }
     }
 
     @Redirect(
@@ -269,7 +287,5 @@ public abstract class MixinNetHandlerPlayClient {
         slice = @Slice(from = @At(value = "CONSTANT", args = "stringValue=Unable to locate sign at ", ordinal = 0)),
         at = @At(value = "INVOKE", target = "Lnet/minecraft/client/entity/EntityPlayerSP;addChatMessage(Lnet/minecraft/util/IChatComponent;)V", ordinal = 0)
     )
-    private void removeDebugMessage(EntityPlayerSP instance, IChatComponent component) {
-        
-    }
+    private void removeDebugMessage(EntityPlayerSP instance, IChatComponent component) {}
 }

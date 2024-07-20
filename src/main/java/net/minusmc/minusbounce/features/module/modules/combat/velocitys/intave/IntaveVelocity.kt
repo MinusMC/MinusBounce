@@ -16,49 +16,27 @@ import net.minecraft.util.MovingObjectPosition
 class IntaveVelocity : VelocityMode("Intave") {
     private val targetRange = FloatValue("TargetRange", 3f, 0f, 5f)
     private val hurtTime = BoolValue("KeepSprintOnlyHurtTime", false)
-    private var blockVelocity = false
     private var isRaytracedToEntity = false
+    private var counter = 0
 
     override fun onEnable() {
         isRaytracedToEntity = false
-    }
-
-    override fun onDisable() {
-        mc.thePlayer.movementInput.jump = false
+        counter = 0
     }
 
     override fun onUpdate() {
-        blockVelocity = true
-        isRaytracedToEntity = false
-
         RaycastUtils.runWithModifiedRaycastResult(targetRange.get(), 0f) {
             isRaytracedToEntity = it.typeOfHit == MovingObjectPosition.MovingObjectType.ENTITY || 
                 mc.objectMouseOver?.typeOfHit == MovingObjectPosition.MovingObjectType.ENTITY
         }
-
-        if (isRaytracedToEntity && mc.thePlayer.hurtTime == 9 && !mc.thePlayer.isBurning)
-            mc.thePlayer.movementInput.jump = true
-    }
-
-    override fun onEntityDamage(event: EntityDamageEvent) {
-        if (isRaytracedToEntity && mc.thePlayer.hurtTime == 9 && !mc.thePlayer.isBurning)
-            mc.thePlayer.movementInput.jump = true
-    }
-
-    override fun onAttack(event: AttackEvent) {
-        if (mc.thePlayer.hurtTime > 0 && blockVelocity) {
-            mc.thePlayer.isSprinting = false
-            mc.thePlayer.motionX *= 0.6
-            mc.thePlayer.motionZ *= 0.6
-            blockVelocity = false
-        }
     }
 
     override fun onMoveInput(event: MoveInputEvent) {
-        if (mc.thePlayer.hurtTime > 0 && isRaytracedToEntity) {
+        if (isRaytracedToEntity && mc.thePlayer.hurtTime == 9 && !mc.thePlayer.isBurning && counter++ % 2 == 0)
+            event.jump = true
+
+        if (mc.thePlayer.hurtTime > 0 && isRaytracedToEntity)
             event.forward = 1.0F
-            event.strafe = 0.0F
-        }
     }
 
     override fun onKnockback(event: KnockbackEvent) {

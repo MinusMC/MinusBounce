@@ -55,9 +55,13 @@ class Speed: Module() {
 		modeValue.set(LateinitValue.speedModeValue)
 	}
 
-	override fun onEnable() {mode.onEnable()}
+	override fun onEnable() {
+		mode.onEnable()
+	}
 
-	override fun onDisable() {mode.onDisable()}
+	override fun onDisable() {
+		mode.onDisable()
+	}
 
 	@EventTarget
 	fun onTick(event: TickEvent) {
@@ -66,47 +70,66 @@ class Speed: Module() {
 
 	@EventTarget
 	fun onUpdate(event: UpdateEvent) {
-        if (mc.thePlayer.isSneaking || (noWater.get() && mc.thePlayer.isInWater)) return
+        if (mc.thePlayer.isSneaking || (noWater.get() && mc.thePlayer.isInWater))
+        	return
 
-		if (MovementUtils.isMoving && alwaysSprint.get()) 
-			mc.thePlayer.isSprinting = true
 		mode.onUpdate()
 	}
 
 	@EventTarget
 	fun onPacket(event: PacketEvent) {
+		if (mc.thePlayer.isSneaking || (noWater.get() && mc.thePlayer.isInWater))
+        	return
+
 		mode.onPacket(event)
 	}
 
 	@EventTarget
 	fun onPreMotion(event: PreMotionEvent) {
-        if (mc.thePlayer.isSneaking) return
-
-		if (MovementUtils.isMoving && alwaysSprint.get())
-			mc.thePlayer.isSprinting = true
+        if (mc.thePlayer.isSneaking || (noWater.get() && mc.thePlayer.isInWater))
+        	return
 
 		mode.onPreMotion(event)
 	}
 
 	@EventTarget
 	fun onPostMotion(event: PostMotionEvent) {
-        if (mc.thePlayer.isSneaking) return
-
-		if (MovementUtils.isMoving && alwaysSprint.get())
-			mc.thePlayer.isSprinting = true
+        if (mc.thePlayer.isSneaking || (noWater.get() && mc.thePlayer.isInWater))
+        	return
 
 		mode.onPostMotion(event)
 	}
 
 	@EventTarget
 	fun onMove(event: MoveEvent) {
-		if (mc.thePlayer.isSneaking) return
+		if (mc.thePlayer.isSneaking || (noWater.get() && mc.thePlayer.isInWater))
+        	return
+
 		mode.onMove(event)
 	}
 
 	@EventTarget
 	fun onJump(event: JumpEvent) {
+		if (mc.thePlayer.isSneaking || (noWater.get() && mc.thePlayer.isInWater))
+        	return
+
 		mode.onJump(event)
+	}
+
+	@EventTarget
+	fun onStrafe(event: StrafeEvent) {
+		if (mc.thePlayer.isSneaking || (noWater.get() && mc.thePlayer.isInWater))
+        	return
+
+		mode.onStrafe(event)
+	}
+
+	@EventTarget
+	fun onPreUpdate(event: PreUpdateEvent) {
+		if (mc.thePlayer.isSneaking || (noWater.get() && mc.thePlayer.isInWater))
+        	return
+        	
+		mode.onPreUpdate()
 	}
 
     override val tag: String

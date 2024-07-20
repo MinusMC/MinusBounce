@@ -28,10 +28,11 @@ import net.minusmc.minusbounce.event.*;
 import net.minusmc.minusbounce.features.module.modules.combat.KillAura;
 import net.minusmc.minusbounce.features.module.modules.misc.AntiDesync;
 import net.minusmc.minusbounce.features.module.modules.movement.Fly;
-import net.minusmc.minusbounce.features.module.modules.movement.InvMove;
+import net.minusmc.minusbounce.features.module.modules.movement.InventoryMove;
 import net.minusmc.minusbounce.features.module.modules.movement.NoSlow;
 import net.minusmc.minusbounce.features.module.modules.movement.Sprint;
 import net.minusmc.minusbounce.features.module.modules.world.Scaffold;
+import net.minusmc.minusbounce.injection.implementations.IEntityPlayerSP;
 import net.minusmc.minusbounce.utils.player.RotationUtils;
 import net.minusmc.minusbounce.utils.Rotation;
 import org.spongepowered.asm.mixin.*;
@@ -43,7 +44,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import java.util.List;
 
 @Mixin(EntityPlayerSP.class)
-public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
+public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer implements IEntityPlayerSP {
 
     @Shadow
     public boolean serverSprintState;
@@ -129,6 +130,20 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
     @Unique
     private boolean lastOnGround;
 
+    //Resprint thingy
+    private int sprintState;
+
+    @Override
+    public int getSprintState() {
+        return this.sprintState;
+    }
+
+    @Override
+    public void setSprintState(int value) {
+        this.sprintState = value;
+    }
+
+
     /**
      * @author CCBlueX
      * @reason Pre and Post Motion Event
@@ -138,7 +153,7 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
         PreMotionEvent event = new PreMotionEvent(this.posX, this.getEntityBoundingBox().minY, this.posZ, this.rotationYaw, this.rotationPitch, this.onGround);
         MinusBounce.eventManager.callEvent(event);
 
-        final InvMove inventoryMove = MinusBounce.moduleManager.getModule(InvMove.class);
+        final InventoryMove inventoryMove = MinusBounce.moduleManager.getModule(InventoryMove.class);
         final boolean fakeSprint = (inventoryMove.getState() && inventoryMove.isAACAP());
 
         ActionEvent actionEvent = new ActionEvent(this.isSprinting() && !fakeSprint, this.isSneaking());
@@ -152,6 +167,7 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
             else
                 this.sendQueue.addToSendQueue(new C0BPacketEntityAction((EntityPlayerSP) (Object) this, C0BPacketEntityAction.Action.STOP_SPRINTING));
 
+            this.sprintState = 1;
             this.serverSprintState = sprinting;
         }
 
@@ -311,6 +327,11 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
         this.pushOutOfBlocks(this.posX + (double) this.width * 0.35D, this.getEntityBoundingBox().minY + 0.5D, this.posZ - (double) this.width * 0.35D);
         this.pushOutOfBlocks(this.posX + (double) this.width * 0.35D, this.getEntityBoundingBox().minY + 0.5D, this.posZ + (double) this.width * 0.35D);
 
+        final float forwardBeforeReSprint = this.movementInput.moveForward;
+
+        if (this.sprintState == 2)
+            this.movementInput.moveForward = 0f;
+
         boolean flag3 = (float) this.getFoodStats().getFoodLevel() > 6.0F || this.capabilities.allowFlying;
 
         if (this.onGround && !flag1 && !flag2 && this.movementInput.moveForward >= f && !this.isSprinting() && flag3 && !this.isUsingItem() && !this.isPotionActive(Potion.blindness)) {
@@ -331,9 +352,11 @@ public abstract class MixinEntityPlayerSP extends MixinAbstractClientPlayer {
 
         if (this.isSprinting() && scaffold.getState() && !scaffold.getCanSprint())
             this.setSprinting(false);
-        
-        // if (this.isSprinting() && noSlow.getState() && noSlow.getNoSprintValue().get() && noSlow.isSlowing())
-        //     this.setSprinting(false);
+
+        if (this.sprintState == 2) {
+            this.movementInput.moveForward = forwardBeforeReSprint;
+            this.sprintState = 1;
+        }
 
         if (this.capabilities.allowFlying) {
             if (this.mc.playerController.isSpectatorMode()) {

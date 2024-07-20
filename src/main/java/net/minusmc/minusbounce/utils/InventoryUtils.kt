@@ -24,7 +24,6 @@ import net.minusmc.minusbounce.utils.timer.MSTimer
 object InventoryUtils : MinecraftInstance(), Listenable {
     val CLICK_TIMER = MSTimer()
     val BLOCK_BLACKLIST = listOf(
-        Blocks.enchanting_table,
         Blocks.chest,
         Blocks.ender_chest,
         Blocks.trapped_chest,
@@ -44,35 +43,7 @@ object InventoryUtils : MinecraftInstance(), Listenable {
         Blocks.standing_banner,
         Blocks.wall_banner,
         Blocks.redstone_torch,
-        Blocks.gravel,
-        Blocks.cactus,
-        Blocks.bed,
-        Blocks.lever,
-        Blocks.standing_sign,
-        Blocks.wall_sign,
-        Blocks.jukebox,
-        Blocks.oak_fence,
-        Blocks.spruce_fence,
-        Blocks.birch_fence,
-        Blocks.jungle_fence,
-        Blocks.dark_oak_fence,
-        Blocks.oak_fence_gate,
-        Blocks.spruce_fence_gate,
-        Blocks.birch_fence_gate,
-        Blocks.jungle_fence_gate,
-        Blocks.dark_oak_fence_gate,
-        Blocks.nether_brick_fence,
-        Blocks.trapdoor,
-        Blocks.melon_block,
-        Blocks.brewing_stand,
-        Blocks.cauldron,
-        Blocks.skull,
-        Blocks.hopper,
-        Blocks.carpet,
-        Blocks.redstone_wire,
-        Blocks.light_weighted_pressure_plate,
-        Blocks.heavy_weighted_pressure_plate,
-        Blocks.daylight_detector
+        Blocks.ladder
     )
 
     @EventTarget

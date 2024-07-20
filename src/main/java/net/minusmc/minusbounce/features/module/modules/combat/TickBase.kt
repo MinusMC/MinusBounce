@@ -15,11 +15,13 @@ import net.minusmc.minusbounce.value.*
 
 @ModuleInfo(name = "TickBase", description = "Tick Base", category = ModuleCategory.COMBAT)
 class TickBase : Module() {
-    private val ticks = IntegerValue("Ticks", 3, 1, 10)
+    private val extraTicksValue = IntegerValue("ExtraTicks", 3, 1, 10)
+    private val inRangeValue = FloatValue("InRange", 3.5f, 0f, 8f)
+    private val outRangeValue = FloatValue("OutRange", 4f, 0f, 8f)
 
+    private var canTickBase = true
     private var counter = -1
     var freezing = false
-    private var canTickBase = true
 
     override fun onEnable() {
         counter = -1
@@ -34,17 +36,19 @@ class TickBase : Module() {
         freezing = false
 
         val killAura = MinusBounce.moduleManager[KillAura::class.java] ?: return 0
-
         var targetDistance = -1.0
 
-        killAura.target?.let { targetDistance = mc.thePlayer.getDistanceToEntityBox(it) } ?: run {
-            canTickBase = true
-        }
+        val target = killAura.target
 
-        if (killAura.state && targetDistance > killAura.rangeValue.get()) {
-            if (targetDistance <= killAura.rotationRangeValue.get() && mc.thePlayer.hurtTime <= 2 && canTickBase) {
+        if (target != null)
+            targetDistance = mc.thePlayer.getDistanceToEntityBox(target)
+        else
+            canTickBase = true
+
+        if (killAura.state && targetDistance > outRangeValue.get()) {
+            if (targetDistance <= inRangeValue.get() && canTickBase) {
                 canTickBase = false
-                counter = ticks.get()
+                counter = extraTicksValue.get()
                 return counter
             }
         }
