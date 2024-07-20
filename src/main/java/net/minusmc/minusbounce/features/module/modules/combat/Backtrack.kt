@@ -3,8 +3,7 @@ package net.minusmc.minusbounce.features.module.modules.combat
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.network.Packet
-import net.minecraft.network.play.server.S14PacketEntity
-import net.minecraft.network.play.server.S18PacketEntityTeleport
+import net.minecraft.network.play.server.*
 import net.minecraft.util.AxisAlignedBB
 import net.minusmc.minusbounce.MinusBounce
 import net.minusmc.minusbounce.event.*
@@ -17,21 +16,29 @@ import net.minusmc.minusbounce.utils.render.ColorUtils
 import net.minusmc.minusbounce.utils.render.RenderUtils
 import net.minusmc.minusbounce.utils.PacketUtils
 import net.minusmc.minusbounce.utils.timer.MSTimer
+import net.minusmc.minusbounce.utils.misc.RandomUtils
 import net.minusmc.minusbounce.value.*
 import org.lwjgl.opengl.GL11
 
 
 @ModuleInfo("BackTrack", "Back Track", "Let you attack in their previous position", ModuleCategory.COMBAT)
 class BackTrack : Module() {
-    private val delay = IntegerValue("Delay", 400, 0, 1000)
+    private val delayValue = IntRangeValue("Delay", 100, 200, 0, 1000)
     private val hitRange = FloatValue("Range", 3F, 0F, 10F)
     private val esp = BoolValue("ESP", true)
 
     private val packets = mutableListOf<Packet<*>>()
     private val timer = MSTimer()
+    private var target: EntityLivingBase? = null
+    private var canFlushPacket = false
+
+    private var delay = 0L
 
     override fun onEnable() {
         packets.clear()
+        target = null
+        delay = 0L
+        canFlushPacket = false
     }
     
     @EventTarget(priority = 5)
@@ -50,7 +57,22 @@ class BackTrack : Module() {
         if (packet::class.java !in Constants.serverPacketClasses)
             return
 
+        val target = this.target
+
         when (packet) {
+            is S06PacketUpdateHealth -> {
+                if (packet.health <= 0)
+                    canFlushPacket = true
+            }
+
+            is S08PacketPlayerPosLook, is S40PacketDisconnect, is S02PacketChat ->
+                canFlushPacket = true
+
+            is S13PacketDestroyEntities -> {
+                if (target != null && target.entityId in packet.entityIDs)
+                    canFlushPacket = true
+            }
+
             is S14PacketEntity -> {
                 val entity = mc.theWorld.getEntityByID(packet.entityId)
 
@@ -72,16 +94,19 @@ class BackTrack : Module() {
             }
         }
 
-        if (target == null) {
+        if (target == null || canFlushPacket) {
             flushPackets()
+            timer.reset()
             return
         }
 
         addPacket(event)
     }
 
-    private val target: EntityLivingBase?
-        get() = MinusBounce.moduleManager[KillAura::class.java]?.target
+    @EventTarget
+    fun onAttack(event: AttackEvent) {
+        target = event.targetEntity as? EntityLivingBase
+    }
 
     @EventTarget
     fun onGameLoop(event: GameLoopEvent) {
@@ -102,11 +127,18 @@ class BackTrack : Module() {
         val realDistance = mc.thePlayer.getDistance(realX, realY, realZ)
         val targetDistance = mc.thePlayer.getDistance(target.posX, target.posY, target.posZ)
 
+        if (canFlushPacket) {
+            flushPackets()
+            canFlushPacket = false
+            return
+        }
+
         if (targetDistance >= realDistance || realDistance > hitRange.get())
             flushPackets()
-        else if (timer.hasTimePassed(delay.get())) {
+        else if (timer.hasTimePassed(delay)) {
             timer.reset()
             flushPackets()
+            delay = RandomUtils.randomDelay(delayValue.minValue, delayValue.maxValue)
         }
     }
 
@@ -133,7 +165,7 @@ class BackTrack : Module() {
         val realDistance = mc.thePlayer.getDistance(realX, realY, realZ)
         val targetDistance = mc.thePlayer.getDistance(target.posX, target.posY, target.posZ)
 
-        if (targetDistance >= realDistance || realDistance > hitRange.get() || timer.hasTimePassed(delay.get()))
+        if (targetDistance >= realDistance || realDistance > hitRange.get() || timer.hasTimePassed(delay))
             render = false
 
         if (target != mc.thePlayer && !target.isInvisible && render) {

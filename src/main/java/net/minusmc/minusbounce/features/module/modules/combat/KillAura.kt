@@ -242,7 +242,7 @@ class KillAura : Module() {
         if (attackTimer.hasTimePassed(attackDelay)) {
             clicks++
             attackTimer.reset()
-            attackDelay = RandomUtils.randomClickDelay(cps.getMinValue(), cps.getMaxValue())
+            attackDelay = RandomUtils.randomClickDelay(cps.minValue, cps.maxValue)
         }
     }
 
@@ -258,6 +258,9 @@ class KillAura : Module() {
 
         if (hitable) {
             if (target.hurtTime > hurtTimeValue.get())
+                return
+
+            if (mc.thePlayer.getDistanceToEntityBox(target) > rangeValue.get())
                 return
 
             // Attack
@@ -380,7 +383,7 @@ class KillAura : Module() {
     }
 
     private fun updateRotations(entity: EntityLivingBase): Boolean {
-        if (rotationValue.get().equals("none", true) || turnSpeed.getMaxValue() <= 0.0f)
+        if (rotationValue.get().equals("none", true) || turnSpeed.maxValue <= 0.0f)
             return true
 
         val rotation = getTargetRotation(entity) ?: return false
@@ -394,9 +397,9 @@ class KillAura : Module() {
                 else -> MovementCorrection.Type.NONE
             }
 
-            RotationUtils.setTargetRotation(rotation, keepRotationLength.get(), turnSpeed.getMinValue(), turnSpeed.getMaxValue(), movementCorrectionType)
+            RotationUtils.setTargetRotation(rotation, keepRotationLength.get(), turnSpeed.minValue, turnSpeed.maxValue, movementCorrectionType)
         } else {
-            val limitRotation = RotationUtils.limitAngleChange(mc.thePlayer.rotation, rotation, RandomUtils.nextFloat(turnSpeed.getMinValue(), turnSpeed.getMaxValue()))
+            val limitRotation = RotationUtils.limitAngleChange(mc.thePlayer.rotation, rotation, RandomUtils.nextFloat(turnSpeed.minValue, turnSpeed.maxValue))
             limitRotation.toPlayer(mc.thePlayer)
         }
 
@@ -527,7 +530,7 @@ class KillAura : Module() {
         get() = mc.thePlayer.heldItem != null && mc.thePlayer.heldItem.item is ItemSword
 
     private val predictSize: Float
-        get() = RandomUtils.nextFloat(predictSizeValue.getMinValue(), predictSizeValue.getMaxValue())
+        get() = RandomUtils.nextFloat(predictSizeValue.minValue, predictSizeValue.maxValue)
 
     override val tag: String
         get() = targetModeValue.get()

@@ -3,8 +3,7 @@ package net.minusmc.minusbounce.value
 import com.google.gson.JsonPrimitive
 import com.google.gson.JsonElement
 
-open class IntegerValue(name: String, value: Int, val minimum: Int = 0, val maximum: Int = Integer.MAX_VALUE, val suffix: String, displayable: () -> Boolean)
-    : Value<Int>(name, value, displayable) {
+open class IntegerValue(name: String, value: Int, val minimum: Int = 0, val maximum: Int = Integer.MAX_VALUE, val suffix: String, displayable: () -> Boolean): Value<Int>(name, value, displayable) {
 
     constructor(name: String, value: Int, minimum: Int, maximum: Int, displayable: () -> Boolean): this(name, value, minimum, maximum, "", displayable)
     constructor(name: String, value: Int, minimum: Int, maximum: Int, suffix: String): this(name, value, minimum, maximum, suffix, { true } )

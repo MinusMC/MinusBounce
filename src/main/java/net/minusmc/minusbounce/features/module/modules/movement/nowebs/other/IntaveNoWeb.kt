@@ -25,11 +25,11 @@ class IntaveNoWeb: NoWebMode("Intave") {
                 mc.thePlayer.jumpMovementFactor = 0.2f
             }
 
-            wasInWeb = true
+            wasInWeb = mc.thePlayer.isInWeb
         }
 
         if (mc.thePlayer.jumpMovementFactor > 0.03f && wasInWeb) {
-            wasInWeb = false
+            wasInWeb = mc.thePlayer.isInWeb
             mc.thePlayer.jumpMovementFactor = 0.02f
         }
     }

@@ -106,8 +106,8 @@ object SettingsUtils {
                                 moduleValue.changeValue(value)
                             }
                             is FontValue -> moduleValue.changeValue(args[2], args[3].toInt())
-                            is IntRangeValue -> moduleValue.setForceValue(args[2].toInt(), args[3].toInt())
-                            is FloatRangeValue -> moduleValue.setForceValue(args[2].toFloat(), args[3].toFloat())
+                            is IntRangeValue -> moduleValue.setRangeValue(args[2].toInt(), args[3].toInt(), true)
+                            is FloatRangeValue -> moduleValue.setRangeValue(args[2].toFloat(), args[3].toFloat(), true)
                         }
 
                         ClientUtils.displayChatMessage("§7[§3§lAutoSettings§7] §a§l${module.name}§7 value §8§l${moduleValue.name}§7 set to §c§l$value§7.")
@@ -134,8 +134,8 @@ object SettingsUtils {
             it !is Animations
         }.forEach {
             it.values.forEach { value -> when (value) {
-                is IntRangeValue -> stringBuilder.append("${it.name} ${value.name} ${value.get().getMin()} ${value.get().getMax()}").append("\n")
-                is FloatRangeValue -> stringBuilder.append("${it.name} ${value.name} ${value.get().getMin()} ${value.get().getMax()}").append("\n")
+                is IntRangeValue -> stringBuilder.append("${it.name} ${value.name} ${value.minValue} ${value.maxValue}").append("\n")
+                is FloatRangeValue -> stringBuilder.append("${it.name} ${value.name} ${value.minValue} ${value.maxValue}").append("\n")
                 is FontValue -> {
                     val fontDetails = Fonts.getFontDetails(value.get())!!
                     stringBuilder.append("${it.name} ${value.name} ${fontDetails[0]} ${fontDetails[1]}").append("\n")
@@ -159,8 +159,8 @@ object SettingsUtils {
         }.forEach {
             it.values.forEach {
                 value -> when (value) {
-                    is IntRangeValue -> stringBuilder.append("${it.name} ${value.name} ${value.defaultValue.getMin()} ${value.defaultValue.getMax()}").append("\n")
-                    is FloatRangeValue -> stringBuilder.append("${it.name} ${value.name} ${value.defaultValue.getMin()} ${value.defaultValue.getMax()}").append("\n")
+                    is IntRangeValue -> stringBuilder.append("${it.name} ${value.name} ${value.defaultValue.minimum} ${value.defaultValue.maximum}").append("\n")
+                    is FloatRangeValue -> stringBuilder.append("${it.name} ${value.name} ${value.defaultValue.minimum} ${value.defaultValue.maximum}").append("\n")
                     else -> stringBuilder.append("${it.name} ${value.name} ${value.defaultValue}").append("\n")
                 }
             }

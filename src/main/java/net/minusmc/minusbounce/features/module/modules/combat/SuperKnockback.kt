@@ -16,6 +16,7 @@ import net.minusmc.minusbounce.features.module.ModuleCategory
 import net.minusmc.minusbounce.features.module.ModuleInfo
 import net.minusmc.minusbounce.value.IntegerValue
 import net.minusmc.minusbounce.value.ListValue
+import net.minusmc.minusbounce.utils.player.MovementUtils
 
 @ModuleInfo(name = "SuperKnockback", spacedName = "Super Knockback", description = "Increases knockback dealt to other entities.", category = ModuleCategory.COMBAT)
 class SuperKnockback : Module() {
@@ -33,7 +34,7 @@ class SuperKnockback : Module() {
     fun onAttack(event: AttackEvent) {
         val target = event.targetEntity
 
-        if (target !is EntityLivingBase)
+        if (target !is EntityLivingBase || !MovementUtils.isMoving || !mc.thePlayer.onGround)
             return
 
         if (target.hurtTime >= hurtTimeValue.get())
@@ -78,7 +79,6 @@ class SuperKnockback : Module() {
                     mc.gameSettings.keyBindForward.pressed = true
                     mc.gameSettings.keyBindBack.pressed = true
                 }
-                "sprinttap" -> mc.thePlayer.isSprinting = false
                 "sprintsilenttap" -> mc.netHandler.addToSendQueue(C0BPacketEntityAction(mc.thePlayer, C0BPacketEntityAction.Action.STOP_SPRINTING))
                 "sneaktap" -> mc.gameSettings.keyBindSneak.pressed = true
             }
@@ -89,7 +89,6 @@ class SuperKnockback : Module() {
                     mc.gameSettings.keyBindForward.pressed = GameSettings.isKeyDown(mc.gameSettings.keyBindForward)
                     mc.gameSettings.keyBindBack.pressed = GameSettings.isKeyDown(mc.gameSettings.keyBindBack)
                 }
-                "sprinttap" -> mc.thePlayer.isSprinting = true
                 "sprintsilenttap" -> mc.netHandler.addToSendQueue(C0BPacketEntityAction(mc.thePlayer, C0BPacketEntityAction.Action.START_SPRINTING))
                 "sneaktap" -> mc.gameSettings.keyBindSneak.pressed = GameSettings.isKeyDown(mc.gameSettings.keyBindSneak)
             }

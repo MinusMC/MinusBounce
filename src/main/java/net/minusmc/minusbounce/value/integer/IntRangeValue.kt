@@ -9,36 +9,42 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.google.gson.Gson
 
-open class IntRangeValue(name: String, minValue: Int, maxValue: Int, val minimum: Int = 0, val maximum: Int = Int.MAX_VALUE, val suffix: String = "", displayable: () -> Boolean): Value<IntRange>(name, IntRange(minValue, maxValue), displayable) {
-    constructor(name: String, minValue: Int, maxValue: Int, minimum: Int, maximum: Int, displayable: () -> Boolean): this(name, minValue, maxValue, minimum, maximum, "", displayable)
-    constructor(name: String, minValue: Int, maxValue: Int, minimum: Int, maximum: Int, suffix: String): this(name, minValue, maxValue, minimum, maximum, suffix, {true})
-    constructor(name: String, minValue: Int, maxValue: Int, minimum: Int, maximum: Int): this(name, minValue, maxValue, minimum, maximum, "", {true})
+open class IntRangeValue(name: String, min: Int, max: Int, val minimum: Int = 0, val maximum: Int = Int.MAX_VALUE, val suffix: String = "", displayable: () -> Boolean): Value<IntRange>(name, IntRange(min, max), displayable) {
+    constructor(name: String, min: Int, max: Int, minimum: Int, maximum: Int, displayable: () -> Boolean): this(name, min, max, minimum, maximum, "", displayable)
+    constructor(name: String, min: Int, max: Int, minimum: Int, maximum: Int, suffix: String): this(name, min, max, minimum, maximum, suffix, {true})
+    constructor(name: String, min: Int, max: Int, minimum: Int, maximum: Int): this(name, min, max, minimum, maximum, "", {true})
 
-    fun getMinValue() = value.getMin()
-    fun getMaxValue() = value.getMax()
+    var minValue: Int
+        get() = value.minimum
+        set(value: Int) {
+            if (value <= this.value.maximum)
+                this.value.minimum = value
+        }
 
-    fun setMinValue(newValue: Number) {
-        if (newValue.toInt() <= value.getMax()) value.setMin(newValue.toInt())
+    var maxValue: Int
+        get() = value.maximum
+        set(value: Int) {
+            if (value >= this.value.minimum)
+                this.value.maximum = value
+        }
+
+    fun setRangeValue(min: Int, max: Int, force: Boolean = false) {
+        if (force) {
+            this.value.maximum = max
+            this.value.minimum = min
+        } else {
+            this.maxValue = maxValue
+            this.minValue = minValue
+        }
     }
 
-    fun setMaxValue(newValue: Number) {
-        if (newValue.toInt() >= value.getMin()) value.setMax(newValue.toInt())
-    }
-
-    fun changeValue(minValue: Int, maxValue: Int) {
-        setMaxValue(maxValue)
-        setMinValue(minValue)
-    }
-
-    fun setForceValue(minValue: Int, maxValue: Int) {
-        value.setMax(maxValue)
-        value.setMin(minValue)
-    }
 
     override fun toJson(): JsonElement = Gson().toJsonTree(value)
     override fun fromJson(element: JsonElement) {
         if (element.isJsonObject) {
-            changeValue(element.asJsonObject["minimum"].asInt, element.asJsonObject["maximum"].asInt)
+            val min = element.asJsonObject["minimum"].asInt
+            val max = element.asJsonObject["maximum"].asInt
+            setRangeValue(min, max, true)
         }
     }
 }

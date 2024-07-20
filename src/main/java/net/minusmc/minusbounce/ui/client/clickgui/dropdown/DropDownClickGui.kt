@@ -436,16 +436,16 @@ class DropDownClickGui: GuiScreen() {
     }
 
     private fun drawIntRangeValue(value: IntRangeValue, moduleElement: ModuleElement, mouseX: Int, mouseY: Int) {
-        val text = value.name + "§f: §c${value.getMinValue()} - ${value.getMaxValue()}"
+        val text = value.name + "§f: §c${value.minValue} - ${value.maxValue}"
         val textWidth = Fonts.minecraftFont.getStringWidth(text).toFloat()
         if (moduleElement.settingsWidth < textWidth + 8)
             moduleElement.settingsWidth = textWidth + 8
 
         RenderUtils.drawRect(moduleElement.x + moduleElement.width + 4, yPos + 2, moduleElement.x + moduleElement.width + moduleElement.settingsWidth, yPos + 24, Int.MIN_VALUE)
         RenderUtils.drawRect(moduleElement.x + moduleElement.width + 8, yPos + 18, moduleElement.x + moduleElement.width + moduleElement.settingsWidth - 4, yPos + 19, Int.MAX_VALUE)
-        val sliderMinValue = moduleElement.x + moduleElement.width + (moduleElement.settingsWidth - 12) * (value.getMinValue() - value.minimum) / (value.maximum - value.minimum)
+        val sliderMinValue = moduleElement.x + moduleElement.width + (moduleElement.settingsWidth - 12) * (value.minValue - value.minimum) / (value.maximum - value.minimum)
         RenderUtils.drawRect(sliderMinValue + 8, yPos + 15, sliderMinValue + 10, yPos + 21, guiColor)
-        val sliderMaxValue = moduleElement.x + moduleElement.width + (moduleElement.settingsWidth - 12) * (value.getMaxValue() - value.minimum) / (value.maximum - value.minimum)
+        val sliderMaxValue = moduleElement.x + moduleElement.width + (moduleElement.settingsWidth - 12) * (value.maxValue - value.minimum) / (value.maximum - value.minimum)
         RenderUtils.drawRect(sliderMaxValue + 8, yPos + 15, sliderMaxValue + 11, yPos + 21, guiColor)
         
         if (isHovering(mouseX, mouseY, moduleElement.x + moduleElement.width + 4, moduleElement.x + moduleElement.width + moduleElement.settingsWidth, yPos + 15, yPos + 21)) {
@@ -453,21 +453,21 @@ class DropDownClickGui: GuiScreen() {
 
             if ((mouseX >= sliderMaxValue + 12 && mouseX <= moduleElement.x + moduleElement.width + moduleElement.settingsWidth - 4) || (mouseX >= moduleElement.x + moduleElement.width + moduleElement.settingsWidth / 2 - 2 && mouseX <= sliderMaxValue + 14)) {
                 if (Mouse.hasWheel() && dWheel != 0) {
-                    if (dWheel > 0) value.setMaxValue(min(value.getMaxValue() + 1, value.maximum))
-                    else value.setMaxValue(max(value.getMaxValue() - 1, value.minimum))
+                    if (dWheel > 0) value.maxValue = min(value.maxValue + 1, value.maximum)
+                    else value.maxValue = max(value.maxValue - 1, value.minimum)
                 }
                 if (Mouse.isButtonDown(0)) {
                     val i = ((mouseX - moduleElement.x - moduleElement.width - 8) / (moduleElement.settingsWidth - 12)).coerceIn(0f, 1f)
-                    value.setMaxValue((value.minimum + (value.maximum - value.minimum) * i).toInt())
+                    value.maxValue = (value.minimum + (value.maximum - value.minimum) * i).toInt()
                 }
             } else if ((mouseX >= moduleElement.x + moduleElement.width + 4 && mouseX <= sliderMinValue + 11) || (mouseX >= sliderMinValue + 8 && mouseX <= moduleElement.x + moduleElement.width + moduleElement.settingsWidth / 2 - 2)) {
                 if (Mouse.hasWheel() && dWheel != 0) {
-                    if (dWheel > 0) value.setMinValue(min(value.getMinValue() + 1, value.maximum))
-                    else value.setMinValue(max(value.getMinValue() - 1, value.minimum))
+                    if (dWheel > 0) value.minValue = min(value.minValue + 1, value.maximum)
+                    else value.minValue = max(value.minValue - 1, value.minimum)
                 }
                 if (Mouse.isButtonDown(0)) {
                     val i = ((mouseX - moduleElement.x - moduleElement.width - 8) / (moduleElement.settingsWidth - 12)).coerceIn(0f, 1f)
-                    value.setMinValue((value.minimum + (value.maximum - value.minimum) * i).toInt())
+                    value.minValue = (value.minimum + (value.maximum - value.minimum) * i).toInt()
                 }
             }
         }
@@ -477,7 +477,7 @@ class DropDownClickGui: GuiScreen() {
     }
 
     private fun drawFloatRangeValue(value: FloatRangeValue, moduleElement: ModuleElement, mouseX: Int, mouseY: Int) {
-        val text = value.name + "§f: §c${round(value.getMinValue())}${value.suffix} - ${round(value.getMaxValue())}${value.suffix}"
+        val text = value.name + "§f: §c${round(value.minValue)}${value.suffix} - ${round(value.maxValue)}${value.suffix}"
         val textWidth = Fonts.minecraftFont.getStringWidth(text).toFloat()
         if (moduleElement.settingsWidth < textWidth + 8)
             moduleElement.settingsWidth = textWidth + 8
@@ -485,9 +485,9 @@ class DropDownClickGui: GuiScreen() {
         RenderUtils.drawRect(moduleElement.x + moduleElement.width + 4, yPos + 2, moduleElement.x + moduleElement.width + moduleElement.settingsWidth, yPos + 24, Int.MIN_VALUE)
         RenderUtils.drawRect(moduleElement.x + moduleElement.width + 8, yPos + 18, moduleElement.x + moduleElement.width + moduleElement.settingsWidth - 4, yPos + 19, Int.MAX_VALUE)
         
-        val sliderMinValue = moduleElement.x + moduleElement.width + (moduleElement.settingsWidth - 12) * (value.getMinValue() - value.minimum) / (value.maximum - value.minimum)
+        val sliderMinValue = moduleElement.x + moduleElement.width + (moduleElement.settingsWidth - 12) * (value.minValue - value.minimum) / (value.maximum - value.minimum)
         RenderUtils.drawRect(sliderMinValue + 8, yPos + 15, sliderMinValue + 10, yPos + 21, guiColor)
-        val sliderMaxValue = moduleElement.x + moduleElement.width + (moduleElement.settingsWidth - 12) * (value.getMaxValue() - value.minimum) / (value.maximum - value.minimum)
+        val sliderMaxValue = moduleElement.x + moduleElement.width + (moduleElement.settingsWidth - 12) * (value.maxValue - value.minimum) / (value.maximum - value.minimum)
         RenderUtils.drawRect(sliderMaxValue + 8, yPos + 15, sliderMaxValue + 11, yPos + 21, guiColor)
         
         if (isHovering(mouseX, mouseY, moduleElement.x + moduleElement.width + 4, moduleElement.x + moduleElement.width + moduleElement.settingsWidth, yPos + 15, yPos + 21)) {
@@ -495,21 +495,21 @@ class DropDownClickGui: GuiScreen() {
 
             if ((mouseX >= sliderMaxValue + 12 && mouseX <= moduleElement.x + moduleElement.width + moduleElement.settingsWidth - 4) || (mouseX >= moduleElement.x + moduleElement.width + moduleElement.settingsWidth / 2 - 2 && mouseX <= sliderMaxValue + 14)) {
                 if (Mouse.hasWheel() && dWheel != 0) {
-                    if (dWheel > 0) value.setMaxValue(min(value.getMaxValue() + 0.01f, value.maximum))
-                    else value.setMaxValue(max(value.getMaxValue() - 0.01f, value.minimum))
+                    if (dWheel > 0) value.maxValue = min(value.maxValue + 0.01f, value.maximum)
+                    else value.maxValue = max(value.maxValue - 0.01f, value.minimum)
                 }
                 if (Mouse.isButtonDown(0)) {
                     val i = ((mouseX - moduleElement.x - moduleElement.width - 8) / (moduleElement.settingsWidth - 12)).coerceIn(0f, 1f)
-                    value.setMaxValue(round(value.minimum + (value.maximum - value.minimum) * i))
+                    value.maxValue = round(value.minimum + (value.maximum - value.minimum) * i).toFloat()
                 }
             } else if ((mouseX >= moduleElement.x + moduleElement.width + 4 && mouseX <= sliderMinValue + 11) || (mouseX >= sliderMinValue + 8 && mouseX <= moduleElement.x + moduleElement.width + moduleElement.settingsWidth / 2 - 2)) {
                 if (Mouse.hasWheel() && dWheel != 0) {
-                    if (dWheel > 0) value.setMinValue(min(value.getMinValue() + 0.01f, value.maximum))
-                    else value.setMinValue(max(value.getMinValue() - 0.01f, value.minimum))
+                    if (dWheel > 0) value.minValue = min(value.minValue + 0.01f, value.maximum)
+                    else value.minValue = max(value.minValue - 0.01f, value.minimum)
                 }
                 if (Mouse.isButtonDown(0)) {
                     val i = ((mouseX - moduleElement.x - moduleElement.width - 8) / (moduleElement.settingsWidth - 12)).coerceIn(0f, 1f)
-                    value.setMinValue(round(value.minimum + (value.maximum - value.minimum) * i))
+                    value.minValue = round(value.minimum + (value.maximum - value.minimum) * i).toFloat()
                 }
             }
         }

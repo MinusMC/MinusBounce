@@ -101,14 +101,14 @@ class ModuleCommand(val module: Module, val values: List<Value<*>> = module.valu
                         value.set(args[2])
                     }
                     is TextValue -> value.set(StringUtils.toCompleteString(args, 2))
-                    is IntRangeValue -> value.setForceValue(args[2].toInt(), args[3].toInt())
-                    is FloatRangeValue -> value.setForceValue(args[2].toFloat(), args[3].toFloat())
+                    is IntRangeValue -> value.setRangeValue(args[2].toInt(), args[3].toInt())
+                    is FloatRangeValue -> value.setRangeValue(args[2].toFloat(), args[3].toFloat())
                 }
 
                 if (value is IntRangeValue) {
-                    chat("§7${module.name} §8${args[1]}§7 was set to §8${value.getMinValue()} - ${value.getMaxValue()}§7.")
+                    chat("§7${module.name} §8${args[1]}§7 was set to §8${value.minValue} - ${value.maxValue}§7.")
                 } else if (value is FloatRangeValue) {
-                    chat("§7${module.name} §8${args[1]}§7 was set to §8${value.getMinValue()} - ${value.getMaxValue()}§7.")
+                    chat("§7${module.name} §8${args[1]}§7 was set to §8${value.minValue} - ${value.maxValue}§7.")
                 } else {
                     chat("§7${module.name} §8${args[1]}§7 was set to §8${value.get()}§7.")
                 }
