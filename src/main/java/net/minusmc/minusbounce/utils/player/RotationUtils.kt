@@ -11,7 +11,6 @@ import net.minecraft.util.*
 import net.minecraft.network.play.client.C03PacketPlayer
 import net.minusmc.minusbounce.event.*
 import net.minusmc.minusbounce.utils.MinecraftInstance
-import net.minusmc.minusbounce.utils.RaycastUtils.IEntityFilter
 import net.minusmc.minusbounce.utils.RaycastUtils.raycastEntity
 import net.minusmc.minusbounce.utils.Rotation
 import net.minusmc.minusbounce.utils.VecRotation
@@ -365,24 +364,11 @@ object RotationUtils : MinecraftInstance(), Listenable {
      * @return if crosshair is over target
      */
     fun isFaced(targetEntity: Entity, blockReachDistance: Double): Boolean {
-        return raycastEntity(
-            blockReachDistance,
-            object : IEntityFilter {
-                override fun canRaycast(entity: Entity?): Boolean {
-                    return entity === targetEntity
-                }
-            }) != null
+        return raycastEntity(blockReachDistance) {it === targetEntity} != null
     }
 
     fun isFaced(targetEntity: Entity, blockReachDistance: Double, rotation: Rotation): Boolean {
-        return raycastEntity(
-            blockReachDistance,
-            rotation,
-            object : IEntityFilter {
-                override fun canRaycast(entity: Entity?): Boolean {
-                    return entity === targetEntity
-                }
-            }) != null
+        return raycastEntity(blockReachDistance, rotation) {it === targetEntity} != null
     }
 
 

@@ -10,10 +10,9 @@ import com.google.common.base.Predicates
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.entity.projectile.EntityLargeFireball
 import net.minecraft.util.*
-import net.minusmc.minusbounce.utils.extensions.eyes
-import net.minusmc.minusbounce.utils.extensions.plus
-import net.minusmc.minusbounce.utils.extensions.times
+import net.minusmc.minusbounce.utils.extensions.*
 import net.minusmc.minusbounce.utils.player.RotationUtils
 
 object RaycastUtils : MinecraftInstance() {
@@ -133,69 +132,59 @@ object RaycastUtils : MinecraftInstance() {
         }
     }
 
-    fun raycastEntity(range: Double, entityFilter: IEntityFilter): Entity? {
-        return raycastEntity(range, RotationUtils.serverRotation, entityFilter)
+    fun raycastEntity(range: Double, filter: (Entity) -> Boolean): Entity? {
+        return raycastEntity(range, RotationUtils.serverRotation, filter)
     }
 
-    fun raycastEntity(range: Double, rotation: Rotation, entityFilter: IEntityFilter): Entity? {
-        return raycastEntity(range, rotation.yaw, rotation.pitch, entityFilter)
+    fun raycastEntity(range: Double, yaw: Float, pitch: Float, filter: (Entity) -> Boolean): Entity? {
+        return raycastEntity(range, Rotation(yaw, pitch), filter)
     }
 
-    fun raycastEntity(range: Double, yaw: Float, pitch: Float, entityFilter: IEntityFilter): Entity? {
+    fun raycastEntity(range: Double, rotation: Rotation, filter: (Entity) -> Boolean): Entity? {
         val renderViewEntity = mc.renderViewEntity
-        if (renderViewEntity != null && mc.theWorld != null) {
-            var blockReachDistance = range
-            val eyePosition = renderViewEntity.getPositionEyes(1f)
-            val yawCos = MathHelper.cos(-yaw * 0.017453292f - Math.PI.toFloat())
-            val yawSin = MathHelper.sin(-yaw * 0.017453292f - Math.PI.toFloat())
-            val pitchCos = -MathHelper.cos(-pitch * 0.017453292f)
-            val pitchSin = MathHelper.sin(-pitch * 0.017453292f)
-            val entityLook = Vec3((yawSin * pitchCos).toDouble(), pitchSin.toDouble(), (yawCos * pitchCos).toDouble())
-            val vector = eyePosition.addVector(
-                entityLook.xCoord * blockReachDistance,
-                entityLook.yCoord * blockReachDistance,
-                entityLook.zCoord * blockReachDistance
-            )
-            val entityList = mc.theWorld.getEntitiesInAABBexcluding(
-                renderViewEntity,
-                renderViewEntity.entityBoundingBox.addCoord(
-                    entityLook.xCoord * blockReachDistance,
-                    entityLook.yCoord * blockReachDistance,
-                    entityLook.zCoord * blockReachDistance
-                ).expand(1.0, 1.0, 1.0),
-                Predicates.and(EntitySelectors.NOT_SPECTATING,
-                    Predicate { obj: Entity? -> obj!!.canBeCollidedWith() })
-            )
-            var pointedEntity: Entity? = null
-            for (entity in entityList) {
-                if (!entityFilter.canRaycast(entity)) continue
-                val collisionBorderSize = entity.collisionBorderSize
-                val axisAlignedBB = entity.entityBoundingBox.expand(
-                    collisionBorderSize.toDouble(),
-                    collisionBorderSize.toDouble(),
-                    collisionBorderSize.toDouble()
-                )
-                val movingObjectPosition = axisAlignedBB.calculateIntercept(eyePosition, vector)
-                if (axisAlignedBB.isVecInside(eyePosition)) {
-                    if (blockReachDistance >= 0.0) {
-                        pointedEntity = entity
-                        blockReachDistance = 0.0
-                    }
-                } else if (movingObjectPosition != null) {
-                    val eyeDistance = eyePosition.distanceTo(movingObjectPosition.hitVec)
-                    if (eyeDistance < blockReachDistance || blockReachDistance == 0.0) {
-                        if (entity === renderViewEntity.ridingEntity && !renderViewEntity.canRiderInteract()) {
-                            if (blockReachDistance == 0.0) pointedEntity = entity
-                        } else {
+
+        if (renderViewEntity == null || mc.theWorld == null)
+            return null
+
+        var blockReachDistance = range
+        val eyePosition = renderViewEntity.eyes
+        val entityLook = RotationUtils.getVectorForRotation(rotation)
+        val vec = eyePosition + (entityLook * blockReachDistance)
+
+        val entityList = mc.theWorld.getEntities(Entity::class.java) {
+            it != null && (it is EntityLivingBase || it is EntityLargeFireball) && (it !is EntityPlayer || !it.isSpectator) && it.canBeCollidedWith() && it != renderViewEntity
+        }
+
+        var pointedEntity: Entity? = null
+
+        for (entity in entityList) {
+            if (!filter(entity))
+                continue
+
+            val axisAlignedBB = entity.hitBox
+            val movingObjectPosition = axisAlignedBB.calculateIntercept(eyePosition, vec)
+
+            if (axisAlignedBB.isVecInside(eyePosition)) {
+                if (blockReachDistance >= 0.0) {
+                    pointedEntity = entity
+                    blockReachDistance = 0.0
+                }
+            } else if (movingObjectPosition != null) {
+                val eyeDistance = eyePosition.distanceTo(movingObjectPosition.hitVec)
+
+                if (eyeDistance < blockReachDistance || blockReachDistance == 0.0) {
+                    if (entity == renderViewEntity.ridingEntity && !renderViewEntity.canRiderInteract()) {
+                        if (blockReachDistance == 0.0)
                             pointedEntity = entity
-                            blockReachDistance = eyeDistance
-                        }
+                    } else {
+                        pointedEntity = entity
+                        blockReachDistance = eyeDistance
                     }
                 }
             }
-            return pointedEntity
         }
-        return null
+
+        return pointedEntity
     }
 
     fun performBlockRaytrace(rotation: Rotation, maxReach: Float): MovingObjectPosition? {
@@ -211,8 +200,4 @@ object RaycastUtils : MinecraftInstance() {
     }
 
     fun performBlockRaytrace(maxReach: Float) = performBlockRaytrace(RotationUtils.currentRotation ?: mc.thePlayer.rotation, maxReach)
-
-    interface IEntityFilter {
-        fun canRaycast(entity: Entity?): Boolean
-    }
 }

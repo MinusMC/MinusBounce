@@ -165,7 +165,7 @@ class BackTrack : Module() {
         val realDistance = mc.thePlayer.getDistance(realX, realY, realZ)
         val targetDistance = mc.thePlayer.getDistance(target.posX, target.posY, target.posZ)
 
-        if (targetDistance >= realDistance || realDistance > hitRange.get() || timer.hasTimePassed(delay))
+        if (targetDistance >= realDistance || realDistance > hitRange.get() || timer.hasTimePassed(delay) || canFlushPacket)
             render = false
 
         if (target != mc.thePlayer && !target.isInvisible && render) {

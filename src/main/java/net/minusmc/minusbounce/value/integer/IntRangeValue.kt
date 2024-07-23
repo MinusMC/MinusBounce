@@ -32,6 +32,9 @@ open class IntRangeValue(name: String, min: Int, max: Int, val minimum: Int = 0,
         if (force) {
             this.value.maximum = max
             this.value.minimum = min
+        } else if (maxValue < minValue) {
+            this.maxValue = minValue
+            this.minValue = maxValue
         } else {
             this.maxValue = maxValue
             this.minValue = minValue

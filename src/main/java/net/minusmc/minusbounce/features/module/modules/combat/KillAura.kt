@@ -43,6 +43,7 @@ import kotlin.math.sin
 
 @ModuleInfo(name = "KillAura", spacedName = "Kill Aura", description = "Automatically attacks targets around you.", category = ModuleCategory.COMBAT, keyBind = Keyboard.KEY_R)
 class KillAura : Module() {
+    private val clickModeValue = ListValue("ClickMode", arrayOf("Normal", "Legit"), "Legit")
     private val cps = IntRangeValue("CPS", 5, 8, 1, 20)
     private val hurtTimeValue = IntegerValue("HurtTime", 10, 0, 10)
 
@@ -84,7 +85,6 @@ class KillAura : Module() {
         targetModeValue.get().equals("multi", true)
     }
 
-    private val failSwingValue = BoolValue("FailSwing", true)
     private val onlyHitOnMouseToTarget = BoolValue("OnlyHitOnMouseToTarget", false) { !rotationValue.get().equals("none", true) }
 
     val autoBlockModeValue: ListValue = object : ListValue("AutoBlock", arrayOf("None", "AfterTick", "Vanilla", "NewNCP", "RightHold", "Swing"), "None") {
@@ -117,7 +117,6 @@ class KillAura : Module() {
     // Target
     private val prevTargetEntities = mutableListOf<Int>()
     private val discoveredEntities = mutableListOf<EntityLivingBase>()
-    private var lastMovingObjectPosition: MovingObjectPosition? = null
     var target: EntityLivingBase? = null
     var hitable = false
 
@@ -139,18 +138,12 @@ class KillAura : Module() {
         target = null
         hitable = false
         attackTimer.reset()
-        lastMovingObjectPosition = null
         clicks = 0
         prevTargetEntities.clear()
         stopBlocking {
             mc.netHandler.addToSendQueue(C07PacketPlayerDigging(C07PacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN))
         }
         mc.gameSettings.keyBindUseItem.pressed = GameSettings.isKeyDown(mc.gameSettings.keyBindUseItem)
-    }
-
-    @EventTarget
-    fun onWorld(event: WorldEvent) {
-        lastMovingObjectPosition = null
     }
 
     @EventTarget
@@ -189,7 +182,7 @@ class KillAura : Module() {
 
     @EventTarget
     fun onPostMotion(event: PostMotionEvent) {
-        if (mc.thePlayer.isBlocking || canBlock) {
+        if (!mc.thePlayer.isBlocking || canBlock) {
             when (autoBlockModeValue.get().lowercase()) {
                 "aftertick" -> startBlocking {
                     mc.netHandler.addToSendQueue(C08PacketPlayerBlockPlacement(mc.thePlayer.inventory.getCurrentItem()))
@@ -256,47 +249,47 @@ class KillAura : Module() {
 
         val target = this.target ?: return
 
-        if (hitable) {
-            if (target.hurtTime > hurtTimeValue.get())
-                return
-
-            if (mc.thePlayer.getDistanceToEntityBox(target) > rangeValue.get())
-                return
-
-            // Attack
-            if (!targetModeValue.get().equals("Multi", true))
-                attackEntity(target)
-            else
-                discoveredEntities
-                    .filter { mc.thePlayer.getDistanceToEntityBox(it) < rangeValue.get() }
-                    .take(limitedMultiTargetsValue.get())
-                    .forEach(this::attackEntity)
-
-            prevTargetEntities.add(target.entityId)
-        } else if (!swingValue.get().equals("none", true) && failSwingValue.get())
-            runWithModifiedRaycastResult(rangeValue.get(), throughWallsRangeValue.get()) { obj ->
-                if (lastMovingObjectPosition?.typeOfHit == obj.typeOfHit) {
-                    if (obj.typeOfHit == MovingObjectPosition.MovingObjectType.ENTITY) {
-                        val entity = obj.entityHit
-
-                        if (entity is EntityLivingBase)
-                            attackEntity(entity)
-
-                    } else
-                        mc.clickMouse()
-                }
-
-                lastMovingObjectPosition = obj
-
-                if (isLastClicks)
-                    mc.sendClickBlockToController(false)
-            }
+        when (clickModeValue.get().lowercase()) {
+            "legit" -> clickLegit(isLastClicks)
+            else -> clickNormal(target)
+        }
 
         if (targetModeValue.get().equals("Switch", true)) {
             if (attackTimer.hasTimePassed(switchDelayValue.get().toLong())) {
                 prevTargetEntities.add(target.entityId)
                 attackTimer.reset()
             }
+        }
+    }
+
+    private fun clickNormal(target: EntityLivingBase) {
+        if (!hitable || target.hurtTime > hurtTimeValue.get())
+            return
+
+        // Attack
+        if (!targetModeValue.get().equals("multi", true)) {
+            if (mc.thePlayer.getDistanceToEntityBox(target) <= rangeValue.get())
+                attackEntity(target)
+        } else discoveredEntities
+            .filter { mc.thePlayer.getDistanceToEntityBox(it) <= rangeValue.get() }
+            .take(limitedMultiTargetsValue.get())
+            .forEach(this::attackEntity)
+
+        prevTargetEntities.add(target.entityId)
+    }
+
+    private fun clickLegit(isLastClicks: Boolean) {
+        runWithModifiedRaycastResult(rangeValue.get(), throughWallsRangeValue.get()) {
+            if (it?.typeOfHit == MovingObjectPosition.MovingObjectType.ENTITY) {
+                val entity = it.entityHit
+
+                if (entity is EntityLivingBase)
+                    attackEntity(entity)
+
+            } else mc.clickMouse()
+
+            if (isLastClicks)
+                mc.sendClickBlockToController(false)
         }
     }
 
@@ -341,7 +334,7 @@ class KillAura : Module() {
     private fun updateHitable() {
         var canHitable = false
 
-        if (rotationValue.get().equals("None", true)) {
+        if (rotationValue.get().equals("none", true)) {
             this.hitable = true
             return
         }
@@ -350,11 +343,9 @@ class KillAura : Module() {
 
         val target = this.target ?: return
 
-        val raycastEntity = RaycastUtils.raycastEntity(rangeValue.get().toDouble(), rotation.yaw, rotation.pitch, object: RaycastUtils.IEntityFilter {
-            override fun canRaycast(entity: Entity?): Boolean {
-                return entity is EntityLivingBase && entity !is EntityArmorStand && isSelected(entity, true)
-            }
-        })
+        val raycastEntity = RaycastUtils.raycastEntity(rangeValue.get().toDouble(), rotation.yaw, rotation.pitch) {
+            it is EntityLivingBase && it !is EntityArmorStand && isSelected(it, true)
+        }
 
         canHitable = if (raycastValue.get()) raycastEntity == this.target else RotationUtils.isFaced(target, rangeValue.get().toDouble(), rotation)
 
@@ -418,7 +409,7 @@ class KillAura : Module() {
         if (swingTimingValue.get().equals("afterattack", true))
             swing()
 
-        if (mc.thePlayer.isBlocking || canBlock)
+        if (!mc.thePlayer.isBlocking || canBlock)
             onPostAttack()
     }
 
