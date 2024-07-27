@@ -79,7 +79,7 @@ object EntityUtils : MinecraftInstance() {
             }
         }
 
-        return entity != mc.thePlayer
+        return entity is EntityLivingBase && entity != mc.thePlayer
     }
 
     fun isAnimal(entity: Entity?) = entity is EntityAnimal || entity is EntitySquid ||
