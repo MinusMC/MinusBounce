@@ -36,52 +36,50 @@ object EntityUtils : MinecraftInstance() {
         get() = MinusBounce.moduleManager[Target::class.java]!!
 
     fun isSelected(entity: Entity, canAttackCheck: Boolean): Boolean {
-
-        if (entity !is EntityLivingBase)
-            return entity != mc.thePlayer
-
-        if (entity is EntityArmorStand)
-            return false
-        
-        if (!targetsModule.dead.get() && entity.isDead)
-            return false
-
-        if (!targetsModule.invisible.get() && entity.isInvisible())
-            return false
-
-        if (!targetsModule.mobs.get() && isMob(entity))
-            return false
-
-        if (!targetsModule.animals.get() && isAnimal(entity))
-            return false
-
-        if (!targetsModule.villager.get() && entity is EntityVillager)
-            return false
-
-        if (!targetsModule.players.get() && entity is EntityPlayer)
-            return false
-
-        if (isFriend(entity))
-            return false
-
-        if (!canAttackCheck)
-            return false
-
-        if (entity.deathTime > 1)
-            return false
-
-        if (entity.ticksExisted < 1)
-            return false
-
-        if (entity is EntityPlayer) {
-            if (!(!teamsModule.state || !teamsModule.isInYourTeam(entity)))
+        if (entity is EntityLivingBase) {
+            if (entity is EntityArmorStand)
+                return false
+            
+            if (!targetsModule.dead.get() && entity.isDead)
                 return false
 
-            if (isBot(entity))
+            if (!targetsModule.invisible.get() && entity.isInvisible())
                 return false
+
+            if (!targetsModule.mobs.get() && isMob(entity))
+                return false
+
+            if (!targetsModule.animals.get() && isAnimal(entity))
+                return false
+
+            if (!targetsModule.villager.get() && entity is EntityVillager)
+                return false
+
+            if (!targetsModule.players.get() && entity is EntityPlayer)
+                return false
+
+            if (isFriend(entity))
+                return false
+
+            if (!canAttackCheck)
+                return false
+
+            if (entity.deathTime > 1)
+                return false
+
+            if (entity.ticksExisted < 1)
+                return false
+
+            if (entity is EntityPlayer) {
+                if (!(!teamsModule.state || !teamsModule.isInYourTeam(entity)))
+                    return false
+
+                if (isBot(entity))
+                    return false
+            }
         }
 
-        return true
+        return entity != mc.thePlayer
     }
 
     fun isAnimal(entity: Entity?) = entity is EntityAnimal || entity is EntitySquid ||
