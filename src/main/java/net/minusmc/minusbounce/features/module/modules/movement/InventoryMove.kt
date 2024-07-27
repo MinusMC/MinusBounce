@@ -9,7 +9,7 @@ import net.minusmc.minusbounce.MinusBounce
 import net.minusmc.minusbounce.event.ClickWindowEvent
 import net.minusmc.minusbounce.event.EventTarget
 import net.minusmc.minusbounce.event.PreMotionEvent
-import net.minusmc.minusbounce.event.PacketEvent
+import net.minusmc.minusbounce.event.SentPacketEvent
 import net.minusmc.minusbounce.event.UpdateEvent
 import net.minusmc.minusbounce.features.module.Module
 import net.minusmc.minusbounce.features.module.ModuleCategory
@@ -66,7 +66,7 @@ class InventoryMove : Module() {
     }
 
     @EventTarget
-    fun onPacket(event: PacketEvent) {
+    fun onSentPacket(event: SentPacketEvent) {
         val packet = event.packet
         when (modeValue.get().lowercase()) {
             "silent" -> if (packet is C16PacketClientStatus && packet.status == C16PacketClientStatus.EnumState.OPEN_INVENTORY_ACHIEVEMENT) event.isCancelled = true

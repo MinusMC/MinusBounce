@@ -7,7 +7,8 @@ package net.minusmc.minusbounce.injection.forge.mixins.network;
 
 import io.netty.channel.ChannelHandlerContext;
 import net.minusmc.minusbounce.MinusBounce;
-import net.minusmc.minusbounce.event.PacketEvent;
+import net.minusmc.minusbounce.event.SentPacketEvent;
+import net.minusmc.minusbounce.event.ReceivedPacketEvent;
 import net.minusmc.minusbounce.features.module.modules.client.HUD;
 import net.minusmc.minusbounce.utils.PacketUtils;
 import net.minecraft.network.NetworkManager;
@@ -23,7 +24,7 @@ public class MixinNetworkManager {
 
     @Inject(method = "channelRead0", at = @At("HEAD"), cancellable = true)
     private void read(ChannelHandlerContext context, Packet<?> packet, CallbackInfo callback) {
-        final PacketEvent event = new PacketEvent(packet);
+        final ReceivedPacketEvent event = new ReceivedPacketEvent(packet);
         MinusBounce.eventManager.callEvent(event);
 
         if(event.isCancelled())
@@ -32,7 +33,7 @@ public class MixinNetworkManager {
 
     @Inject(method = "sendPacket(Lnet/minecraft/network/Packet;)V", at = @At("HEAD"), cancellable = true)
     private void send(Packet<?> packet, CallbackInfo callback) {
-        final PacketEvent event = new PacketEvent(packet);
+        final SentPacketEvent event = new SentPacketEvent(packet);
 
         MinusBounce.eventManager.callEvent(event);
 

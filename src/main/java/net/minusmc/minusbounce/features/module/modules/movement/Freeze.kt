@@ -6,7 +6,8 @@
 package net.minusmc.minusbounce.features.module.modules.movement
 
 import net.minusmc.minusbounce.event.EventTarget
-import net.minusmc.minusbounce.event.PacketEvent
+import net.minusmc.minusbounce.event.SentPacketEvent
+import net.minusmc.minusbounce.event.ReceivedPacketEvent
 import net.minusmc.minusbounce.event.UpdateEvent
 import net.minusmc.minusbounce.features.module.Module
 import net.minusmc.minusbounce.features.module.ModuleCategory
@@ -24,9 +25,7 @@ class Freeze : Module() {
     private var z = 0.0
 
     override fun onEnable() {
-        if (mc.thePlayer == null) {
-            return
-        }
+        mc.thePlayer ?: return
 
         x = mc.thePlayer.posX
         y = mc.thePlayer.posY
@@ -45,10 +44,13 @@ class Freeze : Module() {
     }
 
     @EventTarget
-    fun onPacket(event: PacketEvent) {
-        if (event.packet is C03PacketPlayer) {
+    fun onSentPacket(event: SentPacketEvent) {
+        if (event.packet is C03PacketPlayer)
             event.isCancelled = true
-        }
+    }
+
+    @EventTarget
+    fun onReceivedPacket(event: ReceivedPacketEvent) {
         if (event.packet is S08PacketPlayerPosLook) {
             x = event.packet.x
             y = event.packet.y

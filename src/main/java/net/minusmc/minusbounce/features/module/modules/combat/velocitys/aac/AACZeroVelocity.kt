@@ -1,7 +1,7 @@
 package net.minusmc.minusbounce.features.module.modules.combat.velocitys.aac
 
 import net.minusmc.minusbounce.features.module.modules.combat.velocitys.VelocityMode
-import net.minusmc.minusbounce.event.PacketEvent
+import net.minusmc.minusbounce.event.ReceivedPacketEvent
 import net.minusmc.minusbounce.event.JumpEvent
 import net.minecraft.network.play.server.S12PacketEntityVelocity
 
@@ -20,12 +20,14 @@ class AACZeroVelocity : VelocityMode("AACZero") {
 	        velocityInput = false
 	}
 
-	override fun onPacket(event: PacketEvent) {
-		if (event.packet is S12PacketEntityVelocity) velocityInput = true
+	override fun onReceivedPacket(event: ReceivedPacketEvent) {
+		if (event.packet is S12PacketEntityVelocity)
+			velocityInput = true
 	}
 
 	override fun onJump(event: JumpEvent) {
-		if (mc.thePlayer.hurtTime > 0) event.isCancelled = true
+		if (mc.thePlayer.hurtTime > 0)
+			event.isCancelled = true
 	}
 
 }

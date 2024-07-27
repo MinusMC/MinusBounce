@@ -7,9 +7,7 @@ import net.minusmc.minusbounce.value.BoolValue
 
 class AAC305Fly: FlyMode("AAC3.0.5", FlyType.AAC) {
 	private val aacFast = BoolValue("Fast", true)
-	private var aac3delay: Int = 0
-
-    override fun resetMotion() {}
+	private var aac3delay = 0
 
 	override fun onUpdate() {
 		if (aac3delay == 2)

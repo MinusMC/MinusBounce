@@ -4,7 +4,7 @@ import net.minusmc.minusbounce.features.module.modules.movement.longjumps.LongJu
 import net.minusmc.minusbounce.utils.player.MovementUtils
 
 class AACv2LongJump : LongJumpMode("AACv2") {
-	override fun onUpdate() {
+	override fun onUpdateJumped() {
 		mc.thePlayer.jumpMovementFactor = 0.09F
         mc.thePlayer.motionY += 0.01321
         mc.thePlayer.jumpMovementFactor = 0.08F

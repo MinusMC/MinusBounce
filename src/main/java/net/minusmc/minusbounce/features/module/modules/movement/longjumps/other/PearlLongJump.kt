@@ -12,17 +12,18 @@ import net.minusmc.minusbounce.utils.player.MovementUtils
 import net.minusmc.minusbounce.utils.PlayerUtils
 import net.minusmc.minusbounce.value.FloatValue
 
-class PearlLongJump : LongJumpMode("Pearl") {
+class PearlLongJump: LongJumpMode("Pearl") {
 	private val pearlBoostValue = FloatValue("Boost", 4.25F, 0F, 10F)
     private val pearlHeightValue = FloatValue("Height", 0.42F, 0F, 10F)
     private val pearlTimerValue = FloatValue("Timer", 1F, 0.05F, 10F)
 
-    private var pearlState: Int = 0
+    private var pearlState = 0
+
     override fun onEnable() {
     	pearlState = 0
     }
 
-	override fun onUpdateSpecial() {
+	override fun onUpdate() {
 		val enderPearlSlot = PlayerUtils.getPearlSlot()
         if (pearlState == 0) {
             if (enderPearlSlot == -1) {
@@ -31,23 +32,18 @@ class PearlLongJump : LongJumpMode("Pearl") {
                 longjump.state = false
                 return                    
             }
-            if (mc.thePlayer.inventory.currentItem != enderPearlSlot) {
-                mc.thePlayer.sendQueue.addToSendQueue(C09PacketHeldItemChange(enderPearlSlot))
-            }
+
+            if (mc.thePlayer.inventory.currentItem != enderPearlSlot)
+                mc.netHandler.addToSendQueue(C09PacketHeldItemChange(enderPearlSlot))
+
+            val itemStack = mc.thePlayer.inventoryContainer.getSlot(enderPearlSlot + 36).stack
+
             mc.thePlayer.sendQueue.addToSendQueue(C05PacketPlayerLook(mc.thePlayer.rotationYaw, 90f, mc.thePlayer.onGround))
-            mc.thePlayer.sendQueue.addToSendQueue(
-                C08PacketPlayerBlockPlacement(
-                    BlockPos(-1.0, -1.0, -1.0),
-                    255,
-                    mc.thePlayer.inventoryContainer.getSlot(enderPearlSlot + 36).stack,
-                    0f,
-                    0f,
-                    0f
-                )
-            )
-            if (enderPearlSlot != mc.thePlayer.inventory.currentItem) {
-                mc.thePlayer.sendQueue.addToSendQueue(C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem))                    
-            }
+            mc.thePlayer.sendQueue.addToSendQueue(C08PacketPlayerBlockPlacement(BlockPos(-1.0, -1.0, -1.0), 255, itemStack, 0f, 0f, 0f))
+            
+            if (enderPearlSlot != mc.thePlayer.inventory.currentItem)
+                mc.netHandler.addToSendQueue(C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem))                    
+
             pearlState = 1                    
         }
 
@@ -62,6 +58,7 @@ class PearlLongJump : LongJumpMode("Pearl") {
 	}
 
 	override fun onMove(event: MoveEvent) {
-		if (pearlState != 2) event.isCancelled = true
+		if (pearlState != 2)
+            event.isCancelled = true
 	}
 }

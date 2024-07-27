@@ -1,6 +1,6 @@
 package net.minusmc.minusbounce.features.module.modules.combat.velocitys.other
 
-import net.minusmc.minusbounce.event.PacketEvent
+import net.minusmc.minusbounce.event.ReceivedPacketEvent
 import net.minusmc.minusbounce.event.UpdateEvent
 import net.minusmc.minusbounce.features.module.modules.combat.velocitys.VelocityMode
 import net.minecraft.network.play.server.S12PacketEntityVelocity
@@ -13,22 +13,20 @@ class MinemenVelocity : VelocityMode("Minemen") {
     private var canCancel = false
 
     override fun onUpdate() {
-        ticks ++
-        if (ticks > 23) {
+        ticks++
+        if (ticks > 23)
             canCancel = true
-        }
-        if (ticks >= 2 && ticks <= 4 && !lastCancel) {
+
+        if (ticks in 2..4 && !lastCancel) {
             mc.thePlayer.motionX *= 0.99
             mc.thePlayer.motionZ *= 0.99
-        } else if (ticks == 5 && !lastCancel) {
+        } else if (ticks == 5 && !lastCancel)
             MovementUtils.strafe()
-        }
     }
 
-    override fun onPacket(event: PacketEvent) {
+    override fun onReceivedPacket(event: ReceivedPacketEvent) {
         val packet = event.packet
-        if(packet is S12PacketEntityVelocity) {
-            if (mc.thePlayer == null || (mc.theWorld?.getEntityByID(packet.entityID) ?: return) != mc.thePlayer) return
+        if (packet is S12PacketEntityVelocity && packet.entityID == mc.thePlayer.entityId) {
             ticks = 0
             if (canCancel) {
                 event.isCancelled = true

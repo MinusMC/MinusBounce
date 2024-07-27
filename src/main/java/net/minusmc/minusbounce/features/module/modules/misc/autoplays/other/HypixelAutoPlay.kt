@@ -1,8 +1,7 @@
 package net.minusmc.minusbounce.features.module.modules.misc.autoplays.other
 
-
 import net.minusmc.minusbounce.features.module.modules.misc.autoplays.AutoPlayMode
-import net.minusmc.minusbounce.event.PacketEvent
+import net.minusmc.minusbounce.event.ReceivedPacketEvent
 import net.minecraft.network.play.client.*
 import net.minecraft.network.play.server.S02PacketChat
 import net.minecraft.network.play.server.S2DPacketOpenWindow
@@ -13,7 +12,7 @@ import net.minecraft.util.IChatComponent
 class HypixelAutoPlay: AutoPlayMode("Hypixel") {
 	private var clickState = 0
 
-	override fun onPacket(event: PacketEvent) {
+	override fun onReceivedPacket(event: ReceivedPacketEvent) {
 		val packet = event.packet
         
         if (clickState == 1 && packet is S2DPacketOpenWindow) {

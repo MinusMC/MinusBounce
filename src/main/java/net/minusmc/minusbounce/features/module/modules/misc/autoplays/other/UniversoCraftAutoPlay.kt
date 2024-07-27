@@ -2,7 +2,7 @@ package net.minusmc.minusbounce.features.module.modules.misc.autoplays.other
 
 
 import net.minusmc.minusbounce.features.module.modules.misc.autoplays.AutoPlayMode
-import net.minusmc.minusbounce.event.PacketEvent
+import net.minusmc.minusbounce.event.ReceivedPacketEvent
 import net.minecraft.network.play.client.*
 import net.minecraft.network.play.server.S02PacketChat
 
@@ -12,7 +12,7 @@ import net.minecraft.network.play.server.S02PacketChat
  */
 
 class UniversoCraftAutoPlay: AutoPlayMode("UniversoCraft") {
-    override fun onPacket(event: PacketEvent) {
+    override fun onReceivedPacket(event: ReceivedPacketEvent) {
         val packet = event.packet
 
         /**

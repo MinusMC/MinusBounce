@@ -7,14 +7,15 @@ import net.minusmc.minusbounce.utils.player.MovementUtils
 
 class OldNCPFly: FlyMode("OldNCP", FlyType.NCP) {
 	override fun onUpdate() {
-		if(startY > mc.thePlayer.posY)
+		if (startY > mc.thePlayer.posY)
             mc.thePlayer.motionY = -0.000000000000000000000000000000001
 
-        if(mc.gameSettings.keyBindSneak.isKeyDown)
+        if (mc.gameSettings.keyBindSneak.isKeyDown)
             mc.thePlayer.motionY = -0.2
 
-        if(mc.gameSettings.keyBindJump.isKeyDown && mc.thePlayer.posY < (startY - 0.1))
+        if (mc.gameSettings.keyBindJump.isKeyDown && mc.thePlayer.posY < startY - 0.1)
             mc.thePlayer.motionY = 0.2
+
         MovementUtils.strafe()
 	}
 }

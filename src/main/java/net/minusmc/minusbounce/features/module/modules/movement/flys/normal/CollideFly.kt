@@ -7,7 +7,6 @@ import net.minecraft.block.BlockAir
 import net.minecraft.util.AxisAlignedBB
 
 class CollideFly: FlyMode("Collide", FlyType.NORMAL) {
-    override fun resetMotion() {}
     
     override fun onBlockBB(event: BlockBBEvent) {
         if (event.block is BlockAir && !mc.thePlayer.isSneaking)

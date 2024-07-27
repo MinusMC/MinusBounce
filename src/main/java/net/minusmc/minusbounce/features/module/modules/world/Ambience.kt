@@ -7,7 +7,7 @@ package net.minusmc.minusbounce.features.module.modules.world
 
 import net.minecraft.network.play.server.S03PacketTimeUpdate
 import net.minusmc.minusbounce.event.EventTarget
-import net.minusmc.minusbounce.event.PacketEvent
+import net.minusmc.minusbounce.event.ReceivedPacketEvent
 import net.minusmc.minusbounce.event.UpdateEvent
 import net.minusmc.minusbounce.features.module.Module
 import net.minusmc.minusbounce.features.module.ModuleCategory
@@ -36,7 +36,7 @@ class Ambience : Module() {
     }
 
     @EventTarget
-    fun onPacket(event: PacketEvent) {
+    fun onReceivedPacket(event: ReceivedPacketEvent) {
         if (event.packet is S03PacketTimeUpdate)
             event.isCancelled = true
     }

@@ -8,29 +8,14 @@ import net.minusmc.minusbounce.features.module.ModuleInfo
 import net.minusmc.minusbounce.utils.misc.RandomUtils
 import net.minusmc.minusbounce.utils.timer.MSTimer
 import net.minusmc.minusbounce.value.BoolValue
-import net.minusmc.minusbounce.value.IntegerValue
+import net.minusmc.minusbounce.value.IntRangeValue
 import net.minusmc.minusbounce.value.TextValue
 import kotlin.random.Random
 
 @ModuleInfo(name = "Spammer", description = "Spams the chat with a given message.", category = ModuleCategory.MISC)
 class Spammer: Module() {
 
-    private val maxDelayValue: IntegerValue = object: IntegerValue("MaxDelay", 1000, 0, 5000, "ms") {
-        override fun onPostChange(oldValue: Int, newValue: Int) {
-            val i = minDelayValue.get()
-
-            if (i > newValue) set(i)
-        }
-    }
-
-    private val minDelayValue: IntegerValue = object: IntegerValue("MinDelay", 500, 0, 5000, "ms") {
-        override fun onPostChange(oldValue: Int, newValue: Int) {
-            val i = maxDelayValue.get()
-
-            if (i < newValue) set(i)
-        }
-    }
-
+    private val delayValue = IntRangeValue("Delay", 500, 1000, 0, 5000, "ms")
     private val messageValue = TextValue("Message", "Example text")
     private val customValue = BoolValue("Custom", false)
 
@@ -38,18 +23,19 @@ class Spammer: Module() {
     private var delay = 0L
 
     override fun onEnable() {
-        delay = RandomUtils.randomDelay(minDelayValue.get(), maxDelayValue.get())
+        delay = RandomUtils.randomDelay(delayValue.minValue, delayValue.maxValue)
     }
 
     @EventTarget
     fun onUpdate(event: UpdateEvent) {
-        if (msTimer.hasTimePassed(delay)) {
-        	val randomString = " >" + RandomUtils.randomString(5 + Random.nextInt(5)) + "<"
-        	val message = if (customValue.get()) replace(messageValue.get()) else messageValue.get()
-            mc.thePlayer.sendChatMessage(message + randomString)
-            msTimer.reset()
-            delay = RandomUtils.randomDelay(minDelayValue.get(), maxDelayValue.get())
-        }
+        if (!msTimer.hasTimePassed(delay))
+            return
+
+        val randomString = " >" + RandomUtils.randomString(5 + Random.nextInt(5)) + "<"
+        val message = if (customValue.get()) replace(messageValue.get()) else messageValue.get()
+        mc.thePlayer.sendChatMessage(message + randomString)
+        msTimer.reset()
+        delay = RandomUtils.randomDelay(delayValue.minValue, delayValue.maxValue)
     }
 
     private fun replace(messageRaw: String): String {

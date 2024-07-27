@@ -13,6 +13,7 @@ class Mineplex3LongJump : LongJumpMode("Mineplex3") {
 	}
 
 	override fun onMove(event: MoveEvent) {
-		if(mc.thePlayer.fallDistance != 0f) mc.thePlayer.motionY += 0.037
+		if (mc.thePlayer.fallDistance != 0f)
+			mc.thePlayer.motionY += 0.037
 	}
 }

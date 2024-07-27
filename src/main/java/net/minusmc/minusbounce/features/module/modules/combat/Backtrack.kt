@@ -17,6 +17,7 @@ import net.minusmc.minusbounce.utils.render.RenderUtils
 import net.minusmc.minusbounce.utils.PacketUtils
 import net.minusmc.minusbounce.utils.timer.MSTimer
 import net.minusmc.minusbounce.utils.misc.RandomUtils
+import net.minusmc.minusbounce.utils.EntityUtils
 import net.minusmc.minusbounce.value.*
 import org.lwjgl.opengl.GL11
 
@@ -42,7 +43,7 @@ class BackTrack : Module() {
     }
     
     @EventTarget(priority = 5)
-    fun onPacket(event: PacketEvent) {
+    fun onPacket(event: ReceivedPacketEvent) {
         mc.thePlayer ?: return
         mc.theWorld ?: return
         mc.netHandler ?: return
@@ -53,10 +54,6 @@ class BackTrack : Module() {
         }
 
         val packet = event.packet
-
-        if (packet::class.java !in Constants.serverPacketClasses)
-            return
-
         val target = this.target
 
         when (packet) {
@@ -105,7 +102,14 @@ class BackTrack : Module() {
 
     @EventTarget
     fun onAttack(event: AttackEvent) {
-        target = event.targetEntity as? EntityLivingBase
+        val entity = event.targetEntity as? EntityLivingBase ?: run {
+            target = null
+            return
+        }
+
+        if (EntityUtils.isSelected(entity, true)) 
+            target = entity
+        else target = null
     }
 
     @EventTarget
@@ -197,7 +201,7 @@ class BackTrack : Module() {
         }
     }
 
-    private fun addPacket(event: PacketEvent) {
+    private fun addPacket(event: ReceivedPacketEvent) {
         synchronized(packets) {
             val packet = event.packet
 

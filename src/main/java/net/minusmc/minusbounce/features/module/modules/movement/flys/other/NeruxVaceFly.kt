@@ -6,14 +6,14 @@ import net.minusmc.minusbounce.value.IntegerValue
 
 class NeruxVaceFly: FlyMode("NeruxVace", FlyType.OTHER) {
 	private val neruxVaceTicks = IntegerValue("Ticks", 6, 0, 20)
-	private var aac3glideDelay: Int = 0
+	private var ticks = 0
 
 	override fun onUpdate() {
 		if (!mc.thePlayer.onGround)
-            aac3glideDelay++
+            ticks++
 
-        if (aac3glideDelay >= neruxVaceTicks.get() && !mc.thePlayer.onGround) {
-            aac3glideDelay = 0
+        if (ticks >= neruxVaceTicks.get() && !mc.thePlayer.onGround) {
+            ticks = 0
             mc.thePlayer.motionY = 0.015
         }
 	}

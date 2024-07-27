@@ -25,69 +25,51 @@ import net.minusmc.minusbounce.utils.timer.MSTimer
 
 @ModuleInfo(name = "Gapple", description = "Eat Gapples.", category = ModuleCategory.PLAYER)
 class Gapple : Module() {
-    val modeValue = ListValue("Mode", arrayOf("Auto", "Once", "Head"), "Once")
-    // Auto Mode
+    private val modeValue = ListValue("Mode", arrayOf("Auto", "Once", "Head"), "Once")
     private val healthValue = FloatValue("Health", 10F, 1F, 20F)
     private val delayValue = IntegerValue("Delay", 150, 0, 1000, "ms")
     private val noAbsorption = BoolValue("NoAbsorption", true)
     private val grim = BoolValue("Grim", true)
-    private val matrixInvalidSlotFixer = BoolValue("MatrixInvalidSlotFixer", true)
     private val timer = MSTimer()
 
-    private var prevSlot = -1
-
-    override fun onEnable() {
-        prevSlot = -1
-    }
 
     @EventTarget
-    fun onUpdate(event: UpdateEvent?) {
-        when(modeValue.get().lowercase()){
+    fun onUpdate(event: UpdateEvent) {
+        when (modeValue.get().lowercase()) {
             "once" -> {
                 doEat(true)
                 state = false
             }
             "auto" -> {
-                if (!timer.hasTimePassed(delayValue.get().toLong()))
+                if (!timer.hasTimePassed(delayValue.get()))
                     return
+
                 if (mc.thePlayer.health <= healthValue.get()){
                     doEat(false)
                     timer.reset()
                 }
             }
             "head" -> {
-                if (!timer.hasTimePassed(delayValue.get().toLong()))
+                if (!timer.hasTimePassed(delayValue.get()))
                     return
-                if (mc.thePlayer.health <= healthValue.get()){
-                    val headInHotbar = InventoryUtils.findItem(36, 45, Items.skull)
-                    if(headInHotbar != -1) {
-                        mc.netHandler.addToSendQueue(C09PacketHeldItemChange(headInHotbar - 36))
-                        mc.netHandler.addToSendQueue(C08PacketPlayerBlockPlacement(mc.thePlayer.heldItem))
-                        mc.netHandler.addToSendQueue(C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem))
-                        timer.reset()
-                    }
+
+                if (mc.thePlayer.health > healthValue.get())
+                    return
+
+                val headInHotbar = InventoryUtils.findItem(36, 45, Items.skull)
+                if (headInHotbar != -1) {
+                    mc.netHandler.addToSendQueue(C09PacketHeldItemChange(headInHotbar - 36))
+                    mc.netHandler.addToSendQueue(C08PacketPlayerBlockPlacement(mc.thePlayer.heldItem))
+                    mc.netHandler.addToSendQueue(C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem))
+                    timer.reset()
                 }
             }
         }
     }
 
-    @EventTarget(priority = 1)
-    fun onPacket(event: PacketEvent) {
-        val packet = event.packet
-        if (!mc.isSingleplayer && matrixInvalidSlotFixer.get() && packet is C09PacketHeldItemChange) {
-            if (packet.slotId == prevSlot)
-                event.isCancelled = true
-            else
-                prevSlot = packet.slotId
-        }
-    }
-
     private fun doEat(warn: Boolean) {
-        if (noAbsorption.get() && !warn) {
-            val abAmount = mc.thePlayer.absorptionAmount
-            if (abAmount > 0)
-                return
-        }
+        if (noAbsorption.get() && !warn && mc.thePlayer.absorptionAmount > 0)
+            return
 
         val gappleInHotbar = InventoryUtils.findItem(36, 45, Items.golden_apple)
         if (gappleInHotbar != -1) {
@@ -97,11 +79,11 @@ class Gapple : Module() {
                 if (grim.get()) 
                     PacketUtils.sendPacketNoEvent(C06PacketPlayerPosLook(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ, mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch, mc.thePlayer.onGround))
                 else
-                    mc.netHandler.addToSendQueue(C03PacketPlayer(mc.thePlayer.onGround))
+                    PacketUtils.sendPacketNoEvent(C03PacketPlayer(mc.thePlayer.onGround))
 
             }
-            mc.netHandler.addToSendQueue(C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem))
-        }else if (warn)
+            PacketUtils.sendPacketNoEvent(C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem))
+        } else if (warn)
             MinusBounce.hud.addNotification(Notification("Gapple", "No Gapple were found in hotbar.", Notification.Type.ERROR))
     }
 

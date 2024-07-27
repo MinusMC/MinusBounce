@@ -1,13 +1,13 @@
 package net.minusmc.minusbounce.features.module.modules.combat.velocitys.normal
 
 import net.minusmc.minusbounce.features.module.modules.combat.velocitys.VelocityMode
-import net.minusmc.minusbounce.event.PacketEvent
+import net.minusmc.minusbounce.event.ReceivedPacketEvent
 import net.minecraft.network.play.server.S12PacketEntityVelocity
 import net.minusmc.minusbounce.value.FloatValue
 import net.minusmc.minusbounce.utils.timer.MSTimer
 
 class SmoothReverseVelocity : VelocityMode("SmoothReverse") {
-    private val reverse2StrengthValue = FloatValue("Strength", 0.05F, 0.02F, 0.1F, "x")
+    private val reverse2StrengthValue = FloatValue("Strength", 0.05f, 0.02f, 0.1f, "x")
     
     private var velocityInput = false
     private var reverseHurt = false
@@ -31,7 +31,8 @@ class SmoothReverseVelocity : VelocityMode("SmoothReverse") {
         }
     }
 
-    override fun onPacket(event: PacketEvent) {
-        if (event.packet is S12PacketEntityVelocity) velocityInput = true
+    override fun onReceivedPacket(event: ReceivedPacketEvent) {
+        if (event.packet is S12PacketEntityVelocity)
+            velocityInput = true
     }
 }

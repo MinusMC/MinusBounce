@@ -19,10 +19,11 @@ abstract class AutoPlayMode(val modeName: String): MinecraftInstance() {
 
     open fun onEnable() {}
 	open fun onWorld() {}
-	open fun onPacket(event: PacketEvent) {}
+	open fun onReceivedPacket(event: ReceivedPacketEvent) {}
 
 	protected fun queueAutoPlay(delay: Long = autoplay.delayValue.get().toLong() * 1000, runnable: () -> Unit) {
-        if (queued) return
+        if (queued) 
+            return
         queued = true
         AutoDisable.handleGameEnd()
         if (autoplay.state) {

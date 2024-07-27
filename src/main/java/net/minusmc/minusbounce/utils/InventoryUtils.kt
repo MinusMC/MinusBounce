@@ -18,7 +18,7 @@ import net.minecraft.potion.Potion
 import net.minusmc.minusbounce.event.ClickWindowEvent
 import net.minusmc.minusbounce.event.EventTarget
 import net.minusmc.minusbounce.event.Listenable
-import net.minusmc.minusbounce.event.PacketEvent
+import net.minusmc.minusbounce.event.SentPacketEvent
 import net.minusmc.minusbounce.utils.timer.MSTimer
 
 object InventoryUtils : MinecraftInstance(), Listenable {
@@ -81,7 +81,7 @@ object InventoryUtils : MinecraftInstance(), Listenable {
     }
 
     @EventTarget
-    fun onPacket(event: PacketEvent) {
+    fun onSentPacket(event: SentPacketEvent) {
         val packet = event.packet
         if (packet is C08PacketPlayerBlockPlacement)
             CLICK_TIMER.reset()
@@ -97,11 +97,15 @@ object InventoryUtils : MinecraftInstance(), Listenable {
         return -1
     }
 
-    fun hasSpaceHotbar(): Boolean {
+    fun hasSpaceHotbar() = findEmptyHotbarSlot() != -1
+
+    fun findEmptyHotbarSlot(): Int {
         for (i in 36..44) {
-            mc.thePlayer.inventoryContainer.getSlot(i).stack ?: return true
+            if (mc.thePlayer.inventoryContainer.getSlot(i).stack != null)
+                return i
         }
-        return false
+
+        return -1
     }
 
     // TODO: Better check

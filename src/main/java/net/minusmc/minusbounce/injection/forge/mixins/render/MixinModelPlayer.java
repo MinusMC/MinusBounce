@@ -5,9 +5,6 @@
  */
 package net.minusmc.minusbounce.injection.forge.mixins.render;
 
-import net.minusmc.minusbounce.MinusBounce;
-import net.minusmc.minusbounce.event.UpdateModelEvent;
-import net.minusmc.minusbounce.utils.render.RenderUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelBox;
@@ -51,10 +48,5 @@ public class MixinModelPlayer extends ModelBiped {
         } else {
             this.bipedRightArm.postRender(scale);
         }
-    }
-
-    @Inject(method = "setRotationAngles", at = @At("RETURN"))
-    private void revertSwordAnimation(float p_setRotationAngles_1_, float p_setRotationAngles_2_, float p_setRotationAngles_3_, float p_setRotationAngles_4_, float p_setRotationAngles_5_, float p_setRotationAngles_6_, Entity p_setRotationAngles_7_, CallbackInfo callbackInfo) {
-        MinusBounce.eventManager.callEvent(new UpdateModelEvent((EntityPlayer) p_setRotationAngles_7_,(ModelPlayer)(Object)this));
     }
 }

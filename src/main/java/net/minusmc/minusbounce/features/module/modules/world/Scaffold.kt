@@ -343,7 +343,7 @@ class Scaffold: Module() {
     }
 
     @EventTarget
-    fun onPacket(event: PacketEvent) {
+    fun onSentPacket(event: SentPacketEvent) {
         mc.thePlayer ?: return
         val packet = event.packet
 

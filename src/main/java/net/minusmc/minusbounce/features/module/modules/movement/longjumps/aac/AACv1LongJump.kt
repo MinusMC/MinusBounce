@@ -4,7 +4,7 @@ import net.minusmc.minusbounce.features.module.modules.movement.longjumps.LongJu
 import net.minusmc.minusbounce.utils.player.MovementUtils
 
 class AACv1LongJump : LongJumpMode("AACv1") {
-	override fun onUpdate() {
+	override fun onUpdateJumped() {
 		mc.thePlayer.motionY += 0.05999
     	MovementUtils.strafe(MovementUtils.speed * 1.08F)
 	}

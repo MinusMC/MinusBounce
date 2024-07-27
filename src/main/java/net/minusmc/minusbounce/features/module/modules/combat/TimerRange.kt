@@ -135,7 +135,7 @@ class TimerRange : Module() {
      * Reset Timer on Lagback & Knockback.
      */
     @EventTarget
-    fun onPacket(event: PacketEvent) {
+    fun onPacket(event: ReceivedPacketEvent) {
         val packet = event.packet
 
         if (MovementUtils.isMoving && !shouldResetTimer() && mc.timer.timerSpeed > 1.0 || mc.timer.timerSpeed < 1.0) {

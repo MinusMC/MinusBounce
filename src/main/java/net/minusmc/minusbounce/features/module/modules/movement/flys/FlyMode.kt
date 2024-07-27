@@ -10,7 +10,7 @@ import net.minusmc.minusbounce.value.Value
 import java.awt.Color
 
 abstract class FlyMode(val modeName: String, val typeName: FlyType): MinecraftInstance() {
-    protected var startY = 0.0
+    var startY = 0.0
 
 	protected val fly: Fly
 		get() = MinusBounce.moduleManager[Fly::class.java]!!
@@ -18,38 +18,20 @@ abstract class FlyMode(val modeName: String, val typeName: FlyType): MinecraftIn
 	open val values: List<Value<*>>
 		get() = ClassUtils.getValues(this.javaClass, this)
 
-    open fun initEnable() {
+	open fun onEnable() {
         mc.thePlayer ?: return
         startY = mc.thePlayer.posY
     }
-    open fun resetMotion() {
-        if (fly.resetMotionValue.get()) {
-            mc.thePlayer.motionX = 0.0
-            mc.thePlayer.motionY = 0.0
-            mc.thePlayer.motionZ = 0.0
-        }
-    }
-
-    open fun handleUpdate() {
-        mc.thePlayer ?: return
-        if (fly.fakeDmgValue.get()) mc.thePlayer.handleStatusUpdate(2.toByte())
-    }
-
-	open fun onEnable() {}
+    
 	open fun onDisable() {}
-    open fun onPacket(event: PacketEvent) {}
+    open fun onSentPacket(event: SentPacketEvent) {}
+    open fun onReceivedPacket(event: ReceivedPacketEvent) {}
     open fun onUpdate() {}
     open fun onPreMotion(event: PreMotionEvent) {}
     open fun onPostMotion(event: PostMotionEvent) {}
     open fun onMove(event: MoveEvent) {}
     open fun onRender2D() {}
-    open fun onRender3D() {
-        if (fly.markValue.get()) {
-            val y = startY + 2
-            val color = if (mc.thePlayer.entityBoundingBox!!.maxY < y) Color(0, 255, 0, 90) else Color(255, 0, 0, 90)
-            RenderUtils.drawPlatform(y, color, 1.0)
-        }
-    }
+    open fun onRender3D() {}
     open fun onBlockBB(event: BlockBBEvent) {}
     open fun onJump(event: JumpEvent) {}
     open fun onStep(event: StepEvent) {}

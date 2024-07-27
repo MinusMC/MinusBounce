@@ -5,7 +5,7 @@
  */
 package net.minusmc.minusbounce.features.module.modules.movement.flys.ncp
 
-import net.minusmc.minusbounce.event.PacketEvent
+import net.minusmc.minusbounce.event.SentPacketEvent
 import net.minusmc.minusbounce.features.module.modules.movement.flys.FlyMode
 import net.minusmc.minusbounce.features.module.modules.movement.flys.FlyType
 import net.minusmc.minusbounce.value.FloatValue
@@ -18,6 +18,7 @@ class NCP2Fly : FlyMode("NCP2", FlyType.NCP) {
 	private val ncpMotionValue = FloatValue("Motion", 0f, 0f, 1f)
 
 	override fun onEnable() {
+		super.onEnable()
 		if (!mc.thePlayer.onGround) return
 
 		val x = mc.thePlayer.posX
@@ -37,11 +38,15 @@ class NCP2Fly : FlyMode("NCP2", FlyType.NCP) {
 	}
 
 	override fun onUpdate() {
-		mc.thePlayer.motionY = if (mc.gameSettings.keyBindSneak.isKeyDown) -0.5 else -ncpMotionValue.get().toDouble()
+		if (mc.gameSettings.keyBindSneak.isKeyDown)
+			mc.thePlayer.motionY = -0.5
+		else
+			mc.thePlayer.motionY = -ncpMotionValue.get().toDouble()
+
 		MovementUtils.strafe()
 	}
 
-	override fun onPacket(event: PacketEvent) {
+	override fun onSentPacket(event: SentPacketEvent) {
 		val packet = event.packet
 
 		if (packet is C03PacketPlayer)

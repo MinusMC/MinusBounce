@@ -10,12 +10,12 @@ class NCPLongJump : LongJumpMode("NCP") {
 	private val ncpBoostValue = FloatValue("Boost", 4.25F, 1F, 10F)
 	private var canBoost = false
 
-	override fun resetMotion() {
+	override fun onDisable() {
 		mc.thePlayer.motionX = 0.0
         mc.thePlayer.motionZ = 0.0
 	}
 
-	override fun onUpdate() {
+	override fun onUpdateJumped() {
 		if (mc.thePlayer.onGround || mc.thePlayer.capabilities.isFlying) {
 			mc.thePlayer.motionX = 0.0
 			mc.thePlayer.motionZ = 0.0

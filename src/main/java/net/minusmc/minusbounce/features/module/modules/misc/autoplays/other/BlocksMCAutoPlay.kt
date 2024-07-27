@@ -3,7 +3,7 @@ package net.minusmc.minusbounce.features.module.modules.misc.autoplays.other
 import net.minusmc.minusbounce.MinusBounce
 import net.minusmc.minusbounce.ui.client.hud.element.elements.Notification
 import net.minusmc.minusbounce.features.module.modules.misc.autoplays.AutoPlayMode
-import net.minusmc.minusbounce.event.PacketEvent
+import net.minusmc.minusbounce.event.ReceivedPacketEvent
 import net.minecraft.network.play.client.*
 import net.minecraft.network.play.server.S02PacketChat
 import net.minecraft.network.play.server.S2DPacketOpenWindow
@@ -14,7 +14,7 @@ import kotlin.concurrent.schedule
 class BlocksMCAutoPlay: AutoPlayMode("BlocksMC") {
 	private var clickState = 0
 
-	override fun onPacket(event: PacketEvent) {
+	override fun onReceivedPacket(event: ReceivedPacketEvent) {
 		val packet = event.packet
         
         if (packet is S2FPacketSetSlot) {
@@ -23,7 +23,7 @@ class BlocksMCAutoPlay: AutoPlayMode("BlocksMC") {
             val slot = packet.func_149173_d()
             val itemName = item.unlocalizedName
 
-            if (clickState == 0 && windowId == 0 && slot == 43 && itemName.contains("paper", ignoreCase = true)) {
+            if (clickState == 0 && windowId == 0 && slot == 43 && itemName.contains("paper", true)) {
                 queueAutoPlay {
                     mc.netHandler.addToSendQueue(C09PacketHeldItemChange(7))
                     repeat(2) {

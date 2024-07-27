@@ -25,13 +25,13 @@ object PacketUtils : MinecraftInstance(), Listenable {
     private val wdTimer = MSTimer()
 
     @EventTarget
-    fun onPacket(event: PacketEvent) {
-        val packet = event.packet
+    fun onSentPacket(event: SentPacketEvent) {
+        outBound++
+    }
 
-        if (packet.javaClass.getSimpleName().startsWith("C"))
-            outBound++ 
-        else if (packet.javaClass.getSimpleName().startsWith("S"))
-            inBound++
+    @EventTarget
+    fun onReceivedPacket(event: ReceivedPacketEvent) {
+        inBound++
     }
 
     fun sendPacketNoEvent(packet: Packet<*>) {

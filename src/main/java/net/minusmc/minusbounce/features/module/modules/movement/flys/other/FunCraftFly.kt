@@ -7,20 +7,25 @@ import net.minusmc.minusbounce.event.StepEvent
 import net.minusmc.minusbounce.features.module.modules.movement.flys.FlyMode
 import net.minusmc.minusbounce.features.module.modules.movement.flys.FlyType
 import net.minusmc.minusbounce.utils.player.MovementUtils
+import net.minusmc.minusbounce.utils.misc.MathUtils
 
 class FunCraftFly: FlyMode("FunCraft", FlyType.OTHER) {
 	private var moveSpeed = 0.0
+
     override fun onEnable() {
-        if (mc.thePlayer.onGround) mc.thePlayer.jump()
+		super.onEnable()
+        if (mc.thePlayer.onGround && !mc.gameSettings.keyBindJump.pressed)
+            mc.thePlayer.jump()
+
         moveSpeed = 1.0
     }
 
     override fun onPostMotion(event: PostMotionEvent) {
         if (!MovementUtils.isMoving)
             moveSpeed = 0.25
-        if (moveSpeed > 0.25) {
+
+        if (moveSpeed > 0.25)
             moveSpeed -= moveSpeed / 159.0
-        }
     }
 
     override fun onPreMotion(event: PreMotionEvent) {
@@ -28,9 +33,9 @@ class FunCraftFly: FlyMode("FunCraft", FlyType.OTHER) {
 
         if (!MovementUtils.isMoving)
             moveSpeed = 0.25
-        if (moveSpeed > 0.25) {
+
+        if (moveSpeed > 0.25)
             moveSpeed -= moveSpeed / 159.0
-        }
         
         mc.thePlayer.capabilities.isFlying = false
         mc.thePlayer.motionY = 0.0
@@ -42,7 +47,8 @@ class FunCraftFly: FlyMode("FunCraft", FlyType.OTHER) {
     }
 
     override fun onJump(event: JumpEvent) {
-        if (moveSpeed > 0) event.isCancelled = true
+        if (moveSpeed > 0)
+            event.isCancelled = true
     }
 
     override fun onStep(event: StepEvent) {

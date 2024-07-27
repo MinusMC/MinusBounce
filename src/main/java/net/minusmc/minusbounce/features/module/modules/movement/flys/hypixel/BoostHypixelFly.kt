@@ -31,15 +31,16 @@ class BoostHypixelFly: FlyMode("BoostHypixel", FlyType.HYPIXEL) {
 
     private val hypixelTimer = TickTimer()
 
-    override fun handleUpdate() {}
 
 	override fun onEnable() {
+		super.onEnable()
 		moveSpeed = 0.0
 
 		if(!mc.thePlayer.onGround) return
 
-        if (hypixelC04.get()) for (i in 0..9)
-            mc.netHandler.addToSendQueue(C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ, true))
+        if (hypixelC04.get())
+            for (i in 0..9)
+                mc.netHandler.addToSendQueue(C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ, true))
         
         if (hypixelBoostMode.get().equals("ncp", true)) {
             for (i in 0..64) {
@@ -76,15 +77,18 @@ class BoostHypixelFly: FlyMode("BoostHypixel", FlyType.HYPIXEL) {
             return
         }
 
-        if (failedStart) return
-
-        val amplifier =
-            if (mc.thePlayer.isPotionActive(Potion.moveSpeed)) 1.2 * (mc.thePlayer.getActivePotionEffect(Potion.moveSpeed).amplifier + 1) else 1.0
-        val baseSpeed = 0.29 * amplifier
-
+        if (failedStart)
+            return
+        
+        val baseSpeed = 0.29 * MovementUtils.speedEffect
         when (boostHypixelState) {
             1 -> {
-            	moveSpeed = if (mc.thePlayer.isPotionActive(Potion.moveSpeed)) 1.56 * baseSpeed else 2.034 * baseSpeed
+
+                if (mc.thePlayer.isPotionActive(Potion.moveSpeed))
+                    moveSpeed = 1.56 * baseSpeed
+                else
+                    moveSpeed = 2.034 * baseSpeed
+
                 boostHypixelState = 2
             }
             2 -> {
@@ -92,7 +96,12 @@ class BoostHypixelFly: FlyMode("BoostHypixel", FlyType.HYPIXEL) {
                 boostHypixelState = 3
             }
             3 -> {
-            	moveSpeed =  if (mc.thePlayer.ticksExisted % 2 == 0) lastDistance - 0.0103 * (lastDistance - baseSpeed) else lastDistance - 0.0123 * (lastDistance - baseSpeed)
+
+                if (mc.thePlayer.ticksExisted % 2 == 0)
+                    moveSpeed = lastDistance - 0.0103 * (lastDistance - baseSpeed)
+                else
+                    moveSpeed = lastDistance - 0.0123 * (lastDistance - baseSpeed)
+
                 boostHypixelState = 4
             }
             else -> moveSpeed = lastDistance - lastDistance / 159.8
@@ -101,19 +110,24 @@ class BoostHypixelFly: FlyMode("BoostHypixel", FlyType.HYPIXEL) {
         moveSpeed = max(moveSpeed, 0.3)
 
         val yaw = MovementUtils.directionToRadian
+
         event.x = -sin(yaw) * moveSpeed
         event.z = cos(yaw) * moveSpeed
+
         mc.thePlayer.motionX = event.x
         mc.thePlayer.motionZ = event.z
 	}
 
 	override fun onPreMotion(event: PreMotionEvent) {
         hypixelTimer.update()
+
         if (hypixelTimer.hasTimePassed(2)) {
             mc.thePlayer.setPosition(mc.thePlayer.posX, mc.thePlayer.posY + 1.0E-5, mc.thePlayer.posZ)
             hypixelTimer.reset()
         }
-        if (!failedStart) mc.thePlayer.motionY = 0.0
+
+        if (!failedStart)
+            mc.thePlayer.motionY = 0.0
 	}
 
     override fun onPostMotion(event: PostMotionEvent) {
@@ -122,26 +136,36 @@ class BoostHypixelFly: FlyMode("BoostHypixel", FlyType.HYPIXEL) {
         lastDistance = sqrt(xDist * xDist + zDist * zDist)
     }
 
-	override fun onPacket(event: PacketEvent) {
+	override fun onSentPacket(event: SentPacketEvent) {
         val packet = event.packet
-        if (packet is C03PacketPlayer) packet.onGround = false
+
+        if (packet is C03PacketPlayer)
+            packet.onGround = false
+    }
+
+    override fun onReceivedPacket(event: ReceivedPacketEvent) {
+        val packet = event.packet
+
         if (packet is S08PacketPlayerPosLook) {
-        	failedStart = true
+            failedStart = true
             ClientUtils.displayChatMessage("§8[§c§lBoostHypixel-§a§lFly§8] §cSetback detected.")
         }
     }
 
     override fun onBlockBB(event: BlockBBEvent) {
-        if (event.block is BlockAir && event.y < mc.thePlayer.posY && mc.thePlayer.inventory.getCurrentItem() == null) {
+        if (event.block is BlockAir && event.y < mc.thePlayer.posY && mc.thePlayer.inventory.getCurrentItem() == null)
             event.boundingBox = AxisAlignedBB.fromBounds(event.x.toDouble(), event.y.toDouble(), event.z.toDouble(), (event.x + 1).toDouble(), mc.thePlayer.posY, (event.z + 1).toDouble())
-        }
     }
 
     override fun onJump(event: JumpEvent) {
-        if (mc.thePlayer.inventory.getCurrentItem() == null) event.isCancelled = true
+        mc.thePlayer.inventory.getCurrentItem() ?: run {
+            event.isCancelled = true
+        }
     }
 
     override fun onStep(event: StepEvent) {
-        if (mc.thePlayer.inventory.getCurrentItem() == null) event.stepHeight = 0f
+        mc.thePlayer.inventory.getCurrentItem() ?: run {
+            event.stepHeight = 0f
+        }
     }
 }

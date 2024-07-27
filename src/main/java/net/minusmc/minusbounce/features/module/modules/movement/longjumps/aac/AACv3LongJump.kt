@@ -7,7 +7,7 @@ import net.minecraft.util.EnumFacing
 class AACv3LongJump : LongJumpMode("AACv3") {
     private var teleported = false
 
-	override fun onUpdate() {
+	override fun onUpdateJumped() {
         if (mc.thePlayer.fallDistance > 0.5f && !teleported) {
             val horizontalFacing = mc.thePlayer.horizontalFacing
             var x = 0.0

@@ -4,7 +4,6 @@ import net.minecraft.network.play.server.S12PacketEntityVelocity
 import net.minusmc.minusbounce.event.AttackEvent
 import net.minusmc.minusbounce.event.KnockbackEvent
 import net.minusmc.minusbounce.event.MoveInputEvent
-import net.minusmc.minusbounce.event.PacketEvent
 import net.minusmc.minusbounce.event.EntityDamageEvent
 import net.minusmc.minusbounce.features.module.modules.combat.velocitys.VelocityMode
 import net.minusmc.minusbounce.utils.RaycastUtils

@@ -77,11 +77,11 @@ class Speed: Module() {
 	}
 
 	@EventTarget
-	fun onPacket(event: PacketEvent) {
+	fun onReceivedPacket(event: ReceivedPacketEvent) {
 		if (mc.thePlayer.isSneaking || (noWater.get() && mc.thePlayer.isInWater))
         	return
 
-		mode.onPacket(event)
+		mode.onReceivedPacket(event)
 	}
 
 	@EventTarget

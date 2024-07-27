@@ -1,13 +1,15 @@
 package net.minusmc.minusbounce.features.module.modules.movement.flys.other
 
-import net.minusmc.minusbounce.event.PacketEvent
+import net.minusmc.minusbounce.event.ReceivedPacketEvent
 import net.minusmc.minusbounce.event.PreMotionEvent
 import net.minusmc.minusbounce.features.module.modules.movement.flys.FlyType
 import net.minusmc.minusbounce.features.module.modules.movement.flys.FlyMode
+import net.minusmc.minusbounce.utils.misc.MathUtils
 import net.minecraft.network.play.client.C03PacketPlayer
 import net.minecraft.network.play.server.S08PacketPlayerPosLook
 import net.minecraft.network.play.server.S12PacketEntityVelocity
-import net.minecraft.util.MathHelper
+
+import kotlin.math.*
 
 class IntaveFly: FlyMode("Intave", FlyType.OTHER) {
     private var serverPosX = 0.0
@@ -16,6 +18,7 @@ class IntaveFly: FlyMode("Intave", FlyType.OTHER) {
     private var teleported = false
 
     override fun onEnable() {
+		super.onEnable()
         serverPosX = mc.thePlayer.posX
         serverPosY = mc.thePlayer.posY
         serverPosZ = mc.thePlayer.posZ
@@ -27,31 +30,32 @@ class IntaveFly: FlyMode("Intave", FlyType.OTHER) {
     }
 
     override fun onPreMotion(event: PreMotionEvent) {
-        val thePlayer = mc.thePlayer ?: return
-        if (!teleported) {
-            val yaw = thePlayer.rotationYaw * 3.1415927f / 180f
-            val speed = 6.0
-            if (mc.thePlayer.ticksExisted % 3 == 0) {
-                mc.netHandler.addToSendQueue(C03PacketPlayer(mc.thePlayer.onGround))
-                mc.thePlayer.setPosition(serverPosX, serverPosY, serverPosZ)
-            }
-            event.y += -1.1 + if (mc.thePlayer.ticksExisted % 3 == 0) 0.42f else 0f
-            event.x += MathHelper.sin(yaw) * speed
-            event.z += - MathHelper.cos(yaw) * speed
-        } else {
+        mc.thePlayer ?: return
+
+        if (teleported) {
             mc.timer.timerSpeed = 0.3f
+            return
         }
+
+        val yaw = MathUtils.toRadians(mc.thePlayer.rotationYaw)
+
+        if (mc.thePlayer.ticksExisted % 3 == 0) {
+            mc.netHandler.addToSendQueue(C03PacketPlayer(mc.thePlayer.onGround))
+            mc.thePlayer.setPosition(serverPosX, serverPosY, serverPosZ)
+        }
+
+        event.y += -1.1 + if (mc.thePlayer.ticksExisted % 3 == 0) 0.42f else 0f
+        event.x += sin(yaw) * 6.0
+        event.z += -cos(yaw) * 6.0
     }
 
-    override fun onPacket(event: PacketEvent) {
+    override fun onReceivedPacket(event: ReceivedPacketEvent) {
         val packet = event.packet
 
-        if (packet is S08PacketPlayerPosLook && !teleported) {
+        if (packet is S08PacketPlayerPosLook && !teleported)
             event.isCancelled = true
-        } else if (packet is S12PacketEntityVelocity) {
-            if (packet.entityID == mc.thePlayer.entityId && packet.motionY / 8000.0 > 0.5) {
-                teleported = true
-            }
-        }
+
+        if (packet is S12PacketEntityVelocity && packet.entityID == mc.thePlayer.entityId && packet.motionY > 4000.0)
+            teleported = true
     }
 }

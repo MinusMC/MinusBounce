@@ -10,7 +10,7 @@ import net.minusmc.minusbounce.utils.timer.TickTimer
 import net.minusmc.minusbounce.utils.PacketUtils
 import net.minusmc.minusbounce.utils.player.MovementUtils
 import net.minusmc.minusbounce.utils.render.RenderUtils
-import net.minusmc.minusbounce.event.PacketEvent
+import net.minusmc.minusbounce.event.SentPacketEvent
 import net.minusmc.minusbounce.event.MoveEvent
 import net.minusmc.minusbounce.event.BlockBBEvent
 import net.minecraft.block.BlockAir
@@ -49,9 +49,9 @@ class VerusFly: FlyMode("Verus", FlyType.VERUS) {
     private val verusDmgTickValue = IntegerValue("Ticks", 20, 0, 300) { !verusDmgModeValue.get().equals("none", true) }
     private val verusSpoofGround = BoolValue("SpoofGround", false)
 
-    override fun handleUpdate() {}
 
     override fun onEnable() {
+		super.onEnable()
         verusTimer.reset()
         verusJumpTimes = 0
         verusDmged = false
@@ -95,21 +95,15 @@ class VerusFly: FlyMode("Verus", FlyType.VERUS) {
         shouldActiveDmg = dmgCooldown > 0
     }
 
-    override fun resetMotion() {
-        if (fly.resetMotionValue.get() && boostTicks > 0) {
-            mc.thePlayer.motionX = 0.0
-            mc.thePlayer.motionZ = 0.0
-        }
-    }
-
     override fun onUpdate() {
         mc.thePlayer.capabilities.isFlying = false
         mc.thePlayer.motionX = 0.0 
         mc.thePlayer.motionZ = 0.0
-        if (!verusDmgModeValue.get().equals("Jump", true) || shouldActiveDmg || verusDmged)
+
+        if (!verusDmgModeValue.get().equals("jump", true) || shouldActiveDmg || verusDmged)
             mc.thePlayer.motionY = 0.0
 
-        if (verusDmgModeValue.get().equals("Jump", true) && verusJumpTimes < 5) {
+        if (verusDmgModeValue.get().equals("jump", true) && verusJumpTimes < 5) {
             if (mc.thePlayer.onGround) {
                 mc.thePlayer.jump()
                 verusJumpTimes += 1
@@ -120,33 +114,31 @@ class VerusFly: FlyMode("Verus", FlyType.VERUS) {
         if (shouldActiveDmg) {
             if (dmgCooldown > 0) 
                 dmgCooldown--
+
             else if (verusDmged) {
                 verusDmged = false
                 val y = mc.thePlayer.posY
-                when (verusDmgModeValue.get()) {
-                    "Instant" -> {
-                        if (mc.thePlayer.onGround && mc.theWorld.getCollidingBoundingBoxes(mc.thePlayer, mc.thePlayer.entityBoundingBox.offset(0.0, 4.0, 0.0).expand(0.0, 0.0, 0.0)).isEmpty()) {
-                            PacketUtils.sendPacketNoEvent(C04PacketPlayerPosition(mc.thePlayer.posX, y + 4, mc.thePlayer.posZ, false))
-                            PacketUtils.sendPacketNoEvent(C04PacketPlayerPosition(mc.thePlayer.posX, y, mc.thePlayer.posZ, false))
-                            PacketUtils.sendPacketNoEvent(C04PacketPlayerPosition(mc.thePlayer.posX, y, mc.thePlayer.posZ, true))
+
+                if (mc.thePlayer.onGround && mc.theWorld.getCollidingBoundingBoxes(mc.thePlayer, mc.thePlayer.entityBoundingBox.offset(0.0, 4.0, 0.0)).isEmpty()) {
+                    when (verusDmgModeValue.get().lowercase()) {
+                        "instant" -> {
+                            PacketUtils.sendPacketNoEvent(C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY + 4, mc.thePlayer.posZ, false))
+                            PacketUtils.sendPacketNoEvent(C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ, false))
+                            PacketUtils.sendPacketNoEvent(C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ, true))
                             mc.thePlayer.motionX = 0.0
                             mc.thePlayer.motionZ = 0.0
                         }
-                    }
-                    "InstantC06" -> {
-                        if (mc.thePlayer.onGround && mc.theWorld.getCollidingBoundingBoxes(
-                                mc.thePlayer,
-                                mc.thePlayer.entityBoundingBox.offset(0.0, 4.0, 0.0).expand(0.0, 0.0, 0.0)
-                            ).isEmpty()
-                        ) {
-                            PacketUtils.sendPacketNoEvent(C06PacketPlayerPosLook(mc.thePlayer.posX, y + 4, mc.thePlayer.posZ, mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch, false))
-                            PacketUtils.sendPacketNoEvent(C06PacketPlayerPosLook(mc.thePlayer.posX, y, mc.thePlayer.posZ, mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch, false))
-                            PacketUtils.sendPacketNoEvent(C06PacketPlayerPosLook(mc.thePlayer.posX, y, mc.thePlayer.posZ, mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch, true))
+                        "instantc06" -> {
+                            PacketUtils.sendPacketNoEvent(C06PacketPlayerPosLook(mc.thePlayer.posX, mc.thePlayer.posY + 4, mc.thePlayer.posZ, mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch, false))
+                            PacketUtils.sendPacketNoEvent(C06PacketPlayerPosLook(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ, mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch, false))
+                            PacketUtils.sendPacketNoEvent(C06PacketPlayerPosLook(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ, mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch, true))
                             mc.thePlayer.motionX = 0.0
                             mc.thePlayer.motionZ = 0.0
                         }
                     }
                 }
+
+                
                 dmgCooldown = verusReDmgTickValue.get()
             }
         }
@@ -159,14 +151,15 @@ class VerusFly: FlyMode("Verus", FlyType.VERUS) {
         if (boostTicks > 0) {
             mc.timer.timerSpeed = verusTimerValue.get()
 
-            val motion = if (verusBoostModeValue.get().equals("static", true)) verusSpeedValue.get()
+            val motion = if (verusBoostModeValue.get().equals("static", true)) 
+                verusSpeedValue.get()
             else (boostTicks / verusDmgTickValue.get()) * verusSpeedValue.get()
             boostTicks--
 
             MovementUtils.strafe(motion)
         } else if (verusDmged) {
             mc.timer.timerSpeed = 1f
-            MovementUtils.strafe(MovementUtils.getBaseMoveSpeed().toFloat() * 0.6f)
+            MovementUtils.strafe(0.6f * MovementUtils.baseMoveSpeed.toFloat())
         } else {
             mc.thePlayer.movementInput.moveForward = 0f
             mc.thePlayer.movementInput.moveStrafe = 0f
@@ -187,26 +180,31 @@ class VerusFly: FlyMode("Verus", FlyType.VERUS) {
         }
     }
 
-    override fun onPacket(event: PacketEvent) {
+    override fun onSentPacket(event: SentPacketEvent) {
         val packet = event.packet
+
         if (packet is C03PacketPlayer) {
-            if (verusSpoofGround.get() && verusDmged) packet.onGround = true
-            if (verusDmgModeValue.get().equals("Jump", true) && verusJumpTimes < 5) packet.onGround = false
+            if (verusSpoofGround.get() && verusDmged)
+                packet.onGround = true
+
+            if (verusDmgModeValue.get().equals("jump", true) && verusJumpTimes < 5)
+                packet.onGround = false
         }
     }
 
     override fun onMove(event: MoveEvent) {
-        if (!verusDmged)
-            if (verusDmgModeValue.get().equals("Jump", true))
-                event.zeroXZ()
-            else
-                event.isCancelled = true
+        if (verusDmged)
+            return
+
+        if (verusDmgModeValue.get().equals("Jump", true))
+            event.zeroXZ()
+        else
+            event.isCancelled = true
     }
 
     override fun onBlockBB(event: BlockBBEvent) {
-        if (event.block is BlockAir && (verusDmgModeValue.get().equals("none", true) || verusDmged) && event.y < mc.thePlayer.posY) {
+        if (event.block is BlockAir && (verusDmgModeValue.get().equals("none", true) || verusDmged) && event.y < mc.thePlayer.posY)
             event.boundingBox = AxisAlignedBB.fromBounds(event.x.toDouble(), event.y.toDouble(), event.z.toDouble(), (event.x + 1).toDouble(), mc.thePlayer.posY, (event.z + 1).toDouble())
-        }
     }
 
 }

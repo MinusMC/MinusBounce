@@ -536,7 +536,7 @@ class Step : Module() {
     }
 
     @EventTarget(ignoreCondition = true)
-    fun onPacket(event: PacketEvent) {
+    fun onSentPacket(event: SentPacketEvent) {
         val packet = event.packet
 
         if (packet is C03PacketPlayer && isStep && modeValue.get().equals("OldNCP", true)) {

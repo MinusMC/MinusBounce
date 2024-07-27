@@ -24,15 +24,16 @@ class TPBackAntiVoid: AntiVoidMode("TPBack") {
             posY = mc.thePlayer.prevPosY
             posZ = mc.thePlayer.prevPosZ
         }
-        if (!antivoid.voidOnlyValue.get() || isVoid) {
-            if (mc.thePlayer.fallDistance > antivoid.maxFallDistValue.get() && !tried) {
-                mc.thePlayer.setPositionAndUpdate(posX, posY, posZ)
-                mc.thePlayer.fallDistance = 0F
-                mc.thePlayer.motionX = 0.0
-                mc.thePlayer.motionY = 0.0
-                mc.thePlayer.motionZ = 0.0
-                tried = true
-            }
+    }
+
+    override fun onUpdateVoided() {
+        if (mc.thePlayer.fallDistance > antivoid.maxFallDistValue.get() && !tried) {
+            mc.thePlayer.setPositionAndUpdate(posX, posY, posZ)
+            mc.thePlayer.fallDistance = 0F
+            mc.thePlayer.motionX = 0.0
+            mc.thePlayer.motionY = 0.0
+            mc.thePlayer.motionZ = 0.0
+            tried = true
         }
     }
 }

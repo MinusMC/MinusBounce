@@ -2,7 +2,7 @@ package net.minusmc.minusbounce.features.module.modules.player.nofalls.other
 
 import net.minusmc.minusbounce.features.module.modules.player.nofalls.NoFallMode
 import net.minecraft.network.play.client.C03PacketPlayer
-import net.minusmc.minusbounce.event.PacketEvent
+import net.minusmc.minusbounce.event.SentPacketEvent
 import net.minusmc.minusbounce.event.WorldEvent
 import net.minusmc.minusbounce.utils.player.MovementUtils
 
@@ -25,9 +25,13 @@ class VulcanNoFall: NoFallMode("Vulcan") {
 	override fun onUpdate() {
         if (!vulcanNoFall && mc.thePlayer.fallDistance > 3.25)
             vulcanNoFall = true
+
         if (vulcanNoFall && vulcantNoFall && mc.thePlayer.onGround)
             vulcantNoFall = false
-        if (vulcantNoFall) return // Possible flag
+
+        if (vulcantNoFall)
+            return
+            
         if (nextSpoof) {
             mc.thePlayer.motionY = -0.1
             mc.thePlayer.fallDistance = -0.1F
@@ -41,7 +45,7 @@ class VulcanNoFall: NoFallMode("Vulcan") {
         }
 	}
 
-    override fun onPacket(event: PacketEvent) {
+    override fun onSentPacket(event: SentPacketEvent) {
         val packet = event.packet
 
         if (packet is C03PacketPlayer && doSpoof) {

@@ -1,98 +1,74 @@
 package net.minusmc.minusbounce.features.module.modules.player.nofalls.aac
 
 import net.minusmc.minusbounce.features.module.modules.player.nofalls.NoFallMode
-import net.minusmc.minusbounce.event.PacketEvent
+import net.minusmc.minusbounce.utils.PlayerUtils
+import net.minusmc.minusbounce.event.SentPacketEvent
 import net.minusmc.minusbounce.event.PreMotionEvent
 import net.minecraft.network.play.client.C03PacketPlayer
 import net.minecraft.util.AxisAlignedBB
 
 class AAC4xNoFall: NoFallMode("AAC4.x") {
-    private var aac4Fakelag = false
-    private var aac4FlagCount = 0
+    private var fakeLagging = false
     private var packetModify = false
 
-    private val aac4Packets = mutableListOf<C03PacketPlayer>()
+    private val packets = mutableListOf<C03PacketPlayer>()
 
     override fun onEnable() {
-        aac4FlagCount = 0
-        aac4Fakelag = false
+        fakeLagging = false
         packetModify = false
-        aac4Packets.clear()
+        packets.clear()
     }
 
     override fun onDisable() {
-        aac4FlagCount = 0
-        aac4Fakelag = false
+        fakeLagging = false
         packetModify = false
-        aac4Packets.clear()
+        packets.clear()
     }
 
     override fun onPreMotion(event: PreMotionEvent) {
-        if (!inVoid()) {
-            if (aac4Fakelag) {
-                aac4Fakelag = false
-                if (aac4Packets.size > 0) {
-                    for (packet in aac4Packets) mc.thePlayer.sendQueue.addToSendQueue(packet)
-                    aac4Packets.clear()
-                }
+        if (!PlayerUtils.isBlockUnder) {
+            if (fakeLagging) {
+                fakeLagging = false
+                clearPackets()
             }
             return
         }
-        if (mc.thePlayer.onGround && aac4Fakelag) {
-            aac4Fakelag = false
-            if (aac4Packets.size > 0) {
-                for (packet in aac4Packets) mc.thePlayer.sendQueue.addToSendQueue(packet)
-                aac4Packets.clear()
-            }
+
+        if (mc.thePlayer.onGround && fakeLagging) {
+            fakeLagging = false
+            clearPackets()
             return
         }
-        if (mc.thePlayer.fallDistance > 2.5 && aac4Fakelag) {
+
+        if (mc.thePlayer.fallDistance > 2.5 && fakeLagging) {
             packetModify = true
             mc.thePlayer.fallDistance = 0f
         }
-        if (inAir(4.0, 1.0)) {
+
+        if (PlayerUtils.isInAir(4.0, 1.0))
             return
-        }
-        if (!aac4Fakelag) 
-            aac4Fakelag = true
+
+        if (!fakeLagging) 
+            fakeLagging = true
     }
 
-    override fun onPacket(event: PacketEvent) {
+    private fun clearPackets() {
+        while (packets.size > 0) {
+            val packet = packets.removeFirst()
+            mc.netHandler.addToSendQueue(packet)
+        }
+    }
+
+    override fun onSentPacket(event: SentPacketEvent) {
         val packet = event.packet
 
-        if (aac4Fakelag && packet is C03PacketPlayer) {
+        if (fakeLagging && packet is C03PacketPlayer) {
             event.isCancelled = true
             if (packetModify) {
                 packet.onGround = true
                 packetModify = false
             }
-            aac4Packets.add(packet)
+            packets.add(packet)
         }
-    }
-
-    private fun inVoid(): Boolean {
-        if (mc.thePlayer.posY < 0) return false
-        var off = 0
-        while (off < mc.thePlayer.posY + 2) {
-            val bb = AxisAlignedBB(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ, mc.thePlayer.posX, off.toDouble(), mc.thePlayer.posZ)
-            if (mc.theWorld.getCollidingBoundingBoxes(mc.thePlayer, bb).isNotEmpty()) {
-                return true
-            }
-            off += 2
-        }
-        return false
-    }
-
-    private fun inAir(height: Double, plus: Double): Boolean {
-        if (mc.thePlayer.posY < 0) return false
-        var off = 0
-        while (off < height) {
-            val bb = AxisAlignedBB(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ, mc.thePlayer.posX, mc.thePlayer.posY - off, mc.thePlayer.posZ)
-            if (mc.theWorld.getCollidingBoundingBoxes(mc.thePlayer, bb).isNotEmpty())
-                return true
-
-            off += plus.toInt()
-        }
-        return false
     }
 }

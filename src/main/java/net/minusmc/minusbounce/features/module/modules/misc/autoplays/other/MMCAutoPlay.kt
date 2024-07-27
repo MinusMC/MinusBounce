@@ -2,17 +2,17 @@ package net.minusmc.minusbounce.features.module.modules.misc.autoplays.other
 
 
 import net.minusmc.minusbounce.features.module.modules.misc.autoplays.AutoPlayMode
-import net.minusmc.minusbounce.event.PacketEvent
+import net.minusmc.minusbounce.event.ReceivedPacketEvent
 import net.minecraft.network.play.client.*
 import net.minecraft.network.play.server.S02PacketChat
 
 /**
- * Auto join to other match in minigames in MineManClub
- * Method is same as Universocraft (autoplays/other/UniversocraftAutoPlay.kt)
+ * Auto join to other match in minigames in MinemenClub
+ * Method is same as Universocraft
  */
 
 class MMCAutoPlay: AutoPlayMode("MMC") {
-    override fun onPacket(event: PacketEvent) {
+    override fun onReceivedPacket(event: ReceivedPacketEvent) {
         val packet = event.packet
 
         if (packet !is S02PacketChat)

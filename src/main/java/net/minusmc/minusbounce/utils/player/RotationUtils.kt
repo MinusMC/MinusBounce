@@ -79,12 +79,11 @@ object RotationUtils : MinecraftInstance(), Listenable {
     }
 
     @EventTarget
-    fun onPacket(event: PacketEvent) {
+    fun onSentPacket(event: SentPacketEvent) {
         val packet = event.packet
 
-        if (packet !is C03PacketPlayer || !packet.rotating) {
+        if (packet !is C03PacketPlayer || !packet.rotating)
             return
-        }
 
         currentRotation?.let {
             packet.yaw = it.yaw

@@ -11,13 +11,14 @@ class Mineplex2LongJump : LongJumpMode("Mineplex2") {
 		canMineplexBoost = false
 	}
 
-	override fun onUpdate() {
+	override fun onUpdateJumped() {
         if (mc.thePlayer.onGround || mc.thePlayer.capabilities.isFlying) {
             canMineplexBoost = false
             return
         }
 
-		if (!canMineplexBoost) return
+		if (!canMineplexBoost)
+			return
 
         mc.thePlayer.jumpMovementFactor = 0.1F
 
@@ -25,11 +26,14 @@ class Mineplex2LongJump : LongJumpMode("Mineplex2") {
             mc.thePlayer.jumpMovementFactor = 0F
             mc.thePlayer.motionY = -10.0
         }
+
         MovementUtils.strafe()
 	}
 
 	override fun onJump(event: JumpEvent) {
-		if (!longjump.state) return
+		if (!longjump.state)
+			return
+			
 		if (mc.thePlayer.isCollidedHorizontally) {
             event.motion = 2.31f
             canMineplexBoost = true

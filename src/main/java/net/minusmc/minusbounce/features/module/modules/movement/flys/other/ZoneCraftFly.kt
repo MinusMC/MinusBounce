@@ -19,11 +19,10 @@ class ZoneCraftFly: FlyMode("ZoneCraft", FlyType.OTHER) {
         mc.timer.timerSpeed = 1f
 
         if (timerBoostValue.get()) {
-            if(mc.thePlayer.ticksExisted % 20 < 10) {
+            if (mc.thePlayer.ticksExisted % 20 < 10)
                 mc.timer.timerSpeed = 1.25f
-            } else {
+            else
                 mc.timer.timerSpeed = 0.8f
-            }
         }
         
         RotationUtils.setTargetRotation(Rotation(mc.thePlayer.rotationYaw, 90f))

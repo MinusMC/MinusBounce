@@ -10,7 +10,7 @@ import net.minecraft.network.play.server.S02PacketChat
 import net.minecraft.network.play.server.S45PacketTitle
 import net.minusmc.minusbounce.MinusBounce
 import net.minusmc.minusbounce.event.EventTarget
-import net.minusmc.minusbounce.event.PacketEvent
+import net.minusmc.minusbounce.event.ReceivedPacketEvent
 import net.minusmc.minusbounce.event.UpdateEvent
 import net.minusmc.minusbounce.event.WorldEvent
 import net.minusmc.minusbounce.features.module.Module
@@ -28,83 +28,85 @@ class AutoLogin : Module() {
 	private val password = TextValue("Password", "example@01")
 	private val regRegex = TextValue("Register-Regex", "/register")
 	private val loginRegex = TextValue("Login-Regex", "/login")
-	private val regCmd = TextValue("Register-Cmd", "/register %p %p")
-	private val loginCmd = TextValue("Login-Cmd", "/login %p")
+	private val registerCmdValue = TextValue("Register-Cmd", "/register %p %p")
+	private val loginCmdValue = TextValue("Login-Cmd", "/login %p")
 
 	private val delayValue = IntegerValue("Delay", 5000, 0, 5000, "ms")
 
-	private val loginPackets = arrayListOf<C01PacketChatMessage>()
-	private val registerPackets = arrayListOf<C01PacketChatMessage>()
+	private var loginState = false
+	private var registerState = false
+
 	private val regTimer = MSTimer()
 	private val logTimer = MSTimer()
 
-	override fun onEnable() = resetEverything()
+	private val loginCmd: String
+		get() = loginCmdValue.get().replace("%p", password.get(), true)
+
+	private val registerCmd: String
+		get() = registerCmdValue.get().replace("%p", password.get(), true)
+
+	override fun onEnable() {
+		loginState = false
+		registerState = false
+		regTimer.reset()
+		logTimer.reset()
+	}
 
 	@EventTarget
-	fun onWorld(event: WorldEvent) = resetEverything()
+	fun onWorld(event: WorldEvent) {
+		loginState = false
+		registerState = false
+		regTimer.reset()
+		logTimer.reset()
+	}
 
 	@EventTarget
 	fun onUpdate(event: UpdateEvent) {
-		if (registerPackets.isEmpty())
+
+		if (!registerState)
 			regTimer.reset()
-		else if (regTimer.hasTimePassed(delayValue.get().toLong())) {
-			for (packet in registerPackets)
-				PacketUtils.sendPacketNoEvent(packet)
+		else if (regTimer.hasTimePassed(delayValue.get())) {
+			PacketUtils.sendPacketNoEvent(C01PacketChatMessage(registerCmd))
 			MinusBounce.hud.addNotification(Notification("AutoLogin", "Successfully registered.", Notification.Type.SUCCESS))
-			registerPackets.clear()
+			registerState = false
 			regTimer.reset()
 		}
 
-		if (loginPackets.isEmpty())
+		if (!loginState)
 			logTimer.reset()
-		else if (logTimer.hasTimePassed(delayValue.get().toLong())) {
-			for (packet in loginPackets)
-				PacketUtils.sendPacketNoEvent(packet)
+		else if (logTimer.hasTimePassed(delayValue.get())) {
+			PacketUtils.sendPacketNoEvent(C01PacketChatMessage(loginCmd))
 			MinusBounce.hud.addNotification(Notification("AutoLogin", "Successfully logined.", Notification.Type.SUCCESS))
-			loginPackets.clear()
+			loginState = false
 			logTimer.reset()
 		}
 	}
 
     @EventTarget
-    fun onPacket(event: PacketEvent) {
-
+    fun onReceivedPacket(event: ReceivedPacketEvent) {
     	mc.thePlayer ?: return
-
-		if (mc.thePlayer == null)
-			return
 
 		val packet = event.packet
 
     	if (packet is S45PacketTitle) {
             val messageOrigin = packet.message ?: return
-            val message: String = messageOrigin.unformattedText
+            val message = messageOrigin.unformattedText
 
     		if (message.contains(loginRegex.get(), true))
-    			sendLogin(loginCmd.get().replace("%p", password.get(), true))
+    			loginState = true
 
     		if (message.contains(regRegex.get(), true))
-    			sendRegister(regCmd.get().replace("%p", password.get(), true))
+    			registerState = true
     	}
 
     	if (packet is S02PacketChat) {
-            val message: String = packet.chatComponent.unformattedText
+            val message = packet.chatComponent.unformattedText
 
     		if (message.contains(loginRegex.get(), true))
-    			sendLogin(loginCmd.get().replace("%p", password.get(), true))
+    			loginState = true
 
     		if (message.contains(regRegex.get(), true))
-    			sendRegister(regCmd.get().replace("%p", password.get(), true))
+    			registerState = true
     	}
     }
-
-	private fun sendLogin(str: String) = loginPackets.add(C01PacketChatMessage(str))
-	private fun sendRegister(str: String) = registerPackets.add(C01PacketChatMessage(str))
-
-	private fun resetEverything() {
-		registerPackets.clear()
-		loginPackets.clear()
-		regTimer.reset()
-		logTimer.reset()
-	}
 }

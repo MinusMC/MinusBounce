@@ -4,9 +4,9 @@ import net.minusmc.minusbounce.features.module.modules.combat.velocitys.Velocity
 
 class AEMineVelocity : VelocityMode("AEMine") {
     override fun onUpdate() {
-        if (mc.thePlayer.hurtTime <= 0) {
+        if (mc.thePlayer.hurtTime <= 0)
             return
-        }
+            
         if (mc.thePlayer.hurtTime >= 6) {
             mc.thePlayer.motionX *= 0.605001
             mc.thePlayer.motionZ *= 0.605001

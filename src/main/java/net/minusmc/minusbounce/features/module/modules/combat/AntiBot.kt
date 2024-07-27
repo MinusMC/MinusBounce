@@ -98,7 +98,7 @@ object AntiBot : Module() {
     }
 
     @EventTarget
-    fun onPacket(event: PacketEvent) {
+    fun onPacket(event: ReceivedPacketEvent) {
         mc.thePlayer ?: return
         mc.theWorld ?: return
         val packet = event.packet

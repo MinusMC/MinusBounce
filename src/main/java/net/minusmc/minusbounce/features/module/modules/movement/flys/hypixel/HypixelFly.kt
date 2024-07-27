@@ -5,7 +5,7 @@ import net.minecraft.network.play.client.C03PacketPlayer
 import net.minecraft.util.AxisAlignedBB
 import net.minusmc.minusbounce.event.BlockBBEvent
 import net.minusmc.minusbounce.event.JumpEvent
-import net.minusmc.minusbounce.event.PacketEvent
+import net.minusmc.minusbounce.event.SentPacketEvent
 import net.minusmc.minusbounce.event.StepEvent
 import net.minusmc.minusbounce.features.module.modules.movement.flys.FlyMode
 import net.minusmc.minusbounce.features.module.modules.movement.flys.FlyType
@@ -23,14 +23,10 @@ class HypixelFly: FlyMode("Hypixel", FlyType.HYPIXEL) {
     private val hypixelTimer = TickTimer()
     private val flyTimer = MSTimer()
 
-    override fun resetMotion() {}
-
-    override fun handleUpdate() {}
-
     override fun onUpdate() {
         val boostDelay = hypixelBoostDelay.get()
         if (hypixelBoost.get() && !flyTimer.hasTimePassed(boostDelay.toLong())) {
-            mc.timer.timerSpeed = 1f + (hypixelBoostTimer.get() * (flyTimer.hasTimeLeft(boostDelay.toLong()) / boostDelay))
+            mc.timer.timerSpeed = 1f + hypixelBoostTimer.get() * flyTimer.hasTimeLeft(boostDelay.toLong()) / boostDelay
         }
 
         hypixelTimer.update()
@@ -41,9 +37,10 @@ class HypixelFly: FlyMode("Hypixel", FlyType.HYPIXEL) {
         }
     }
 
-    override fun onPacket(event: PacketEvent) {
+    override fun onSentPacket(event: SentPacketEvent) {
         val packet = event.packet
-        if (packet is C03PacketPlayer) packet.onGround = false
+        if (packet is C03PacketPlayer)
+            packet.onGround = false
     }
 
     override fun onBlockBB(event: BlockBBEvent) {

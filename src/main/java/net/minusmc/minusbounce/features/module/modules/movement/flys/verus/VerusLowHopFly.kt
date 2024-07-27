@@ -10,17 +10,19 @@ import net.minecraft.util.AxisAlignedBB
 
 class VerusLowHopFly: FlyMode("VerusLowHop", FlyType.VERUS) {
 	override fun onMove(event: MoveEvent) {
-		if (!mc.thePlayer.isInWeb && !mc.thePlayer.isInLava && !mc.thePlayer.isInWater && !mc.thePlayer.isOnLadder && !mc.gameSettings.keyBindJump.isKeyDown && mc.thePlayer.ridingEntity == null) {
-            if (MovementUtils.isMoving) {
-                mc.gameSettings.keyBindJump.pressed = false
-                if (mc.thePlayer.onGround) {
-                    mc.thePlayer.jump()
-                    mc.thePlayer.motionY = 0.0
-                    MovementUtils.strafe(0.61f)
-                    event.y = 0.41999998688698
-                }
-                MovementUtils.strafe()
+
+        if (mc.thePlayer.isInWeb || mc.thePlayer.isInLava || mc.thePlayer.isInWater || mc.thePlayer.isOnLadder || mc.gameSettings.keyBindJump.isKeyDown || mc.thePlayer.ridingEntity != null)
+            return
+            
+		if (MovementUtils.isMoving) {
+            mc.gameSettings.keyBindJump.pressed = false
+            if (mc.thePlayer.onGround) {
+                mc.thePlayer.jump()
+                mc.thePlayer.motionY = 0.0
+                MovementUtils.strafe(0.61f)
+                event.y = 0.41999998688698
             }
+            MovementUtils.strafe()
         }
 	}
 

@@ -7,7 +7,7 @@ package net.minusmc.minusbounce.features.module.modules.world
 
 import net.minusmc.minusbounce.event.EventTarget
 import net.minusmc.minusbounce.event.PreMotionEvent
-import net.minusmc.minusbounce.event.PacketEvent
+import net.minusmc.minusbounce.event.SentPacketEvent
 import net.minusmc.minusbounce.features.module.Module
 import net.minusmc.minusbounce.features.module.ModuleCategory
 import net.minusmc.minusbounce.features.module.ModuleInfo
@@ -15,6 +15,7 @@ import net.minusmc.minusbounce.utils.PacketUtils
 import net.minusmc.minusbounce.value.FloatValue
 import net.minecraft.init.Blocks
 import net.minecraft.network.play.client.C07PacketPlayerDigging
+import net.minecraft.network.play.client.C07PacketPlayerDigging.Action
 import net.minecraft.util.BlockPos
 import net.minecraft.util.EnumFacing
 
@@ -44,7 +45,7 @@ class SpeedMine : Module() {
                     ex.printStackTrace()
                     return
                 }
-                PacketUtils.sendPacketNoEvent(C07PacketPlayerDigging(C07PacketPlayerDigging.Action.STOP_DESTROY_BLOCK, pos, facing))
+                PacketUtils.sendPacketNoEvent(C07PacketPlayerDigging(Action.STOP_DESTROY_BLOCK, pos, facing))
                 damage = 0f
                 boost = false
             }
@@ -52,15 +53,21 @@ class SpeedMine : Module() {
     }
 
     @EventTarget
-    fun onPacket(e: PacketEvent) {
-        if (e.packet is C07PacketPlayerDigging) {
-            val packet = e.packet
-            if (packet.status == C07PacketPlayerDigging.Action.START_DESTROY_BLOCK) {
+    fun onSentPacket(event: SentPacketEvent) {
+        val packet = event.packet
+
+        if (packet !is C07PacketPlayerDigging)
+            return
+
+        when (packet.status) {
+            Action.START_DESTROY_BLOCK -> {
                 boost = true
                 pos = packet.position
                 facing = packet.facing
                 damage = 0f
-            } else if ((packet.status == C07PacketPlayerDigging.Action.ABORT_DESTROY_BLOCK) or (packet.status == C07PacketPlayerDigging.Action.STOP_DESTROY_BLOCK)) {
+            }
+
+            Action.ABORT_DESTROY_BLOCK, Action.STOP_DESTROY_BLOCK -> {
                 boost = false
                 pos = null
                 facing = null

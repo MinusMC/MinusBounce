@@ -1,7 +1,7 @@
 package net.minusmc.minusbounce.features.module.modules.player.antivoids.normal
 
 import net.minusmc.minusbounce.features.module.modules.player.antivoids.AntiVoidMode
-import net.minusmc.minusbounce.event.PacketEvent
+import net.minusmc.minusbounce.event.*
 import net.minecraft.network.play.server.S08PacketPlayerPosLook
 import net.minecraft.network.play.client.C03PacketPlayer
 
@@ -15,9 +15,8 @@ class PacketAntiVoid: AntiVoidMode("Packet") {
     }
 
     override fun onUpdate() {
-        if (isVoid) {
+        if (isVoid)
             canCancel = true
-        }
 
         if (canCancel) {
             if (mc.thePlayer.onGround) {
@@ -30,12 +29,16 @@ class PacketAntiVoid: AntiVoidMode("Packet") {
         }
     }
 
-    override fun onPacket(event: PacketEvent) {
+    override fun onSentPacket(event: SentPacketEvent) {
     	val packet = event.packet
     	if (canCancel && packet is C03PacketPlayer) {
             packetCache.add(packet)
             event.isCancelled = true
         }
+    }
+
+    override fun onReceivedPacket(event: ReceivedPacketEvent) {
+        val packet = event.packet
 
         if (packet is S08PacketPlayerPosLook) {
             packetCache.clear()

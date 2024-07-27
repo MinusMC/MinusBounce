@@ -1,9 +1,10 @@
 package net.minusmc.minusbounce.features.module.modules.movement.flys.vulcan
 
 import net.minusmc.minusbounce.event.PreMotionEvent
-import net.minusmc.minusbounce.event.PacketEvent
+import net.minusmc.minusbounce.event.ReceivedPacketEvent
 import net.minusmc.minusbounce.features.module.modules.movement.flys.FlyMode
 import net.minusmc.minusbounce.features.module.modules.movement.flys.FlyType
+import net.minusmc.minusbounce.utils.misc.MathUtils
 import net.minusmc.minusbounce.value.BoolValue
 import net.minecraft.network.play.client.C03PacketPlayer.C04PacketPlayerPosition
 import net.minecraft.network.play.client.C03PacketPlayer.C06PacketPlayerPosLook
@@ -19,7 +20,8 @@ class VulcanClipFly: FlyMode("VulcanClip", FlyType.VULCAN) {
     private var ticks = 0
 
     override fun onEnable() {
-        if(mc.thePlayer.onGround && canClipValue.get()) {
+		super.onEnable()
+        if (mc.thePlayer.onGround && canClipValue.get()) {
             clip(0f, -0.1f)
             waitFlag = true
             canGlide = false
@@ -32,23 +34,21 @@ class VulcanClipFly: FlyMode("VulcanClip", FlyType.VULCAN) {
     }
 
     override fun onPreMotion(event: PreMotionEvent) {
-        if (canGlide) {
-            mc.timer.timerSpeed = 1f
-            mc.thePlayer.motionY = -if (ticks % 2 == 0) {
-                0.17
-            } else {
-                0.10
-            }
-            if (ticks == 0) {
-                mc.thePlayer.motionY = -0.07
-            }
-            ticks++
-        }
+        if (!canGlide)
+            return
+
+        mc.timer.timerSpeed = 1f
+        mc.thePlayer.motionY = -if (ticks % 2 == 0) 0.17 else 0.1
+
+        if (ticks == 0)
+            mc.thePlayer.motionY = -0.07
+
+        ticks++
     }
 
-    override fun onPacket(event: PacketEvent) {
+    override fun onReceivedPacket(event: ReceivedPacketEvent) {
         val packet = event.packet
-        if(packet is S08PacketPlayerPosLook && waitFlag) {
+        if (packet is S08PacketPlayerPosLook && waitFlag) {
             waitFlag = false
             mc.thePlayer.setPosition(packet.x, packet.y, packet.z)
             mc.netHandler.addToSendQueue(C06PacketPlayerPosLook(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ, mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch, false))
@@ -63,7 +63,7 @@ class VulcanClipFly: FlyMode("VulcanClip", FlyType.VULCAN) {
     }
 
     private fun clip(dist: Float, y: Float) {
-        val yaw = Math.toRadians(mc.thePlayer.rotationYaw.toDouble())
+        val yaw = MathUtils.toRadians(mc.thePlayer.rotationYaw)
         val x = -sin(yaw) * dist
         val z = cos(yaw) * dist
         mc.thePlayer.setPosition(mc.thePlayer.posX + x, mc.thePlayer.posY + y, mc.thePlayer.posZ + z)

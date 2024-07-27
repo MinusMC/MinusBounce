@@ -10,9 +10,8 @@ import net.minecraft.network.play.client.C03PacketPlayer.C04PacketPlayerPosition
 class BugSpartanFly: FlyMode("BugSpartan", FlyType.SPARTAN) {
 	private val vanillaSpeedValue = FloatValue("Speed", 2F, 0F, 5F)
 
-    override fun handleUpdate() {}
-
 	override fun onEnable() {
+		super.onEnable()
 		val x = mc.thePlayer.posX
         val y = mc.thePlayer.posY
         val z = mc.thePlayer.posZ
@@ -21,6 +20,7 @@ class BugSpartanFly: FlyMode("BugSpartan", FlyType.SPARTAN) {
             mc.netHandler.addToSendQueue(C04PacketPlayerPosition(x, y + 0.049f, z, false))
             mc.netHandler.addToSendQueue(C04PacketPlayerPosition(x, y, z, false))
         }
+        
         mc.netHandler.addToSendQueue(C04PacketPlayerPosition(x, y + 0.1f, z, true))
         mc.thePlayer.motionX *= 0.1f
         mc.thePlayer.motionZ *= 0.1f
@@ -29,13 +29,17 @@ class BugSpartanFly: FlyMode("BugSpartan", FlyType.SPARTAN) {
 
 	override fun onUpdate() {
         mc.thePlayer.capabilities.isFlying = false
+
         mc.thePlayer.motionY = 0.0
         mc.thePlayer.motionX = 0.0
         mc.thePlayer.motionZ = 0.0
+
         if (mc.gameSettings.keyBindJump.isKeyDown)
             mc.thePlayer.motionY += vanillaSpeedValue.get()
+
         if (mc.gameSettings.keyBindSneak.isKeyDown)
             mc.thePlayer.motionY -= vanillaSpeedValue.get()
+
         MovementUtils.strafe(vanillaSpeedValue.get())
 	}
 }

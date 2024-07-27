@@ -7,12 +7,14 @@ class LAACNoFall: NoFallMode("LAAC") {
 	private var jumped = false
 
 	override fun onUpdate() {
-		if (mc.thePlayer.onGround) jumped = false
-        if (mc.thePlayer.motionY > 0) jumped = true
+		if (mc.thePlayer.onGround)
+			jumped = false
 
-		if (!jumped && mc.thePlayer.onGround && !mc.thePlayer.isOnLadder && !mc.thePlayer.isInWater && !mc.thePlayer.isInWeb) {
+        if (mc.thePlayer.motionY > 0)
+        	jumped = true
+
+		if (!jumped && mc.thePlayer.onGround && !mc.thePlayer.isOnLadder && !mc.thePlayer.isInWater && !mc.thePlayer.isInWeb)
             mc.thePlayer.motionY = -6.0
-        }
 	}
 
 	override fun onMove(event: MoveEvent) {

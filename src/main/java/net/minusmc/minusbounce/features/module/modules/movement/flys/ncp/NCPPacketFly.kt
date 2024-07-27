@@ -3,6 +3,7 @@ package net.minusmc.minusbounce.features.module.modules.movement.flys.ncp
 import net.minecraft.network.play.client.C03PacketPlayer.C04PacketPlayerPosition
 import net.minusmc.minusbounce.features.module.modules.movement.flys.FlyMode
 import net.minusmc.minusbounce.features.module.modules.movement.flys.FlyType
+import net.minusmc.minusbounce.utils.misc.MathUtils
 import net.minusmc.minusbounce.value.FloatValue
 import kotlin.math.cos
 import kotlin.math.sin
@@ -12,7 +13,7 @@ class NCPPacketFly: FlyMode("NCPPacket", FlyType.NCP) {
     private val speedValue = FloatValue("Speed", 0.28f, 0.27f, 0.29f)
 
     override fun onUpdate() {
-        val yaw = Math.toRadians(mc.thePlayer.rotationYaw.toDouble())
+        val yaw = MathUtils.toRadians(mc.thePlayer.rotationYaw)
         val x = -sin(yaw) * speedValue.get()
         val z = cos(yaw) * speedValue.get()
         

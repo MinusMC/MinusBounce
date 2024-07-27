@@ -8,7 +8,7 @@ package net.minusmc.minusbounce.features.command.commands
 import net.minusmc.minusbounce.MinusBounce
 import net.minusmc.minusbounce.event.EventTarget
 import net.minusmc.minusbounce.event.Listenable
-import net.minusmc.minusbounce.event.PacketEvent
+import net.minusmc.minusbounce.event.SentPacketEvent
 import net.minusmc.minusbounce.features.command.Command
 import net.minecraft.network.handshake.client.C00Handshake
 
@@ -42,7 +42,7 @@ class ServerInfoCommand : Command("serverinfo", emptyArray()), Listenable {
     }
 
     @EventTarget
-    fun onPacket(event: PacketEvent) {
+    fun onPacket(event: SentPacketEvent) {
         val packet = event.packet
 
         if (packet is C00Handshake) {

@@ -1,18 +1,18 @@
 package net.minusmc.minusbounce.features.module.modules.player.nofalls.other
 
 import net.minecraft.network.play.client.C03PacketPlayer
-import net.minusmc.minusbounce.event.PacketEvent
+import net.minusmc.minusbounce.event.SentPacketEvent
 import net.minusmc.minusbounce.features.module.modules.player.nofalls.NoFallMode
 
 class VerusNoFall: NoFallMode("Verus") {
-	private var needSpoof = false
+	private var canSpoof = false
 
 	override fun onEnable() {
-		needSpoof = false
+		canSpoof = false
 	}
 
 	override fun onDisable() {
-		needSpoof = false
+		canSpoof = false
 	}
 
 	override fun onUpdate() {
@@ -21,15 +21,15 @@ class VerusNoFall: NoFallMode("Verus") {
             mc.thePlayer.motionX *= 0.5
             mc.thePlayer.motionX *= 0.5
             mc.thePlayer.fallDistance = 0F
-            needSpoof = true
+            canSpoof = true
         }
 	}
 
-	override fun onPacket(event: PacketEvent) {
+	override fun onSentPacket(event: SentPacketEvent) {
 		val packet = event.packet
-		if (packet is C03PacketPlayer && needSpoof) {
+		if (packet is C03PacketPlayer && canSpoof) {
 			packet.onGround = true
-            needSpoof = false
+            canSpoof = false
 		}
 	}
 }

@@ -21,7 +21,6 @@ abstract class ModeScaffold(val modeName: String): MinecraftInstance() {
     open fun onUpdate() {}
     open fun onPreMotion(event: PreMotionEvent) {}
     open fun onPostMotion(event: PostMotionEvent) {}
-    open fun onPacket(event: PacketEvent) {}
     open fun onMove(event: MoveEvent) {}
     open fun onJump(event: JumpEvent) {}
 

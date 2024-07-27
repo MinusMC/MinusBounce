@@ -10,6 +10,7 @@ class Target: Module() {
     val players = BoolValue("Players", true)
     val mobs = BoolValue("Mobs", true)
     val animals = BoolValue("Animals", true)
+    val villager = BoolValue("Villager", true)
     val invisible = BoolValue("Invisible", true)
     val dead = BoolValue("Dead", true)
 }

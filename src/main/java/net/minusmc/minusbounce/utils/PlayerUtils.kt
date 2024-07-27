@@ -8,6 +8,7 @@ import net.minecraft.item.ItemEnderPearl
 import net.minecraft.item.ItemPotion
 import net.minecraft.item.ItemStack
 import net.minecraft.util.BlockPos
+import net.minecraft.util.AxisAlignedBB
 import net.minusmc.minusbounce.utils.extensions.*
 
 /**
@@ -62,16 +63,18 @@ object PlayerUtils: MinecraftInstance() {
         get() = mc.theWorld.getBlockState(BlockPos(mc.thePlayer).down()).block.let {it is BlockIce || it is BlockPackedIce}
 
     val isBlockUnder: Boolean
-        get() {
-            if (mc.thePlayer == null && mc.thePlayer.posY < 0.0) 
-                return false
+        get() = isInAir(mc.thePlayer.posY + 2.0, 2.0)
 
-            for (off in 0 until mc.thePlayer.posY.toInt() + 2 step 2) {
-                val bb = mc.thePlayer.entityBoundingBox.offset(0.0, -off.toDouble(), 0.0)
-                if (mc.theWorld.getCollidingBoundingBoxes(mc.thePlayer, bb).isNotEmpty())
-                    return true
-            }
-
+    fun isInAir(height: Double, plus: Double): Boolean {
+        if (mc.thePlayer == null || mc.thePlayer.posY < 0.0) 
             return false
+
+        for (off in 0.0..height step plus) {
+            val boundingBox = AxisAlignedBB(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ, mc.thePlayer.posX, mc.thePlayer.posY - off, mc.thePlayer.posZ)
+            if (mc.theWorld.getCollidingBoundingBoxes(mc.thePlayer, boundingBox).isNotEmpty())
+                return true
         }
+
+        return false
+    }
 }

@@ -6,12 +6,14 @@ import net.minusmc.minusbounce.features.module.ModuleCategory
 import net.minusmc.minusbounce.features.module.ModuleInfo
 import net.minusmc.minusbounce.features.module.modules.movement.flys.FlyMode
 import net.minusmc.minusbounce.features.module.modules.movement.flys.FlyType
+import net.minusmc.minusbounce.utils.render.RenderUtils
 import net.minusmc.minusbounce.utils.ClassUtils
 import net.minusmc.minusbounce.utils.LateinitValue
 import net.minusmc.minusbounce.value.BoolValue
 import net.minusmc.minusbounce.value.FloatValue
 import net.minusmc.minusbounce.value.ListValue
 import org.lwjgl.input.Keyboard
+import java.awt.Color
 
 @ModuleInfo(name = "Fly", description = "Allows you to fly in survival mode.", category = ModuleCategory.MOVEMENT, keyBind = Keyboard.KEY_F)
 class Fly: Module() {
@@ -43,8 +45,8 @@ class Fly: Module() {
 		}
 	}	
     val resetMotionValue = BoolValue("ResetMotion", true)
-
     val fakeDmgValue = BoolValue("FakeDamage", true)
+    
     private val bobbingValue = BoolValue("Bobbing", true)
     private val bobbingAmountValue = FloatValue("BobbingAmount", 0.2F, 0F, 1F) { bobbingValue.get() }
     val markValue = BoolValue("Mark", true)
@@ -59,15 +61,21 @@ class Fly: Module() {
     }
 
 	override fun onEnable() {
-		mode.initEnable()
 		mode.onEnable()
-		mode.handleUpdate()
+		
+		if (fakeDmgValue.get())
+			mc.thePlayer.handleStatusUpdate(2.toByte())
 	}
 
 	override fun onDisable() {
         mc.thePlayer.capabilities.isFlying = false
+        
+        if (resetMotionValue.get()) {
+            mc.thePlayer.motionX = 0.0
+            mc.thePlayer.motionY = 0.0
+            mc.thePlayer.motionZ = 0.0
+        }
 
-        mode.resetMotion()
 		mode.onDisable()
 
         mc.timer.timerSpeed = 1f
@@ -81,8 +89,13 @@ class Fly: Module() {
 	}
 	
 	@EventTarget
-	fun onPacket(event: PacketEvent) {
-		mode.onPacket(event)
+	fun onSentPacket(event: SentPacketEvent) {
+		mode.onSentPacket(event)
+	}
+
+	@EventTarget
+	fun onReceivedPacket(event: ReceivedPacketEvent) {
+		mode.onReceivedPacket(event)
 	}
 
 	@EventTarget
@@ -91,6 +104,7 @@ class Fly: Module() {
             mc.thePlayer.cameraYaw = bobbingAmountValue.get()
             mc.thePlayer.prevCameraYaw = bobbingAmountValue.get()
         }
+
 		mode.onPreMotion(event)
 	}
 
@@ -101,7 +115,15 @@ class Fly: Module() {
 
 	@EventTarget
 	fun onRender3D(event: Render3DEvent) {
-		mode.onRender3D()
+		val boundingBox = mc.thePlayer.entityBoundingBox ?: return
+
+		if (markValue.get()) {
+            val y = mode.startY + 2
+            val color = if (boundingBox.maxY < y) Color(0, 255, 0, 90) else Color(255, 0, 0, 90)
+            RenderUtils.drawPlatform(y, color, 1.0)
+
+            mode.onRender3D()
+        }
 	}
 
 	@EventTarget

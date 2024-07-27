@@ -15,7 +15,7 @@ import net.minecraft.network.play.server.S30PacketWindowItems
 import net.minecraft.util.ResourceLocation
 import net.minusmc.minusbounce.MinusBounce
 import net.minusmc.minusbounce.event.EventTarget
-import net.minusmc.minusbounce.event.PacketEvent
+import net.minusmc.minusbounce.event.ReceivedPacketEvent
 import net.minusmc.minusbounce.event.UpdateEvent
 import net.minusmc.minusbounce.features.module.Module
 import net.minusmc.minusbounce.features.module.ModuleCategory
@@ -182,7 +182,7 @@ class ChestStealer : Module() {
     }
 
     @EventTarget
-    private fun onPacket(event: PacketEvent) {
+    private fun onReceivedPacket(event: ReceivedPacketEvent) {
         val packet = event.packet
 
         if (packet is S30PacketWindowItems)

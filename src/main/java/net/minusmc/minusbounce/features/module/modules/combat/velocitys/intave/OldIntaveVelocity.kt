@@ -13,8 +13,6 @@ class OldIntaveVelocity : VelocityMode("OldIntave") {
                 mc.thePlayer.movementInput.jump = true
                 counter = 0
             }
-        } else {
-            mc.gameSettings.keyBindJump.pressed = GameSettings.isKeyDown(mc.gameSettings.keyBindJump)
-        }
+        } else mc.gameSettings.keyBindJump.pressed = GameSettings.isKeyDown(mc.gameSettings.keyBindJump)
     }
 }

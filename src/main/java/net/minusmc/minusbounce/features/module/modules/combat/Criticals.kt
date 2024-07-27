@@ -6,7 +6,7 @@ import net.minecraft.network.play.server.S08PacketPlayerPosLook
 import net.minusmc.minusbounce.MinusBounce
 import net.minusmc.minusbounce.event.AttackEvent
 import net.minusmc.minusbounce.event.EventTarget
-import net.minusmc.minusbounce.event.PacketEvent
+import net.minusmc.minusbounce.event.SentPacketEvent
 import net.minusmc.minusbounce.features.module.Module
 import net.minusmc.minusbounce.features.module.ModuleCategory
 import net.minusmc.minusbounce.features.module.ModuleInfo
@@ -66,12 +66,13 @@ class Criticals : Module() {
     }
 
     @EventTarget
-    fun onPacket(event: PacketEvent) {
+    fun onSentPacket(event: SentPacketEvent) {
         val packet = event.packet
 
-        if (onlyAuraValue.get() && !MinusBounce.moduleManager[KillAura::class.java]!!.state) return
+        if (onlyAuraValue.get() && !MinusBounce.moduleManager[KillAura::class.java]!!.state)
+            return
 
-        mode.onPacket(event)
+        mode.onSentPacket(event)
     }
 
     override val tag: String

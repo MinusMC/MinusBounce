@@ -12,7 +12,7 @@ import net.minecraft.network.play.client.C02PacketUseEntity
 import net.minecraft.network.play.client.C09PacketHeldItemChange
 import net.minusmc.minusbounce.event.AttackEvent
 import net.minusmc.minusbounce.event.EventTarget
-import net.minusmc.minusbounce.event.PacketEvent
+import net.minusmc.minusbounce.event.SentPacketEvent
 import net.minusmc.minusbounce.event.UpdateEvent
 import net.minusmc.minusbounce.features.module.Module
 import net.minusmc.minusbounce.features.module.ModuleCategory
@@ -38,7 +38,7 @@ class AutoWeapon : Module() {
     }
 
     @EventTarget
-    fun onPacket(event: PacketEvent) {
+    fun onPacket(event: SentPacketEvent) {
         if (event.packet is C02PacketUseEntity && event.packet.action == C02PacketUseEntity.Action.ATTACK && attackEnemy) {
             attackEnemy = false
 

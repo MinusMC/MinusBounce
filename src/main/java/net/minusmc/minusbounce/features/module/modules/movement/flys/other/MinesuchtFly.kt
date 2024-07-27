@@ -13,10 +13,10 @@ class MinesuchtFly: FlyMode("Minesucht", FlyType.OTHER) {
         val posY = mc.thePlayer.posY
         val posZ = mc.thePlayer.posZ
 
-        if(!mc.gameSettings.keyBindForward.isKeyDown)
+        if (!mc.gameSettings.keyBindForward.isKeyDown)
             return
 
-        if(timer.hasTimePassed(99)) {
+        if (timer.hasTimePassed(99)) {
             val vec3 = mc.thePlayer.getPositionEyes(0f)
             val vec31 = mc.thePlayer.getLook(0f)
             val vec32 = vec3.addVector(vec31.xCoord * 7, vec31.yCoord * 7, vec31.zCoord * 7)
@@ -33,7 +33,7 @@ class MinesuchtFly: FlyMode("Minesucht", FlyType.OTHER) {
             mc.netHandler.addToSendQueue(C04PacketPlayerPosition(vec32.xCoord, posY, vec32.zCoord, true))
             mc.netHandler.addToSendQueue(C04PacketPlayerPosition(posX, posY, posZ, false))
             timer.reset()
-        }else{
+        } else {
             mc.netHandler.addToSendQueue(C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ, false))
             mc.netHandler.addToSendQueue(C04PacketPlayerPosition(posX, posY, posZ, true))
         }

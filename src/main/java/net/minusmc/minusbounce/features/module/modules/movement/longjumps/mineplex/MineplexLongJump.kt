@@ -12,6 +12,7 @@ class MineplexLongJump : LongJumpMode("Mineplex") {
 	}
 
 	override fun onJump(event: JumpEvent) {
-        if (longjump.state) event.motion *= 4.08f
+        if (longjump.state)
+        	event.motion *= 4.08f
 	}
 }

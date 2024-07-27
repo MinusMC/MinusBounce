@@ -5,6 +5,7 @@ import net.minecraft.network.play.client.C03PacketPlayer
 
 class PacketNoFall: NoFallMode("Packet") {
 	override fun onUpdate() {
-		if (mc.thePlayer.fallDistance > 2F) mc.netHandler.addToSendQueue(C03PacketPlayer(true))
+		if (mc.thePlayer.fallDistance > 2F) 
+			mc.netHandler.addToSendQueue(C03PacketPlayer(true))
 	}
 }

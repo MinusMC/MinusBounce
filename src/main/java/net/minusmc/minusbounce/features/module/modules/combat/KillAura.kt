@@ -239,11 +239,6 @@ class KillAura : Module() {
         }
     }
 
-    /**
-     * Run attack with raycast check entity
-     * Author: CCBluex, fmcpe, toidicakhia
-     */
-
     private fun runAttack(isLastClicks: Boolean) {
         updateHitable()
 
@@ -255,7 +250,7 @@ class KillAura : Module() {
         }
 
         if (targetModeValue.get().equals("Switch", true)) {
-            if (attackTimer.hasTimePassed(switchDelayValue.get().toLong())) {
+            if (attackTimer.hasTimePassed(switchDelayValue.get())) {
                 prevTargetEntities.add(target.entityId)
                 attackTimer.reset()
             }

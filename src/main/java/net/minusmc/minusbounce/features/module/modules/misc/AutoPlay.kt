@@ -7,7 +7,7 @@ package net.minusmc.minusbounce.features.module.modules.misc
 
 import net.minusmc.minusbounce.MinusBounce
 import net.minusmc.minusbounce.event.EventTarget
-import net.minusmc.minusbounce.event.PacketEvent
+import net.minusmc.minusbounce.event.ReceivedPacketEvent
 import net.minusmc.minusbounce.event.WorldEvent
 import net.minusmc.minusbounce.features.module.Module
 import net.minusmc.minusbounce.features.module.ModuleCategory
@@ -44,8 +44,8 @@ class AutoPlay : Module() {
     }
 
     @EventTarget
-    fun onPacket(event: PacketEvent) {
-        mode.onPacket(event)
+    fun onReceivedPacket(event: ReceivedPacketEvent) {
+        mode.onReceivedPacket(event)
     }
 
     @EventTarget

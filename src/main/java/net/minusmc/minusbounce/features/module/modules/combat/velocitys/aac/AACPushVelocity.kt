@@ -9,9 +9,8 @@ import net.minusmc.minusbounce.value.FloatValue
 
 
 class AACPushVelocity : VelocityMode("AACPush") {
-	private val aacPushXZReducerValue = FloatValue("XZReducer", 2F, 1F, 3F, "x")
-    private val aacPushYReducerValue = BoolValue("YReducer", true)
-
+	private val xzReducerValue = FloatValue("XZReducer", 2f, 1f, 3f, "x")
+    private val yReducerValue = BoolValue("YReducer", true)
 	private var jump = false
 
 	override fun onUpdate() {
@@ -22,13 +21,13 @@ class AACPushVelocity : VelocityMode("AACPush") {
             if (mc.thePlayer.hurtTime > 0 && mc.thePlayer.motionX != 0.0 && mc.thePlayer.motionZ != 0.0)
                 mc.thePlayer.onGround = true
 
-            if (mc.thePlayer.hurtResistantTime > 0 && aacPushYReducerValue.get()
+            if (mc.thePlayer.hurtResistantTime > 0 && yReducerValue.get()
                     && !MinusBounce.moduleManager[Speed::class.java]!!.state)
                 mc.thePlayer.motionY -= 0.014999993
         }
 
         if (mc.thePlayer.hurtResistantTime >= 19) {
-            val reduce = aacPushXZReducerValue.get()
+            val reduce = xzReducerValue.get()
 
             mc.thePlayer.motionX /= reduce
             mc.thePlayer.motionZ /= reduce
@@ -37,6 +36,7 @@ class AACPushVelocity : VelocityMode("AACPush") {
 
 	override fun onJump(event: JumpEvent) {
 		jump = true
+
         if (!mc.thePlayer.isCollidedVertically)
             event.isCancelled = true
 	}

@@ -8,10 +8,12 @@ import net.minusmc.minusbounce.utils.PacketUtils
 import net.minusmc.minusbounce.utils.PlayerUtils
 import net.minusmc.minusbounce.event.PreMotionEvent
 import net.minusmc.minusbounce.event.PostMotionEvent
-import net.minusmc.minusbounce.event.PacketEvent
+import net.minusmc.minusbounce.event.SentPacketEvent
+import net.minusmc.minusbounce.event.ReceivedPacketEvent
 import net.minusmc.minusbounce.event.JumpEvent
 import net.minusmc.minusbounce.event.StepEvent
 import net.minusmc.minusbounce.event.MoveEvent
+import net.minusmc.minusbounce.value.BoolValue
 import net.minusmc.minusbounce.MinusBounce
 import net.minusmc.minusbounce.ui.client.hud.element.elements.Notification
 
@@ -23,14 +25,13 @@ import net.minecraft.network.play.server.S08PacketPlayerPosLook
 
 
 class WatchdogFly: FlyMode("Watchdog", FlyType.OTHER) {
-	
-    private var wdState: Int = 0
-    private var expectItemStack: Int = 0
-	
+    private val fakeDamageWhenFlag = BoolValue("FakeDamageWhenFlag", true)
 
-    override fun handleUpdate() {}
+    private var wdState = 0
+    private var expectItemStack = 0
 
 	override fun onEnable() {
+		super.onEnable()
 		expectItemStack = PlayerUtils.getSlimeSlot()
         if (expectItemStack == -1) {
             MinusBounce.hud.addNotification(Notification("Fly", "The fly requires slime blocks to be activated properly."))
@@ -41,12 +42,11 @@ class WatchdogFly: FlyMode("Watchdog", FlyType.OTHER) {
             mc.thePlayer.jump()
             wdState = 1
         }
-        return
 	}
 
 	override fun onPreMotion(event: PreMotionEvent) {
         val current = mc.thePlayer.inventory.currentItem
-        if (wdState == 1 && mc.theWorld.getCollidingBoundingBoxes(mc.thePlayer, mc.thePlayer.entityBoundingBox.offset(0.0, -1.0, 0.0).expand(0.0, 0.0, 0.0)).isEmpty()) {
+        if (wdState == 1 && mc.theWorld.getCollidingBoundingBoxes(mc.thePlayer, mc.thePlayer.entityBoundingBox.offset(0.0, -1.0, 0.0)).isEmpty()) {
             PacketUtils.sendPacketNoEvent(C09PacketHeldItemChange(expectItemStack))
             wdState = 2
         }
@@ -60,7 +60,7 @@ class WatchdogFly: FlyMode("Watchdog", FlyType.OTHER) {
 
         if (wdState == 4) {
             if (MovementUtils.isMoving)
-                MovementUtils.strafe(MovementUtils.getBaseMoveSpeed().toFloat() * 0.938f)
+                MovementUtils.strafe(0.938f * MovementUtils.baseMoveSpeed.toFloat())
             else
                 MovementUtils.strafe(0f)
 
@@ -75,36 +75,46 @@ class WatchdogFly: FlyMode("Watchdog", FlyType.OTHER) {
 	}
 
     override fun onPostMotion(event: PostMotionEvent) {
-        if (wdState == 2) {
-            if (mc.playerController.onPlayerRightClick(
-                mc.thePlayer, mc.theWorld, 
-                mc.thePlayer.inventoryContainer.getSlot(expectItemStack).stack, 
-                BlockPos(mc.thePlayer.posX, mc.thePlayer.posY - 2, mc.thePlayer.posZ), 
-                EnumFacing.UP, 
-                RotationUtils.getVectorForRotation(RotationUtils.getRotations(mc.thePlayer.posX, mc.thePlayer.posZ, mc.thePlayer.posY - 1))))
-                mc.netHandler.addToSendQueue(C0APacketAnimation())
-            wdState = 3
+        if (wdState != 2)
+            return
+
+        val stack = mc.thePlayer.inventoryContainer.getSlot(expectItemStack).stack
+        val blockPos = BlockPos(mc.thePlayer.posX, mc.thePlayer.posY - 2, mc.thePlayer.posZ)
+        val rotation = RotationUtils.getRotations(mc.thePlayer.posX, mc.thePlayer.posZ, mc.thePlayer.posY - 1)
+        val vec = RotationUtils.getVectorForRotation(rotation)
+
+        if (mc.playerController.onPlayerRightClick(mc.thePlayer, mc.theWorld, stack, blockPos, EnumFacing.UP, vec))
+            mc.netHandler.addToSendQueue(C0APacketAnimation())
+
+        wdState = 3
+    }
+
+	override fun onSentPacket(event: SentPacketEvent) {
+		val packet = event.packet
+
+		if (packet is C09PacketHeldItemChange && wdState < 4)
+            event.isCancelled = true
+	}
+
+    override fun onReceivedPacket(event: ReceivedPacketEvent) {
+        val packet = event.packet
+
+        if (packet is S08PacketPlayerPosLook && wdState == 3) {
+            wdState = 4
+
+            if (fakeDamageWhenFlag.get())
+                mc.thePlayer.handleStatusUpdate(2.toByte())
         }
     }
 
-	override fun onPacket(event: PacketEvent) {
-		val packet = event.packet
-		if (packet is C09PacketHeldItemChange && wdState < 4) event.isCancelled = true
-		if (packet is S08PacketPlayerPosLook) {
-			if (wdState == 3) {
-				wdState = 4
-				if (fly.fakeDmgValue.get() && mc.thePlayer != null)
-                    mc.thePlayer.handleStatusUpdate(2.toByte())
-			}
-		}
-	}
-
 	override fun onMove(event: MoveEvent) {
-		if (wdState < 4) event.zeroXZ()
+		if (wdState < 4)
+            event.zeroXZ()
 	}
 
 	override fun onJump(event: JumpEvent) {
-		if (wdState >= 1) event.isCancelled = true
+		if (wdState >= 1)
+            event.isCancelled = true
 	}
 
 	override fun onStep(event: StepEvent) {

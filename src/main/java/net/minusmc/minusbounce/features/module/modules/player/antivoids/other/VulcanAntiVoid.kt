@@ -8,7 +8,6 @@ import net.minecraft.block.BlockAir
 import net.minusmc.minusbounce.utils.block.BlockUtils
 
 
-
 class VulcanAntiVoid: AntiVoidMode("Vulcan") {
     private var tried = false
 
@@ -21,29 +20,29 @@ class VulcanAntiVoid: AntiVoidMode("Vulcan") {
     }
 
     override fun onUpdate() {
-        if (mc.thePlayer.onGround) {
+        if (mc.thePlayer.onGround)
             tried = false
-        }
 
         if (mc.thePlayer.onGround && BlockUtils.getBlock(BlockPos(mc.thePlayer.posX, mc.thePlayer.posY - 1.0, mc.thePlayer.posZ)) !is BlockAir) {
             posX = mc.thePlayer.prevPosX
             posY = mc.thePlayer.prevPosY
             posZ = mc.thePlayer.prevPosZ
         }
-        if (!antivoid.voidOnlyValue.get() || isVoid) {
-            if (mc.thePlayer.fallDistance > antivoid.maxFallDistValue.get() && !tried) {
-                mc.thePlayer.setPosition(mc.thePlayer.posX, posY, mc.thePlayer.posZ)
-                mc.netHandler.addToSendQueue(C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ, false))
-                mc.thePlayer.setPosition(posX, posY, posZ)
-                mc.netHandler.addToSendQueue(C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ, true))
-                mc.thePlayer.fallDistance = 0F
+    }
 
-                mc.thePlayer.motionX = 0.0
-                mc.thePlayer.motionY = 0.0
-                mc.thePlayer.motionZ = 0.0
+    override fun onUpdateVoided() {
+        if (mc.thePlayer.fallDistance > antivoid.maxFallDistValue.get() && !tried) {
+            mc.thePlayer.setPosition(mc.thePlayer.posX, posY, mc.thePlayer.posZ)
+            mc.netHandler.addToSendQueue(C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ, false))
+            mc.thePlayer.setPosition(posX, posY, posZ)
+            mc.netHandler.addToSendQueue(C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ, true))
+            mc.thePlayer.fallDistance = 0F
 
-                tried = true
-            }
+            mc.thePlayer.motionX = 0.0
+            mc.thePlayer.motionY = 0.0
+            mc.thePlayer.motionZ = 0.0
+
+            tried = true
         }
     }
 }

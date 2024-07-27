@@ -5,8 +5,6 @@
  */
 package net.minusmc.minusbounce.features.module.modules.movement
 
-import net.minecraft.client.renderer.GlStateManager
-import net.minecraft.client.renderer.block.model.ItemCameraTransforms
 import net.minecraft.item.*
 import net.minecraft.network.play.client.C03PacketPlayer.C06PacketPlayerPosLook
 import net.minecraft.network.play.client.C07PacketPlayerDigging
@@ -110,18 +108,6 @@ class NoSlow : Module() {
     }
 
     @EventTarget
-    fun onPacket(event: PacketEvent) {
-        mc.thePlayer ?: return
-        val packet = event.packet
-
-        if (isEating) foodMode.onPacket(event)
-
-        if (isBowing) bowMode.onPacket(event)
-
-        if (isBlocking) swordMode.onPacket(event)
-    }
-
-    @EventTarget
     fun onInput(event: MoveInputEvent) {
         event.sneakMultiplier = sneakMultiplier.get().toDouble()
     }
@@ -132,9 +118,7 @@ class NoSlow : Module() {
         mc.theWorld ?: return
 
         if (isEating) foodMode.onPreMotion(event)
-
         if (isBowing) bowMode.onPreMotion(event)
-
         if (isBlocking) swordMode.onPreMotion(event)
     }
 
@@ -144,9 +128,7 @@ class NoSlow : Module() {
         mc.theWorld ?: return
 
         if (isEating) foodMode.onPostMotion(event)
-
         if (isBowing) bowMode.onPostMotion(event)
-
         if (isBlocking) swordMode.onPostMotion(event)
     }
 

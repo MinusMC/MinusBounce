@@ -46,13 +46,14 @@ class LongJump: Module() {
 
     @EventTarget
     fun onUpdate(event: UpdateEvent) {
-        mode.onUpdateSpecial()
+        mode.onUpdate()
+
         if (jumped) {
             if (mc.thePlayer.onGround || mc.thePlayer.capabilities.isFlying) {
                 jumped = false
                 return
             }
-            mode.onUpdate()
+            mode.onUpdateJumped()
         }
 
         if (autoJumpValue.get() && mc.thePlayer.onGround && MovementUtils.isMoving) {
@@ -62,8 +63,13 @@ class LongJump: Module() {
     }
 
     @EventTarget
-    fun onPacket(event: PacketEvent) {
-        mode.onPacket(event)
+    fun onSentPacket(event: SentPacketEvent) {
+        mode.onSentPacket(event)
+    }
+
+    @EventTarget
+    fun onReceivedPacket(event: ReceivedPacketEvent) {
+        mode.onReceivedPacket(event)
     }
 
     @EventTarget

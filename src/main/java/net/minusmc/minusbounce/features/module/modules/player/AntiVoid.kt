@@ -7,10 +7,7 @@
  */
 package net.minusmc.minusbounce.features.module.modules.player
 
-import net.minusmc.minusbounce.event.EventTarget
-import net.minusmc.minusbounce.event.PacketEvent
-import net.minusmc.minusbounce.event.UpdateEvent
-import net.minusmc.minusbounce.event.WorldEvent
+import net.minusmc.minusbounce.event.*
 import net.minusmc.minusbounce.features.module.modules.player.antivoids.AntiVoidMode
 import net.minusmc.minusbounce.features.module.Module
 import net.minusmc.minusbounce.features.module.ModuleCategory
@@ -19,6 +16,7 @@ import net.minusmc.minusbounce.utils.ClassUtils
 import net.minusmc.minusbounce.value.BoolValue
 import net.minusmc.minusbounce.value.FloatValue
 import net.minusmc.minusbounce.value.ListValue
+import net.minusmc.minusbounce.utils.misc.FallingPlayer
 
 @ModuleInfo(name = "AntiVoid", description = "Anti void", category = ModuleCategory.PLAYER)
 object AntiVoid : Module() {
@@ -59,11 +57,21 @@ object AntiVoid : Module() {
     @EventTarget
     fun onUpdate(event: UpdateEvent) {
         mode.onUpdate()
+
+        if (!voidOnlyValue.get() || FallingPlayer(mc.thePlayer).findCollision(60) == null)
+            mode.onUpdateVoided()
+
+        mode.onPostVoided()
     }
 
     @EventTarget
-    fun onPacket(event: PacketEvent) {
-        mode.onPacket(event)
+    fun onSentPacket(event: SentPacketEvent) {
+        mode.onSentPacket(event)
+    }
+
+    @EventTarget
+    fun onReceivedPacket(event: ReceivedPacketEvent) {
+        mode.onReceivedPacket(event)
     }
 
     override val tag: String

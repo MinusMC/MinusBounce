@@ -7,7 +7,7 @@ package net.minusmc.minusbounce.features.module.modules.combat
 
 import net.minusmc.minusbounce.event.EventTarget
 import net.minusmc.minusbounce.event.UpdateEvent
-import net.minusmc.minusbounce.event.PacketEvent
+import net.minusmc.minusbounce.event.SentPacketEvent
 import net.minusmc.minusbounce.features.module.Module
 import net.minusmc.minusbounce.features.module.ModuleCategory
 import net.minusmc.minusbounce.features.module.ModuleInfo
@@ -79,15 +79,21 @@ class FastBow : Module() {
     }
 
     @EventTarget
-    fun onPacket(event: PacketEvent) {
+    fun onSentPacket(event: SentPacketEvent) {
         mc.thePlayer ?: return
 
         val packet = event.packet
-        val itemStack = mc.thePlayer.inventory?.getCurrentItem() ?: return
+        val itemStack = mc.thePlayer.inventory.getCurrentItem() ?: return
 
-        if (itemStack.item is ItemBow) {
-            if (packet is C08PacketPlayerBlockPlacement || (packet is C07PacketPlayerDigging && packet.status == C07PacketPlayerDigging.Action.RELEASE_USE_ITEM))
-                event.isCancelled = true
+        if (itemStack.item !is ItemBow)
+            return
+
+        if (packet is C08PacketPlayerBlockPlacement) {
+            event.isCancelled = true
+            return
         }
+
+        if (packet is C07PacketPlayerDigging && packet.status == C07PacketPlayerDigging.Action.RELEASE_USE_ITEM)
+            event.isCancelled = true
     }
 }

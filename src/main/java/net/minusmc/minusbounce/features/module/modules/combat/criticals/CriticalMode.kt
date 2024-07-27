@@ -20,6 +20,6 @@ abstract class CriticalMode(val modeName: String): MinecraftInstance() {
 	open fun onDisable() {}
 
     open fun onUpdate() {}
-    open fun onPacket(event: PacketEvent) {}
+    open fun onSentPacket(event: SentPacketEvent) {}
     open fun onAttack(event: AttackEvent) {}
 }

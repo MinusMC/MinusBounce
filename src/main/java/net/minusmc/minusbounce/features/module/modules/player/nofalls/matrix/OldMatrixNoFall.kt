@@ -4,12 +4,12 @@ import net.minusmc.minusbounce.features.module.modules.player.nofalls.NoFallMode
 import net.minecraft.network.play.client.C03PacketPlayer
 import net.minecraft.network.play.client.C03PacketPlayer.C04PacketPlayerPosition
 import net.minecraft.network.play.server.S08PacketPlayerPosLook
-import net.minusmc.minusbounce.event.PacketEvent
+import net.minusmc.minusbounce.event.*
 
 class OldMatrixNoFall: NoFallMode("OldMatrix") {
 	private var isDmgFalling = false
 	private var modifiedTimer = false
-	private var matrixFlagWait = 0
+	private var flagTicks = 0
 
     override fun onEnable() {
 		isDmgFalling = false
@@ -25,26 +25,21 @@ class OldMatrixNoFall: NoFallMode("OldMatrix") {
             modifiedTimer = false
         }
 
-        if (matrixFlagWait > 0) {
-            matrixFlagWait--
-            if (matrixFlagWait == 0)
+        if (flagTicks > 0) {
+            flagTicks--
+            if (flagTicks == 0)
                 mc.timer.timerSpeed = 1F
         }
 
-		if (mc.thePlayer.fallDistance > 3) isDmgFalling = true
+		if (mc.thePlayer.fallDistance > 3)
+			isDmgFalling = true
 	}
 
-	override fun onPacket(event: PacketEvent) {
+	override fun onSentPacket(event: SentPacketEvent) {
 		val packet = event.packet
 
-		if (packet is S08PacketPlayerPosLook && matrixFlagWait > 0) {
-            matrixFlagWait = 0
-            mc.timer.timerSpeed = 1.0F
-            event.isCancelled = true
-        }
-
 		if (isDmgFalling && packet is C03PacketPlayer && packet.onGround && mc.thePlayer.onGround) {
-            matrixFlagWait = 2
+            flagTicks = 2
             isDmgFalling = false
             event.isCancelled = true
             mc.thePlayer.onGround = false
@@ -52,6 +47,16 @@ class OldMatrixNoFall: NoFallMode("OldMatrix") {
             mc.netHandler.addToSendQueue(C04PacketPlayerPosition(packet.x, -10.0 , packet.z, true))
             mc.timer.timerSpeed = 0.18f
             modifiedTimer = true
+        }
+	}
+
+	override fun onReceivedPacket(event: ReceivedPacketEvent) {
+		val packet = event.packet
+
+		if (packet is S08PacketPlayerPosLook && flagTicks > 0) {
+            flagTicks = 0
+            mc.timer.timerSpeed = 1.0F
+            event.isCancelled = true
         }
 	}
 }

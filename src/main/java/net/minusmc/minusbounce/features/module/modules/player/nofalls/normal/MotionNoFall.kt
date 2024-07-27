@@ -7,6 +7,7 @@ class MotionNoFall: NoFallMode("Motion") {
 	private val flySpeedValue = FloatValue("MotionSpeed", -0.01F, -5F, 5F)
 
 	override fun onUpdate() {
-		if (mc.thePlayer.fallDistance > 3F) mc.thePlayer.motionY = flySpeedValue.get().toDouble()
+		if (mc.thePlayer.fallDistance > 3F)
+			mc.thePlayer.motionY = flySpeedValue.get().toDouble()
 	}
 }

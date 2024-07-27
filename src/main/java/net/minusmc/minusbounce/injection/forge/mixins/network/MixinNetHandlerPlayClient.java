@@ -16,7 +16,6 @@ import net.minusmc.minusbounce.utils.player.RotationUtils;
 import net.minusmc.minusbounce.utils.player.MovementCorrection;
 import net.minusmc.minusbounce.utils.Rotation;
 import net.minusmc.minusbounce.event.EntityDamageEvent;
-import net.minusmc.minusbounce.event.EntityMovementEvent;
 import net.minusmc.minusbounce.features.special.AntiForge;
 import net.minusmc.minusbounce.features.module.modules.misc.NoRotateSet;
 import net.minusmc.minusbounce.ui.client.clickgui.dropdown.DropDownClickGui;
@@ -195,14 +194,6 @@ public abstract class MixinNetHandlerPlayClient {
         this.gameController.gameSettings.sendSettingsToServer();
         this.netManager.sendPacket(new C17PacketCustomPayload("MC|Brand", (new PacketBuffer(Unpooled.buffer())).writeString(ClientBrandRetriever.getClientModName())));
         callbackInfo.cancel();
-    }
-
-    @Inject(method = "handleEntityMovement", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/Entity;onGround:Z"))
-    private void handleEntityMovementEvent(S14PacketEntity packetIn, CallbackInfo callbackInfo) {
-        final Entity entity = packetIn.getEntity(this.clientWorldController);
-
-        if(entity != null)
-            MinusBounce.eventManager.callEvent(new EntityMovementEvent(entity));
     }
 
     @Inject(method = "handleEntityStatus", at = @At("HEAD"))

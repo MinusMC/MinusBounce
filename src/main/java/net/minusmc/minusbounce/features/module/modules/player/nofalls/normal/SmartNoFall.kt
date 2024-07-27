@@ -2,7 +2,7 @@ package net.minusmc.minusbounce.features.module.modules.player.nofalls.normal
 
 import net.minusmc.minusbounce.features.module.modules.player.nofalls.NoFallMode
 import net.minecraft.network.play.client.C03PacketPlayer
-import net.minusmc.minusbounce.event.PacketEvent
+import net.minusmc.minusbounce.event.SentPacketEvent
 
 class SmartNoFall: NoFallMode("Smart") {
 	private var packetModify = false
@@ -27,7 +27,7 @@ class SmartNoFall: NoFallMode("Smart") {
 			lastFallDistRounded = 0
 	}
 
-	override fun onPacket(event: PacketEvent) {
+	override fun onSentPacket(event: SentPacketEvent) {
 		val packet = event.packet
 		if (packet is C03PacketPlayer && packetModify) {
 			packet.onGround = true

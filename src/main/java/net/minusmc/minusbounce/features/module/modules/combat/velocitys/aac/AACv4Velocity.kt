@@ -2,7 +2,7 @@ package net.minusmc.minusbounce.features.module.modules.combat.velocitys.aac
 
 import net.minusmc.minusbounce.features.module.modules.combat.velocitys.VelocityMode
 import net.minusmc.minusbounce.utils.timer.MSTimer
-import net.minusmc.minusbounce.event.PacketEvent
+import net.minusmc.minusbounce.event.ReceivedPacketEvent
 import net.minusmc.minusbounce.event.JumpEvent
 import net.minecraft.network.play.server.S12PacketEntityVelocity
 
@@ -12,20 +12,21 @@ class AACv4Velocity : VelocityMode("AACv4") {
 	private val velocityTimer = MSTimer()
 
 	override fun onUpdate() {
-		if (!mc.thePlayer.onGround) {
-			if (velocityInput) {
-				mc.thePlayer.speedInAir = 0.02f
-				mc.thePlayer.motionX *= 0.6
-				mc.thePlayer.motionZ *= 0.6
-			} else if (velocityTimer.hasTimePassed(80L)) {
-				velocityInput = false
-				mc.thePlayer.speedInAir = 0.02f
-			}
+		if (mc.thePlayer.onGround)
+			return
+
+		if (velocityInput) {
+			mc.thePlayer.speedInAir = 0.02f
+			mc.thePlayer.motionX *= 0.6
+			mc.thePlayer.motionZ *= 0.6
+		} else if (velocityTimer.hasTimePassed(80L)) {
+			velocityInput = false
+			mc.thePlayer.speedInAir = 0.02f
 		}
 	}
 
 
-	override fun onPacket(event: PacketEvent) {
+	override fun onReceivedPacket(event: ReceivedPacketEvent) {
 		if (event.packet is S12PacketEntityVelocity) {
 			velocityTimer.reset()
 			velocityInput = true
@@ -33,6 +34,7 @@ class AACv4Velocity : VelocityMode("AACv4") {
 	}
 
 	override fun onJump(event: JumpEvent) {
-		if (mc.thePlayer.hurtTime > 0) event.isCancelled = true
+		if (mc.thePlayer.hurtTime > 0)
+			event.isCancelled = true
 	}
 }

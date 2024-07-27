@@ -5,15 +5,15 @@ import net.minecraft.network.play.client.C03PacketPlayer.C04PacketPlayerPosition
 import net.minusmc.minusbounce.utils.timer.TickTimer
 
 class SpartanNoFall: NoFallMode("Spartan") {
-	private val spartanTimer = TickTimer()
+	private var ticks = 0
 
 	override fun onUpdate() {
-		spartanTimer.update()
+		ticks++
 
-        if (mc.thePlayer.fallDistance > 1.5F && spartanTimer.hasTimePassed(10)) {
+        if (mc.thePlayer.fallDistance > 1.5F && ticks >= 10) {
             mc.netHandler.addToSendQueue(C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY + 10, mc.thePlayer.posZ, true))
             mc.netHandler.addToSendQueue(C04PacketPlayerPosition(mc.thePlayer.posX, mc.thePlayer.posY - 10, mc.thePlayer.posZ, true))
-            spartanTimer.reset()
+           	ticks = 0
         }
 	}
 }

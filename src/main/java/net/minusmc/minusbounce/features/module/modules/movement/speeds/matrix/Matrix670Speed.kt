@@ -3,7 +3,7 @@ package net.minusmc.minusbounce.features.module.modules.movement.speeds.matrix
 import net.minusmc.minusbounce.features.module.modules.movement.speeds.SpeedType
 import net.minusmc.minusbounce.features.module.modules.movement.speeds.SpeedMode
 import net.minusmc.minusbounce.utils.player.MovementUtils
-import net.minusmc.minusbounce.event.PacketEvent
+import net.minusmc.minusbounce.event.ReceivedPacketEvent
 import net.minecraft.client.settings.GameSettings
 import net.minecraft.network.play.server.S12PacketEntityVelocity
 import kotlin.math.abs
@@ -13,34 +13,36 @@ class Matrix670Speed: SpeedMode("Matrix6.7.0", SpeedType.MATRIX) {
 	private var noVelocityY = 0
 
     override fun onUpdate() {
-        if (noVelocityY >= 0) {
+        if (noVelocityY >= 0)
             noVelocityY -= 1
-        }
+
         if (!mc.thePlayer.onGround && noVelocityY <= 0) {
-            if (mc.thePlayer.motionY > 0) {
+            if (mc.thePlayer.motionY > 0)
                 mc.thePlayer.motionY -= 0.0005
-            }
+
             mc.thePlayer.motionY -= 0.009400114514191982
         }
+
         if (!mc.thePlayer.onGround) {
             mc.gameSettings.keyBindJump.pressed = GameSettings.isKeyDown(mc.gameSettings.keyBindJump)
-            if (MovementUtils.speed < 0.2177 && noVelocityY < 8) {
+            if (MovementUtils.speed < 0.2177 && noVelocityY < 8)
                 MovementUtils.strafe(0.2177f)
-            }
+
         }
-        if (abs(mc.thePlayer.movementInput.moveStrafe) < 0.1) {
+
+        if (abs(mc.thePlayer.movementInput.moveStrafe) < 0.1)
             mc.thePlayer.jumpMovementFactor = 0.026f
-        }else{
+        else
             mc.thePlayer.jumpMovementFactor = 0.0247f
-        }
+
         if (mc.thePlayer.onGround && MovementUtils.isMoving) {
             mc.gameSettings.keyBindJump.pressed = false
             mc.thePlayer.jump()
             mc.thePlayer.motionY = 0.4105000114514192
-            if (abs(mc.thePlayer.movementInput.moveStrafe) < 0.1) {
+            if (abs(mc.thePlayer.movementInput.moveStrafe) < 0.1)
                 MovementUtils.strafe()
-            }
         }
+
         if (!MovementUtils.isMoving) {
             mc.thePlayer.motionX = 0.0
             mc.thePlayer.motionZ = 0.0
@@ -52,13 +54,11 @@ class Matrix670Speed: SpeedMode("Matrix6.7.0", SpeedType.MATRIX) {
         noVelocityY = 0
         mc.thePlayer.jumpMovementFactor = 0.02f
     }
-    override fun onPacket(event: PacketEvent) {
+
+    override fun onReceivedPacket(event: ReceivedPacketEvent) {
         val packet = event.packet
-        if (packet is S12PacketEntityVelocity) {
-            if (mc.thePlayer == null || (mc.theWorld?.getEntityByID(packet.entityID) ?: return) != mc.thePlayer) {
-                return
-            }
+
+        if (packet is S12PacketEntityVelocity && packet.entityID == mc.thePlayer.entityId)
             noVelocityY = 10
-        }
     }
 }

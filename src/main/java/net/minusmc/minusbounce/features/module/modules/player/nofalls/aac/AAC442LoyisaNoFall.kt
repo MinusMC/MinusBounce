@@ -5,23 +5,23 @@ import net.minecraft.network.play.client.C03PacketPlayer
 import net.minecraft.network.play.client.C03PacketPlayer.C04PacketPlayerPosition
 import net.minecraft.network.play.server.S08PacketPlayerPosLook
 import net.minusmc.minusbounce.utils.timer.MSTimer
-import net.minusmc.minusbounce.event.PacketEvent
+import net.minusmc.minusbounce.event.*
 
 class AAC442LoyisaNoFall: NoFallMode("AAC4.4.2Loyisa") {
     private var isDmgFalling = false
     private var modifiedTimer = false
-    private var matrixFlagWait = 0
-    private var aac4FlagCount = 0
-    private val aac4FlagCooldown = MSTimer()
+    private var flagWaitTicks = 0
+    private var flagCount = 0
+    private val flagTimer = MSTimer()
 
     override fun onEnable() {
         isDmgFalling = false
-        aac4FlagCount = 0
+        flagCount = 0
     }
 
     override fun onDisable() {
         isDmgFalling = false
-        aac4FlagCount = 0
+        flagCount = 0
     }
 
 	override fun onUpdate() {
@@ -30,17 +30,20 @@ class AAC442LoyisaNoFall: NoFallMode("AAC4.4.2Loyisa") {
             modifiedTimer = false
         }
         
-        if (matrixFlagWait > 0) {
-            matrixFlagWait--
-            if (matrixFlagWait == 0)
+        if (flagWaitTicks > 0) {
+            flagWaitTicks--
+
+            if (flagWaitTicks == 0)
                 mc.timer.timerSpeed = 1F
         }
 
 		if (mc.thePlayer.fallDistance > 3)
             isDmgFalling = true
 
-        if (aac4FlagCount >= 3 || aac4FlagCooldown.hasTimePassed(1500L)) return
-        if (!aac4FlagCooldown.hasTimePassed(1500L) && (mc.thePlayer.onGround || mc.thePlayer.fallDistance < 0.5)) {
+        if (flagCount >= 3 || flagTimer.hasTimePassed(1500L))
+            return
+
+        if (!flagTimer.hasTimePassed(1500L) && (mc.thePlayer.onGround || mc.thePlayer.fallDistance < 0.5)) {
             mc.thePlayer.motionX = 0.0
             mc.thePlayer.motionZ = 0.0
             mc.thePlayer.onGround = false
@@ -48,20 +51,25 @@ class AAC442LoyisaNoFall: NoFallMode("AAC4.4.2Loyisa") {
         }
 	}
 
-    override fun onPacket(event: PacketEvent) {
+    override fun onReceivedPacket(event: ReceivedPacketEvent) {
         val packet = event.packet
 
         if (packet is S08PacketPlayerPosLook) {
-            aac4FlagCount++
-            if(matrixFlagWait > 0) {
-                aac4FlagCooldown.reset()
-                aac4FlagCount = 1
+            flagCount++
+            if(flagWaitTicks > 0) {
+                flagTimer.reset()
+                flagCount = 1
                 event.isCancelled = true
             }
         }
 
+    }
+
+    override fun onSentPacket(event: SentPacketEvent) {
+        val packet = event.packet
+
         if (isDmgFalling && packet is C03PacketPlayer && packet.onGround && mc.thePlayer.onGround) {
-            matrixFlagWait = 2
+            flagWaitTicks = 2
             isDmgFalling = false
             event.isCancelled = true
             mc.thePlayer.onGround = false

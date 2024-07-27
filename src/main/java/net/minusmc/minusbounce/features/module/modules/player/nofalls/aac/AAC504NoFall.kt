@@ -1,7 +1,7 @@
 package net.minusmc.minusbounce.features.module.modules.player.nofalls.aac
 
 import net.minusmc.minusbounce.features.module.modules.player.nofalls.NoFallMode
-import net.minusmc.minusbounce.event.PacketEvent
+import net.minusmc.minusbounce.event.SentPacketEvent
 import net.minecraft.network.play.client.C03PacketPlayer
 import net.minecraft.network.play.client.C03PacketPlayer.C04PacketPlayerPosition
 
@@ -20,7 +20,7 @@ class AAC504NoFall: NoFallMode("AAC5.0.4") {
         if (mc.thePlayer.fallDistance > 3) isDmgFalling = true
     }
 
-    override fun onPacket(event: PacketEvent) {
+    override fun onSentPacket(event: SentPacketEvent) {
         val packet = event.packet
         if (isDmgFalling && packet is C03PacketPlayer && packet.onGround && mc.thePlayer.onGround) {
             isDmgFalling = false

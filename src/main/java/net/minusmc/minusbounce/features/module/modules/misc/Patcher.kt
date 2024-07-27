@@ -9,5 +9,4 @@ import net.minusmc.minusbounce.value.BoolValue
 object Patcher: Module() {
     val noHitDelay = BoolValue("NoHitDelay", false)
     val chatPosition = BoolValue("ChatPosition1.12", true)
-    val silentNPESP = BoolValue("SilentNPE-SpawnPlayer", true)
 }

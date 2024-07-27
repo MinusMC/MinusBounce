@@ -8,7 +8,6 @@ import net.minecraft.util.EnumFacing
 import net.minusmc.minusbounce.MinusBounce
 import net.minusmc.minusbounce.event.PreMotionEvent
 import net.minusmc.minusbounce.event.PostMotionEvent
-import net.minusmc.minusbounce.event.PacketEvent
 import net.minusmc.minusbounce.event.SlowDownEvent
 import net.minusmc.minusbounce.features.module.modules.movement.NoSlow
 import net.minusmc.minusbounce.utils.ClassUtils
@@ -27,7 +26,6 @@ abstract class NoSlowMode(val modeName: String): MinecraftInstance() {
 
     open fun onDisable() {}
     open fun onUpdate() {}
-    open fun onPacket(event: PacketEvent) {}
 
     open fun onPreMotion(event: PreMotionEvent) {}
     open fun onPostMotion(event: PostMotionEvent) {}

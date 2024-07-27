@@ -10,10 +10,7 @@ import net.minecraft.network.play.client.C03PacketPlayer
 import net.minecraft.network.play.client.C03PacketPlayer.*
 import net.minecraft.network.play.client.C0BPacketEntityAction
 import net.minecraft.network.play.server.S08PacketPlayerPosLook
-import net.minusmc.minusbounce.event.EventTarget
-import net.minusmc.minusbounce.event.PacketEvent
-import net.minusmc.minusbounce.event.UpdateEvent
-import net.minusmc.minusbounce.event.WorldEvent
+import net.minusmc.minusbounce.event.*
 import net.minusmc.minusbounce.features.module.Module
 import net.minusmc.minusbounce.features.module.ModuleCategory
 import net.minusmc.minusbounce.features.module.ModuleInfo
@@ -28,7 +25,7 @@ class FreeCam : Module() {
     private val speedValue = FloatValue("Speed", 0.8F, 0.1F, 2F, "m")
     private val flyValue = BoolValue("Fly", true)
     private val noClipValue = BoolValue("NoClip", true)
-    val undetectableValue = BoolValue("Undetectable", true)
+    private val undetectableValue = BoolValue("Undetectable", true)
 
     private var fakePlayer: EntityOtherPlayerMP? = null
     private var oldX = 0.0
@@ -92,7 +89,7 @@ class FreeCam : Module() {
     }
 
     @EventTarget
-    fun onPacket(event: PacketEvent) {
+    fun onSentPacket(event: SentPacketEvent) {
         fakePlayer ?: return
 
         val packet = event.packet
@@ -127,6 +124,13 @@ class FreeCam : Module() {
 
         if (packet is C0BPacketEntityAction)
             event.isCancelled = true
+    }
+
+    @EventTarget
+    fun onReceivedPacket(event: ReceivedPacketEvent) {
+        fakePlayer ?: return
+
+        val packet = event.packet
 
         if (packet is S08PacketPlayerPosLook) {
             event.isCancelled = true

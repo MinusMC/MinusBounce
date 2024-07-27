@@ -5,8 +5,9 @@ import net.minusmc.minusbounce.features.module.modules.movement.flys.FlyMode
 import net.minusmc.minusbounce.value.BoolValue
 import net.minusmc.minusbounce.value.IntegerValue
 import net.minusmc.minusbounce.value.FloatValue
-import net.minusmc.minusbounce.event.PacketEvent
+import net.minusmc.minusbounce.event.SentPacketEvent
 import net.minusmc.minusbounce.event.MoveEvent
+import net.minusmc.minusbounce.utils.misc.MathUtils
 import net.minecraft.network.play.client.C03PacketPlayer
 import net.minecraft.network.play.client.C03PacketPlayer.C04PacketPlayerPosition
 
@@ -24,8 +25,6 @@ class ClipFly: FlyMode("Clip", FlyType.NORMAL) {
     private val clipNoMove = BoolValue("NoMove", true)
 
     private fun hClip(x: Double, y: Double, z: Double) {
-        if (mc.thePlayer == null) return
-
         val expectedX = mc.thePlayer.posX + x
         val expectedY = mc.thePlayer.posY + y
         val expectedZ = mc.thePlayer.posZ + z
@@ -34,30 +33,30 @@ class ClipFly: FlyMode("Clip", FlyType.NORMAL) {
         mc.thePlayer.setPosition(expectedX, expectedY, expectedZ)
     }
 
-    private fun getMoves(h: Double, v: Double): DoubleArray {
-        if (mc.thePlayer == null) return doubleArrayOf(0.0, 0.0, 0.0)
-        val yaw = Math.toRadians(mc.thePlayer.rotationYaw.toDouble())
-        val x = -sin(yaw) * h
-        val z = cos(yaw) * h
-        return doubleArrayOf(x, v, z)
-    }
-
     override fun onUpdate() {
+        mc.thePlayer ?: return
+
         mc.thePlayer.motionY = clipMotionY.get().toDouble()
         mc.timer.timerSpeed = clipTimer.get()
         if (mc.thePlayer.ticksExisted % clipDelay.get() == 0) {
-            val expectMoves = getMoves(clipH.get().toDouble(), clipV.get().toDouble())
-            if (!clipCollisionCheck.get() || mc.theWorld.getCollidingBoundingBoxes(mc.thePlayer, mc.thePlayer.entityBoundingBox.offset(expectMoves[0], expectMoves[1], expectMoves[2]).expand(0.0, 0.0, 0.0)).isEmpty())
-                hClip(expectMoves[0], expectMoves[1], expectMoves[2])
+
+            val yaw = MathUtils.toRadians(mc.thePlayer.rotationYaw)
+            val x = -sin(yaw) * clipH.get()
+            val z = cos(yaw) * clipH.get()
+
+            if (!clipCollisionCheck.get() || mc.theWorld.getCollidingBoundingBoxes(mc.thePlayer, mc.thePlayer.entityBoundingBox.offset(x.toDouble(), clipV.get().toDouble(), z.toDouble())).isEmpty())
+                hClip(x.toDouble(), clipV.get().toDouble(), z.toDouble())
         }
     }
 
-    override fun onPacket(event: PacketEvent) {
+    override fun onSentPacket(event: SentPacketEvent) {
         val packet = event.packet
-        if (packet is C03PacketPlayer && clipGroundSpoof.get()) packet.onGround = true 
+        if (packet is C03PacketPlayer && clipGroundSpoof.get())
+            packet.onGround = true 
     }
 
     override fun onMove(event: MoveEvent) {
-        if (clipNoMove.get()) event.zeroXZ()
+        if (clipNoMove.get())
+            event.zeroXZ()
     }
 }
