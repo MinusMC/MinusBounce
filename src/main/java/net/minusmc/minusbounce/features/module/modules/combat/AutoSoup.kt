@@ -1,7 +1,7 @@
 /*
- * LiquidBounce+ Hacked Client
+ * MinusBounce Hacked Client
  * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/WYSI-Foundation/LiquidBouncePlus/
+ * https://github.com/MinusMC/MinusBounce
  */
 package net.minusmc.minusbounce.features.module.modules.combat
 
@@ -46,7 +46,7 @@ class AutoSoup : Module() {
             mc.netHandler.addToSendQueue(C09PacketHeldItemChange(soupInHotbar - 36))
             mc.netHandler.addToSendQueue(C08PacketPlayerBlockPlacement(mc.thePlayer.inventoryContainer
                     .getSlot(soupInHotbar).stack))
-            if (bowlValue.get().equals("Drop", true))
+            if (bowlValue.get().equals("drop", true))
                 mc.netHandler.addToSendQueue(C07PacketPlayerDigging(C07PacketPlayerDigging.Action.DROP_ITEM,
                         BlockPos.ORIGIN, EnumFacing.DOWN))
             mc.netHandler.addToSendQueue(C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem))

@@ -21,9 +21,10 @@ abstract class Value<T>(var name: String, protected var value: T, var canDisplay
     fun get() = value
 
     fun set(newValue: T) {
-        if (newValue == value) return
+        if (newValue == value)
+            return
 
-        val oldValue = get()
+        val oldValue = value
 
         try {
             onPreChange(oldValue, newValue)

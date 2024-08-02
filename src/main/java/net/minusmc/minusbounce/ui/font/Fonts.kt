@@ -53,6 +53,12 @@ object Fonts {
     @field:FontDetails(fontName = "Lexend", fontSize = 35)
     lateinit var fontLexend35: GameFontRenderer
 
+    @field:FontDetails(fontName = "Lexend", fontSize = 40)
+    lateinit var fontLexend40: GameFontRenderer
+
+    @field:FontDetails(fontName = "Lexend", fontSize = 72)
+    lateinit var fontLexend72: GameFontRenderer
+
     @field:FontDetails(fontName = "Lexend Bold", fontSize = 40)
     lateinit var fontLexendBold40: GameFontRenderer
 
@@ -81,6 +87,8 @@ object Fonts {
         fontBangers = GameFontRenderer(getFont("Bangers-Regular.ttf", 45))
         fontLexend30 = GameFontRenderer(getFont("Lexend-Regular.ttf", 30))
         fontLexend35 = GameFontRenderer(getFont("Lexend-Regular.ttf", 35))
+        fontLexend40 = GameFontRenderer(getFont("Lexend-Regular.ttf", 40))
+        fontLexend72 = GameFontRenderer(getFont("Lexend-Regular.ttf", 72))
         fontLexendBold40 = GameFontRenderer(getFont("Lexend-Bold.ttf", 40))
 
         try {
@@ -113,10 +121,11 @@ object Fonts {
     private fun isExistFonts(): Boolean {
         val outputFile = File(MinusBounce.fileManager.fontsDir, "fonts.zip")
         if (!outputFile.exists()) return false
-        val fonts = arrayOf("sfui.ttf", "Roboto-Medium.ttf", "TahomaBold.ttf", "Tahoma.ttf", "Bangers-Regular.ttf", "Blanka-Regular.otf", "Tenacity.ttf", "Tenacity-Bold.ttf", "TenacityIcon.ttf", "novolineIcon.ttf", "novolineIcon2.ttf")
+        val fonts = arrayOf("sfui.ttf", "Roboto-Medium.ttf", "TahomaBold.ttf", "Tahoma.ttf", "Bangers-Regular.ttf", "Lexend-Regular.ttf", "Lexend-Bold.ttf")
         for (font in fonts) {
             val fontFile = File(MinusBounce.fileManager.fontsDir, font)
-            if (!fontFile.exists()) return false
+            if (!fontFile.exists())
+                return false
         }
         return true
     }

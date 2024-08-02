@@ -10,7 +10,7 @@ import net.minusmc.minusbounce.features.module.ModuleCategory
 import net.minusmc.minusbounce.features.module.ModuleInfo
 import net.minusmc.minusbounce.ui.client.hud.designer.GuiHudDesigner
 
-@ModuleInfo(name = "HUDDesigner", description = "Edit HUD", category = ModuleCategory.CLIENT, onlyEnable = true)
+@ModuleInfo(name = "HUDDesigner", spacedName = "HUD Designer", description = "Edit HUD", category = ModuleCategory.CLIENT, onlyEnable = true)
 class HUDDesigner : Module() {
     override fun onEnable() {
         mc.displayGuiScreen(GuiHudDesigner())

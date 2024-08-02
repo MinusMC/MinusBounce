@@ -5,7 +5,7 @@ import net.minusmc.minusbounce.features.module.ModuleCategory
 import net.minusmc.minusbounce.features.module.ModuleInfo
 import net.minusmc.minusbounce.value.BoolValue
 
-@ModuleInfo(name = "Target", description = "Select target to KillAura", category = ModuleCategory.CLIENT, canEnable = false)
+@ModuleInfo(name = "Target", description = "Select target to Kill aura", category = ModuleCategory.CLIENT, canEnable = false)
 class Target: Module() {
     val players = BoolValue("Players", true)
     val mobs = BoolValue("Mobs", true)

@@ -13,7 +13,7 @@ import net.minusmc.minusbounce.value.ListValue
 import net.minusmc.minusbounce.value.TextValue
 
 
-@ModuleInfo(name = "Killsults", description = "Insults people when you kill them.", category = ModuleCategory.MISC)
+@ModuleInfo(name = "KillInsults", spacedName = "Kill Insults", description = "Insults people when you kill them.", category = ModuleCategory.MISC)
 class KillSults: Module() {
 	private val modeValue = ListValue("Mode", arrayOf("Custom"), "Custom")
 	private val directMessage = BoolValue("DirectMessage", false)

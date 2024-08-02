@@ -9,7 +9,7 @@ import net.minusmc.minusbounce.event.MoveEvent
 import net.minusmc.minusbounce.features.module.modules.movement.longjumps.LongJumpMode
 import net.minusmc.minusbounce.ui.client.hud.element.elements.Notification
 import net.minusmc.minusbounce.utils.player.MovementUtils
-import net.minusmc.minusbounce.utils.PlayerUtils
+import net.minusmc.minusbounce.utils.player.PlayerUtils
 import net.minusmc.minusbounce.value.FloatValue
 
 class PearlLongJump: LongJumpMode("Pearl") {

@@ -28,9 +28,9 @@ class GuiMainMenu : GuiScreen(), GuiYesNoCallback {
         buttonList.add(MainMenuButton(1, width / 2 + 32, defaultHeight, "Multiplayer"))
         buttonList.add(MainMenuButton(2, width / 2 - 148, defaultHeight + 45, "Alt manager"))
         buttonList.add(MainMenuButton(3, width / 2 + 32, defaultHeight + 45, "Mods and plugins"))
-        buttonList.add(CircleButton(4, width - 80, 8, "Options", ResourceLocation("minusbounce/menu/settings.png")))
-        buttonList.add(CircleButton(5, width - 40, 8, "Quit", ResourceLocation("minusbounce/menu/quit.png")))
-        buttonList.add(CircleButton(6, width - 120, 8, "Background", ResourceLocation("minusbounce/menu/wallpaper.png")))
+        // buttonList.add(CircleButton(4, width - 80, 8, "Options", ResourceLocation("minusbounce/menu/settings.png")))
+        // buttonList.add(CircleButton(5, width - 40, 8, "Quit", ResourceLocation("minusbounce/menu/quit.png")))
+        // buttonList.add(CircleButton(6, width - 120, 8, "Background", ResourceLocation("minusbounce/menu/wallpaper.png")))
 
 
         var id = 201
@@ -50,15 +50,15 @@ class GuiMainMenu : GuiScreen(), GuiYesNoCallback {
 
     override fun drawScreen(mouseX: Int, mouseY: Int, partialTicks: Float) {
         drawBackground(0)
+        Fonts.fontLexend72.drawCenteredString(MinusBounce.CLIENT_NAME, 10f, 6f, Color.WHITE.rgb, false)
 
         val bHeight = (this.height / 3.5).toInt()
-
-        Fonts.font72.drawCenteredString(MinusBounce.CLIENT_NAME, (width / 2).toFloat(), (bHeight - 20).toFloat(), Color.WHITE.rgb, false)
+        
         Gui.drawRect(0, 0, 0, 0, Integer.MIN_VALUE)
-        Fonts.font40.drawString("Version: ${MinusBounce.CLIENT_VERSION}", 3F, (height - mc.fontRendererObj.FONT_HEIGHT * 2 - 4).toFloat(), 0xffffff, false)
-        Fonts.font40.drawString("Made by ${MinusBounce.CLIENT_CREATOR}", 3F, (height - mc.fontRendererObj.FONT_HEIGHT - 2).toFloat(), 0xffffff, false)
+        Fonts.fontLexend40.drawString("Version: ${MinusBounce.CLIENT_VERSION}", 3F, (height - mc.fontRendererObj.FONT_HEIGHT * 2 - 4).toFloat(), 0xffffff, false)
+        Fonts.fontLexend40.drawString("Made by ${MinusBounce.CLIENT_CREATOR}", 3F, (height - mc.fontRendererObj.FONT_HEIGHT - 2).toFloat(), 0xffffff, false)
         val creditInfo = "Copyright Mojang AB. Do not distribute!"
-        Fonts.font40.drawString(creditInfo, width - 2f - Fonts.font40.getStringWidth(creditInfo), (height - mc.fontRendererObj.FONT_HEIGHT - 2).toFloat(), 0xffffff, false)
+        Fonts.fontLexend40.drawString(creditInfo, width - 2f - Fonts.fontLexend40.getStringWidth(creditInfo), (height - mc.fontRendererObj.FONT_HEIGHT - 2).toFloat(), 0xffffff, false)
         super.drawScreen(mouseX, mouseY, partialTicks)
     }
 
@@ -102,6 +102,6 @@ class MainMenuButton(buttonId: Int, x: Int, y: Int, buttonText: String): GuiButt
     override fun drawButton(mc: Minecraft?, mouseX: Int, mouseY: Int) {
         ShaderUtils.drawRoundedRect(xPosition.toFloat(), yPosition.toFloat(), (xPosition + width).toFloat(), (yPosition + height).toFloat(), 4f, Color(249, 246, 238, 220).rgb)
         GlStateManager.resetColor()
-        Fonts.font50.drawCenteredString(displayString, xPosition + width / 2f, yPosition + (height - Fonts.font50.FONT_HEIGHT) / 2f + 2, Color(54, 69, 79).rgb, false)
+        Fonts.fontLexend40.drawCenteredString(displayString, xPosition + width / 2f, yPosition + (height - Fonts.fontLexend40.FONT_HEIGHT) / 2f + 2, Color(54, 69, 79).rgb, false)
     }
 }

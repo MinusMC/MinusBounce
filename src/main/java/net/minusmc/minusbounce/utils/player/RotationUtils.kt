@@ -279,13 +279,15 @@ object RotationUtils : MinecraftInstance(), Listenable {
                     rotation.fixedSensitivity(mc.gameSettings.mouseSensitivity)
 
                     val vecDist = eyes.distanceTo(vec3)
+
                     if (vecDist > lookRange)
                         continue
 
-                    if (vecDist > throughWallsRange || isVisible(vec3)) {
-                        if (attackRotation == null || getRotationDifference(rotation, currentRotation) < getRotationDifference(attackRotation.rotation, currentRotation))
-                            attackRotation = VecRotation(vec3, rotation)
-                    }
+                    if (vecDist > throughWallsRange && !isVisible(vec3))
+                        continue
+
+                    if (attackRotation == null || getRotationDifference(rotation, currentRotation) < getRotationDifference(attackRotation.rotation, currentRotation))
+                        attackRotation = VecRotation(vec3, rotation)
                 }
 
         return attackRotation

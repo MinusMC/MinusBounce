@@ -20,7 +20,7 @@ import net.minusmc.minusbounce.value.ListValue
 import org.lwjgl.input.Keyboard
 import java.awt.Color
 
-@ModuleInfo(name = "ClickGUI", description = "Opens the ClickGUI.", category = ModuleCategory.CLIENT, keyBind = Keyboard.KEY_RSHIFT, forceNoSound = true, onlyEnable = true)
+@ModuleInfo(name = "ClickGUI", spacedName = "Click GUI", description = "Opens the settings.", category = ModuleCategory.CLIENT, keyBind = Keyboard.KEY_RSHIFT, forceNoSound = true, onlyEnable = true)
 object ClickGUI: Module() {
     val fastRenderValue = BoolValue("FastRender", true)
 

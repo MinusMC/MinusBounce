@@ -1,4 +1,4 @@
-package net.minusmc.minusbounce.utils
+package net.minusmc.minusbounce.utils.player
 
 import net.minecraft.block.BlockIce
 import net.minecraft.block.BlockPackedIce
@@ -10,6 +10,7 @@ import net.minecraft.item.ItemStack
 import net.minecraft.util.BlockPos
 import net.minecraft.util.AxisAlignedBB
 import net.minusmc.minusbounce.utils.extensions.*
+import net.minusmc.minusbounce.utils.MinecraftInstance
 
 /**
  * Utils for player

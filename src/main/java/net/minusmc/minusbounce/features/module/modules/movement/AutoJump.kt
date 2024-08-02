@@ -6,11 +6,12 @@ import net.minusmc.minusbounce.features.module.Module
 import net.minusmc.minusbounce.event.EventTarget
 import net.minusmc.minusbounce.event.UpdateEvent
 
-@ModuleInfo(name = "AutoJump", description = "Jumps automatically.", category = ModuleCategory.MOVEMENT)
+@ModuleInfo(name = "AutoJump", spacedName = "Auto Jump", description = "Jumps automatically.", category = ModuleCategory.MOVEMENT)
 class AutoJump: Module() {
+	
 	@EventTarget
 	fun onUpdate(event: UpdateEvent) {
-		if (mc.thePlayer.onGround) mc.thePlayer.jump()
-		mc.gameSettings.keyBindJump.pressed = false
+		if (mc.thePlayer.onGround && !mc.gameSettings.keyBindJump.pressed) 
+			mc.thePlayer.jump()
 	}
 }

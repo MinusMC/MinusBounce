@@ -20,7 +20,7 @@ import net.minusmc.minusbounce.event.UpdateEvent
 import net.minusmc.minusbounce.features.module.Module
 import net.minusmc.minusbounce.features.module.ModuleCategory
 import net.minusmc.minusbounce.features.module.ModuleInfo
-import net.minusmc.minusbounce.features.module.modules.player.InvManager
+import net.minusmc.minusbounce.features.module.modules.player.InventoryManager
 import net.minusmc.minusbounce.ui.client.hud.element.elements.Notification
 import net.minusmc.minusbounce.utils.timer.MSTimer
 import net.minusmc.minusbounce.utils.misc.RandomUtils
@@ -129,7 +129,7 @@ class ChestStealer : Module() {
             return
 
         // inventory cleaner
-        val inventoryCleaner = MinusBounce.moduleManager[InvManager::class.java]!!
+        val inventoryCleaner = MinusBounce.moduleManager[InventoryManager::class.java]!!
 
         // Is empty?
         if (!isEmpty(screen) && !(closeOnFullValue.get() && fullInventory)) {
@@ -196,7 +196,7 @@ class ChestStealer : Module() {
     }
 
     private fun isEmpty(chest: GuiChest): Boolean {
-        val inventoryCleaner = MinusBounce.moduleManager[InvManager::class.java]!!
+        val inventoryCleaner = MinusBounce.moduleManager[InventoryManager::class.java]!!
 
         for (i in 0 until chest.inventoryRows * 9) {
             val slot = chest.inventorySlots.inventorySlots[i]
