@@ -6,9 +6,10 @@ import net.minusmc.minusbounce.event.Listenable
 open class Plugin(
 	val name: String,
 	val version: String,
+	val mixinClass: String = "",
+	val minApiVersion: PluginAPIVersion,
 	val description: String = "No description",
 	val authors: Array<String> = arrayOf("No authors"),
-	val minApiVersion: PluginAPIVersion,
 	val image: String = "",
 ): Listenable {
 
@@ -24,9 +25,9 @@ open class Plugin(
 	}
 
 	fun checkError(): String {
-		if (minApiVersion.version < MinusBounce.API_VERSION.version) {
+		if (minApiVersion.version < MinusBounce.API_VERSION.version)
 			return "This plugin requires MinusBounce ver ${minApiVersion.id}"
-		}
+
 		return ""
 	}
 

@@ -5,8 +5,6 @@ import net.minusmc.minusbounce.event.Listenable
 import net.minusmc.minusbounce.utils.ClassUtils
 import net.minusmc.minusbounce.utils.ClientUtils
 
-
-// TODO: Update API 0.3 and specific Core Plugin file
 class PluginManager: Listenable {
 	val plugins = mutableListOf<Plugin>()
 
@@ -15,7 +13,12 @@ class PluginManager: Listenable {
 	}
 
 	fun registerPlugins() {
-		ClassUtils.resolvePlugins().forEach(this::registerPlugin)
+		for (className in ClassUtils.mainClassPlugins) {
+			val clazz = Class.forName(className)
+
+			if (Plugin::class.java.isAssignableFrom(clazz))
+				registerPlugin(clazz as Class<out Plugin>)
+		}
 	}
 
 	fun initPlugins() {

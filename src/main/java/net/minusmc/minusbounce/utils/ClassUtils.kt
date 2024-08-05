@@ -12,21 +12,28 @@ import java.util.jar.JarFile
 object ClassUtils {
 
     private val cachedClasses = mutableMapOf<String, Boolean>()
-    val classCache = mutableMapOf<String, MutableList<String>>()
     val killSultFiles = mutableListOf<String>()
     val capeFiles = mutableListOf<String>()
+    val mainClassPlugins = mutableListOf<String>()
+
+    fun readManifest(jar: JarFile) {
+        val mainAttributes = jar.manifest?.mainAttributes ?: return
+        val mainClass = mainAttributes.getValue("Plugin-Class") ?: return
+
+        println(mainClass)
+
+        mainClassPlugins.add(mainClass)
+    }
 
     fun initCacheClass() {
         val files = File("mods").listFiles()
         val jarFiles = files.filter { it.extension.equals("jar", true) }
         jarFiles.forEach {
             val jarFile = JarFile(it)
-            classCache[it.name] = mutableListOf()
+            readManifest(jarFile)
+
             for (entry in jarFile.entries()) {
-                if (entry.name.endsWith(".class")) {
-                    val className = entry.name.removeSuffix(".class").replace("/", ".")
-                    classCache[it.name]!!.add(className)
-                } else if (entry.name.endsWith(".txt") && entry.name.contains("killsults")) {
+                if (entry.name.endsWith(".txt") && entry.name.contains("killsults")) {
                     killSultFiles.add("/" + entry.name)
                 } else if (entry.name.endsWith(".png") && entry.name.contains("cape")) {
                     capeFiles.add(entry.name.removePrefix("assets/minecraft/"))
@@ -89,37 +96,6 @@ object ClassUtils {
         }
 
         return list
-    }
-
-
-    private fun isClassSkip1(clazzName: String): Boolean {
-        return (clazzName.equals("net.minusmc.minusbounce.MinusBounce", true) || 
-                clazzName.contains("net.minusmc.minusbounce.injection")|| 
-                clazzName.contains("optifine")) // optifine
-    }
-
-    private fun isClassSkip2(clazzName: String): Boolean {
-        return (clazzName.startsWith("kotlin") || clazzName.startsWith("org.jetbrains") || clazzName.startsWith("org.intellij") // kotlin
-             || clazzName.startsWith("jdk.nashorn") // script plugin
-             || clazzName.startsWith("org.newsclub.net") // discord rpc plugin
-             || clazzName.startsWith("com.viaversion")) // via version plugin
-    }
-
-    fun resolvePlugins(): List<Class<out Plugin>> {
-        val pluginClass = mutableListOf<Class<out Plugin>>()
-        classCache.values.forEach listClasses@ {
-            jarClasses -> jarClasses.forEach checkClass@{
-                if (isClassSkip1(it)) return@listClasses
-                if (isClassSkip2(it)) return@checkClass
-                try {
-                    val clazz = Class.forName(it)
-                    if (Plugin::class.java.isAssignableFrom(clazz)) pluginClass.add(clazz as Class<out Plugin>)
-                } catch (e: Exception) {
-                    ClientUtils.logger.error("Error while loading class $it: $e")
-                }
-            }
-        }
-        return pluginClass
     }
 
     fun hasForge() = hasClass("net.minecraftforge.common.MinecraftForge")
