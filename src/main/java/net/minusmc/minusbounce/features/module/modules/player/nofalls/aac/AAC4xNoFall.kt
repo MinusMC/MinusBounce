@@ -1,7 +1,7 @@
 package net.minusmc.minusbounce.features.module.modules.player.nofalls.aac
 
 import net.minusmc.minusbounce.features.module.modules.player.nofalls.NoFallMode
-import net.minusmc.minusbounce.utils.PlayerUtils
+import net.minusmc.minusbounce.utils.player.PlayerUtils
 import net.minusmc.minusbounce.event.SentPacketEvent
 import net.minusmc.minusbounce.event.PreMotionEvent
 import net.minecraft.network.play.client.C03PacketPlayer

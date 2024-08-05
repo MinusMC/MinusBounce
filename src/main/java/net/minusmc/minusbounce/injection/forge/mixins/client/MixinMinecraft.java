@@ -33,7 +33,6 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minusmc.minusbounce.MinusBounce;
 import net.minusmc.minusbounce.event.*;
 import net.minusmc.minusbounce.features.module.modules.combat.AutoClicker;
-import net.minusmc.minusbounce.features.module.modules.combat.TickBase;
 import net.minusmc.minusbounce.features.module.modules.exploit.MultiActions;
 import net.minusmc.minusbounce.features.module.modules.misc.Patcher;
 import net.minusmc.minusbounce.features.module.modules.world.FastPlace;
@@ -307,37 +306,8 @@ public abstract class MixinMinecraft {
         long l = System.nanoTime();
         this.mcProfiler.startSection("tick");
 
-        for (int j = 0; j < this.timer.elapsedTicks; ++j) {
-            if (Minecraft.getMinecraft().thePlayer != null) {
-
-                boolean skip = false;
-
-                if(j == 0) {
-                    TickBase tickBase = MinusBounce.moduleManager.getModule(TickBase.class);
-
-                    assert tickBase != null;
-                    if(tickBase.getState()) {
-                        int extraTicks = tickBase.getExtraTicks();
-
-                        if (extraTicks == -1) {
-                            skip = true;
-                        } else if(extraTicks > 0) {
-                            for(int aa = 0; aa < extraTicks; aa++) {
-                                this.runTick();
-                            }
-
-                            tickBase.setFreezing(true);
-                        }
-                    }
-                } 
-
-                if (!skip)
-                    this.runTick();
-
-            } else {
-                this.runTick();
-            }
-        }
+        for (int j = 0; j < this.timer.elapsedTicks; ++j)
+            this.runTick();
 
         this.mcProfiler.endStartSection("preRenderErrors");
         long i1 = System.nanoTime() - l;

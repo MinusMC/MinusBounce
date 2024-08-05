@@ -21,7 +21,6 @@ import net.minusmc.minusbounce.ui.font.Fonts
 import net.minusmc.minusbounce.file.FileManager
 import net.minusmc.minusbounce.plugin.PluginAPIVersion
 import net.minusmc.minusbounce.plugin.PluginManager
-import net.minusmc.minusbounce.plugin.PluginGuiManager
 import net.minusmc.minusbounce.ui.client.altmanager.GuiAltManager
 import net.minusmc.minusbounce.ui.client.clickgui.dropdown.DropDownClickGui
 import net.minusmc.minusbounce.ui.client.hud.HUD
@@ -61,14 +60,6 @@ object MinusBounce {
     var background: ResourceLocation? = null
 
     private var lastTick : Long = 0L
-
-    /**
-     * Execute if client will be started
-     */
-    
-    fun addMenuButton(name: String, gui: Class<out GuiScreen>) {
-        PluginGuiManager.mainMenuButton[name] = gui
-    }
 
     fun startClient() {
         isStarting = true
@@ -124,8 +115,6 @@ object MinusBounce {
 
         // Load generators
         GuiAltManager.loadActiveGenerators()
-
-        ClassUtils.classCache.clear()
 
         ClientUtils.logger.info("Finished loading $CLIENT_NAME in ${System.currentTimeMillis() - lastTick}ms.")
 

@@ -11,6 +11,7 @@ import net.minusmc.minusbounce.features.module.Module
 import net.minusmc.minusbounce.features.module.ModuleCategory
 import net.minusmc.minusbounce.features.module.ModuleInfo
 import net.minusmc.minusbounce.features.module.modules.world.Scaffold
+import net.minusmc.minusbounce.features.module.modules.player.Blink
 import net.minusmc.minusbounce.utils.Constants
 import net.minusmc.minusbounce.utils.render.ColorUtils
 import net.minusmc.minusbounce.utils.render.RenderUtils
@@ -22,7 +23,7 @@ import net.minusmc.minusbounce.value.*
 import org.lwjgl.opengl.GL11
 
 
-@ModuleInfo("BackTrack", "Back Track", "Let you attack in their previous position", ModuleCategory.COMBAT)
+@ModuleInfo(name = "BackTrack", spacedName = "Back track", description = "Let you attack in their previous position", category = ModuleCategory.COMBAT)
 class BackTrack : Module() {
     private val delayValue = IntRangeValue("Delay", 100, 200, 0, 1000)
     private val hitRange = FloatValue("Range", 3F, 0F, 10F)
@@ -31,24 +32,41 @@ class BackTrack : Module() {
     private val packets = mutableListOf<Packet<*>>()
     private val timer = MSTimer()
     private var target: EntityLivingBase? = null
-    private var canFlushPacket = false
 
     private var delay = 0L
+    private var canFlushPacket = false
+
+    private val scaffoldModule: Scaffold
+        get() = MinusBounce.moduleManager[Scaffold::class.java]!!
+
+    private val blinkModule: Blink
+        get() = MinusBounce.moduleManager[Blink::class.java]!!
 
     override fun onEnable() {
+        canFlushPacket = false
         packets.clear()
         target = null
         delay = 0L
-        canFlushPacket = false
     }
     
+    @EventTarget
+    fun onWorld(event: WorldEvent) {
+        canFlushPacket = false
+        packets.clear()
+        target = null
+        delay = 0L
+    }
+
     @EventTarget(priority = 5)
     fun onPacket(event: ReceivedPacketEvent) {
         mc.thePlayer ?: return
         mc.theWorld ?: return
         mc.netHandler ?: return
 
-        if (MinusBounce.moduleManager[Scaffold::class.java]!!.state) {
+        if (blinkModule.blinkingReceive())
+            return
+
+        if (scaffoldModule.state) {
             packets.clear()
             return
         }
@@ -56,19 +74,17 @@ class BackTrack : Module() {
         val packet = event.packet
         val target = this.target
 
+        canFlushPacket = false
+
         when (packet) {
-            is S06PacketUpdateHealth -> {
-                if (packet.health <= 0)
-                    canFlushPacket = true
-            }
+            is S06PacketUpdateHealth -> if (packet.health <= 0)
+                canFlushPacket = true
 
             is S08PacketPlayerPosLook, is S40PacketDisconnect, is S02PacketChat ->
                 canFlushPacket = true
 
-            is S13PacketDestroyEntities -> {
-                if (target != null && target.entityId in packet.entityIDs)
-                    canFlushPacket = true
-            }
+            is S13PacketDestroyEntities -> if (target != null && target.entityId in packet.entityIDs)
+                canFlushPacket = true
 
             is S14PacketEntity -> {
                 val entity = mc.theWorld.getEntityByID(packet.entityId)
@@ -91,7 +107,14 @@ class BackTrack : Module() {
             }
         }
 
-        if (target == null || canFlushPacket) {
+        if (canFlushPacket) {
+            flushPackets()
+            this.target = null
+            timer.reset()
+            return
+        }
+
+        if (target == null) {
             flushPackets()
             timer.reset()
             return
@@ -131,12 +154,6 @@ class BackTrack : Module() {
         val realDistance = mc.thePlayer.getDistance(realX, realY, realZ)
         val targetDistance = mc.thePlayer.getDistance(target.posX, target.posY, target.posZ)
 
-        if (canFlushPacket) {
-            flushPackets()
-            canFlushPacket = false
-            return
-        }
-
         if (targetDistance >= realDistance || realDistance > hitRange.get())
             flushPackets()
         else if (timer.hasTimePassed(delay)) {
@@ -169,7 +186,7 @@ class BackTrack : Module() {
         val realDistance = mc.thePlayer.getDistance(realX, realY, realZ)
         val targetDistance = mc.thePlayer.getDistance(target.posX, target.posY, target.posZ)
 
-        if (targetDistance >= realDistance || realDistance > hitRange.get() || timer.hasTimePassed(delay) || canFlushPacket)
+        if (targetDistance >= realDistance || realDistance > hitRange.get() || timer.hasTimePassed(delay))
             render = false
 
         if (target != mc.thePlayer && !target.isInvisible && render) {

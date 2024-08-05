@@ -150,7 +150,7 @@ public abstract class MixinNetHandlerPlayClient {
             if(!"http".equals(scheme) && !"https".equals(scheme) && !isLevelProtocol)
                 throw new URISyntaxException(url, "Wrong protocol");
 
-            if(isLevelProtocol && (url.contains("..") || !url.endsWith(".zip"))) {
+            if (isLevelProtocol && (url.contains("..") || !url.endsWith(".zip"))) {
                 String s2 = url.substring("level://".length());
                 File file1 = new File(this.gameController.mcDataDir, "saves");
                 File file2 = new File(file1, s2);

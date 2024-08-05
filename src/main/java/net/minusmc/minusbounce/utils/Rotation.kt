@@ -11,7 +11,8 @@ import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.util.MathHelper
 import net.minecraft.util.Vec3
 import net.minusmc.minusbounce.utils.player.RotationUtils
-import kotlin.math.round
+import net.minusmc.minusbounce.utils.misc.MathUtils
+import kotlin.math.*
 
 /**
  * Rotations
@@ -33,22 +34,19 @@ data class Rotation(var yaw: Float, var pitch: Float) {
     }
 
     fun fixedSensitivity(sensitivity: Float) {
-        fixedSensitivity(sensitivity, RotationUtils.serverRotation)
-    }
+        val f = sensitivity * 0.6f + 0.2f
+        val gcd = f * f * f * 1.2f
 
-    /**
-     * Patch gcd exploit in aim
-     *
-     * @see net.minecraft.client.renderer.EntityRenderer.updateCameraAndRender
-     */
-    @JvmOverloads
-    fun fixedSensitivity(sensitivity: Float, rotation: Rotation?) {
-        rotation?.let{
-            val f = sensitivity * 0.6F + 0.2F
-            val m = f * f * f * 1.2f
-            yaw = it.yaw + round((yaw - it.yaw) / m) * m
-            pitch = (it.pitch + round((pitch - it.pitch) / m) * m).coerceIn(-90F, 90F)
-        }
+        val serverRotation = RotationUtils.serverRotation
+
+        val deltaYaw = yaw - serverRotation.yaw
+        val deltaPitch = pitch - serverRotation.pitch
+
+        val finalYaw = serverRotation.yaw + round(deltaYaw / gcd) * gcd
+        val finalPitch = serverRotation.pitch + round(deltaPitch / gcd) * gcd
+
+        yaw = finalYaw
+        pitch = finalPitch.coerceIn(-90f, 90f)
     }
 
     /**
@@ -58,16 +56,18 @@ data class Rotation(var yaw: Float, var pitch: Float) {
      */
 
     fun toDirection(): Vec3 {
-        val f: Float = MathHelper.cos(-yaw * 0.017453292f - Math.PI.toFloat())
-        val f1: Float = MathHelper.sin(-yaw * 0.017453292f - Math.PI.toFloat())
-        val f2: Float = -MathHelper.cos(-pitch * 0.017453292f)
-        val f3: Float = MathHelper.sin(-pitch * 0.017453292f)
-        return Vec3((f1 * f2).toDouble(), f3.toDouble(), (f * f2).toDouble())
+        val yawRad = -MathUtils.toRadians(yaw) - PI
+        val pitchRad = -MathUtils.toRadians(pitch) - PI
+
+        val f = cos(yawRad)
+        val f1 = sin(yawRad)
+        val f2 = -cos(pitchRad)
+        val f3 = sin(pitchRad)
+
+        return Vec3(f1 * f2, f3, f * f2)
     }
 
-    override fun toString(): String {
-        return "Rotation(yaw=$yaw, pitch=$pitch)"
-    }
+    override fun toString() = "Rotation(yaw=$yaw, pitch=$pitch)"
 }
 
 /**

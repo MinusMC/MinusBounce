@@ -21,7 +21,7 @@ object RaycastUtils : MinecraftInstance() {
      */
 
     fun runWithModifiedRaycastResult(range: Float, wallRange: Float, action: (MovingObjectPosition) -> Unit) {
-        val rotation = RotationUtils.currentRotation ?: RotationUtils.serverRotation
+        val rotation = RotationUtils.currentRotation ?: mc.thePlayer.rotation
         runWithModifiedRaycastResult(rotation, range, wallRange, action)
     }
 
@@ -133,7 +133,8 @@ object RaycastUtils : MinecraftInstance() {
     }
 
     fun raycastEntity(range: Double, filter: (Entity) -> Boolean): Entity? {
-        return raycastEntity(range, RotationUtils.serverRotation, filter)
+        val rotation = RotationUtils.currentRotation ?: mc.thePlayer.rotation
+        return raycastEntity(range, rotation, filter)
     }
 
     fun raycastEntity(range: Double, yaw: Float, pitch: Float, filter: (Entity) -> Boolean): Entity? {

@@ -16,7 +16,7 @@ import net.minusmc.minusbounce.value.ListValue
 /*
 TASK: online cape add cape from online
  */
-@ModuleInfo(name = "Cape", description = "MinusBounce capes.", category = ModuleCategory.CLIENT)
+@ModuleInfo(name = "Cape", description = "Render capes.", category = ModuleCategory.CLIENT)
 class Cape : Module() {
     private val styleValue = ListValue("Style", arrayOf("MinusBounce"), "MinusBounce")
     private val capeCache = hashMapOf<String, ResourceLocation>()

@@ -18,25 +18,16 @@ open class ListValue(name: String, var values: Array<String>, value: String, dis
         this.name = name
     }
 
-    operator fun contains(string: String?): Boolean {
-        return Arrays.stream(values).anyMatch {s: String -> s.equals(string, true)}
-    }
+    operator fun contains(string: String?) = values.any {it.equals(string, true)}
 
-    fun equals(vararg strings: String?): Boolean {
-        val arr = Arrays.stream(values)
-        for (string in strings) {
-            if (arr.anyMatch {s: String -> s.equals(string, true)}) return true
-        }
-        return false
-    }
+    fun equals(vararg strings: String?) = values.any {value -> strings.any {it.equals(value, true)}}
 
     override fun changeValue(value: String) {
-        for (element in values) {
+        for (element in values)
             if (element.equals(value, true)) {
                 this.value = element
                 break
             }
-        }
     }
 
     fun changeListValues(newValue: Array<String>) {
@@ -47,8 +38,7 @@ open class ListValue(name: String, var values: Array<String>, value: String, dis
     override fun toJson() = JsonPrimitive(value)
 
     override fun fromJson(element: JsonElement) {
-        if (element.isJsonPrimitive) {
+        if (element.isJsonPrimitive)
             changeValue(element.asString)
-        }
     }
 }

@@ -38,8 +38,8 @@ import net.minusmc.minusbounce.value.ListValue
 import java.util.stream.Collectors
 import java.util.stream.IntStream
 
-@ModuleInfo(name = "InvManager", spacedName = "InvManager", description = "Automatically throws away useless items, and also equips armors for you.", category = ModuleCategory.PLAYER)
-class InvManager : Module() {
+@ModuleInfo(name = "InventoryManager", spacedName = "Inventory Manager", description = "Automatically throws away useless items, and also equips armors for you.", category = ModuleCategory.PLAYER)
+class InventoryManager : Module() {
 
     /**
      * OPTIONS

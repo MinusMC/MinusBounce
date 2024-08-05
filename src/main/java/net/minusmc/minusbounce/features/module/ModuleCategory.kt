@@ -1,12 +1,9 @@
 /*
- * LiquidBounce+ Hacked Client
+ * MinusBounce Hacked Client
  * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/WYSI-Foundation/LiquidBouncePlus/
+ * https://github.com/MinusMC/MinusBounce
  */
 package net.minusmc.minusbounce.features.module
-
-import net.minecraft.util.ResourceLocation
-import java.awt.Color
 
 enum class ModuleCategory(var displayName: String) {
     COMBAT("Combat"),

@@ -13,7 +13,7 @@ import net.minusmc.minusbounce.utils.Constants
 import net.minusmc.minusbounce.utils.misc.MathUtils
 import net.minusmc.minusbounce.utils.misc.MotionData
 import net.minusmc.minusbounce.utils.MinecraftInstance
-import net.minusmc.minusbounce.utils.PlayerUtils
+import net.minusmc.minusbounce.utils.player.PlayerUtils
 import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.sin

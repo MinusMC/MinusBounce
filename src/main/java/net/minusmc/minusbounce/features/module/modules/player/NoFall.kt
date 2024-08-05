@@ -16,7 +16,7 @@ import net.minusmc.minusbounce.features.module.modules.movement.Fly
 import net.minusmc.minusbounce.features.module.modules.player.nofalls.NoFallMode
 import net.minusmc.minusbounce.features.module.modules.render.FreeCam
 import net.minusmc.minusbounce.utils.ClassUtils
-import net.minusmc.minusbounce.utils.PlayerUtils
+import net.minusmc.minusbounce.utils.player.PlayerUtils
 import net.minusmc.minusbounce.utils.block.BlockUtils
 import net.minusmc.minusbounce.value.BoolValue
 import net.minusmc.minusbounce.value.ListValue

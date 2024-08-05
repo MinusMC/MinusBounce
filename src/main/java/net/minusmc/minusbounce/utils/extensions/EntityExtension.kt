@@ -11,15 +11,17 @@ import net.minecraft.util.Vec3
 import net.minusmc.minusbounce.utils.Rotation
 import net.minusmc.minusbounce.utils.player.RotationUtils
 
-fun EntityPlayer.getEyeVec3(): Vec3 {
-    return Vec3(this.posX, this.entityBoundingBox.minY + this.getEyeHeight(), this.posZ)
-}
+val EntityPlayer.eyeVec3: Vec3
+    get() = Vec3(this.posX, this.entityBoundingBox.minY + this.eyeHeight, this.posZ)
 
 val EntityLivingBase.renderHurtTime: Float
-    get() = this.hurtTime - if(this.hurtTime!=0) { Minecraft.getMinecraft().timer.renderPartialTicks } else { 0f }
+    get() {
+        val hurtTimeLeft = if (this.hurtTime != 0) Minecraft.getMinecraft().timer.renderPartialTicks else 0f
+        return this.hurtTime - hurtTimeLeft
+    }
 
 val EntityLivingBase.hurtPercent: Float
-    get() = (this.renderHurtTime)/10
+    get() = this.renderHurtTime / 10
 
 val EntityLivingBase.ping: Int
     get() = if (this is EntityPlayer) { Minecraft.getMinecraft().netHandler.getPlayerInfo(this.uniqueID)?.responseTime?.coerceAtLeast(0) } else { null } ?: -1

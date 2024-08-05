@@ -9,7 +9,7 @@ import net.minusmc.minusbounce.MinusBounce;
 import net.minusmc.minusbounce.features.module.modules.combat.KillAura;
 import net.minusmc.minusbounce.features.module.modules.client.Animations;
 import net.minusmc.minusbounce.features.module.modules.client.HUD;
-import net.minusmc.minusbounce.features.module.modules.player.InvManager;
+import net.minusmc.minusbounce.features.module.modules.player.InventoryManager;
 import net.minusmc.minusbounce.features.module.modules.world.ChestStealer;
 import net.minusmc.minusbounce.utils.render.EaseUtils;
 import net.minusmc.minusbounce.utils.render.RenderUtils;
@@ -42,7 +42,7 @@ public abstract class MixinGuiContainer extends MixinGuiScreen {
     @Shadow private int dragSplittingButton;
     @Shadow private int dragSplittingRemnant;
 
-    private GuiButton stealButton, chestStealerButton, invManagerButton, killAuraButton;
+    private GuiButton stealButton, chestStealerButton, InventoryManagerButton, killAuraButton;
 
     private float progress = 0F;
 
@@ -62,8 +62,8 @@ public abstract class MixinGuiContainer extends MixinGuiScreen {
                         buttonList.add(killAuraButton = new GuiButton(1024576, 5, 5, 140, 20, "Disable KillAura"));
                         firstY += 20;
                     }
-                    if (MinusBounce.moduleManager.getModule(InvManager.class).getState()) {
-                        buttonList.add(invManagerButton = new GuiButton(321123, 5, 5 + firstY, 140, 20, "Disable InvManager"));
+                    if (MinusBounce.moduleManager.getModule(InventoryManager.class).getState()) {
+                        buttonList.add(InventoryManagerButton = new GuiButton(321123, 5, 5 + firstY, 140, 20, "Disable InventoryManager"));
                         firstY += 20;
                     }
                     if (MinusBounce.moduleManager.getModule(ChestStealer.class).getState()) {
@@ -77,8 +77,8 @@ public abstract class MixinGuiContainer extends MixinGuiScreen {
                         buttonList.add(killAuraButton = new GuiButton(1024576, width - 145, 5, 140, 20, "Disable KillAura"));
                         firstY += 20;
                     }
-                    if (MinusBounce.moduleManager.getModule(InvManager.class).getState()) {
-                        buttonList.add(invManagerButton = new GuiButton(321123, width - 145, 5 + firstY, 140, 20, "Disable InvManager"));
+                    if (MinusBounce.moduleManager.getModule(InventoryManager.class).getState()) {
+                        buttonList.add(InventoryManagerButton = new GuiButton(321123, width - 145, 5 + firstY, 140, 20, "Disable InventoryManager"));
                         firstY += 20;
                     }
                     if (MinusBounce.moduleManager.getModule(ChestStealer.class).getState()) {
@@ -101,7 +101,7 @@ public abstract class MixinGuiContainer extends MixinGuiScreen {
         if (button.id == 1024576)
             MinusBounce.moduleManager.getModule(KillAura.class).setState(false);
         if (button.id == 321123)
-            MinusBounce.moduleManager.getModule(InvManager.class).setState(false);
+            MinusBounce.moduleManager.getModule(InventoryManager.class).setState(false);
         if (button.id == 727)
             chestStealer.setState(false);
         if (button.id == 1234123 && !chestStealer.getState()) {
@@ -169,7 +169,7 @@ public abstract class MixinGuiContainer extends MixinGuiScreen {
             if (stealButton != null) stealButton.enabled = !chestStealer.getState();
             if (killAuraButton != null) killAuraButton.enabled = MinusBounce.moduleManager.getModule(KillAura.class).getState();
             if (chestStealerButton != null) chestStealerButton.enabled = chestStealer.getState();
-            if (invManagerButton != null) invManagerButton.enabled = MinusBounce.moduleManager.getModule(InvManager.class).getState();
+            if (InventoryManagerButton != null) InventoryManagerButton.enabled = MinusBounce.moduleManager.getModule(InventoryManager.class).getState();
 
             if(chestStealer.getState() && chestStealer.getSilenceValue().get() && guiScreen instanceof GuiChest) {
                 mc.setIngameFocus();
