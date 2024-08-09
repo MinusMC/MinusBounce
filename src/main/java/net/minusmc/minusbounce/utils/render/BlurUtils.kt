@@ -22,14 +22,14 @@ import org.lwjgl.opengl.GL11
 
 object BlurUtils : MinecraftInstance() {
 
-    private val shaderGroup = ShaderGroup(mc.textureManager, mc.resourceManager, mc.getFramebuffer(), ResourceLocation("shaders/post/blurArea.json"))
+    private val shaderGroup = ShaderGroup(mc.textureManager, mc.resourceManager, mc.framebuffer, ResourceLocation("shaders/post/blurArea.json"))
     private val framebuffer = shaderGroup.mainFramebuffer
     private val frbuffer = shaderGroup.getFramebufferRaw("result")
 
-    private var lastFactor = 0
-    private var lastWidth = 0
-    private var lastHeight = 0
-    private var lastWeight = 0
+    private var lastFactor = 0.0
+    private var lastWidth = 0.0
+    private var lastHeight = 0.0
+    private var lastWeight = 0.0
 
     private var lastX = 0F
     private var lastY = 0F
@@ -47,45 +47,34 @@ object BlurUtils : MinecraftInstance() {
     }
 
     private fun setValues(strength: Float, x: Float, y: Float, w: Float, h: Float, width: Float, height: Float, force: Boolean = false) {
-        if (!force && strength == lastStrength && lastX == x && lastY == y && lastW == w && lastH == h) return
+        if (!force && strength == lastStrength && lastX == x && lastY == y && lastW == w && lastH == h) 
+            return
+
         lastStrength = strength
         lastX = x
         lastY = y
         lastW = w
         lastH = h
 
-        for (i in 0..1) {
-            shaderGroup.listShaders[i].shaderManager.getShaderUniform("Radius").set(strength)
-            shaderGroup.listShaders[i].shaderManager.getShaderUniform("BlurXY")[x] = height - y - h
-            shaderGroup.listShaders[i].shaderManager.getShaderUniform("BlurCoord")[w] = h
+        shaderGroup.listShaders.take(2).forEach {
+            it.shaderManager.getShaderUniform("Radius").set(strength)
+            it.shaderManager.getShaderUniform("BlurXY")[x] = height - y - h
+            it.shaderManager.getShaderUniform("BlurCoord")[w] = h
         }
     }
 
     @JvmStatic
     fun blur(posX: Float, posY: Float, posXEnd: Float, posYEnd: Float, blurStrength: Float, displayClipMask: Boolean, triggerMethod: () -> Unit) {
-        if (!OpenGlHelper.isFramebufferEnabled()) return
+        if (!OpenGlHelper.isFramebufferEnabled())
+            return
 
-        var x = posX
-        var y = posY
-        var x2 = posXEnd
-        var y2 = posYEnd
-
-        if (x > x2) {
-            val z = x
-            x = x2
-            x2 = z
-        }
-
-        if (y > y2) {
-            val z = y
-            y = y2
-            y2 = y
-        }
+        val (x, x2) = if (posX > posXEnd) posXEnd to posX else posX to posXEnd
+        val (y, y2) = if (posY > posYEnd) posYEnd to posY else posY to posYEnd
 
         val sc = ScaledResolution(mc)
-        val scaleFactor = sc.scaleFactor
-        val width = sc.scaledWidth
-        val height = sc.scaledHeight
+        val scaleFactor = sc.scaleFactor.toDouble()
+        val width = sc.scaledWidth.toDouble()
+        val height = sc.scaledHeight.toDouble()
 
         if (sizeHasChanged(scaleFactor, width, height)) {
             setupFramebuffers()
@@ -100,7 +89,7 @@ object BlurUtils : MinecraftInstance() {
 
         framebuffer.bindFramebuffer(true)
         shaderGroup.loadShaderGroup(mc.timer.renderPartialTicks)
-        mc.getFramebuffer().bindFramebuffer(true)
+        mc.framebuffer.bindFramebuffer(true)
 
         Stencil.write(displayClipMask)
         triggerMethod()
@@ -117,14 +106,14 @@ object BlurUtils : MinecraftInstance() {
         GlStateManager.disableAlpha()
         frbuffer.bindFramebufferTexture()
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F)
-        val f2 = frbuffer.framebufferWidth.toDouble() / frbuffer.framebufferTextureWidth.toDouble()
-        val f3 = frbuffer.framebufferHeight.toDouble() / frbuffer.framebufferTextureHeight.toDouble()
+        val f2 = frbuffer.framebufferWidth.toDouble() / frbuffer.framebufferTextureWidth
+        val f3 = frbuffer.framebufferHeight.toDouble() / frbuffer.framebufferTextureHeight
         val tessellator = Tessellator.getInstance()
         val worldrenderer = tessellator.getWorldRenderer()
         worldrenderer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR)
-        worldrenderer.pos(0.0, height.toDouble(), 0.0).tex(0.0, 0.0).color(255, 255, 255, 255).endVertex()
-        worldrenderer.pos(width.toDouble(), height.toDouble(), 0.0).tex(f2, 0.0).color(255, 255, 255, 255).endVertex()
-        worldrenderer.pos(width.toDouble(), 0.0, 0.0).tex(f2, f3).color(255, 255, 255, 255).endVertex()
+        worldrenderer.pos(0.0, height, 0.0).tex(0.0, 0.0).color(255, 255, 255, 255).endVertex()
+        worldrenderer.pos(width, height, 0.0).tex(f2, 0.0).color(255, 255, 255, 255).endVertex()
+        worldrenderer.pos(width, 0.0, 0.0).tex(f2, f3).color(255, 255, 255, 255).endVertex()
         worldrenderer.pos(0.0, 0.0, 0.0).tex(0.0, f3).color(255, 255, 255, 255).endVertex()
         tessellator.draw()
         frbuffer.unbindFramebufferTexture()
@@ -158,7 +147,7 @@ object BlurUtils : MinecraftInstance() {
         GlStateManager.disableBlend()
     }
 
-    fun sizeHasChanged(scaleFactor: Int, width: Int, height: Int): Boolean = (lastFactor != scaleFactor || lastWidth != width || lastHeight != height)
+    fun sizeHasChanged(scaleFactor: Double, width: Double, height: Double) = lastFactor != scaleFactor || lastWidth != width || lastHeight != height
 }
 
 

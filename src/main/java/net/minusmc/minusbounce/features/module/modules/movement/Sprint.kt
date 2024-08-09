@@ -21,9 +21,8 @@ class Sprint : Module() {
     @EventTarget(priority = -5)
     fun onStrafe(event: StrafeEvent) {
         val scaffold = MinusBounce.moduleManager[Scaffold::class.java] ?: return
-        if (mc.thePlayer.sprintState != 2 && !scaffold.state) {
+        if (mc.thePlayer.sprintState != 2 && !scaffold.state)
             mc.gameSettings.keyBindSprint.pressed = true
-        }
     }
 
     override fun onDisable() {

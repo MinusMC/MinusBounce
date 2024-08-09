@@ -21,7 +21,7 @@ import net.minusmc.minusbounce.features.module.ModuleInfo
 import net.minusmc.minusbounce.utils.PacketUtils.sendPacketNoEvent
 import net.minusmc.minusbounce.utils.player.MovementCorrection
 
-@ModuleInfo(name = "AntiFireball", description = "Make fireballs roll back", category = ModuleCategory.COMBAT)
+@ModuleInfo(name = "AntiFireball", spacedName = "Anti Fire ball", description = "Make fireballs roll back", category = ModuleCategory.COMBAT)
 class AntiFireBall : Module() {
     private val range = FloatValue("Range", 4.5f, 3f,8f)
     private val turnSpeed = FloatRangeValue("TurnSpeed", 0f, 180f, 180f, 180f)

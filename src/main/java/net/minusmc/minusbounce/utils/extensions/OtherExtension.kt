@@ -50,3 +50,5 @@ fun AxisAlignedBB.getBlockStatesIncluded(): List<IBlockState> {
 
     return tmpArr
 }
+
+fun AxisAlignedBB.expand(p: Double) = this.expand(p, p, p)

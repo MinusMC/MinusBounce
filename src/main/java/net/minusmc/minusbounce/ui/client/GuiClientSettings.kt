@@ -12,7 +12,7 @@ import net.minusmc.minusbounce.ui.font.Fonts
 import net.minusmc.minusbounce.utils.render.RenderUtils
 import java.awt.Color
 
-class GuiBackground(private val prevGui: GuiScreen): GuiScreen() {
+class GuiClientSettings(private val prevGui: GuiScreen): GuiScreen() {
     override fun initGui() {
         buttonList.add(BoolButton(0, width / 2 + 100, height / 2 - 60, enabled))
         buttonList.add(BoolButton(1, width / 2 + 100, height / 2 - 30, particles))

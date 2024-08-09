@@ -16,16 +16,14 @@ import net.minusmc.minusbounce.ui.font.Fonts
 import net.minusmc.minusbounce.utils.EntityUtils
 import net.minusmc.minusbounce.utils.render.ColorUtils
 import net.minusmc.minusbounce.utils.render.RenderUtils
+import net.minusmc.minusbounce.utils.render.GLUtils
 import net.minusmc.minusbounce.value.*
 import net.minecraft.client.renderer.GlStateManager.resetColor
 import net.minecraft.entity.EntityLivingBase
 import net.minusmc.minusbounce.features.module.modules.combat.AntiBot
-import net.minusmc.minusbounce.utils.render.RenderUtils.disableGlCap
 import net.minusmc.minusbounce.utils.render.RenderUtils.drawRect
 import net.minusmc.minusbounce.utils.render.RenderUtils.drawRoundedRect
 import net.minusmc.minusbounce.utils.render.RenderUtils.drawShadow
-import net.minusmc.minusbounce.utils.render.RenderUtils.enableGlCap
-import net.minusmc.minusbounce.utils.render.RenderUtils.resetCaps
 import org.lwjgl.opengl.GL11.*
 import java.awt.Color
 import java.text.DecimalFormat
@@ -177,10 +175,10 @@ class FollowTargetHud : Module() {
         }
 
         // Disable lightning and depth test
-        disableGlCap(GL_LIGHTING, GL_DEPTH_TEST)
+        GLUtils.disableGlCap(GL_LIGHTING, GL_DEPTH_TEST)
 
         // Enable blend
-        enableGlCap(GL_BLEND)
+        GLUtils.enableGlCap(GL_BLEND)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 
         val name = entity.displayName.unformattedText
@@ -339,7 +337,7 @@ class FollowTargetHud : Module() {
             }
         }
         // Reset caps
-        resetCaps()
+        GLUtils.resetCaps()
 
         // Reset color
         resetColor()

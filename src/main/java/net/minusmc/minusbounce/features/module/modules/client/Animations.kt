@@ -13,7 +13,7 @@ import net.minusmc.minusbounce.value.FloatValue
 import net.minusmc.minusbounce.value.IntegerValue
 import net.minusmc.minusbounce.value.ListValue
 
-@ModuleInfo(name = "Animations", description = "Render items Animations", category = ModuleCategory.CLIENT)
+@ModuleInfo(name = "Animations", description = "Render items, animations.", category = ModuleCategory.CLIENT)
 object Animations : Module() {
     // item general scale
     val Scale = FloatValue("Scale", 0.4f, 0f, 4f)

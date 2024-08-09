@@ -25,11 +25,7 @@ import net.minusmc.minusbounce.value.IntegerValue
 import net.minusmc.minusbounce.value.ListValue
 import net.minusmc.minusbounce.value.TextValue
 
-/*
-TASK:
-- More button from pvp client
-Lunar, Badlion, ...
- */
+
 @ModuleInfo(name = "HUD", description = "Toggles visibility of the HUD.", category = ModuleCategory.CLIENT, array = false)
 class HUD : Module() {
     val tabHead = BoolValue("Tab-HeadOverlay", true)

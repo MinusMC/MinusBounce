@@ -23,7 +23,7 @@ import net.minecraft.entity.EntityLivingBase
 import net.minecraft.item.ItemBow
 import java.awt.Color
 
-@ModuleInfo(name = "BowAimbot", spacedName = "Bow Aimbot", description = "Automatically aims at players when using a bow.", category = ModuleCategory.COMBAT)
+@ModuleInfo(name = "BowAimbot", spacedName = "Bow Aim Bot", description = "Automatically aims at players when using a bow.", category = ModuleCategory.COMBAT)
 class BowAimbot : Module() {
 
     private val silentValue = BoolValue("Silent", true)
@@ -82,6 +82,6 @@ class BowAimbot : Module() {
     @EventTarget
     fun onRender3D(event: Render3DEvent) {
         if (markValue.get())
-            RenderUtils.drawPlatform(target ?: return, Color(37, 126, 255, 70))
+            RenderUtils.drawPlatform(target ?: return, Color(37, 126, 255, 70), 0f)
     }
 }

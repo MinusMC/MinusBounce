@@ -10,7 +10,7 @@ import net.minusmc.minusbounce.utils.player.MovementUtils
 import net.minusmc.minusbounce.value.BoolValue
 import net.minusmc.minusbounce.value.ListValue
 
-@ModuleInfo(name = "LongJump", description = "Allows you to jump further.", category = ModuleCategory.MOVEMENT)
+@ModuleInfo(name = "LongJump", spacedName = "Long Jump", description = "Allows you to jump further.", category = ModuleCategory.MOVEMENT)
 class LongJump: Module() {
     private val modes = ClassUtils.resolvePackage("${this.javaClass.`package`.name}.longjumps", LongJumpMode::class.java)
         .map{it.newInstance() as LongJumpMode}

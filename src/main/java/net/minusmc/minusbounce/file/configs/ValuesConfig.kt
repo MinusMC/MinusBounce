@@ -15,8 +15,8 @@ import net.minusmc.minusbounce.features.special.MacroManager.addMacro
 import net.minusmc.minusbounce.features.special.MacroManager.macroMapping
 import net.minusmc.minusbounce.file.FileConfig
 import net.minusmc.minusbounce.file.FileManager
-import net.minusmc.minusbounce.ui.client.GuiBackground.Companion.enabled
-import net.minusmc.minusbounce.ui.client.GuiBackground.Companion.particles
+import net.minusmc.minusbounce.ui.client.GuiClientSettings.Companion.enabled
+import net.minusmc.minusbounce.ui.client.GuiClientSettings.Companion.particles
 import net.minusmc.minusbounce.ui.client.altmanager.menus.GuiTheAltening.Companion.apiKey
 import net.minusmc.minusbounce.utils.LateinitValue
 import net.minusmc.minusbounce.value.ListValue

@@ -123,7 +123,7 @@ class Notification(val title: String, val message: String, val type: Type, var d
         
         GL11.glPushMatrix()
         GlStateManager.disableAlpha()
-        RenderUtils.drawImage2(
+        RenderUtils.drawImage(
             when (type) {
                 Type.SUCCESS -> success_icon
                 Type.ERROR -> error_icon

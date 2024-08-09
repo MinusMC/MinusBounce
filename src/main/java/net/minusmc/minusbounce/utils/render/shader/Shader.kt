@@ -11,41 +11,43 @@ import org.apache.commons.io.IOUtils
 import org.lwjgl.opengl.*
 
 abstract class Shader(fragmentShader: String) : MinecraftInstance() {
-    private var programId: Int = 0
-    private var uniformsMap: MutableMap<String, Int>? = null
+    private val uniformsMap = hashMapOf<String, Int>()
+    private var programId = 0
+    private var setupShader = false
 
     init {
-        val vertexShaderID: Int
-        val fragmentShaderID: Int
         try {
-            val vertexStream = javaClass.getResourceAsStream("/assets/minecraft/minusbounce/shader/vertex.vert")
-            vertexShaderID = createShader(IOUtils.toString(vertexStream), ARBVertexShader.GL_VERTEX_SHADER_ARB)
-            IOUtils.closeQuietly(vertexStream)
-            val fragmentStream =
-                javaClass.getResourceAsStream("/assets/minecraft/minusbounce/shader/fragment/$fragmentShader")
-            fragmentShaderID = createShader(IOUtils.toString(fragmentStream), ARBFragmentShader.GL_FRAGMENT_SHADER_ARB)
-            IOUtils.closeQuietly(fragmentStream)
-
-            if (!(vertexShaderID == 0 || fragmentShaderID == 0)) {
-                programId = ARBShaderObjects.glCreateProgramObjectARB()
-                if (programId != 0) {
-                    ARBShaderObjects.glAttachObjectARB(programId, vertexShaderID)
-                    ARBShaderObjects.glAttachObjectARB(programId, fragmentShaderID)
-                    ARBShaderObjects.glLinkProgramARB(programId)
-                    ARBShaderObjects.glValidateProgramARB(programId)
-                    ClientUtils.logger.info("[Shader] Successfully loaded: $fragmentShader")
-                }
-            }
+            setupProgram(fragmentShader)
         } catch (e: Exception) {
             e.printStackTrace()
+        }
+    }
+
+    fun setupProgram(fragmentShader: String) {
+        val vertexStream = javaClass.getResourceAsStream("/assets/minecraft/minusbounce/shader/vertex.vert")
+        val vertexShaderID = createShader(IOUtils.toString(vertexStream), ARBVertexShader.GL_VERTEX_SHADER_ARB)
+        IOUtils.closeQuietly(vertexStream)
+        val fragmentStream = javaClass.getResourceAsStream("/assets/minecraft/minusbounce/shader/fragment/$fragmentShader")
+        val fragmentShaderID = createShader(IOUtils.toString(fragmentStream), ARBFragmentShader.GL_FRAGMENT_SHADER_ARB)
+        IOUtils.closeQuietly(fragmentStream)
+
+        if (vertexShaderID != 0 && fragmentShaderID == 0) {
+            programId = ARBShaderObjects.glCreateProgramObjectARB()
+            if (programId != 0) {
+                ARBShaderObjects.glAttachObjectARB(programId, vertexShaderID)
+                ARBShaderObjects.glAttachObjectARB(programId, fragmentShaderID)
+                ARBShaderObjects.glLinkProgramARB(programId)
+                ARBShaderObjects.glValidateProgramARB(programId)
+                ClientUtils.logger.info("[Shader] Successfully loaded: $fragmentShader")
+            }
         }
     }
 
     open fun startShader() {
         GL11.glPushMatrix()
         GL20.glUseProgram(programId)
-        if (uniformsMap == null) {
-            uniformsMap = HashMap()
+        if (!setupShader) {
+            setupShader = true
             setupUniforms()
         }
         updateUniforms()
@@ -62,14 +64,15 @@ abstract class Shader(fragmentShader: String) : MinecraftInstance() {
         var shader = 0
         return try {
             shader = ARBShaderObjects.glCreateShaderObjectARB(shaderType)
-            if (shader == 0) return 0
+
+            if (shader == 0)
+                return 0
+
             ARBShaderObjects.glShaderSourceARB(shader, shaderSource)
             ARBShaderObjects.glCompileShaderARB(shader)
-            if (ARBShaderObjects.glGetObjectParameteriARB(
-                    shader,
-                    ARBShaderObjects.GL_OBJECT_COMPILE_STATUS_ARB
-                ) == GL11.GL_FALSE
-            ) throw RuntimeException("Error creating shader: " + getLogInfo(shader))
+            if (ARBShaderObjects.glGetObjectParameteriARB(shader, ARBShaderObjects.GL_OBJECT_COMPILE_STATUS_ARB) == GL11.GL_FALSE)
+                throw RuntimeException("Error creating shader: " + getLogInfo(shader))
+            
             shader
         } catch (e: Exception) {
             ARBShaderObjects.glDeleteObjectARB(shader)
@@ -78,77 +81,69 @@ abstract class Shader(fragmentShader: String) : MinecraftInstance() {
     }
 
     private fun getLogInfo(i: Int): String {
-        return ARBShaderObjects.glGetInfoLogARB(
-            i,
-            ARBShaderObjects.glGetObjectParameteriARB(i, ARBShaderObjects.GL_OBJECT_INFO_LOG_LENGTH_ARB)
-        )
+        val objectArb = ARBShaderObjects.glGetObjectParameteriARB(i, ARBShaderObjects.GL_OBJECT_INFO_LOG_LENGTH_ARB)
+        return ARBShaderObjects.glGetInfoLogARB(i, objectArb)
     }
 
     private fun setUniform(uniformName: String, location: Int) {
-        uniformsMap!![uniformName] = location
+        uniformsMap[uniformName] = location
     }
 
     fun setupUniform(uniformName: String) {
         setUniform(uniformName, GL20.glGetUniformLocation(programId, uniformName))
     }
 
-    fun getUniform(uniformName: String): Int {
-        return uniformsMap!![uniformName]!!
-    }
+    fun getUniform(uniformName: String) = uniformsMap[uniformName] ?: Int.MIN_VALUE
 
     fun drawQuad(x: Float, y: Float, width: Float, height: Float) {
+        drawQuad(x.toDouble(), y.toDouble(), width.toDouble(), height.toDouble())
+    }
+
+    fun drawQuad(x: Double, y: Double, width: Double, height: Double) {
         GL11.glBegin(GL11.GL_QUADS)
         GL11.glTexCoord2f(0.0f, 0.0f)
-        GL11.glVertex2d(x.toDouble(), (y + height).toDouble())
+        GL11.glVertex2d(x, y + height)
         GL11.glTexCoord2f(1.0f, 0.0f)
-        GL11.glVertex2d((x + width).toDouble(), (y + height).toDouble())
+        GL11.glVertex2d(x + width, y + height)
         GL11.glTexCoord2f(1.0f, 1.0f)
-        GL11.glVertex2d((x + width).toDouble(), y.toDouble())
+        GL11.glVertex2d(x + width, y)
         GL11.glTexCoord2f(0.0f, 1.0f)
-        GL11.glVertex2d(x.toDouble(), y.toDouble())
+        GL11.glVertex2d(x, y)
         GL11.glEnd()
     }
 
     fun setUniformf(name: String?, vararg args: Float) {
         val loc = GL20.glGetUniformLocation(this.programId, name)
         when (args.size) {
-            1 -> {
-                GL20.glUniform1f(loc, args[0])
-            }
-
-            2 -> {
-                GL20.glUniform2f(loc, args[0], args[1])
-            }
-
-            3 -> {
-                GL20.glUniform3f(loc, args[0], args[1], args[2])
-            }
-
-            4 -> {
-                GL20.glUniform4f(loc, args[0], args[1], args[2], args[3])
-            }
+            1 -> GL20.glUniform1f(loc, args[0])
+            2 -> GL20.glUniform2f(loc, args[0], args[1])
+            3 -> GL20.glUniform3f(loc, args[0], args[1], args[2])
+            4 -> GL20.glUniform4f(loc, args[0], args[1], args[2], args[3])
         }
     }
 
     fun setUniformi(name: String, vararg args: Int) {
         val loc = GL20.glGetUniformLocation(this.programId, name)
-        if (args.size > 1) {
+        if (args.size > 1)
             GL20.glUniform2i(loc, args[0], args[1])
-        } else {
+        else
             GL20.glUniform1i(loc, args[0])
-        }
     }
 
     fun drawTextureSpecifiedQuad(x: Float, y: Float, width: Float, height: Float) {
+        drawQuad(x.toDouble(), y.toDouble(), width.toDouble(), height.toDouble())
+    }
+
+    fun drawTextureSpecifiedQuad(x: Double, y: Double, width: Double, height: Double) {
         GL11.glBegin(GL11.GL_QUADS)
         GL11.glTexCoord2f(0.0f, 1.0f)
-        GL11.glVertex2d(x.toDouble(), (y + height).toDouble())
+        GL11.glVertex2d(x, y + height)
         GL11.glTexCoord2f(1.0f, 1.0f)
-        GL11.glVertex2d((x + width).toDouble(), (y + height).toDouble())
+        GL11.glVertex2d(x + width, y + height)
         GL11.glTexCoord2f(1.0f, 0.0f)
-        GL11.glVertex2d((x + width).toDouble(), y.toDouble())
+        GL11.glVertex2d(x + width, y)
         GL11.glTexCoord2f(0.0f, 0.0f)
-        GL11.glVertex2d(x.toDouble(), y.toDouble())
+        GL11.glVertex2d(x, y)
         GL11.glEnd()
     }
 }

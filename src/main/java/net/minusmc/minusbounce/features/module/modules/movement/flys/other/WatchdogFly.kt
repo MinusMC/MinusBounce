@@ -5,7 +5,7 @@ import net.minusmc.minusbounce.features.module.modules.movement.flys.FlyMode
 import net.minusmc.minusbounce.utils.player.MovementUtils
 import net.minusmc.minusbounce.utils.player.RotationUtils
 import net.minusmc.minusbounce.utils.PacketUtils
-import net.minusmc.minusbounce.utils.PlayerUtils
+import net.minusmc.minusbounce.utils.player.PlayerUtils
 import net.minusmc.minusbounce.event.PreMotionEvent
 import net.minusmc.minusbounce.event.PostMotionEvent
 import net.minusmc.minusbounce.event.SentPacketEvent

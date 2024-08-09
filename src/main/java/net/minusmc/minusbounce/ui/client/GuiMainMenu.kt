@@ -8,57 +8,50 @@ package net.minusmc.minusbounce.ui.client
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.*
 import net.minecraft.client.renderer.GlStateManager
+import net.minecraft.client.renderer.entity.Render
 import net.minecraft.util.ResourceLocation
 import net.minecraftforge.fml.client.GuiModList
 import net.minusmc.minusbounce.MinusBounce
 import net.minusmc.minusbounce.plugin.PluginGuiManager
 import net.minusmc.minusbounce.ui.client.altmanager.GuiAltManager
 import net.minusmc.minusbounce.ui.font.Fonts
-import net.minusmc.minusbounce.utils.render.RenderUtils
-import net.minusmc.minusbounce.utils.render.ShaderUtils
+import net.minusmc.minusbounce.ui.font.GameFontRenderer
+import net.minusmc.minusbounce.utils.render.*
+import net.minusmc.minusbounce.utils.timer.MSTimer
+import net.minusmc.minusbounce.utils.animation.EaseInOutTimer
+import net.minusmc.minusbounce.utils.login.UserUtils.isValidTokenOffline
+import net.minusmc.minusbounce.utils.geometry.Rectagle
 import java.awt.Color
+import org.lwjgl.opengl.GL11.*
 
 class GuiMainMenu : GuiScreen(), GuiYesNoCallback {
-    private val buttons = hashMapOf<Int, Class<out GuiScreen>>()
+    private val logoAnimation = EaseInOutTimer()
 
     override fun initGui() {
-        val defaultHeight = (this.height / 2.5).toInt()
-
-        buttonList.add(MainMenuButton(0, width / 2 - 148, defaultHeight, "Singleplayer"))
-        buttonList.add(MainMenuButton(1, width / 2 + 32, defaultHeight, "Multiplayer"))
-        buttonList.add(MainMenuButton(2, width / 2 - 148, defaultHeight + 45, "Alt manager"))
-        buttonList.add(MainMenuButton(3, width / 2 + 32, defaultHeight + 45, "Mods and plugins"))
-        buttonList.add(CircleButton(4, width - 80, 8, "Options", ResourceLocation("minusbounce/menu/settings.png")))
-        buttonList.add(CircleButton(5, width - 40, 8, "Quit", ResourceLocation("minusbounce/menu/quit.png")))
-        buttonList.add(CircleButton(6, width - 120, 8, "Background", ResourceLocation("minusbounce/menu/wallpaper.png")))
-
-
-        var id = 201
-        PluginGuiManager.mainMenuButton.forEach {
-            val width = width / 2 + when (id % 2) {
-                0 -> 32
-                else -> -148
-            }
-            val height = defaultHeight + 45 * 2 + 45 * ((id - 201) / 2)
-            buttonList.add(MainMenuButton(id, width, height, it.key))
-            buttons[id] = it.value
-            id++
-        }
-
+        buttonList.add(MainButton(0, 20, height / 2 - 45, "Singleplayer", ResourceLocation("minusbounce/menu/singleplayer.png")))
+        buttonList.add(MainButton(1, 20, height / 2 + 5, "Multiplayer", ResourceLocation("minusbounce/menu/multiplayer.png")))
+        buttonList.add(MainButton(4, 110, height - 46, 80, 26, "Settings", Fonts.fontLexend30, ResourceLocation("minusbounce/menu/settings.png")))
+        buttonList.add(MainButton(6, 20, height - 46, 80, 26, "Client options", Fonts.fontLexend30, ResourceLocation("minusbounce/menu/client_settings.png")))
+        buttonList.add(MainButton(5, width - 80, height - 46, 60, 26, "Exit", Fonts.fontLexend35, ResourceLocation("minusbounce/menu/exit.png")))
+        
+        buttonList.add(AltManagerButton(2, width - 210, 15))
+        
         super.initGui()
     }
 
     override fun drawScreen(mouseX: Int, mouseY: Int, partialTicks: Float) {
         drawBackground(0)
+        logoAnimation.update()
+        val easeProgress = EaseUtils.easeOutBack(logoAnimation.progress.toDouble())
+        val deltaX = easeProgress * 36
+        val deltaXText = easeProgress * 72
+        val patternLogoBox = Rectagle(0, 0, 90, 50)
 
-        val bHeight = (this.height / 3.5).toInt()
-
-        Fonts.font72.drawCenteredString(MinusBounce.CLIENT_NAME, (width / 2).toFloat(), (bHeight - 20).toFloat(), Color.WHITE.rgb, false)
+        drawLogoText("Minus", 20f + deltaXText.toFloat(), 15f, patternLogoBox)
+        drawLogoText("Bounce", 20f + deltaXText.toFloat(), 30f + mc.fontRendererObj.FONT_HEIGHT, patternLogoBox)
+        RenderUtils.drawImage(ResourceLocation("minusbounce/big.png"), 72 - deltaX.toInt(), 15, 45, 45)
+        
         Gui.drawRect(0, 0, 0, 0, Integer.MIN_VALUE)
-        Fonts.font40.drawString("Version: ${MinusBounce.CLIENT_VERSION}", 3F, (height - mc.fontRendererObj.FONT_HEIGHT * 2 - 4).toFloat(), 0xffffff, false)
-        Fonts.font40.drawString("Made by ${MinusBounce.CLIENT_CREATOR}", 3F, (height - mc.fontRendererObj.FONT_HEIGHT - 2).toFloat(), 0xffffff, false)
-        val creditInfo = "Copyright Mojang AB. Do not distribute!"
-        Fonts.font40.drawString(creditInfo, width - 2f - Fonts.font40.getStringWidth(creditInfo), (height - mc.fontRendererObj.FONT_HEIGHT - 2).toFloat(), 0xffffff, false)
         super.drawScreen(mouseX, mouseY, partialTicks)
     }
 
@@ -67,41 +60,65 @@ class GuiMainMenu : GuiScreen(), GuiYesNoCallback {
             0 -> mc.displayGuiScreen(GuiSelectWorld(this))
             1 -> mc.displayGuiScreen(GuiMultiplayer(this))
             2 -> mc.displayGuiScreen(GuiAltManager(this))
-            3 -> mc.displayGuiScreen(GuiModList(this))
             4 -> mc.displayGuiScreen(GuiOptions(this, mc.gameSettings))
             5 -> mc.shutdown()
-            6 -> mc.displayGuiScreen(GuiBackground(this))
-            else -> {
-                val clazzButton = buttons[button.id] ?: return
-                mc.displayGuiScreen(clazzButton.getConstructor(GuiScreen::class.java).newInstance(this) as GuiScreen)
-            }
+            6 -> mc.displayGuiScreen(GuiClientSettings(this))
         }
     }
 
     override fun keyTyped(typedChar: Char, keyCode: Int) {}
+
+    private fun drawLogoText(text: String, x: Float, y: Float, box: Rectagle) {
+        var currentX = x
+        val currentY = y
+        for (char in text) {
+            val charWidth = Fonts.fontSatoshiBold80.getCharWidth(char)
+
+            if (!box.isMouseHover(currentX, currentY))
+                Fonts.fontSatoshiBold80.drawString(char.toString(), currentX, currentY, Color.WHITE.rgb, true)
+            
+            currentX += charWidth
+        }
+    }
 }
 
-class CircleButton(buttonId: Int, val x: Int, val y: Int, buttonText: String, private val image: ResourceLocation): GuiButton(buttonId, x, y, buttonText) {
-    private val radius = 15f
-    init {
-        width = radius.toInt() * 2
-        height = radius.toInt() * 2
-    }
-    override fun drawButton(mc: Minecraft?, mouseX: Int, mouseY: Int) {
-        ShaderUtils.drawFilledCircle(x + radius, y + radius, radius, Color(249, 246, 238, 220))
-        RenderUtils.drawImage(image, xPosition + radius.toInt() / 2, yPosition + radius.toInt() / 2, 16, 16)
-    }
-}
+class MainButton(buttonId: Int, x: Int, y: Int, w: Int, h: Int, buttonText: String, val font: GameFontRenderer, val image: ResourceLocation): GuiButton(buttonId, x, y, buttonText) {
+    constructor(buttonId: Int, x: Int, y: Int, buttonText: String, image: ResourceLocation): this(buttonId, x, y, 170, 40, buttonText, Fonts.fontLexend50, image)
 
-class MainMenuButton(buttonId: Int, x: Int, y: Int, buttonText: String): GuiButton(buttonId, x, y, buttonText) {
     init {
-        width = 110
-        height = 25
+        width = w
+        height = h
     }
 
-    override fun drawButton(mc: Minecraft?, mouseX: Int, mouseY: Int) {
-        ShaderUtils.drawRoundedRect(xPosition.toFloat(), yPosition.toFloat(), (xPosition + width).toFloat(), (yPosition + height).toFloat(), 4f, Color(249, 246, 238, 220).rgb)
+    override fun drawButton(mc: Minecraft, mouseX: Int, mouseY: Int) {
+        val currentHover = mouseX >= xPosition && mouseY >= yPosition && mouseX < xPosition + width && mouseY < yPosition + height
+
+        RenderUtils.drawRoundedGradientRectCorner(xPosition, yPosition, xPosition + width, yPosition + height, 6f, Color(127, 127, 213, 180).rgb, Color(145, 234, 228, 180).rgb)
+        RenderUtils.drawImage(image, xPosition + 4, yPosition + 4, height - 8, height - 8)
+
         GlStateManager.resetColor()
-        Fonts.font50.drawCenteredString(displayString, xPosition + width / 2f, yPosition + (height - Fonts.font50.FONT_HEIGHT) / 2f + 2, Color(54, 69, 79).rgb, false)
+        font.drawString(displayString, xPosition + height.toFloat(), yPosition + (height - font.FONT_HEIGHT) / 2f + 2, Color.WHITE.rgb, false)
+    }
+}
+
+class AltManagerButton(buttonId: Int, x: Int, y: Int): GuiButton(buttonId, x, y, "") {
+    private val image = ResourceLocation("minusbounce/menu/altmanager.png")
+    private val editImage = ResourceLocation("minusbounce/menu/edit.png")
+    
+    init {
+        width = 180
+        height = 40
+    }
+
+    override fun drawButton(mc: Minecraft, mouseX: Int, mouseY: Int) {
+        RenderUtils.drawRoundedGradientRectCorner(xPosition, yPosition, xPosition + width, yPosition + height, 6f, Color(127, 127, 213, 180).rgb, Color(145, 234, 228, 180).rgb)
+        RenderUtils.drawImage(image, xPosition + 6, yPosition + 6, height - 12, height - 12)
+
+        GlStateManager.resetColor()
+        Fonts.fontLexend50.drawString(mc.session.username, xPosition + 5f + height.toFloat(), yPosition + 12f, Color.WHITE.rgb, false)
+        val stringValidAccount = if (isValidTokenOffline(mc.session.token)) "Premium" else "Cracked"
+        Fonts.fontLexend35.drawString(stringValidAccount, xPosition + 5f + height.toFloat(), yPosition + 30f, Color.WHITE.rgb, false)
+
+        RenderUtils.drawImage(editImage, xPosition + width - 29, yPosition + 17, 16, 16)
     }
 }

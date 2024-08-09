@@ -59,7 +59,7 @@ class KillAura : Module() {
         }
     }
 
-    val rotationRangeValue: FloatValue = object: FloatValue("RotationRange", 5f, 1f, 8f, "m") {
+    private val rotationRangeValue: FloatValue = object: FloatValue("RotationRange", 5f, 1f, 8f, "m") {
         override fun onPostChange(oldValue: Float, newValue: Float) {
             set(newValue.coerceAtLeast(rangeValue.get()))
         }
@@ -249,7 +249,7 @@ class KillAura : Module() {
             else -> clickNormal(target)
         }
 
-        if (targetModeValue.get().equals("Switch", true)) {
+        if (targetModeValue.get().equals("switch", true)) {
             if (attackTimer.hasTimePassed(switchDelayValue.get())) {
                 prevTargetEntities.add(target.entityId)
                 attackTimer.reset()

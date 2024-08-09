@@ -13,6 +13,7 @@ import net.minusmc.minusbounce.features.module.ModuleInfo
 import net.minusmc.minusbounce.utils.player.RotationUtils
 import net.minusmc.minusbounce.utils.render.ColorUtils
 import net.minusmc.minusbounce.utils.render.RenderUtils
+import net.minusmc.minusbounce.utils.render.GLUtils
 import net.minusmc.minusbounce.value.IntegerValue
 import net.minusmc.minusbounce.value.ListValue
 import net.minecraft.block.material.Material
@@ -127,19 +128,19 @@ class Projectiles : Module() {
 
         // Start drawing of path
         GL11.glDepthMask(false)
-        RenderUtils.enableGlCap(GL11.GL_BLEND, GL11.GL_LINE_SMOOTH)
-        RenderUtils.disableGlCap(GL11.GL_DEPTH_TEST, GL11.GL_ALPHA_TEST, GL11.GL_TEXTURE_2D)
+        GLUtils.enableGlCap(GL11.GL_BLEND, GL11.GL_LINE_SMOOTH)
+        GLUtils.disableGlCap(GL11.GL_DEPTH_TEST, GL11.GL_ALPHA_TEST, GL11.GL_TEXTURE_2D)
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA)
         GL11.glHint(GL11.GL_LINE_SMOOTH_HINT, GL11.GL_NICEST)
         when (colorMode.get().lowercase()) {
             "custom" -> {
-                RenderUtils.glColor(Color(colorRedValue.get(), colorGreenValue.get(), colorBlueValue.get(), 255))
+                GLUtils.glColor(Color(colorRedValue.get(), colorGreenValue.get(), colorBlueValue.get(), 255))
             }
             "bowpower" -> {
-                interpolateHSB(Color.RED, Color.GREEN, (motionFactor / 30) * 10)?.let { RenderUtils.glColor(it) }
+                interpolateHSB(Color.RED, Color.GREEN, (motionFactor / 30) * 10)?.let { GLUtils.glColor(it) }
             }
             "rainbow" -> {
-                RenderUtils.glColor(ColorUtils.rainbow())
+                GLUtils.glColor(ColorUtils.rainbow())
             }
         }
         GL11.glLineWidth(2f)
@@ -235,7 +236,7 @@ class Projectiles : Module() {
 
             // Check if hitting an entity
             if (hitEntity)
-                RenderUtils.glColor(Color(255, 0, 0, 150))
+                GLUtils.glColor(Color(255, 0, 0, 150))
         }
 
         // Rendering hit cylinder
@@ -247,7 +248,7 @@ class Projectiles : Module() {
 
         GL11.glPopMatrix()
         GL11.glDepthMask(true)
-        RenderUtils.resetCaps()
+        GLUtils.resetCaps()
         GL11.glColor4f(1F, 1F, 1F, 1F)
     }
 

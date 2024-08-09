@@ -9,6 +9,7 @@ import net.minusmc.minusbounce.features.module.ModuleInfo
 import net.minusmc.minusbounce.utils.render.ColorUtils.rainbow
 import net.minusmc.minusbounce.utils.render.ColorUtils.reAlpha
 import net.minusmc.minusbounce.utils.render.RenderUtils
+import net.minusmc.minusbounce.utils.render.GLUtils
 import net.minusmc.minusbounce.value.BoolValue
 import net.minusmc.minusbounce.value.FloatValue
 import net.minusmc.minusbounce.value.IntegerValue
@@ -118,7 +119,7 @@ class Trails : Module() {
         var alpha = alphaValue.get()
         fun render(color: Color?, renderPosX: Double, renderPosY: Double, renderPosZ: Double, decreaseBy: Int) {
             val reColor = reAlpha(color!!, alpha)
-            RenderUtils.glColor(reColor)
+            GLUtils.glColor(reColor)
             GL11.glVertex3d(pos[0] - renderPosX, pos[1] - renderPosY, pos[2] - renderPosZ)
             alpha -= decreaseBy
             if (alpha < 0) alpha = 0

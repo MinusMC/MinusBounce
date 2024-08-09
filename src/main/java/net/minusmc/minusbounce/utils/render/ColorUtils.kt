@@ -241,4 +241,24 @@ object ColorUtils {
         val color = Color(Color.HSBtoRGB((time.toFloat() + count * -3000000f) / 2 / 1.0E9f, qd, sq))
         return Color(color.red / 255.0f * 1, color.green / 255.0f * 1, color.blue / 255.0f * 1, color.alpha / 255.0f)
     }
+
+    fun interpolateColorWithProgress(startColor: Int, endColor: Int, progress: Float): Int {
+        val startAlpha = startColor ushr 24
+        val startRed = startColor shr 16 and 0xFF
+        val startGreen = startColor shr 8 and 0xFF
+        val startBlue = startColor and 0xFF
+
+        val endAlpha = endColor ushr 24
+        val endRed = endColor shr 16 and 0xFF
+        val endGreen = endColor shr 8 and 0xFF
+        val endBlue = endColor and 0xFF
+
+        val progressLeft = 1.0 - progress
+
+        val alpha = (progressLeft * startAlpha + progress * endAlpha).toInt()
+        val red = (progressLeft * startRed + progress * endRed).toInt()
+        val green = (progressLeft * startGreen + progress * endGreen).toInt()
+        val blue = (progressLeft * startBlue + progress * endBlue).toInt()
+        return alpha shl 24 or (red shl 16) or (green shl 8) or blue
+    }
 }

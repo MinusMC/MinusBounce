@@ -12,195 +12,104 @@ import kotlin.math.*
  */
 object EaseUtils {
     @JvmStatic
-    fun easeInSine(x: Double): Double {
-        return 1 - cos((x * PI) / 2);
-    }
+    fun easeInSine(x: Double) = 1 - cos((x * PI) / 2)
 
     @JvmStatic
-    fun easeOutSine(x: Double): Double {
-        return sin((x * PI) / 2);
-    }
+    fun easeOutSine(x: Double) = sin((x * PI) / 2)
 
     @JvmStatic
-    fun easeInOutSine(x: Double): Double {
-        return -(cos(PI * x) - 1) / 2;
-    }
+    fun easeInOutSine(x: Double) = -(cos(PI * x) - 1) / 2
 
     @JvmStatic
-    fun easeInQuad(x: Double): Double {
-        return x * x;
-    }
+    fun easeInQuad(x: Double) = x * x
 
     @JvmStatic
-    fun easeOutQuad(x: Double): Double {
-        return 1 - (1 - x) * (1 - x);
-    }
+    fun easeOutQuad(x: Double) = 1 - easeInQuad(1 - x)
 
     @JvmStatic
-    fun easeInOutQuad(x: Double): Double {
-        return if(x < 0.5){2 * x * x}else{1 - (-2 * x + 2).pow(2) / 2}
-    }
+    fun easeInOutQuad(x: Double) = if (x < 0.5) 2 * x * x else 1 - easeInQuad(-2 * x + 2) / 2 
 
     @JvmStatic
-    fun easeInCubic(x: Double): Double {
-        return x * x * x;
-    }
+    fun easeInCubic(x: Double) = x * x * x
 
     @JvmStatic
-    fun easeOutCubic(x: Double): Double {
-        return 1 - (1 - x).pow(3);
-    }
+    fun easeOutCubic(x: Double) = 1 - easeInCubic(x)
 
     @JvmStatic
-    fun easeInOutCubic(x: Double): Double {
-        return if(x < 0.5){4 * x * x * x}else{1 - (-2 * x + 2).pow(3) / 2};
-    }
+    fun easeInOutCubic(x: Double) = if (x < 0.5) 4 * x * x * x else 1 - easeInCubic(-2 * x + 2) / 2 
 
     @JvmStatic
-    fun easeInQuart(x: Double): Double {
-        return x * x * x * x;
-    }
+    fun easeInQuart(x: Double) = x * x * x * x
 
     @JvmStatic
-    fun easeOutQuart(x: Double): Double {
-        return 1 - (1 - x).pow(4);
-    }
+    fun easeOutQuart(x: Double) = 1 - easeInQuart(x)
 
     @JvmStatic
-    fun easeInOutQuart(x: Double): Double {
-        return if(x < 0.5){8 * x * x * x * x}else{1 - (-2 * x + 2).pow(4) / 2};
-    }
+    fun easeInOutQuart(x: Double) = if (x < 0.5) 8 * x * x * x * x else 1 - easeInQuart(-2 * x + 2) / 2
 
     @JvmStatic
-    fun easeInQuint(x: Double): Double {
-        return x * x * x * x * x;
-    }
+    fun easeInQuint(x: Double) = x * x * x * x * x
 
     @JvmStatic
-    fun easeOutQuint(x: Double): Double {
-        return 1 - (1 - x).pow(5);
-    }
+    fun easeOutQuint(x: Double) = 1 - easeInQuint(x)
 
     @JvmStatic
-    fun easeInOutQuint(x: Double): Double {
-        return if(x < 0.5){16 * x * x * x * x * x}else{1 - (-2 * x + 2).pow(5) / 2};
-    }
+    fun easeInOutQuint(x: Double) = if (x < 0.5) 16 * x * x * x * x * x else 1 - easeOutQuint(-2 * x + 2) / 2
 
     @JvmStatic
-    fun easeInExpo(x: Double): Double {
-        return if(x == 0.0){0.0}else{2.0.pow(10 * x - 10)}
-    }
+    fun easeInExpo(x: Double) = if(x == 0.0) 0.0 else 2.0.pow(10 * x - 10)
 
     @JvmStatic
-    fun easeOutExpo(x: Double): Double {
-        return if(x == 1.0){1.0}else{1 - 2.0.pow(-10 * x)};
-    }
+    fun easeOutExpo(x: Double) = if(x == 1.0) 1.0 else 1 - 2.0.pow(-10 * x)
 
     @JvmStatic
-    fun easeInOutExpo(x: Double): Double {
-        return if(x == 0.0){0.0}
-        else{if(x == 1.0){1.0}
-        else{if(x < 0.5){2.0.pow(20 * x - 10) / 2}
-        else{(2 - 2.0.pow(-20 * x + 10)) / 2}}}
-    }
+    fun easeInOutExpo(x: Double) = if(x == 0.0 || x == 1.0) x
+        else if (x < 0.5) 2.0.pow(20 * x - 10) / 2
+        else (2 - 2.0.pow(-20 * x + 10)) / 2
 
     @JvmStatic
-    fun easeInCirc(x: Double): Double {
-        return 1 - sqrt(1 - x.pow(2));
-    }
+    fun easeInCirc(x: Double) = 1 - sqrt(1 - x.pow(2))
 
     @JvmStatic
-    fun easeOutCirc(x: Double): Double {
-        return sqrt(1 - (x - 1).pow(2));
-    }
+    fun easeOutCirc(x: Double) = sqrt(1 - (x - 1).pow(2))
 
     @JvmStatic
-    fun easeInOutCirc(x: Double): Double {
-        return if(x < 0.5){(1 - sqrt(1 - (2 * x).pow(2))) / 2}
-        else{(sqrt(1 - (-2 * x + 2).pow(2)) + 1) / 2};
-    }
+    fun easeInOutCirc(x: Double) = if (x < 0.5) (1 - sqrt(1 - (2 * x).pow(2))) / 2
+        else (sqrt(1 - (-2 * x + 2).pow(2)) + 1) / 2
 
     @JvmStatic
-    fun easeInBack(x: Double): Double {
-        val c1 = 1.70158;
-        val c3 = c1 + 1;
-
-        return c3 * x * x * x - c1 * x * x;
-    }
+    fun easeInBack(x: Double) = 2.70158 * x * x * x - 1.70158 * x * x
 
     @JvmStatic
-    fun easeOutBack(x: Double): Double {
-        val c1 = 1.70158;
-        val c3 = c1 + 1;
-
-        return 1 + c3 * (x - 1).pow(3) + c1 * (x - 1).pow(2);
-    }
+    fun easeOutBack(x: Double) = 3.70158 * (x - 1).pow(3) + 1.70158 * (x - 1).pow(2)
 
     @JvmStatic
-    fun easeInOutBack(x: Double): Double {
-        val c1 = 1.70158;
-        val c2 = c1 * 1.525;
-
-        return if(x < 0.5){((2 * x).pow(2) * ((c2 + 1) * 2 * x - c2)) / 2}
-        else{((2 * x - 2).pow(2) * ((c2 + 1) * (x * 2 - 2) + c2) + 2) / 2};
-    }
+    fun easeInOutBack(x: Double) = if (x < 0.5) ((2 * x).pow(2) * (7.189819 * x - 2.5949095)) / 2
+        else ((2 * x - 2).pow(2) * (3.5949095 * (x * 2 - 2) + 2.5949095) + 2) / 2
 
     @JvmStatic
-    fun easeInElastic(x: Double): Double {
-        val c4 = (2 * Math.PI) / 3;
-
-        return if(x == 0.0){0.0}
-        else{if(x == 1.0){1.0}
-        else{(-2.0).pow(10 * x - 10) * sin((x * 10 - 10.75) * c4)}};
-    }
+    fun easeInElastic(x: Double) = if (x == 0.0 || x == 1.0) x
+        else (-2.0).pow(10 * x - 10) * sin((x * 10 - 10.75) * 2.0943951023931953)
 
     @JvmStatic
-    fun easeOutElastic(x: Double): Double {
-        val c4 = (2 * Math.PI) / 3;
-
-        return if(x == 0.0){0.0}
-        else{if(x == 1.0){1.0}
-        else{2.0.pow(-10 * x) * sin((x * 10 - 0.75) * c4) + 1}}
-    }
+    fun easeOutElastic(x: Double) = if (x == 0.0 || x == 1.0) x
+            else 2.0.pow(-10 * x) * sin((x * 10 - 0.75) * 2.0943951023931953) + 1
 
     @JvmStatic
-    fun easeInOutElastic(x: Double): Double {
-        val c5 = (2 * Math.PI) / 4.5;
-
-        return if(x == 0.0){0.0}
-        else{if(x == 1.0){1.0}
-        else{if(x < 0.5){-(2.0.pow(20 * x - 10) * sin((20 * x - 11.125) * c5)) / 2}
-        else{(2.0.pow(-20 * x + 10) * sin((20 * x - 11.125) * c5)) / 2 + 1}}}
-    }
+    fun easeInOutElastic(x: Double) = if (x == 0.0 || x == 1.0) x
+        else if (x < 0.5) -(2.0.pow(20 * x - 10) * sin((20 * x - 11.125) * 1.3962634015954636)) / 2
+        else (2.0.pow(-20 * x + 10) * sin((20 * x - 11.125) * 1.3962634015954636)) / 2 + 1
 
     @JvmStatic
-    fun easeInBounce(x: Double): Double {
-        return 1 - easeOutBounce(1 - x);
-    }
+    fun easeInBounce(x: Double) = 1 - easeOutBounce(1 - x)
 
     @JvmStatic
-    fun easeOutBounce(animeX: Double): Double {
-        var x=animeX
-        val n1 = 7.5625;
-        val d1 = 2.75;
-
-        if (x < 1 / d1) {
-            return n1 * x * x;
-        } else if (x < 2 / d1) {
-            x -= 1.5
-            return n1 * (x / d1) * x + 0.75;
-        } else if (x < 2.5 / d1) {
-            x -= 2.25
-            return n1 * (x / d1) * x + 0.9375;
-        } else {
-            x -= 2.625
-            return n1 * (x / d1) * x + 0.984375;
-        }
-    }
+    fun easeOutBounce(animeX: Double) = if (animeX * 2.75 < 1) 7.5625 * animeX * animeX
+        else if (animeX * 2.75 < 2) 7.5625 * ((animeX - 1.5) / 2.75) * (animeX - 1.5) + 0.75
+        else if (animeX * 2.75 < 2.5) 7.5625 * ((animeX - 2.25) / 2.75) * (animeX - 2.25) + 0.9375
+        else 7.5625 * ((animeX - 2.625) / 2.75) * (animeX - 2.625) + 0.984375
 
     @JvmStatic
-    fun easeInOutBounce(x: Double): Double {
-        return if(x < 0.5){(1 - easeOutBounce(1 - 2 * x)) / 2}
-        else{(1 + easeOutBounce(2 * x - 1)) / 2};
-    }
+    fun easeInOutBounce(x: Double) = if (x < 0.5) (1 - easeOutBounce(1 - 2 * x)) / 2 
+        else (1 + easeOutBounce(2 * x - 1)) / 2
 }

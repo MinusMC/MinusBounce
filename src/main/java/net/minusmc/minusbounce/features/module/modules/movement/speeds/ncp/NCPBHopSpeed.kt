@@ -53,13 +53,10 @@ class NCPBHopSpeed: SpeedMode("NCPBHop", SpeedType.NCP) {
 
         if (timerDelay != 0) {
             mc.timer.timerSpeed = 1f
-        } else {
-            if (MovementUtils.isMoving) mc.timer.timerSpeed = 32767f
-            if (MovementUtils.isMoving) {
-                mc.timer.timerSpeed = 1.3f
-                mc.thePlayer.motionX *= 1.0199999809265137
-                mc.thePlayer.motionZ *= 1.0199999809265137
-            }
+        } else if (MovementUtils.isMoving) {
+            mc.timer.timerSpeed = 1.3f
+            mc.thePlayer.motionX *= 1.0199999809265137
+            mc.thePlayer.motionZ *= 1.0199999809265137
         }
 
         if (mc.thePlayer.onGround && MovementUtils.isMoving) level = 2

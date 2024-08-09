@@ -24,7 +24,7 @@ object ShadowUtils : MinecraftInstance() {
 
     private var initFramebuffer: Framebuffer? = null
     private var frameBuffer: Framebuffer? = null
-    var resultBuffer: Framebuffer? = null
+    private var resultBuffer: Framebuffer? = null
 
     private var shaderGroup: ShaderGroup? = null
     private var lastWidth = 0
@@ -38,55 +38,67 @@ object ShadowUtils : MinecraftInstance() {
         val width = sc.scaledWidth
         val height = sc.scaledHeight
         val factor = sc.scaleFactor
-        if (lastWidth != width || lastHeight != height
-            || initFramebuffer == null || frameBuffer == null || shaderGroup == null) {
-            initFramebuffer = Framebuffer(width * factor, height * factor, true)
-            initFramebuffer!!.setFramebufferColor(0F, 0F, 0F, 0F)
-            initFramebuffer!!.setFramebufferFilter(GL_LINEAR)
-            shaderGroup = ShaderGroup(mc.textureManager, mc.getResourceManager(), initFramebuffer, blurDirectory)
-            shaderGroup!!.createBindFramebuffers(width * factor, height * factor)
-            frameBuffer = shaderGroup!!.mainFramebuffer
-            resultBuffer = shaderGroup!!.getFramebufferRaw("braindead")
+        if (lastWidth != width || lastHeight != height || initFramebuffer == null || frameBuffer == null || shaderGroup == null) {
+            val initFramebuffer = Framebuffer(width * factor, height * factor, true)
+            this.initFramebuffer = initFramebuffer
+
+            initFramebuffer.setFramebufferColor(0F, 0F, 0F, 0F)
+            initFramebuffer.setFramebufferFilter(GL_LINEAR)
+            val shaderGroup = ShaderGroup(mc.textureManager, mc.resourceManager, initFramebuffer, blurDirectory)
+            
+            this.shaderGroup = shaderGroup
+            shaderGroup.createBindFramebuffers(width * factor, height * factor)
+
+            frameBuffer = shaderGroup.mainFramebuffer
+            resultBuffer = shaderGroup.getFramebufferRaw("braindead")
     
             lastWidth = width
             lastHeight = height
             lastStrength = strength
-            for (i in 0..1)
-                shaderGroup!!.listShaders[i].shaderManager.getShaderUniform("Radius").set(strength)
+
+            shaderGroup.listShaders.take(2).forEach {
+                it.shaderManager.getShaderUniform("Radius").set(strength)
+            }
         }
         if (lastStrength != strength) {
             lastStrength = strength
-            for (i in 0..1)
-                shaderGroup!!.listShaders[i].shaderManager.getShaderUniform("Radius").set(strength)
+
+            val shaders = this.shaderGroup?.listShaders?.take(2) ?: return
+            shaders.forEach {
+                it.shaderManager.getShaderUniform("Radius").set(strength)
+                it.shaderManager.getShaderUniform("Radius").set(strength)
+            }
         }
     }
 
     fun shadow(strength: Float, drawMethod: (() -> Unit), cutMethod: (() -> Unit)) {
-        if (!OpenGlHelper.isFramebufferEnabled()) return
+        if (!OpenGlHelper.isFramebufferEnabled())
+            return
 
         val sc = ScaledResolution(mc)
-        val width = sc.scaledWidth
-        val height = sc.scaledHeight
+        val width = sc.scaledWidth.toDouble()
+        val height = sc.scaledHeight.toDouble()
         initShaderIfRequired(sc, strength)
 
-        initFramebuffer ?: return
-        resultBuffer ?: return
-        frameBuffer ?: return
+        val initFramebuffer = this.initFramebuffer ?: return
+        val resultBuffer = this.resultBuffer ?: return
+        val frameBuffer = this.frameBuffer ?: return
+        val shaderGroup = this.shaderGroup ?: return
 
-        mc.getFramebuffer().unbindFramebuffer()
-        initFramebuffer!!.framebufferClear()
-        resultBuffer!!.framebufferClear()
-        initFramebuffer!!.bindFramebuffer(true)
+        mc.framebuffer.unbindFramebuffer()
+        initFramebuffer.framebufferClear()
+        resultBuffer.framebufferClear()
+        initFramebuffer.bindFramebuffer(true)
         drawMethod()
-        frameBuffer!!.bindFramebuffer(true)
-        shaderGroup!!.loadShaderGroup(mc.timer.renderPartialTicks)
-        mc.getFramebuffer().bindFramebuffer(true)
+        frameBuffer.bindFramebuffer(true)
+        shaderGroup.loadShaderGroup(mc.timer.renderPartialTicks)
+        mc.framebuffer.bindFramebuffer(true)
 
-        val fr_width = resultBuffer!!.framebufferWidth.toDouble() / resultBuffer!!.framebufferTextureWidth.toDouble()
-        val fr_height = resultBuffer!!.framebufferHeight.toDouble() / resultBuffer!!.framebufferTextureHeight.toDouble()
+        val fr_width = resultBuffer.framebufferWidth / resultBuffer.framebufferTextureWidth.toDouble()
+        val fr_height = resultBuffer.framebufferHeight / resultBuffer.framebufferTextureHeight.toDouble()
 
         val tessellator = Tessellator.getInstance()
-        val worldrenderer = tessellator.getWorldRenderer()
+        val worldrenderer = tessellator.worldRenderer
 
         glPushMatrix()
         GlStateManager.disableLighting()
@@ -104,18 +116,18 @@ object ShadowUtils : MinecraftInstance() {
         GlStateManager.blendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
         GlStateManager.color(1F, 1F, 1F, 1F)
 
-        resultBuffer!!.bindFramebufferTexture()
+        resultBuffer.bindFramebufferTexture()
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE)
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE)
 
         worldrenderer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR)
-        worldrenderer.pos(0.0, height.toDouble(), 0.0).tex(0.0, 0.0).color(255, 255, 255, 255).endVertex()
-        worldrenderer.pos(width.toDouble(), height.toDouble(), 0.0).tex(fr_width, 0.0).color(255, 255, 255, 255).endVertex()
-        worldrenderer.pos(width.toDouble(), 0.0, 0.0).tex(fr_width, fr_height).color(255, 255, 255, 255).endVertex()
+        worldrenderer.pos(0.0, height, 0.0).tex(0.0, 0.0).color(255, 255, 255, 255).endVertex()
+        worldrenderer.pos(width, height, 0.0).tex(fr_width, 0.0).color(255, 255, 255, 255).endVertex()
+        worldrenderer.pos(width, 0.0, 0.0).tex(fr_width, fr_height).color(255, 255, 255, 255).endVertex()
         worldrenderer.pos(0.0, 0.0, 0.0).tex(0.0, fr_height).color(255, 255, 255, 255).endVertex()
 
         tessellator.draw()
-        resultBuffer!!.unbindFramebufferTexture()
+        resultBuffer.unbindFramebufferTexture()
 
         GlStateManager.disableBlend() 
         GlStateManager.enableAlpha()

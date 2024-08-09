@@ -19,44 +19,27 @@ object WorldToScreen {
         return Matrix4f().load(floatBuffer) as Matrix4f
     }
 
-    fun worldToScreen(pointInWorld: Vector3f, screenWidth: Int, screenHeight: Int): Vector2f? {
-        return worldToScreen(
-            pointInWorld,
-            getMatrix(GL11.GL_MODELVIEW_MATRIX),
-            getMatrix(GL11.GL_PROJECTION_MATRIX),
-            screenWidth,
-            screenHeight
-        )
-    }
+    fun worldToScreen(pointInWorld: Vector3f, screenWidth: Int, screenHeight: Int) = 
+        worldToScreen(pointInWorld, getMatrix(GL11.GL_MODELVIEW_MATRIX), getMatrix(GL11.GL_PROJECTION_MATRIX), screenWidth, screenHeight)
 
-    fun worldToScreen(
-        pointInWorld: Vector3f,
-        view: Matrix4f,
-        projection: Matrix4f,
-        screenWidth: Int,
-        screenHeight: Int
-    ): Vector2f? {
-        val clipSpacePos =
-            multiply(multiply(Vector4f(pointInWorld.x, pointInWorld.y, pointInWorld.z, 1.0f), view), projection)
-        val ndcSpacePos =
-            Vector3f(clipSpacePos.x / clipSpacePos.w, clipSpacePos.y / clipSpacePos.w, clipSpacePos.z / clipSpacePos.w)
+    fun worldToScreen(pointInWorld: Vector3f, view: Matrix4f, projection: Matrix4f, screenWidth: Int, screenHeight: Int): Vector2f? {
+        val pointedWorldVector = Vector4f(pointInWorld.x, pointInWorld.y, pointInWorld.z, 1.0f)
+        val clipSpacePos = pointedWorldVector * view * projection
 
-//        System.out.println(pointInNdc);
+        val ndcSpacePos = Vector3f(clipSpacePos.x, clipSpacePos.y, clipSpacePos.z) / clipSpacePos.w
+
         val screenX = (ndcSpacePos.x + 1.0f) / 2.0f * screenWidth
         val screenY = (1.0f - ndcSpacePos.y) / 2.0f * screenHeight
 
-        // nPlane = -1, fPlane = 1
-        return if (ndcSpacePos.z < -1.0 || ndcSpacePos.z > 1.0) {
-            null
-        } else Vector2f(screenX, screenY)
+        return if (ndcSpacePos.z < -1.0 || ndcSpacePos.z > 1.0) null else Vector2f(screenX, screenY)
     }
 
-    fun multiply(vec: Vector4f, mat: Matrix4f): Vector4f {
-        return Vector4f(
-            vec.x * mat.m00 + vec.y * mat.m10 + vec.z * mat.m20 + vec.w * mat.m30,
-            vec.x * mat.m01 + vec.y * mat.m11 + vec.z * mat.m21 + vec.w * mat.m31,
-            vec.x * mat.m02 + vec.y * mat.m12 + vec.z * mat.m22 + vec.w * mat.m32,
-            vec.x * mat.m03 + vec.y * mat.m13 + vec.z * mat.m23 + vec.w * mat.m33
-        )
-    }
+    operator fun Vector4f.times(mat: Matrix4f) = Vector4f(
+        x * mat.m00 + y * mat.m10 + z * mat.m20 + w * mat.m30,
+        x * mat.m01 + y * mat.m11 + z * mat.m21 + w * mat.m31,
+        x * mat.m02 + y * mat.m12 + z * mat.m22 + w * mat.m32,
+        x * mat.m03 + y * mat.m13 + z * mat.m23 + w * mat.m33
+    )
+
+    operator fun Vector3f.div(b: Float) = Vector3f(x / b, y / b, z / b)
 }

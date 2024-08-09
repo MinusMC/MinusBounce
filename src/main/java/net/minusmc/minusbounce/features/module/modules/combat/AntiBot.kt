@@ -171,7 +171,7 @@ object AntiBot : Module() {
     @EventTarget
     fun onAttack(event: AttackEvent) {
         val entity = event.targetEntity
-        if(entity is EntityLivingBase && !hitted.contains(entity.entityId))
+        if (entity is EntityLivingBase && !hitted.contains(entity.entityId))
             hitted.add(entity.entityId)
     }
 
@@ -194,7 +194,8 @@ object AntiBot : Module() {
         if (entity !is EntityPlayer || entity == mc.thePlayer)
             return false
 
-        if (!state) return false
+        if (!state)
+            return false
 
         if (experimentalNPCDetection.get() && (entity.getDisplayName().unformattedText.lowercase().contains("npc") || entity.getDisplayName().unformattedText.lowercase().contains("cit-")))
             return true

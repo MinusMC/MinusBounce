@@ -149,10 +149,10 @@ class TargetMark : Module() {
                         0,
                         0,
                         colorAlphaValue.get()
-                    )
+                    ), moveMarkValue.get()
                 )
             }
-        } else { // = cai multi nay la box à
+        } else {
             if (!aura!!.targetModeValue.get().equals("multi", true) && currentTarget != null
             ) currentTarget?.let {
                 RenderUtils.drawEntityBox(

@@ -266,9 +266,9 @@ object RotationUtils : MinecraftInstance(), Listenable {
 
         val currentRotation = this.currentRotation ?: mc.thePlayer.rotation
 
-        for (x in 0.0..1.0)
-            for (y in 0.0..1.0)
-                for (z in 0.0..1.0) {
+        for (x in 0.15..0.85 step 0.1)
+            for (y in 0.15..1.0 step 0.1)
+                for (z in 0.15..0.85 step 0.1) {
                     val vec3 = Vec3(
                         bb.minX + (bb.maxX - bb.minX) * x, 
                         bb.minY + (bb.maxY - bb.minY) * y, 
@@ -276,16 +276,14 @@ object RotationUtils : MinecraftInstance(), Listenable {
                     )
 
                     val rotation = toRotation(vec3, predict)
-                    rotation.fixedSensitivity(mc.gameSettings.mouseSensitivity)
-
                     val vecDist = eyes.distanceTo(vec3)
+
                     if (vecDist > lookRange)
                         continue
 
-                    if (vecDist > throughWallsRange || isVisible(vec3)) {
+                    if (throughWallsRange > 0f || isVisible(vec3))
                         if (attackRotation == null || getRotationDifference(rotation, currentRotation) < getRotationDifference(attackRotation.rotation, currentRotation))
                             attackRotation = VecRotation(vec3, rotation)
-                    }
                 }
 
         return attackRotation

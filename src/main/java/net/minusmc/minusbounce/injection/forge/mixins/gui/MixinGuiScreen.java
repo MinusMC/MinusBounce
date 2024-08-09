@@ -7,7 +7,7 @@ package net.minusmc.minusbounce.injection.forge.mixins.gui;
 
 import net.minusmc.minusbounce.MinusBounce;
 import net.minusmc.minusbounce.features.module.modules.client.HUD;
-import net.minusmc.minusbounce.ui.client.GuiBackground;
+import net.minusmc.minusbounce.ui.client.GuiClientSettings;
 import net.minusmc.minusbounce.utils.render.ParticleUtils;
 import net.minusmc.minusbounce.utils.render.shader.shaders.BackgroundShader;
 import net.minusmc.minusbounce.utils.render.shader.shaders.BackgroundDarkShader;
@@ -93,7 +93,7 @@ public abstract class MixinGuiScreen {
         GlStateManager.disableLighting();
         GlStateManager.disableFog();
 
-        if(GuiBackground.Companion.getEnabled()) {
+        if(GuiClientSettings.Companion.getEnabled()) {
             if (MinusBounce.INSTANCE.getBackground() == null) {
                BackgroundShader.BACKGROUND_SHADER.startShader();
 
@@ -117,7 +117,7 @@ public abstract class MixinGuiScreen {
                 Gui.drawScaledCustomSizeModalRect(0, 0, 0.0F, 0.0F, width, height, width, height, width, height);
             }
 
-            if (GuiBackground.Companion.getParticles())
+            if (GuiClientSettings.Companion.getParticles())
                 ParticleUtils.INSTANCE.drawParticles(Mouse.getX() * width / mc.displayWidth, height - Mouse.getY() * height / mc.displayHeight - 1);
             callbackInfo.cancel();
         }
@@ -125,7 +125,7 @@ public abstract class MixinGuiScreen {
 
     @Inject(method = "drawBackground", at = @At("RETURN"))
     private void drawParticles(final CallbackInfo callbackInfo) {
-        if(GuiBackground.Companion.getParticles())
+        if(GuiClientSettings.Companion.getParticles())
             ParticleUtils.INSTANCE.drawParticles(Mouse.getX() * width / mc.displayWidth, height - Mouse.getY() * height / mc.displayHeight - 1);
     }
 

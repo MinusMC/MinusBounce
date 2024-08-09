@@ -13,10 +13,6 @@ enum class BlendUtils(var colorCode: String) {
     RED("§C");
 
     companion object {
-        fun getColorWithOpacity(color: Color, alpha: Int): Color {
-            return Color(color.red, color.green, color.blue, alpha)
-        }
-
         fun getHealthColor(health: Float, maxHealth: Float): Color {
             val fractions = floatArrayOf(0.0f, 0.5f, 1.0f)
             val colors = arrayOf(Color(108, 0, 0), Color(255, 51, 0), Color.GREEN)
@@ -48,15 +44,16 @@ enum class BlendUtils(var colorCode: String) {
             while (startPoint < fractions.size && fractions[startPoint] <= progress) {
                 ++startPoint
             }
-            if (startPoint >= fractions.size) {
+            
+            if (startPoint >= fractions.size)
                 startPoint = fractions.size - 1
-            }
+
             range[0] = startPoint - 1
             range[1] = startPoint
             return range
         }
 
-        fun blend(color1: Color, color2: Color, ratio: Double): Color? {
+        fun blend(color1: Color, color2: Color, ratio: Double): Color {
             val r = ratio.toFloat()
             val ir = 1.0f - r
             val rgb1 = color1.getColorComponents(FloatArray(3))
@@ -79,12 +76,7 @@ enum class BlendUtils(var colorCode: String) {
             } else if (blue > 255.0f) {
                 blue = 255.0f
             }
-            var color3: Color? = null
-            try {
-                color3 = Color(red, green, blue)
-            } catch (var13: IllegalArgumentException) {
-            }
-            return color3
+            return Color(red, green, blue)
         }
     }
 }

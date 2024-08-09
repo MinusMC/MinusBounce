@@ -5,14 +5,14 @@
  */
 package net.minusmc.minusbounce.utils.render
 
+import net.minusmc.minusbounce.utils.MinecraftInstance
 import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.client.shader.Framebuffer
 import org.lwjgl.opengl.EXTFramebufferObject
 import org.lwjgl.opengl.GL11
 
-object Stencil {
-    var mc = Minecraft.getMinecraft()
+object Stencil: MinecraftInstance() {
     fun dispose() {
         GL11.glDisable(GL11.GL_STENCIL_TEST)
         GlStateManager.disableAlpha()
@@ -35,16 +35,11 @@ object Stencil {
         GL11.glEnable(GL11.GL_STENCIL_TEST)
         GL11.glStencilFunc(GL11.GL_ALWAYS, 1, 65535)
         GL11.glStencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_REPLACE)
-        if (!renderClipLayer) GlStateManager.colorMask(false, false, false, false)
+        if (!renderClipLayer)
+            GlStateManager.colorMask(false, false, false, false)
     }
 
-    fun checkSetupFBO() {
-        val fbo = mc.framebuffer
-        if (fbo != null && fbo.depthBuffer > -1) {
-            setupFBO(fbo)
-            fbo.depthBuffer = -1
-        }
-    }
+    fun checkSetupFBO() = checkSetupFBO(mc.framebuffer)
 
     fun checkSetupFBO(fbo: Framebuffer?) {
         if (fbo != null && fbo.depthBuffer > -1) {
@@ -57,12 +52,7 @@ object Stencil {
         EXTFramebufferObject.glDeleteRenderbuffersEXT(fbo.depthBuffer)
         val stencil_depth_buffer_ID = EXTFramebufferObject.glGenRenderbuffersEXT()
         EXTFramebufferObject.glBindRenderbufferEXT(36161, stencil_depth_buffer_ID)
-        EXTFramebufferObject.glRenderbufferStorageEXT(
-            36161,
-            34041,
-            Minecraft.getMinecraft().displayWidth,
-            Minecraft.getMinecraft().displayHeight
-        )
+        EXTFramebufferObject.glRenderbufferStorageEXT(36161, 34041, mc.displayWidth, mc.displayHeight)
         EXTFramebufferObject.glFramebufferRenderbufferEXT(36160, 36128, 36161, stencil_depth_buffer_ID)
         EXTFramebufferObject.glFramebufferRenderbufferEXT(36160, 36096, 36161, stencil_depth_buffer_ID)
     }

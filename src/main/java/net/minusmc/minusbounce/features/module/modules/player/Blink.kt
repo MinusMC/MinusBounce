@@ -65,6 +65,9 @@ class Blink : Module() {
         }
     }
 
+    fun blinkingSend() = handleEvents() && !modeValue.get().equals("received", true)
+    fun blinkingReceive() = handleEvents() && !modeValue.get().equals("sent", true)
+
     override val tag: String
         get() = BlinkUtils.packetsSize.toString()
 }

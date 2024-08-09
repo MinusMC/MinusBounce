@@ -1,9 +1,7 @@
 /*
- * LiquidBounce++ Hacked Client
+ * MinusBounce Hacked Client
  * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/WYSI-Foundation/LiquidBouncePlus/
- *
- * This code belongs to WYSI-Foundation. Please give credits when using this in your repository.
+ * https://github.com/MinusMC/MinusBounce
  */
 package net.minusmc.minusbounce.features.module.modules.render
 
@@ -30,6 +28,7 @@ import net.minusmc.minusbounce.ui.font.GameFontRenderer.Companion.getColorIndex
 import net.minusmc.minusbounce.ui.font.TTFFontRenderer
 import net.minusmc.minusbounce.utils.EntityUtils
 import net.minusmc.minusbounce.utils.item.ItemUtils
+import net.minusmc.minusbounce.utils.misc.MathUtils
 import net.minusmc.minusbounce.utils.render.BlendUtils
 import net.minusmc.minusbounce.utils.render.ColorUtils
 import net.minusmc.minusbounce.utils.render.RenderUtils
@@ -149,9 +148,9 @@ class ESP2D : Module() {
             val entity = collectedEntities[i] as Entity
             val color = getColor(entity)!!.rgb
             if (RenderUtils.isInViewFrustrum(entity)) {
-                val x = RenderUtils.interpolate(entity.posX, entity.lastTickPosX, partialTicks.toDouble())
-                val y = RenderUtils.interpolate(entity.posY, entity.lastTickPosY, partialTicks.toDouble())
-                val z = RenderUtils.interpolate(entity.posZ, entity.lastTickPosZ, partialTicks.toDouble())
+                val x = MathUtils.interpolate(entity.posX, entity.lastTickPosX, partialTicks.toDouble())
+                val y = MathUtils.interpolate(entity.posY, entity.lastTickPosY, partialTicks.toDouble())
+                val z = MathUtils.interpolate(entity.posZ, entity.lastTickPosZ, partialTicks.toDouble())
                 val width = entity.width.toDouble() / 1.5
                 val height = entity.height.toDouble() + if (entity.isSneaking) -0.3 else 0.2
                 val aabb = AxisAlignedBB(x - width, y, z - width, x + width, y + height, z + width)

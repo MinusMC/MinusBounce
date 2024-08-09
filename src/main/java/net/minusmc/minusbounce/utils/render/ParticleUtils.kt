@@ -9,6 +9,7 @@ import net.vitox.ParticleGenerator
 
 object ParticleUtils {
     private val particleGenerator = ParticleGenerator(100)
+    
     fun drawParticles(mouseX: Int, mouseY: Int) {
         particleGenerator.draw(mouseX, mouseY)
     }

@@ -86,17 +86,17 @@ class Indicators : Module() {
                 GlStateManager.color(255f, 255f, 255f, 255f)
                 if (displayName == "Fireball" && fireBall.get()) {
                     GlStateManager.scale(scale, scale, scale)
-                    RenderUtils.drawImagee(ResourceLocation("textures/items/fireball.png"), imgX / scale - 5, imgY / scale - 5, 32.toDouble(), 32.toDouble())
+                    RenderUtils.drawImage(ResourceLocation("textures/items/fireball.png"), imgX / scale - 5, imgY / scale - 5, 32.toDouble(), 32.toDouble())
                     GlStateManager.scale(1 / scale, 1 / scale, 1 / scale)
                 }
                 if (displayName == "Pearl" && pearl.get()) {
                     GlStateManager.scale(scale, scale, scale)
-                    RenderUtils.drawImagee(ResourceLocation("textures/items/ender_pearl.png"), imgX / scale - 6, imgY / scale - 5, 32.toDouble(), 32.toDouble())
+                    RenderUtils.drawImage(ResourceLocation("textures/items/ender_pearl.png"), imgX / scale - 6, imgY / scale - 5, 32.toDouble(), 32.toDouble())
                     GlStateManager.scale(1 / scale, 1 / scale, 1 / scale)
                 }
                 if (displayName == "Arrow" && arrow.get()) {
                     GlStateManager.scale(scale, scale, scale)
-                    RenderUtils.drawImagee(ResourceLocation("textures/items/arrow.png"), imgX / scale - 5, imgY / scale - 5, 32.toDouble(), 32.toDouble())
+                    RenderUtils.drawImage(ResourceLocation("textures/items/arrow.png"), imgX / scale - 5, imgY / scale - 5, 32.toDouble(), 32.toDouble())
                     GlStateManager.scale(1 / scale, 1 / scale, 1 / scale)
                 }
                 GlStateManager.scale(scale, scale, scale)

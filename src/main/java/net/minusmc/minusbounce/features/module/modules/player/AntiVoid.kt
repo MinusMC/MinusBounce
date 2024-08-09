@@ -18,7 +18,7 @@ import net.minusmc.minusbounce.value.FloatValue
 import net.minusmc.minusbounce.value.ListValue
 import net.minusmc.minusbounce.utils.misc.FallingPlayer
 
-@ModuleInfo(name = "AntiVoid", description = "Anti void", category = ModuleCategory.PLAYER)
+@ModuleInfo(name = "AntiVoid", spacedName = "Anti Void", description = "Prevent to be voided.", category = ModuleCategory.PLAYER)
 object AntiVoid : Module() {
     private val modes = ClassUtils.resolvePackage("${this.javaClass.`package`.name}.antivoids", AntiVoidMode::class.java)
         .map{ it.newInstance() as AntiVoidMode }

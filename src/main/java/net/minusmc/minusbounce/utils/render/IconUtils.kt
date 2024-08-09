@@ -24,11 +24,14 @@ object IconUtils {
 
     @Throws(IOException::class)
     private fun readImageToBuffer(imageStream: InputStream?): ByteBuffer? {
-        if (imageStream == null) return null
+        imageStream ?: return null
+
         val bufferedImage = ImageIO.read(imageStream)
         val rgb = bufferedImage.getRGB(0, 0, bufferedImage.width, bufferedImage.height, null, 0, bufferedImage.width)
         val byteBuffer = ByteBuffer.allocate(4 * rgb.size)
-        for (i in rgb) byteBuffer.putInt(i shl 8 or (i shr 24 and 255))
+        for (i in rgb)
+            byteBuffer.putInt(i shl 8 or (i shr 24 and 255))
+            
         (byteBuffer as Buffer).flip()
         return byteBuffer
     }

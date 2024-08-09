@@ -15,7 +15,7 @@ import net.minusmc.minusbounce.MinusBounce;
 import net.minusmc.minusbounce.features.module.modules.render.*;
 import net.minusmc.minusbounce.utils.ClientUtils;
 import net.minusmc.minusbounce.utils.EntityUtils;
-import net.minusmc.minusbounce.utils.render.RenderUtils;
+import net.minusmc.minusbounce.utils.render.GLUtils;
 import org.lwjgl.opengl.GL11;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -95,7 +95,7 @@ public abstract class MixinRendererLivingEntity extends MixinRender {
                         GL11.glEnable(GL11.GL_LINE_SMOOTH);
                         GL11.glEnable(GL11.GL_BLEND);
                         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-                        RenderUtils.INSTANCE.glColor(esp.getColor(p_renderModel_1_));
+                        GLUtils.INSTANCE.glColor(esp.getColor(p_renderModel_1_));
                         GL11.glLineWidth(esp.getWireframeWidth().get());
                         this.mainModel.render(p_renderModel_1_, p_renderModel_2_, p_renderModel_3_, p_renderModel_4_, p_renderModel_5_, p_renderModel_6_, p_renderModel_7_);
                         GL11.glPopAttrib();

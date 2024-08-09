@@ -13,7 +13,7 @@ import net.minusmc.minusbounce.utils.Constants
 import net.minusmc.minusbounce.utils.misc.MathUtils
 import net.minusmc.minusbounce.utils.misc.MotionData
 import net.minusmc.minusbounce.utils.MinecraftInstance
-import net.minusmc.minusbounce.utils.PlayerUtils
+import net.minusmc.minusbounce.utils.player.PlayerUtils
 import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.sin
@@ -32,7 +32,7 @@ object MovementUtils : MinecraftInstance() {
 
     fun boost(speed: Float, yaw: Float, forward: Float, strafe: Float) {
         if (!isMoving) return
-        val f = getDirectionToRadian(yaw, strafe, forward)
+        val f = getDirectionToRadian(yaw, forward, strafe)
         mc.thePlayer.motionX += -sin(f) * speed
         mc.thePlayer.motionZ += cos(f) * speed
     }
