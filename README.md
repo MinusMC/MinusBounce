@@ -5,8 +5,6 @@
     Discord: https://discord.minusbounce.lol <br/>
 </div>
 
-# Client này sẽ không còn được update thường xuyên, chúng tôi đang tập trung vào 1 client trả phí tốt hơn và có nhiều bypass hơn.
-
 ## Issues
 If you notice any bugs or missing features, you can let us know by opening an issue [here](https://github.com/MinusMCNetwork/MinusBounce/issues).
 
