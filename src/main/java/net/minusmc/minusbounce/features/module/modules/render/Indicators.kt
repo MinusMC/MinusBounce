@@ -48,7 +48,7 @@ class Indicators : Module() {
     }
 
     @EventTarget
-    fun onRender2DEvent(event: Render2DEvent) {
+    fun onRender2D(event: Render2DEvent) {
         val sc = ScaledResolution(mc)
         val scWidth = sc.scaledWidth
         val scHeight = sc.scaledHeight
@@ -79,7 +79,6 @@ class Indicators : Module() {
             val arrowAngle = atan2(arrowY - scHeight / 2, arrowX - scWidth / 2)
             drawArrow(arrowX.toDouble(), arrowY.toDouble(), arrowAngle.toDouble(), 3.0, 100.0)
             GlStateManager.color(255f, 255f, 255f, 255f)
-            GlStateManager.scale(scale, scale, scale)
 
             val image = when (entity) {
                 is EntityFireball, is EntityLargeFireball -> ResourceLocation("textures/items/fireball.png")
@@ -90,7 +89,10 @@ class Indicators : Module() {
 
             val imgX = scWidth / 2 + (radius - 18) * sin(deltaYaw)
             val imgY = scHeight / 2 - (radius - 18) * cos(deltaYaw)
+            GlStateManager.scale(scale, scale, scale)
             RenderUtils.drawImage(image, imgX / scale - 5, imgY / scale - 5, 32, 32)
+            GlStateManager.scale(1 / scale, 1 / scale, 1 / scale)
+
             GlStateManager.scale(scale, scale, scale)
 
             val textX = scWidth / 2 + (radius - 13) * sin(deltaYaw)

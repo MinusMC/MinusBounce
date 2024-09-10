@@ -290,7 +290,7 @@ object Breaker : Module() {
      * Find new target block by targetID
      */
     /*private fun find(targetID: Int) =
-        searchBlocks(rangeValue.get().toInt() + 1).filter {
+        getAllBlocksInRadius(rangeValue.get().toInt() + 1).filter {
                     Block.getIdFromBlock(it.value) == targetID && getCenterDistance(it.key) <= rangeValue.get()
                             && (isHitable(it.key) || surroundingsValue.get())
                 }.minByOrNull { getCenterDistance(it.key) }?.key*/

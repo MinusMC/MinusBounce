@@ -1,8 +1,7 @@
 package net.minusmc.minusbounce.value
 
-import com.google.gson.JsonPrimitive
-import com.google.gson.JsonElement
 import net.minusmc.minusbounce.value.IntegerValue
+import net.minecraft.block.Block
 
 /**
  * Block value represents a value with a block
@@ -11,4 +10,7 @@ open class BlockValue(name: String, value: Int, displayable: () -> Boolean) : In
 
     var openList = false
     constructor(name: String, value: Int): this(name, value, { true } )
+
+    val block: Block
+        get() = Block.getBlockById(value)
 }

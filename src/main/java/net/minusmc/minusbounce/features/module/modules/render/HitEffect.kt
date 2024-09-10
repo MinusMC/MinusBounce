@@ -26,7 +26,7 @@ import net.minecraft.network.play.server.S2CPacketSpawnGlobalEntity
 import net.minecraft.util.EnumParticleTypes
 import net.minecraft.util.ResourceLocation
 
-@ModuleInfo(name = "HitEffect", description = "Attack with custom hit effect.",  category = ModuleCategory.RENDER)
+@ModuleInfo(name = "HitEffects", spacedName = "Hit Effects", description = "Attack with custom hit effect.",  category = ModuleCategory.RENDER)
 object HitEffect : Module() {
 
     private val timingValue = ListValue("Timing", arrayOf("Attack", "Kill"), "Attack")
@@ -50,7 +50,7 @@ object HitEffect : Module() {
     fun onUpdate(event: UpdateEvent) {
         val target = this.target ?: return
 
-        if (target is EntityLivingBase && target.isDead && timingValue.get().equals("kill", true)) {
+        if (target.isDead && timingValue.get().equals("kill", true)) {
             displayEffectFor(target)
             this.target = null
         }

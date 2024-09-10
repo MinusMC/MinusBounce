@@ -62,7 +62,7 @@ class Particles : Module() {
         }
 
         particles.removeIf { 
-            mc.thePlayer.getDistanceSq(it.position.xCoord, it.position.yCoord, it.position.zCoord ) > 50
+            mc.thePlayer.getDistanceSq(it.position.xCoord, it.position.yCoord, it.position.zCoord ) > 100
         }
 
         timer.reset()
